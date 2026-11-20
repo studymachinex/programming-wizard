@@ -1,0 +1,55 @@
+{
+  "slug": "bittorrent",
+  "title": "Build your own BitTorrent",
+  "tagline": "Entenda redes peer-to-peer construindo um cliente BitTorrent do zero.",
+  "description": "Você vai construir um cliente BitTorrent em Java: bencode, arquivos .torrent e info hash, tracker HTTP, o protocolo peer wire (handshake, bitfield, interested/unchoke, request/piece), download com verificação de hash e, por fim, magnet links com a extensão de metadados (BEP 9/10). São 19 stages testados contra um tracker e peers locais.",
+  "language": "java",
+  "languageLabel": "Java 21",
+  "estimatedHours": 12,
+  "topics": [
+    "bencode",
+    "SHA-1",
+    "tracker HTTP",
+    "protocolo peer wire",
+    "TCP",
+    "pipelining",
+    "magnet links",
+    "extensões BEP 9/10"
+  ],
+  "prerequisites": [
+    "Java 21 instalado (java -version)",
+    "Maven instalado (mvn -version)"
+  ],
+  "runtime": {
+    "starter": "challenges/bittorrent/starter/java",
+    "reference": "challenges/bittorrent/java",
+    "runner": "challenges/bittorrent/tests/stages.mjs",
+    "compile": {
+      "command": "mvn",
+      "args": ["-q", "-B", "package"],
+      "timeoutMs": 240000
+    },
+    "runCommand": "./your_program.sh <comando> [<args>...]"
+  },
+  "stages": [
+    { "order": 1, "id": "introduction", "slug": "decode-strings", "title": "Decode bencoded strings", "difficulty": "Very easy", "section": "Core", "summary": "Decodifique strings bencodadas (5:hello) e imprima em JSON.", "file": "stages/01-decode-strings.md" },
+    { "order": 2, "id": "eb4", "slug": "decode-integers", "title": "Decode bencoded integers", "difficulty": "Easy", "section": "Core", "summary": "Decodifique inteiros (i52e), inclusive negativos e maiores que 32 bits.", "file": "stages/02-decode-integers.md" },
+    { "order": 3, "id": "ah1", "slug": "decode-lists", "title": "Decode bencoded lists", "difficulty": "Easy", "section": "Core", "summary": "Decodifique listas aninhadas com um parser recursivo.", "file": "stages/03-decode-lists.md" },
+    { "order": 4, "id": "mn6", "slug": "decode-dictionaries", "title": "Decode bencoded dictionaries", "difficulty": "Easy", "section": "Core", "summary": "Decodifique dicionários e complete o parser de bencode.", "file": "stages/04-decode-dictionaries.md" },
+    { "order": 5, "id": "ow9", "slug": "parse-torrent", "title": "Parse torrent file", "difficulty": "Easy", "section": "Core", "summary": "Leia um .torrent e imprima o tracker e o tamanho do arquivo.", "file": "stages/05-parse-torrent.md" },
+    { "order": 6, "id": "rb2", "slug": "info-hash", "title": "Calculate info hash", "difficulty": "Medium", "section": "Core", "summary": "Calcule o SHA-1 do dicionário info bencodado.", "file": "stages/06-info-hash.md" },
+    { "order": 7, "id": "bf7", "slug": "piece-hashes", "title": "Piece hashes", "difficulty": "Easy", "section": "Core", "summary": "Imprima o tamanho das peças e o hash de cada uma.", "file": "stages/07-piece-hashes.md" },
+    { "order": 8, "id": "fi9", "slug": "discover-peers", "title": "Discover peers", "difficulty": "Medium", "section": "Core", "summary": "Consulte o tracker HTTP e decodifique a lista compacta de peers.", "file": "stages/08-discover-peers.md" },
+    { "order": 9, "id": "ca4", "slug": "peer-handshake", "title": "Peer handshake", "difficulty": "Medium", "section": "Core", "summary": "Conecte via TCP e troque o handshake de 68 bytes.", "file": "stages/09-peer-handshake.md" },
+    { "order": 10, "id": "nd2", "slug": "download-piece", "title": "Download a piece", "difficulty": "Hard", "section": "Core", "summary": "Bitfield, interested, unchoke, requests de 16 KiB e verificação do hash.", "file": "stages/10-download-piece.md" },
+    { "order": 11, "id": "jv8", "slug": "download-file", "title": "Download the whole file", "difficulty": "Hard", "section": "Core", "summary": "Baixe todas as peças e monte o arquivo.", "file": "stages/11-download-file.md" },
+    { "order": 12, "id": "hw0", "slug": "parse-magnet", "title": "Parse magnet link", "difficulty": "Easy", "section": "Magnet Links", "summary": "Extraia info hash e tracker de um magnet link.", "file": "stages/12-parse-magnet.md" },
+    { "order": 13, "id": "pk2", "slug": "announce-extensions", "title": "Announce extension support", "difficulty": "Easy", "section": "Magnet Links", "summary": "Ligue o bit de extensões nos bytes reservados do handshake.", "file": "stages/13-announce-extensions.md" },
+    { "order": 14, "id": "xi4", "slug": "send-extension-handshake", "title": "Send extension handshake", "difficulty": "Easy", "section": "Magnet Links", "summary": "Envie o handshake de extensão anunciando ut_metadata.", "file": "stages/14-send-extension-handshake.md" },
+    { "order": 15, "id": "jk6", "slug": "receive-extension-handshake", "title": "Receive extension handshake", "difficulty": "Easy", "section": "Magnet Links", "summary": "Leia o ID de ut_metadata anunciado pelo peer.", "file": "stages/15-receive-extension-handshake.md" },
+    { "order": 16, "id": "ns5", "slug": "request-metadata", "title": "Request metadata", "difficulty": "Easy", "section": "Magnet Links", "summary": "Peça a peça 0 dos metadados com a extensão ut_metadata.", "file": "stages/16-request-metadata.md" },
+    { "order": 17, "id": "zh1", "slug": "receive-metadata", "title": "Receive metadata", "difficulty": "Easy", "section": "Magnet Links", "summary": "Receba o dicionário info, confira o hash e imprima como info.", "file": "stages/17-receive-metadata.md" },
+    { "order": 18, "id": "qv6", "slug": "magnet-download-piece", "title": "Download a piece", "difficulty": "Hard", "section": "Magnet Links", "summary": "Baixe uma peça a partir de um magnet link.", "file": "stages/18-magnet-download-piece.md" },
+    { "order": 19, "id": "dv7", "slug": "magnet-download-file", "title": "Download the whole file", "difficulty": "Hard", "section": "Magnet Links", "summary": "Baixe o arquivo inteiro a partir de um magnet link.", "file": "stages/19-magnet-download-file.md" }
+  ]
+}

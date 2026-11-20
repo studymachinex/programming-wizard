@@ -14,7 +14,7 @@ Implementações de referência e engine dos desafios do
 | DNS Server | 8 | ✅ jogável | ✅ 8/8 |
 | SQLite | 9 | ✅ jogável | ✅ 9/9 |
 | Tokenizer | 8 | ✅ jogável | ✅ 8/8 |
-| BitTorrent | 19 | ⬜ em breve | ⬜ |
+| BitTorrent | 19 | ✅ jogável | ✅ 19/19 |
 | Kafka | 25 | ⬜ em breve | ⬜ |
 | grep | 33 | ⬜ em breve | ⬜ |
 | Shell | 76 | ⬜ em breve | ⬜ |
@@ -197,10 +197,26 @@ npm run challenge:claude-code                                         # contra a
 node challenges/claude-code/tests/run-stages.mjs --dir <pasta> --no-build
 ```
 
+## BitTorrent
+
+- Curso e instruções: [`content/codecrafters/bittorrent`](../content/codecrafters/bittorrent).
+- Starter: [`bittorrent/starter/java`](bittorrent/starter/java).
+- Referência: [`bittorrent/java`](bittorrent/java).
+- Tester: [`bittorrent/tests/run-stages.mjs`](bittorrent/tests/run-stages.mjs).
+
+Cliente BitTorrent de linha de comando (`decode`, `info`, `peers`, `handshake`,
+`download_piece`, `download` e os equivalentes `magnet_*`). O tester sobe um tracker HTTP
+e peers TCP locais que validam o protocolo, inclusive a extensão de metadados (BEP 9/10).
+
+```bash
+npm run challenge:bittorrent                                         # contra a referência
+node challenges/bittorrent/tests/run-stages.mjs --dir <pasta> --no-build
+```
+
 ## Próximos desafios
 
-A integração segue do desafio com menos stages para o com mais: BitTorrent (19),
-Kafka (25), grep (33) e assim por diante.
+A integração segue do desafio com menos stages para o com mais: Kafka (25), grep (33),
+Shell (76) e assim por diante.
 
 
 Para adicionar um desafio, o contrato é:

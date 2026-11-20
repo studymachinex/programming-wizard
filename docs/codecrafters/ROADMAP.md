@@ -3,10 +3,10 @@
 > Roadmap vivo dos desafios "Build your own X" do [CodeCrafters](https://app.codecrafters.io/catalog).
 > Atualize os checkboxes conforme cada stage for concluído.
 
-**Status geral:** **67/425 stages (16%)** · 6 desafios concluídos · 1 em andamento · HTTP Server, Git, DNS Server, Tokenizer, SQLite e Claude Code jogáveis na plataforma.
+**Status geral:** **86/425 stages (20%)** · 7 desafios concluídos · 1 em andamento · HTTP Server, Git, DNS Server, Tokenizer, SQLite, Claude Code e BitTorrent jogáveis na plataforma.
 
 **Integração na plataforma:** do desafio com menos stages para o com mais —
-Git (7) ✅ → DNS Server (8) ✅ → Tokenizer (8) ✅ → SQLite (9) ✅ → Claude Code (18) ✅ → BitTorrent (19)
+Git (7) ✅ → DNS Server (8) ✅ → Tokenizer (8) ✅ → SQLite (9) ✅ → Claude Code (18) ✅ → BitTorrent (19) ✅
 → Kafka (25) → grep (33) → Shell (76) → Interpreter (84) → Redis (124).
 
 | # | Desafio | Stages | Progresso | Status | Acesso | Onde está |
@@ -17,7 +17,7 @@ Git (7) ✅ → DNS Server (8) ✅ → Tokenizer (8) ✅ → SQLite (9) ✅ → 
 | 4 | [DNS Server](https://app.codecrafters.io/courses/dns-server/overview) | 8 | 8/8 | ✅ concluído | membros | [`challenges/dns-server`](../../challenges/dns-server) |
 | 5 | [SQLite](https://app.codecrafters.io/courses/sqlite/overview) | 9 | 9/9 | ✅ concluído | membros | [`challenges/sqlite`](../../challenges/sqlite) |
 | 6 | [Tokenizer](https://app.codecrafters.io/courses/tokenizer/overview) | 8 | 8/8 | ✅ concluído | early access | [`challenges/tokenizer`](../../challenges/tokenizer) |
-| 7 | [BitTorrent](https://app.codecrafters.io/courses/bittorrent/overview) | 19 | 0/19 | ⬜ não iniciado | membros | — |
+| 7 | [BitTorrent](https://app.codecrafters.io/courses/bittorrent/overview) | 19 | 19/19 | ✅ concluído | membros | [`challenges/bittorrent`](../../challenges/bittorrent) |
 | 8 | [Kafka](https://app.codecrafters.io/courses/kafka/overview) | 25 | 0/25 | ⬜ não iniciado | membros | — |
 | 9 | [grep](https://app.codecrafters.io/courses/grep/overview) | 33 | 0/33 | ⬜ não iniciado | membros | — |
 | 10 | [Shell](https://app.codecrafters.io/courses/shell/overview) | 76 | 0/76 | ⬜ não iniciado | membros | — |
@@ -45,7 +45,7 @@ O que vamos replicar na plataforma:
 - progresso por stage (JSON local nesta versão; PostgreSQL no roadmap);
 - comando/hook de submissão (`wizard submit` ou git hook).
 
-**Já implementado para HTTP Server, Git, DNS Server, Tokenizer, SQLite e Claude Code:** catálogo, página, instruções, starter Java,
+**Já implementado para HTTP Server, Git, DNS Server, Tokenizer, SQLite, Claude Code e BitTorrent:** catálogo, página, instruções, starter Java,
 runner, CLI `npm run cc -- ...`, remote local `wizard` e hook `post-receive`.
 
 ## Ordem recomendada
@@ -246,37 +246,47 @@ OpenAI), e confere a âncora conhecida `Hello world` → `15496 995`.
 
 ---
 
-### ⬜ BitTorrent — 0/19
+### ✅ BitTorrent — 19/19
 
-**Foco:** bencode, arquivos `.torrent`, info hash, tracker, peer protocol e magnet links.
+**Foco:** bencode, arquivos .torrent, info hash, tracker HTTP, protocolo peer wire,
+download de peças com verificação de hash e magnet links com a extensão de metadados
+(BEP 9/10).
+
+**Implementação:** [`challenges/bittorrent/java`](../../challenges/bittorrent/java) ·
+**Tester:** [`challenges/bittorrent/tests/run-stages.mjs`](../../challenges/bittorrent/tests/run-stages.mjs)
 
 **Core:**
 
-- [ ] 1. Decode bencoded strings
-- [ ] 2. Decode bencoded integers
-- [ ] 3. Decode bencoded lists
-- [ ] 4. Decode bencoded dictionaries
-- [ ] 5. Parse torrent file
-- [ ] 6. Calculate info hash
-- [ ] 7. Piece hashes
-- [ ] 8. Discover peers
-- [ ] 9. Peer handshake
-- [ ] 10. Download a piece
-- [ ] 11. Download the whole file
+- [x] 1. Decode bencoded strings
+- [x] 2. Decode bencoded integers
+- [x] 3. Decode bencoded lists
+- [x] 4. Decode bencoded dictionaries
+- [x] 5. Parse torrent file
+- [x] 6. Calculate info hash
+- [x] 7. Piece hashes
+- [x] 8. Discover peers
+- [x] 9. Peer handshake
+- [x] 10. Download a piece
+- [x] 11. Download the whole file
 
 **Magnet Links:**
 
-- [ ] 12. Parse magnet link
-- [ ] 13. Announce extension support
-- [ ] 14. Send extension handshake
-- [ ] 15. Receive extension handshake
-- [ ] 16. Request metadata
-- [ ] 17. Receive metadata
-- [ ] 18. Download a piece
-- [ ] 19. Download the whole file
+- [x] 12. Parse magnet link
+- [x] 13. Announce extension support
+- [x] 14. Send extension handshake
+- [x] 15. Receive extension handshake
+- [x] 16. Request metadata
+- [x] 17. Receive metadata
+- [x] 18. Download a piece
+- [x] 19. Download the whole file
 
-**O que falta:** decoder/encoder bencode, HTTP tracker, handshake, download
-de pieces com verificação SHA-1 e extensão `ut_metadata` para magnet links.
+**Como o tester funciona:** gera arquivos e torrents aleatórios e sobe um tracker HTTP e
+peers TCP em 127.0.0.1. Os peers validam o protocolo (handshake, request antes do
+unchoke, blocos de até 16 KiB, ids de extensão) e explicam o erro quando algo sai do
+padrão. Nada sai da máquina.
+
+**O que falta:** download paralelo de vários peers, *rarest first*, torrents com vários
+arquivos e starters para outras linguagens.
 
 ---
 
@@ -465,7 +475,7 @@ local `wizard`, hook `post-receive` e progresso por stage em JSON.
 2. **Runner isolado**: container com limite de CPU/memória/tempo, diretório temporário
    e porta isolada; devolver JSON por stage.
 3. **Outros starters**: Go, Python, Rust etc. para o HTTP Server.
-4. **Próximos desafios**: BitTorrent, Kafka, grep (ordem por número de stages).
+4. **Próximos desafios**: Kafka, grep, Shell (ordem por número de stages).
 5. **Conteúdo**: instruções em português para cada stage dos novos desafios.
 
 ## Convenções
