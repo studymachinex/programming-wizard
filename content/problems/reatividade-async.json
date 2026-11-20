@@ -1,0 +1,123 @@
+[
+  {
+    "slug": "reactive-streams-spec",
+    "title": "Reactive Streams Specification",
+    "platform": "Outro",
+    "url": "https://www.reactive-streams.org/",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "Reactive Streams",
+    "moduleSlug": "reactive-streams",
+    "description": "Leia o contrato e implemente um Publisher/Subscriber mínimo com demanda. Depois quebre uma regra de propósito (emitir sem request) e explique por que a spec proíbe."
+  },
+  {
+    "slug": "reactor-reference",
+    "title": "Reactor 3 Reference Guide",
+    "platform": "Outro",
+    "url": "https://projectreactor.io/docs/core/release/reference/",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "Reactor",
+    "moduleSlug": "reactive-streams",
+    "description": "Percorra os capítulos de composição, schedulers e backpressure. Implemente o mesmo fluxo com flatMap e concatMap, meça a ordem dos resultados e explique o trade-off."
+  },
+  {
+    "slug": "mutiny-guide",
+    "title": "SmallRye Mutiny: guia oficial",
+    "platform": "Outro",
+    "url": "https://smallrye.io/smallrye-mutiny/latest/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Mutiny",
+    "moduleSlug": "mutiny-quarkus",
+    "description": "Estude Uni, Multi, composição e recuperação. Converta três chamadas sequenciais em um pipeline com Uni, adicione timeout e fallback, e escreva testes com UniAsserter."
+  },
+  {
+    "slug": "quarkus-reactive-getting-started",
+    "title": "Getting started with reactive Quarkus",
+    "platform": "Outro",
+    "url": "https://quarkus.io/guides/getting-started-reactive",
+    "difficulty": "facil",
+    "level": 2,
+    "topic": "Quarkus reativo",
+    "moduleSlug": "mutiny-quarkus",
+    "description": "Suba um serviço reativo e evolua para um endpoint que retorna Uni e outro que retorna Multi. Explique em que thread cada um executa e o que acontece se você chamar JDBC no meio do fluxo."
+  },
+  {
+    "slug": "completable-future-javadoc",
+    "title": "CompletableFuture API",
+    "platform": "Outro",
+    "url": "https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/CompletableFuture.html",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "CompletableFuture",
+    "moduleSlug": "fundamentos-async",
+    "description": "Implemente um fan-out com thenCompose e allOf, adicione orTimeout e fallback parcial. Depois responda por que cancel(true) não garante que a chamada HTTP subjacente pare."
+  },
+  {
+    "slug": "jep-444-virtual-threads",
+    "title": "JEP 444: Virtual Threads",
+    "platform": "Outro",
+    "url": "https://openjdk.org/jeps/444",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Virtual threads",
+    "moduleSlug": "fundamentos-async",
+    "description": "Leia o JEP e escreva um servidor que atende N chamadas bloqueantes com virtual threads. Depois reproduza um caso de pinning com synchronized e explique o impacto no carrier thread."
+  },
+  {
+    "slug": "jep-453-structured-concurrency",
+    "title": "JEP 453: Structured Concurrency (Preview)",
+    "platform": "Outro",
+    "url": "https://openjdk.org/jeps/453",
+    "difficulty": "dificil",
+    "level": 4,
+    "topic": "Structured concurrency",
+    "moduleSlug": "fundamentos-async",
+    "description": "Implemente um fan-out com StructuredTaskScope, trate falha de uma subtarefa e cancele as demais. Compare com CompletableFuture em legibilidade e propagação de cancelamento."
+  },
+  {
+    "slug": "quarkus-kafka-guide",
+    "title": "Kafka com SmallRye Reactive Messaging",
+    "platform": "Outro",
+    "url": "https://quarkus.io/guides/kafka",
+    "difficulty": "dificil",
+    "level": 4,
+    "topic": "Mensageria",
+    "moduleSlug": "mutiny-quarkus",
+    "description": "Implemente um consumidor com @Incoming e ack após o commit, um produtor com Emitter e uma chave de partição. Teste duplicata, falha e retry sem perder a ordem por pedido."
+  },
+  {
+    "slug": "quarkus-fault-tolerance-guide",
+    "title": "SmallRye Fault Tolerance",
+    "platform": "Outro",
+    "url": "https://quarkus.io/guides/smallrye-fault-tolerance",
+    "difficulty": "dificil",
+    "level": 4,
+    "topic": "Resiliência",
+    "moduleSlug": "resiliencia-padroes",
+    "description": "Combine @Timeout, @Retry, @CircuitBreaker e @Bulkhead em uma chamada remota. Simule latência e falha, meça o estado do circuito e explique por que retry em erro 400 é um bug."
+  },
+  {
+    "slug": "reactor-testing-reference",
+    "title": "Testing Reactor streams",
+    "platform": "Outro",
+    "url": "https://projectreactor.io/docs/core/release/reference/#testing",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Testes",
+    "moduleSlug": "testes-armadilhas",
+    "description": "Escreva testes com StepVerifier para sucesso, erro, cancelamento e demanda. Troque um Thread.sleep por espera determinística e explique por que o teste antigo era flaky."
+  },
+  {
+    "slug": "awaitility-guide",
+    "title": "Awaitility",
+    "platform": "Outro",
+    "url": "https://github.com/awaitility/awaitility",
+    "difficulty": "facil",
+    "level": 2,
+    "topic": "Testes assíncronos",
+    "moduleSlug": "testes-armadilhas",
+    "description": "Substitua sleeps por await().atMost() em um teste de processamento em background. Defina timeout, intervalo e uma condição observável; depois prove que o teste falha rápido quando o efeito não acontece."
+  }
+]

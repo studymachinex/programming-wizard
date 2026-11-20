@@ -1,0 +1,112 @@
+[
+  {
+    "slug": "sd-system-design-primer",
+    "title": "System Design Primer (leitura guiada)",
+    "platform": "Outro",
+    "url": "https://github.com/donnemartin/system-design-primer",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "Fundamentos de design",
+    "moduleSlug": "metodo",
+    "description": "Leia as seções de performance vs scalability, latência vs throughput, CAP e consistência. Depois escreva, sem consultar, um resumo de uma página com os trade-offs. O objetivo é ter vocabulário preciso antes de desenhar."
+  },
+  {
+    "slug": "sd-bytebytego-101",
+    "title": "System Design 101 (leitura aplicada)",
+    "platform": "Outro",
+    "url": "https://github.com/ByteByteGoHq/system-design-101",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Building blocks",
+    "moduleSlug": "building-blocks",
+    "description": "Percorra os diagramas de cache, CDN, filas, banco e consistência. Para cada um, escreva um parágrafo de 'quando eu usaria' e outro de 'como isso me quebra'. Diagrama sem trade-off é decoração."
+  },
+  {
+    "slug": "sd-builders-library",
+    "title": "Amazon Builders' Library (leitura aplicada)",
+    "platform": "Outro",
+    "url": "https://aws.amazon.com/builders-library/",
+    "difficulty": "dificil",
+    "level": 4,
+    "topic": "Operação em escala",
+    "moduleSlug": "designs-em-escala",
+    "description": "Escolha três artigos (retries, timeouts, idempotência ou cache) e conecte cada lição com um incidente real ou hipotético do seu contexto. Anote as decisões que você mudaria no seu projeto atual."
+  },
+  {
+    "slug": "sd-microservices-fowler",
+    "title": "Microservices — Martin Fowler",
+    "platform": "Outro",
+    "url": "https://martinfowler.com/articles/microservices.html",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Arquitetura",
+    "moduleSlug": "designs-classicos",
+    "description": "Leia o artigo seminal e liste os benefícios e os custos que ele explicitamente reconhece. Depois desenhe um monolito modular que poderia evoluir para serviços — e explique o gatilho de extração."
+  },
+  {
+    "slug": "sd-design-twitter",
+    "title": "Design Twitter (coding)",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/design-twitter/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Feed",
+    "moduleSlug": "designs-classicos",
+    "description": "Implemente a versão de entrevista em Java e depois escale no papel: fan-out no write vs read, cache de feed, paginação e celebridades com milhões de seguidores. Conecte o código com o desenho."
+  },
+  {
+    "slug": "sd-design-hit-counter",
+    "title": "Design Hit Counter",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/design-hit-counter/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Rate limiting / Métricas",
+    "moduleSlug": "building-blocks",
+    "description": "Conte hits nos últimos 300 segundos e discuta as variantes: array circular, fila, buckets e Redis. Compare precisão, memória e custo de limpeza. É a base de rate limiting e métricas de janela."
+  },
+  {
+    "slug": "sd-google-sre-book",
+    "title": "Google SRE Book — SLIs, SLOs e error budgets",
+    "platform": "Outro",
+    "url": "https://sre.google/sre-book/table-of-contents/",
+    "difficulty": "dificil",
+    "level": 4,
+    "topic": "SRE",
+    "moduleSlug": "designs-em-escala",
+    "description": "Leia os capítulos de SLIs/SLOs e error budgets. Defina SLI, SLO e orçamento para um serviço fictício com dependências, e escreva o que o time faz quando o orçamento estoura. Números concretos, não intenções."
+  },
+  {
+    "slug": "sd-sre-workbook",
+    "title": "Google SRE Workbook — Postmortems e on-call",
+    "platform": "Outro",
+    "url": "https://sre.google/workbook/table-of-contents/",
+    "difficulty": "dificil",
+    "level": 4,
+    "topic": "Operação",
+    "moduleSlug": "carreira-e-comportamental",
+    "description": "Leia sobre postmortems sem culpa e gestão de incidentes. Escreva um postmortem completo de um incidente imaginário, com timeline, impacto, causa raiz, ações e donos. É material direto para entrevistas behavioral."
+  },
+  {
+    "slug": "sd-highscalability",
+    "title": "High Scalability — estudos de caso",
+    "platform": "Outro",
+    "url": "https://highscalability.com/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Estudos de caso",
+    "moduleSlug": "designs-em-escala",
+    "description": "Escolha três arquiteturas publicadas e resuma cada uma em uma página: requisitos, componentes, gargalos e o que você faria diferente. O exercício treina leitura crítica de arquitetura, não admiração."
+  },
+  {
+    "slug": "sd-12factor",
+    "title": "The Twelve-Factor App (leitura aplicada)",
+    "platform": "Outro",
+    "url": "https://12factor.net/",
+    "difficulty": "facil",
+    "level": 2,
+    "topic": "Operação",
+    "moduleSlug": "metodo",
+    "description": "Leia os doze fatores e audite um projeto seu: config no ambiente, logs como stream, processos stateless, paridade dev/prod. Anote três dívidas concretas e corrija uma delas nesta semana."
+  }
+]

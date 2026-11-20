@@ -1,0 +1,54 @@
+{
+  "name": "programming-wizard",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "prisma generate && next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "db:push": "prisma db push",
+    "db:studio": "prisma studio",
+    "seed": "tsx prisma/seed.ts",
+    "setup": "npm run db:up && node -e \"setTimeout(() => {}, 12000)\" && npm run db:push && npm run seed",
+    "validate:content": "tsx scripts/validate-content.ts",
+    "catalog:sync": "node scripts/sync-codecrafters-catalog.mjs",
+    "challenge:http": "node challenges/http-server/tests/run-stages.mjs",
+    "cc": "node challenges/engine/cc.mjs"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.5.0",
+    "clsx": "^2.1.1",
+    "highlight.js": "^11.11.1",
+    "ioredis": "^5.6.0",
+    "lucide-react": "^0.484.0",
+    "next": "15.5.29",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-markdown": "^10.1.0",
+    "rehype-highlight": "^7.0.2",
+    "remark-gfm": "^4.0.1",
+    "tailwind-merge": "^3.0.2",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.10",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.3",
+    "prisma": "^6.5.0",
+    "tailwindcss": "^3.4.17",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2"
+  },
+  "allowScripts": {
+    "@prisma/client@6.19.3": true,
+    "@prisma/engines@6.19.3": true,
+    "esbuild@0.28.2": true,
+    "prisma@6.19.3": true,
+    "sharp@0.33.5": true
+  }
+}

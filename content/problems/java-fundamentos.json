@@ -1,0 +1,123 @@
+[
+  {
+    "slug": "java-beecrowd-1001",
+    "title": "Extremamente Básico",
+    "platform": "Beecrowd",
+    "url": "https://judge.beecrowd.com/pt/problems/view/1001",
+    "difficulty": "facil",
+    "level": 1,
+    "topic": "Entrada e saída",
+    "moduleSlug": "jvm-e-ambiente",
+    "description": "Some dois inteiros lidos da entrada e imprima com o formato exato. Parece trivial, mas treina Scanner, tipos e o hábito de conferir a especificação de saída — a causa mais comum de Wrong Answer em judge."
+  },
+  {
+    "slug": "java-beecrowd-1002",
+    "title": "Área do Círculo",
+    "platform": "Beecrowd",
+    "url": "https://judge.beecrowd.com/pt/problems/view/1002",
+    "difficulty": "facil",
+    "level": 1,
+    "topic": "Tipos e formatação",
+    "moduleSlug": "jvm-e-ambiente",
+    "description": "Use double, Math.PI e printf com quatro casas. Compare double e BigDecimal para dinheiro e explique por que a constante de formatação precisa bater exatamente com o enunciado."
+  },
+  {
+    "slug": "java-beecrowd-1003",
+    "title": "Soma Simples",
+    "platform": "Beecrowd",
+    "url": "https://judge.beecrowd.com/pt/problems/view/1003",
+    "difficulty": "facil",
+    "level": 1,
+    "topic": "Operadores",
+    "moduleSlug": "controle-de-fluxo",
+    "description": "Leia dois inteiros, some e imprima no formato pedido. Aproveite para testar overflow com valores próximos de Integer.MAX_VALUE e explicar quando usar long."
+  },
+  {
+    "slug": "java-beecrowd-1018",
+    "title": "Cédulas",
+    "platform": "Beecrowd",
+    "url": "https://judge.beecrowd.com/pt/problems/view/1018",
+    "difficulty": "facil",
+    "level": 2,
+    "topic": "Loops e divisão inteira",
+    "moduleSlug": "controle-de-fluxo",
+    "description": "Decomponha um valor em notas de 100, 50, 20, 10, 5, 2 e 1. Treine divisão inteira, resto e a ordem de impressão. Depois generalize para um array de denominações — o mesmo raciocínio de troco e caixa eletrônico."
+  },
+  {
+    "slug": "java-beecrowd-1035",
+    "title": "Teste de Seleção 1",
+    "platform": "Beecrowd",
+    "url": "https://judge.beecrowd.com/pt/problems/view/1035",
+    "difficulty": "facil",
+    "level": 2,
+    "topic": "Condicionais",
+    "moduleSlug": "controle-de-fluxo",
+    "description": "Combine quatro condições com && e ||. O valor está em traduzir o enunciado sem inverter a lógica e testar os casos de fronteira (iguais, negativos, zero)."
+  },
+  {
+    "slug": "java-beecrowd-1044",
+    "title": "Múltiplos",
+    "platform": "Beecrowd",
+    "url": "https://judge.beecrowd.com/pt/problems/view/1044",
+    "difficulty": "facil",
+    "level": 2,
+    "topic": "Módulo",
+    "moduleSlug": "controle-de-fluxo",
+    "description": "Decida se A é múltiplo de B ou vice-versa usando %. Cuidado com a ordem e com zero. É o tipo de problema que expõe se você lê o enunciado ou assume simetria onde não existe."
+  },
+  {
+    "slug": "java-beecrowd-1071",
+    "title": "Soma de Impares Consecutivos I",
+    "platform": "Beecrowd",
+    "url": "https://judge.beecrowd.com/pt/problems/view/1071",
+    "difficulty": "facil",
+    "level": 2,
+    "topic": "Loops",
+    "moduleSlug": "controle-de-fluxo",
+    "description": "Some ímpares entre dois valores, excluindo as bordas e lidando com ordem invertida. Treine loop com limites abertos e a diferença entre 'entre' e 'de X até Y'."
+  },
+  {
+    "slug": "java-beecrowd-1114",
+    "title": "Senha Fixa",
+    "platform": "Beecrowd",
+    "url": "https://judge.beecrowd.com/pt/problems/view/1114",
+    "difficulty": "facil",
+    "level": 2,
+    "topic": "Loops com sentinela",
+    "moduleSlug": "controle-de-fluxo",
+    "description": "Leia até a senha correta, imprimindo acesso negado enquanto isso. É o padrão de loop com sentinela que aparece em menus, filas de eventos e leitura de streams."
+  },
+  {
+    "slug": "java-beecrowd-1172",
+    "title": "Substituição em Vetor I",
+    "platform": "Beecrowd",
+    "url": "https://judge.beecrowd.com/pt/problems/view/1172",
+    "difficulty": "facil",
+    "level": 2,
+    "topic": "Arrays",
+    "moduleSlug": "controle-de-fluxo",
+    "description": "Leia dez valores, troque não-positivos por 1 e imprima com índice. Treine iteração, índices e formatação — sem depender de Collections."
+  },
+  {
+    "slug": "java-beecrowd-1042",
+    "title": "Sort Simples",
+    "platform": "Beecrowd",
+    "url": "https://judge.beecrowd.com/pt/problems/view/1042",
+    "difficulty": "facil",
+    "level": 2,
+    "topic": "Ordenação",
+    "moduleSlug": "colecoes-e-generics",
+    "description": "Ordene três inteiros e imprima em ordem e na ordem original. Resolva primeiro sem Arrays.sort, com comparações, e depois com sort estável. Compare clareza e generalidade."
+  },
+  {
+    "slug": "java-beecrowd-1176",
+    "title": "Fibonacci em Vetor",
+    "platform": "Beecrowd",
+    "url": "https://judge.beecrowd.com/pt/problems/view/1176",
+    "difficulty": "facil",
+    "level": 3,
+    "topic": "Programação dinâmica",
+    "moduleSlug": "colecoes-e-generics",
+    "description": "Pré-calcule Fibonacci até 60 em long e responda consultas O(1). Compare recursão ingênua, memoização e tabulação; meça a diferença antes de dizer que 'recursão é lenta'."
+  }
+]

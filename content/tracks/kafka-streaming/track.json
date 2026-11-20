@@ -1,0 +1,823 @@
+{
+  "slug": "kafka-streaming",
+  "title": "Kafka & Arquitetura Event-Driven",
+  "subtitle": "Log distribuído, garantias de entrega e sistemas que reagem em tempo real",
+  "description": "Uma trilha para quem já programa em Java e precisa projetar, implementar e operar sistemas baseados em eventos. Você vai do log distribuído do Kafka às garantias de entrega, Kafka Streams, sagas, outbox e operação de clusters em produção. O foco é decisão de arquitetura com trade-off explícito, não decorar configuração.",
+  "level": "avancado",
+  "icon": "radio",
+  "accent": "ember",
+  "estimatedHours": 36,
+  "isCore": true,
+  "outcomes": [
+    "Dimensionar topics, partições e consumer groups a partir de throughput, latência e requisito de ordem",
+    "Escolher e justificar garantias de entrega com idempotência, transações e deduplicação de consumidores",
+    "Construir topologias Kafka Streams com state stores, janelas e joins tolerantes a eventos atrasados",
+    "Modelar contratos de eventos, sagas e outbox para consistência eventual entre serviços",
+    "Operar o cluster com métricas de lag, alertas acionáveis, segurança e upgrades sem downtime"
+  ],
+  "modules": [
+    {
+      "slug": "fundamentos-kafka",
+      "title": "Fundamentos do log distribuído",
+      "description": "O modelo mental que sustenta tudo: log append-only, partições, offsets, produtores, consumidores e rebalance. Sem essa base, as garantias de entrega viram configuração decorada.",
+      "estimatedHours": 9,
+      "lessons": [
+        {
+          "slug": "o-log-distribuido",
+          "title": "O log distribuído e por que o Kafka escala",
+          "summary": "Por que um arquivo append-only com offsets resolve ingestão de milhões de eventos e o que muda em relação a uma fila tradicional.",
+          "minutes": 30,
+          "file": "lessons/01-o-log-distribuido.md",
+          "takeaways": [
+            "A diferença entre consumir e apagar: retenção e replay",
+            "Por que escrita sequencial, page cache e zero-copy barateiam o throughput",
+            "Quando uma fila tradicional é a escolha certa e Kafka é exagero"
+          ],
+          "quiz": [
+            {
+              "question": "O que permite dois consumer groups lerem o mesmo evento sem um interferir no outro?",
+              "options": [
+                "O broker apaga a mensagem só depois que o último grupo confirma",
+                "Cada grupo mantém seu próprio offset por partição",
+                "O produtor envia uma cópia da mensagem para cada grupo",
+                "O tópico é duplicado automaticamente para cada grupo"
+              ],
+              "answer": 1,
+              "explanation": "O log não pertence ao consumidor. Cada grupo grava seu offset em __consumer_offsets e avança de forma independente."
+            },
+            {
+              "question": "Qual é a unidade de ordenação garantida em um tópico Kafka?",
+              "options": [
+                "O tópico inteiro",
+                "O broker",
+                "A partição",
+                "O consumer group"
+              ],
+              "answer": 2,
+              "explanation": "Kafka ordena por partição. Eventos da mesma chave caem na mesma partição e são lidos na ordem de append; partições diferentes não têm ordem entre si."
+            },
+            {
+              "question": "Por que aumentar partições pode quebrar a ordem de uma chave existente?",
+              "options": [
+                "Porque o hash da chave passa a apontar para outra partição",
+                "Porque o broker reinicia os offsets",
+                "Porque o consumer group é recriado",
+                "Porque a retenção é reduzida pela metade"
+              ],
+              "answer": 0,
+              "explanation": "O mapeamento key -> partição usa hash módulo o número de partições. Mudar o divisor muda o destino de parte das chaves, e eventos antigos ficam em outra partição."
+            }
+          ]
+        },
+        {
+          "slug": "topics-partitions-offsets",
+          "title": "Topics, partições, offsets e retenção",
+          "summary": "Como o tópico é organizado em segmentos, o que cada offset significa e como retenção, compaction e replicação mudam o contrato com o consumidor.",
+          "minutes": 32,
+          "file": "lessons/02-topics-partitions-offsets.md",
+          "takeaways": [
+            "Relação entre segmentos, offset e log start offset",
+            "Delete versus compact e o efeito nos consumidores",
+            "ISR, min.insync.replicas e unclean leader election"
+          ],
+          "quiz": [
+            {
+              "question": "Um consumidor parado por 10 dias em um tópico com retenção de 7 dias tenta ler o offset antigo. O que acontece?",
+              "options": [
+                "O broker guarda a mensagem até a leitura",
+                "O consumo é reiniciado no começo do tópico",
+                "O offset não existe mais e o cliente recebe OffsetOutOfRange",
+                "O consumidor passa a ler apenas mensagens compactadas"
+              ],
+              "answer": 2,
+              "explanation": "A retenção removeu os segmentos antigos. Sem reset explícito, o cliente falha com OffsetOutOfRange; a política de auto.offset.reset decide o novo ponto."
+            },
+            {
+              "question": "Para que serve um tópico compactado?",
+              "options": [
+                "Guardar apenas o último valor por chave, preservando o histórico recente",
+                "Comprimir o payload com gzip antes de gravar",
+                "Reduzir o número de partições automaticamente",
+                "Apagar mensagens assim que são consumidas"
+              ],
+              "answer": 0,
+              "explanation": "A compaction mantém ao menos o registro mais recente de cada chave. É a base de changelogs e materialized views, não um algoritmo de compressão de payload."
+            },
+            {
+              "question": "Qual configuração reduz o risco de perda quando o líder falha?",
+              "options": [
+                "acks=0 no produtor e replication.factor=1",
+                "min.insync.replicas=2 com acks=all e RF=3",
+                "unclean.leader.election.enable=true",
+                "retention.ms=3600000"
+              ],
+              "answer": 1,
+              "explanation": "acks=all exige confirmação de todas as réplicas em sincronia, e min.insync.replicas=2 garante que ao menos duas cópias tenham o dado antes do commit."
+            }
+          ]
+        },
+        {
+          "slug": "producers-acks-keying",
+          "title": "Producers: acks, batching e o poder da key",
+          "summary": "Como o produtor agrupa, comprime e confirma eventos, e por que a escolha da key define ordem, distribuição e hotspots.",
+          "minutes": 30,
+          "file": "lessons/03-producers-acks-keying.md",
+          "takeaways": [
+            "O caminho completo de send() até o broker e o papel do accumulator",
+            "Trade-off entre linger.ms, batch.size, latência e throughput",
+            "Idempotência, max.in.flight e ordem por partição"
+          ],
+          "quiz": [
+            {
+              "question": "Com acks=all e enable.idempotence=true, o que acontece se um retry ocorrer após o broker gravar o registro?",
+              "options": [
+                "O broker grava uma duplicata porque não há como saber",
+                "O produtor é fenced e precisa reiniciar",
+                "O broker descarta a duplicata pelo sequence number",
+                "O registro é gravado em outra partição"
+              ],
+              "answer": 2,
+              "explanation": "O produtor idempotente anexa producer id e sequence number por partição. O broker detecta a repetição e devolve o offset já gravado, sem duplicar."
+            },
+            {
+              "question": "Por que aumentar linger.ms pode reduzir custo por evento?",
+              "options": [
+                "Porque permite lotes maiores e melhor compressão",
+                "Porque diminui o replication factor",
+                "Porque remove a necessidade de acks",
+                "Porque aumenta o número de partições"
+              ],
+              "answer": 0,
+              "explanation": "Esperar alguns milissegundos enche o batch, melhora a taxa de compressão e reduz o número de requisições por evento, ao custo de latência."
+            },
+            {
+              "question": "Uma key com milhões de eventos por minuto em um tópico de 24 partições causa qual problema?",
+              "options": [
+                "Rebalance infinito",
+                "Hot partition: uma partição concentra a carga e o paralelismo se perde",
+                "Perda de mensagens por falta de acks",
+                "Compactação automática do tópico"
+              ],
+              "answer": 1,
+              "explanation": "Toda key igual cai na mesma partição. O limite de throughput passa a ser o de uma única partição, mesmo com 23 partições ociosas."
+            }
+          ]
+        },
+        {
+          "slug": "consumers-groups-lag",
+          "title": "Consumers, grupos, rebalance e lag",
+          "summary": "O ciclo de poll, a divisão de partições entre instâncias, os protocolos de rebalance e como ler lag sem se enganar.",
+          "minutes": 32,
+          "file": "lessons/04-consumers-groups-lag.md",
+          "takeaways": [
+            "max.poll.interval.ms versus session.timeout.ms na prática",
+            "Rebalance eager e cooperative-sticky",
+            "Lag de offset versus lag de tempo"
+          ],
+          "quiz": [
+            {
+              "question": "Um consumidor leva 8 minutos processando um lote e max.poll.interval.ms é 5 minutos. Qual é o efeito?",
+              "options": [
+                "O broker aumenta o timeout automaticamente",
+                "O consumidor é removido do grupo e ocorre rebalance",
+                "O commit é feito pelo broker",
+                "As mensagens são duplicadas no tópico"
+              ],
+              "answer": 1,
+              "explanation": "Sem poll dentro do intervalo, o coordenador considera o consumidor morto, revoga partições e redistribui. O trabalho continua, mas o grupo rebalanceia e pode reprocessar."
+            },
+            {
+              "question": "Qual é a vantagem do protocolo cooperative-sticky?",
+              "options": [
+                "Revogar todas as partições antes de reatribuir",
+                "Revogar apenas as partições que precisam mudar, reduzindo pausas",
+                "Eliminar a necessidade de commits",
+                "Permitir mais consumidores do que partições"
+              ],
+              "answer": 1,
+              "explanation": "O rebalance cooperativo faz uma rodada incremental: cada instância mantém o que pode e libera só o necessário, evitando parar o grupo inteiro."
+            },
+            {
+              "question": "Lag de offset está constante em 50 mil, mas o throughput do produtor dobrou. O que isso indica?",
+              "options": [
+                "O consumidor acompanha o produtor e o lag relativo pode estar estável",
+                "O consumidor está morto",
+                "Há perda de mensagens",
+                "O tópico está compactando"
+              ],
+              "answer": 0,
+              "explanation": "Lag absoluto só tem significado junto com a taxa de produção. Se o consumidor acompanha o dobro de eventos mantendo 50 mil, o tempo de atraso pode estar estável."
+            }
+          ]
+        }
+      ],
+      "exercises": [
+        "exercises/kafka-producer-idempotente.json"
+      ]
+    },
+    {
+      "slug": "confiabilidade",
+      "title": "Confiabilidade e contratos",
+      "description": "Garantias de entrega, transações, idempotência, evolução de schema e tratamento de falhas. É aqui que o sistema deixa de funcionar só no caminho feliz.",
+      "estimatedHours": 7,
+      "lessons": [
+        {
+          "slug": "garantias-de-entrega",
+          "title": "At-most, at-least e exactly-once: o que cada uma custa",
+          "summary": "Os três modelos de entrega, onde a duplicação nasce e como idempotência e transações fecham o buraco sem prometer mágica.",
+          "minutes": 32,
+          "file": "lessons/05-garantias-de-entrega.md",
+          "takeaways": [
+            "Onde exatamente cada garantia quebra na prática",
+            "Como usar transactional.id e sendOffsetsToTransaction",
+            "Por que exactly-once não cobre efeitos externos automaticamente"
+          ],
+          "quiz": [
+            {
+              "question": "Qual combinação implementa exactly-once de Kafka para Kafka?",
+              "options": [
+                "acks=1 e commit automático",
+                "Produtor idempotente, transações e consumidor com read_committed",
+                "Retenção infinita e replication factor 1",
+                "Consumer group com um único membro"
+              ],
+              "answer": 1,
+              "explanation": "A transação grava dados e offsets atomicamente; o consumidor read_committed ignora registros de transações abortadas. Idempotência cobre retries do produtor."
+            },
+            {
+              "question": "Um consumidor faz commit do offset antes de gravar no banco e o processo morre no meio. Qual garantia foi obtida?",
+              "options": [
+                "At-most-once, com possível perda",
+                "At-least-once, com possível duplicata",
+                "Exactly-once, porque o commit foi síncrono",
+                "Nenhuma, o Kafka reentrega obrigatoriamente"
+              ],
+              "answer": 0,
+              "explanation": "Se o offset avança antes do efeito, uma falha impede o reprocessamento. É at-most-once: no máximo uma tentativa, com risco de perder o evento."
+            },
+            {
+              "question": "Por que escrever em um banco externo dentro de uma transação Kafka não garante atomicidade?",
+              "options": [
+                "Porque o Kafka não suporta transações com mais de uma partição",
+                "Porque o banco não participa do protocolo de transação do Kafka",
+                "Porque o produtor idempotente é desligado",
+                "Porque o consumer group é recriado"
+              ],
+              "answer": 1,
+              "explanation": "A transação cobre tópicos e offsets do Kafka. O commit do banco é independente; é preciso outbox, idempotência ou transação distribuída (com os custos dela)."
+            }
+          ]
+        },
+        {
+          "slug": "transacoes-outbox-dedup",
+          "title": "Transações, outbox e deduplicação",
+          "summary": "Como publicar eventos e mudar estado sem dual write, usando transação Kafka, outbox transacional e chaves de deduplicação.",
+          "minutes": 30,
+          "file": "lessons/06-transacoes-outbox-dedup.md",
+          "takeaways": [
+            "Fencing de produtor zumbi pelo transactional.id",
+            "Outbox com poller versus CDC",
+            "Deduplicação por event_id e por offset na mesma transação"
+          ],
+          "quiz": [
+            {
+              "question": "Para que serve o transactional.id em um produtor transacional?",
+              "options": [
+                "Identificar o tópico de destino",
+                "Permitir fencing de uma instância antiga que ainda tenta escrever",
+                "Definir o número de partições",
+                "Substituir o group.id do consumidor"
+              ],
+              "answer": 1,
+              "explanation": "O transactional.id é estável por instância lógica. Ao iniciar uma nova instância com o mesmo id, o broker incrementa o epoch e rejeita escritas da anterior."
+            },
+            {
+              "question": "No outbox, por que a linha de evento é inserida na mesma transação da regra de negócio?",
+              "options": [
+                "Para reduzir o custo de serialização",
+                "Para garantir que evento e estado commitam ou falham juntos",
+                "Para dispensar o Schema Registry",
+                "Para evitar o uso de Kafka"
+              ],
+              "answer": 1,
+              "explanation": "A transação local é o único mecanismo atômico disponível entre a tabela de negócio e a outbox. O relay publica depois, assumindo entrega ao menos uma vez."
+            },
+            {
+              "question": "Qual é a forma mais robusta de deduplicar um consumidor que grava em banco?",
+              "options": [
+                "Guardar os últimos 100 ids em memória",
+                "Inserir event_id com constraint unique na mesma transação do efeito",
+                "Usar auto.offset.reset=latest",
+                "Aumentar session.timeout.ms"
+              ],
+              "answer": 1,
+              "explanation": "A constraint unique no banco sobrevive a restart, múltiplas instâncias e rebalance. Memória local se perde e não coordena instâncias."
+            }
+          ]
+        },
+        {
+          "slug": "schema-evolucao-dlq",
+          "title": "Schema Registry, evolução e DLQ",
+          "summary": "Contratos versionados, regras de compatibilidade e um caminho de retry que não trava a partição nem esconde o poison pill.",
+          "minutes": 30,
+          "file": "lessons/07-schema-evolucao-dlq.md",
+          "takeaways": [
+            "Backward, forward e full compatibility na prática",
+            "Como o schema id viaja na mensagem",
+            "Retry com backoff sem bloquear a partição e DLQ com replay"
+          ],
+          "quiz": [
+            {
+              "question": "Adicionar um campo obrigatório sem default em um schema Avro usado por consumidores antigos quebra qual compatibilidade?",
+              "options": [
+                "Backward compatibility",
+                "Apenas a compressão",
+                "Nenhuma, Avro ignora campos novos",
+                "Somente a compatibilidade de rede"
+              ],
+              "answer": 0,
+              "explanation": "Consumidores antigos não têm o campo e não conseguem preencher o valor; sem default, a leitura falha. A mudança é backward-incompatible."
+            },
+            {
+              "question": "Qual é o risco de um retry infinito no mesmo tópico para uma mensagem inválida?",
+              "options": [
+                "Aumento do replication factor",
+                "A partição fica bloqueada e o lag cresce sem limite",
+                "O Schema Registry é desativado",
+                "O broker compacta o tópico"
+              ],
+              "answer": 1,
+              "explanation": "Kafka entrega em ordem por partição. Se a mensagem envenenada não avança, todas as seguintes esperam, mesmo que sejam válidas."
+            },
+            {
+              "question": "O que deve acompanhar uma mensagem enviada para a DLQ?",
+              "options": [
+                "Apenas o payload original",
+                "Motivo da falha, offset, partição e timestamp para permitir replay",
+                "O offset do consumer group apenas",
+                "Uma cópia do schema sem versão"
+              ],
+              "answer": 1,
+              "explanation": "Sem metadados de origem e erro, a DLQ vira um cemitério. Com eles, é possível corrigir, reprocessar e auditar sem adivinhar de onde veio."
+            }
+          ]
+        }
+      ],
+      "exercises": [
+        "exercises/kafka-outbox-dedup.json"
+      ]
+    },
+    {
+      "slug": "kafka-streams",
+      "title": "Processamento com Kafka Streams",
+      "description": "Streams e tabelas, state stores, janelas, joins e exactly-once. Você aprende a construir topologias que sobrevivem a rebalance, restart e evento atrasado.",
+      "estimatedHours": 8,
+      "lessons": [
+        {
+          "slug": "kstream-ktable-topologia",
+          "title": "KStream, KTable e a topologia",
+          "summary": "A diferença entre fatos imutáveis e o último estado por chave, e como o DSL traduz sua topologia em processadores e tópicos internos.",
+          "minutes": 32,
+          "file": "lessons/08-kstream-ktable-topologia.md",
+          "takeaways": [
+            "Quando um stream deve virar tabela",
+            "O custo escondido de groupBy e repartition",
+            "Como ler um topology describe sem se perder"
+          ],
+          "quiz": [
+            {
+              "question": "Um KTable é mais adequado para qual caso?",
+              "options": [
+                "Histórico completo de cliques",
+                "Último saldo conhecido por conta",
+                "Fila de comandos pendentes",
+                "Log de auditoria imutável"
+              ],
+              "answer": 1,
+              "explanation": "KTable representa o estado mais recente por chave, como um saldo. O histórico de cliques é uma sequência de fatos, portanto KStream."
+            },
+            {
+              "question": "O que groupBy causa na topologia?",
+              "options": [
+                "Nada, é puramente local",
+                "Uma repartição dos dados pela nova chave, com tráfego e latência extras",
+                "A criação de um novo cluster",
+                "A remoção do state store"
+              ],
+              "answer": 1,
+              "explanation": "Trocar a chave exige garantir que todos os registros da mesma chave estejam na mesma instância. O Streams materializa isso em um tópico de repartition."
+            },
+            {
+              "question": "Por que KStream não tem operação de 'update'?",
+              "options": [
+                "Porque cada registro é um fato imutável no log, não um estado mutável",
+                "Porque o Kafka não permite sobrescrever registros",
+                "Porque o state store é sempre em memória",
+                "Porque o consumidor não pode fazer seek"
+              ],
+              "answer": 0,
+              "explanation": "Um stream é uma sequência de eventos; atualizar um registro não faz sentido conceitual. Para estado por chave, use KTable ou um state store."
+            }
+          ]
+        },
+        {
+          "slug": "state-stores-stateful",
+          "title": "State stores e operações stateful",
+          "summary": "Onde o estado vive, como o changelog o reconstrói e como consultar uma tabela materializada sem acoplar ao banco interno.",
+          "minutes": 30,
+          "file": "lessons/09-state-stores-stateful.md",
+          "takeaways": [
+            "RocksDB, changelog e restauração após restart",
+            "Standby replicas e o impacto no failover",
+            "Interactive queries com StoreQueryParameters"
+          ],
+          "quiz": [
+            {
+              "question": "De onde vem o estado de um Kafka Streams após um restart em outra máquina?",
+              "options": [
+                "Do disco local, sempre",
+                "Do tópico de changelog, reconstruído até o offset do checkpoint",
+                "Do Schema Registry",
+                "Do coordenador do consumer group"
+              ],
+              "answer": 1,
+              "explanation": "O changelog registra cada atualização do store. Na atribuição da tarefa, o Streams restaura o estado e depois retoma o processamento."
+            },
+            {
+              "question": "Para que serve uma standby replica de state store?",
+              "options": [
+                "Aumentar o replication factor do tópico de entrada",
+                "Manter uma cópia quente do estado para reduzir o tempo de failover",
+                "Substituir o changelog",
+                "Distribuir offsets entre partições"
+              ],
+              "answer": 1,
+              "explanation": "A standby acompanha o changelog sem processar. Quando assume a tarefa, já tem o estado quase atualizado, reduzindo a janela de restauração."
+            },
+            {
+              "question": "Qual é o risco de um state store sem limite de tamanho?",
+              "options": [
+                "O broker apaga o changelog automaticamente",
+                "Disco cresce sem controle e a restauração pode levar horas",
+                "O consumer group perde o coordenador",
+                "O tópico muda de partição"
+              ],
+              "answer": 1,
+              "explanation": "O estado é local e também replicado no changelog. Chaves de alta cardinalidade sem TTL ou janela fazem o disco e o tempo de restore crescerem juntos."
+            }
+          ]
+        },
+        {
+          "slug": "windowing-joins-late-events",
+          "title": "Windowing, joins e eventos atrasados",
+          "summary": "Tempo de evento, janelas tumbling, hopping e session, grace period e as condições de co-particionamento que fazem joins funcionarem.",
+          "minutes": 30,
+          "file": "lessons/10-windowing-joins-late-events.md",
+          "takeaways": [
+            "Tumbling versus hopping versus session windows",
+            "O papel de grace e suppress na emissão de resultados",
+            "Por que joins exigem a mesma chave e o mesmo número de partições"
+          ],
+          "quiz": [
+            {
+              "question": "Um evento chega 30 segundos atrasado, mas a janela tem grace de 2 minutos. O que acontece?",
+              "options": [
+                "É descartado",
+                "Atualiza o resultado da janela",
+                "Abre uma nova janela",
+                "Vai para a DLQ"
+              ],
+              "answer": 1,
+              "explanation": "Dentro do grace period, o evento ainda é aceito e o agregado é recalculado. Depois que a janela fecha, ele é descartado (ou tratado por outra rota)."
+            },
+            {
+              "question": "Qual é a condição para um stream-stream join entre dois tópicos?",
+              "options": [
+                "Mesmo número de brokers",
+                "Mesma chave de join e mesmo número de partições, com dados co-particionados",
+                "Mesmo Schema Registry",
+                "Retenção infinita nos dois tópicos"
+              ],
+              "answer": 1,
+              "explanation": "O Streams só consegue juntar localmente registros que caem na mesma tarefa. Isso exige a mesma estratégia de particionamento e contagem de partições."
+            },
+            {
+              "question": "Por que `suppress` pode aumentar a latência de saída?",
+              "options": [
+                "Porque espera o fechamento da janela para emitir um resultado final",
+                "Porque desliga a compactação",
+                "Porque aumenta o replication factor",
+                "Porque força commits síncronos no broker"
+              ],
+              "answer": 0,
+              "explanation": "Suppress bufferiza atualizações até o critério definido, normalmente o fim da janela mais o grace. Você troca emissões parciais por um resultado consolidado."
+            }
+          ]
+        },
+        {
+          "slug": "exactly-once-streams",
+          "title": "Exactly-once e operação de streams",
+          "summary": "Como o processing.guarantee se traduz em transações, o que ele não cobre e como rodar uma aplicação Streams sem surpresas de rebalance e estado.",
+          "minutes": 30,
+          "file": "lessons/11-exactly-once-streams.md",
+          "takeaways": [
+            "exactly_once_v2 e o custo de transação por tarefa",
+            "Configuração de threads, standby e state.dir",
+            "Tratamento de exceções e desligamento gracioso"
+          ],
+          "quiz": [
+            {
+              "question": "O que exactly_once_v2 garante em uma topologia Kafka para Kafka?",
+              "options": [
+                "Que um efeito externo via HTTP ocorre uma única vez",
+                "Que entradas, saídas e atualizações de estado commitam atomicamente",
+                "Que o tópico nunca terá mensagens duplicadas de outros produtores",
+                "Que o state store fica em memória"
+              ],
+              "answer": 1,
+              "explanation": "A garantia cobre as escritas e offsets gerenciados pelo Streams. Chamadas externas continuam exigindo idempotência própria."
+            },
+            {
+              "question": "O que acontece ao subir uma segunda instância com o mesmo application.id?",
+              "options": [
+                "Ela processa todas as partições em duplicidade",
+                "As tarefas são redistribuídas e cada instância fica com um subconjunto de partições",
+                "O Kafka rejeita a conexão",
+                "O state store é apagado"
+              ],
+              "answer": 1,
+              "explanation": "O application.id define o consumer group. Novas instâncias entram no grupo e assumem tarefas; é assim que o Streams escala horizontalmente."
+            },
+            {
+              "question": "Por que mudar o nome de um state store em produção é arriscado?",
+              "options": [
+                "Porque o changelog antigo deixa de ser encontrado e o estado é reconstruído do zero",
+                "Porque o broker reinicia",
+                "Porque o Schema Registry rejeita a topologia",
+                "Porque o tópico de saída é apagado"
+              ],
+              "answer": 0,
+              "explanation": "O nome do store faz parte dos tópicos internos e do diretório local. Renomear cria um estado novo e vazio, com custo de restauração e resultados temporariamente errados."
+            }
+          ]
+        }
+      ],
+      "exercises": [
+        "exercises/kafka-streams-janela.json"
+      ]
+    },
+    {
+      "slug": "arquitetura-event-driven",
+      "title": "Arquitetura event-driven",
+      "description": "Contratos, sagas, CQRS, event sourcing e outbox. O objetivo é desenhar sistemas que toleram falha parcial e consistência eventual sem virar um monólito distribuído.",
+      "estimatedHours": 7,
+      "lessons": [
+        {
+          "slug": "eventos-comandos-contratos",
+          "title": "Eventos, comandos e contratos",
+          "summary": "A diferença semântica entre um fato e um pedido, o que um envelope de evento precisa carregar e como evitar acoplamento por payload.",
+          "minutes": 30,
+          "file": "lessons/12-eventos-comandos-contratos.md",
+          "takeaways": [
+            "Evento, comando e evento de integração",
+            "Envelope com id, tempo, versão e correlação",
+            "Contrato semântico além do schema"
+          ],
+          "quiz": [
+            {
+              "question": "\"ReserveCredit\" é o quê?",
+              "options": [
+                "Um evento de domínio",
+                "Um comando, pois expressa uma intenção que pode ser recusada",
+                "Um snapshot de estado",
+                "Uma política de retenção"
+              ],
+              "answer": 1,
+              "explanation": "Comandos pedem uma ação e podem ser rejeitados. Eventos relatam algo que já aconteceu e não devem ser recusados pelo consumidor."
+            },
+            {
+              "question": "Por que um consumidor não deve depender do banco interno do produtor?",
+              "options": [
+                "Porque o banco é sempre lento",
+                "Porque isso acopla os serviços e viola a autonomia do produtor sobre seu estado",
+                "Porque o Kafka proíbe JDBC",
+                "Porque o Schema Registry não indexa tabelas"
+              ],
+              "answer": 1,
+              "explanation": "O contrato é o evento publicado, não o esquema interno. Se o consumidor lê tabelas alheias, qualquer refatoração do produtor quebra o consumidor."
+            },
+            {
+              "question": "Qual campo do envelope permite rastrear a causa de um evento em uma cadeia de sagas?",
+              "options": [
+                "partition",
+                "correlation_id e causation_id",
+                "compression.type",
+                "linger.ms"
+              ],
+              "answer": 1,
+              "explanation": "Correlation id liga a transação de negócio inteira; causation id aponta o evento ou comando que gerou aquele evento específico."
+            }
+          ]
+        },
+        {
+          "slug": "saga-cqrs-event-sourcing",
+          "title": "Saga, CQRS e event sourcing",
+          "summary": "Transações que atravessam serviços, compensações explícitas, leitura desnormalizada e reconstrução de agregados a partir de eventos.",
+          "minutes": 32,
+          "file": "lessons/13-saga-cqrs-event-sourcing.md",
+          "takeaways": [
+            "Orquestração versus coreografia e quando cada uma escala",
+            "Compensação não é rollback",
+            "Projeções, snapshots e o custo de replay"
+          ],
+          "quiz": [
+            {
+              "question": "Em uma saga, o que substitui o rollback do banco?",
+              "options": [
+                "Uma transação XA entre serviços",
+                "Uma compensação explícita que desfaz semanticamente o passo anterior",
+                "Um backup do tópico",
+                "O commit automático do consumer"
+              ],
+              "answer": 1,
+              "explanation": "Não existe rollback distribuído. A compensação cria um novo fato (estorno, cancelamento) e precisa lidar com efeitos já visíveis."
+            },
+            {
+              "question": "Qual problema o CQRS resolve?",
+              "options": [
+                "Consultas que precisam juntar dados de vários serviços",
+                "A falta de partições no Kafka",
+                "A duplicação de mensagens no produtor",
+                "O rebalance do consumer group"
+              ],
+              "answer": 0,
+              "explanation": "CQRS mantém uma projeção de leitura alimentada por eventos, permitindo consultas desnormalizadas sem chamadas síncronas a todos os serviços."
+            },
+            {
+              "question": "O que é um snapshot em event sourcing?",
+              "options": [
+                "Uma cópia do tópico compactado",
+                "Um estado materializado em um ponto do stream para evitar reaplicar todos os eventos",
+                "Um backup do Schema Registry",
+                "Um offset de consumer"
+              ],
+              "answer": 1,
+              "explanation": "Reconstruir um agregado com milhares de eventos é caro. O snapshot guarda o estado em uma versão e o rebuild aplica só os eventos seguintes."
+            }
+          ]
+        },
+        {
+          "slug": "outbox-consistencia-eventual",
+          "title": "Outbox e consistência eventual",
+          "summary": "Como eliminar o dual write, publicar de forma confiável e projetar a experiência do usuário para uma janela em que a leitura ainda está atrasada.",
+          "minutes": 30,
+          "file": "lessons/14-outbox-consistencia-eventual.md",
+          "takeaways": [
+            "Dual write e por que ele falha em produção",
+            "Poller com SKIP LOCKED versus CDC",
+            "Read-your-writes e estados de UI para consistência eventual"
+          ],
+          "quiz": [
+            {
+              "question": "O que é dual write?",
+              "options": [
+                "Gravar em duas partições do mesmo tópico",
+                "Atualizar o banco e publicar no broker em operações separadas, sem atomicidade",
+                "Usar dois consumers no mesmo grupo",
+                "Replicar o broker em duas zonas"
+              ],
+              "answer": 1,
+              "explanation": "Se o banco commita e o publish falha, o evento se perde; se o publish ocorre antes, o evento pode descrever algo que não commitou."
+            },
+            {
+              "question": "Qual é uma vantagem do CDC sobre o poller na outbox?",
+              "options": [
+                "Não precisa de schema",
+                "Lê o log do banco e reduz a latência, sem polling constante",
+                "Dispensa deduplicação no consumidor",
+                "Garante exactly-once no efeito externo"
+              ],
+              "answer": 1,
+              "explanation": "O CDC acompanha o WAL/binlog e publica quase em tempo real. Ainda há entrega ao menos uma vez: o consumidor precisa ser idempotente."
+            },
+            {
+              "question": "Como tratar a janela de inconsistência na interface após criar um pedido?",
+              "options": [
+                "Mostrar erro até a projeção atualizar",
+                "Retornar o id e exibir estado 'processando', com polling ou push até confirmar",
+                "Bloquear a thread até o evento chegar",
+                "Ler direto do banco de outro serviço"
+              ],
+              "answer": 1,
+              "explanation": "Consistência eventual é um contrato de UX. Um estado explícito de processamento e atualização por push/poll evita mentir para o usuário sem acoplar serviços."
+            }
+          ]
+        }
+      ],
+      "exercises": []
+    },
+    {
+      "slug": "operacao",
+      "title": "Operação de Kafka",
+      "description": "Capacidade, métricas, alertas, segurança e upgrades. O cluster só é confiável quando alguém sabe o que medir e o que fazer quando o lag sobe às 3h.",
+      "estimatedHours": 5,
+      "lessons": [
+        {
+          "slug": "sizing-monitoramento-lag",
+          "title": "Sizing, monitoramento, lag e alertas",
+          "summary": "Como estimar partições, disco e rede, quais métricas importam e por que alertar por lag absoluto é uma armadilha.",
+          "minutes": 30,
+          "file": "lessons/15-sizing-monitoramento-lag.md",
+          "takeaways": [
+            "Fórmula prática de partições e disco com retenção e RF",
+            "Lag de tempo, lag de offset e crescimento de lag",
+            "Métricas de broker que antecedem incidente"
+          ],
+          "quiz": [
+            {
+              "question": "Com 60 MB/s de entrada, RF=3 e retenção de 7 dias, quanto disco bruto é preciso aproximadamente?",
+              "options": [
+                "36 TB",
+                "108 TB",
+                "10 TB",
+                "600 GB"
+              ],
+              "answer": 1,
+              "explanation": "60 MB/s × 86.400 s ≈ 5,2 TB/dia. Em 7 dias, 36 TB lógicos; com RF=3, cerca de 108 TB antes de folga e overhead."
+            },
+            {
+              "question": "Qual alerta é mais acionável para um consumidor atrasado?",
+              "options": [
+                "Lag absoluto maior que 10 mil, independentemente do horário",
+                "Taxa de crescimento do lag ou lag em tempo acima do SLO por 10 minutos",
+                "Número de partições do tópico",
+                "Tamanho do último batch"
+              ],
+              "answer": 1,
+              "explanation": "Lag absoluto varia com o tráfego. Tempo estimado de recuperação e tendência distinguem pico normal de consumidor incapaz de acompanhar."
+            },
+            {
+              "question": "O que significa under-replicated partitions maior que zero por muito tempo?",
+              "options": [
+                "Que o tópico está compactando",
+                "Que alguma réplica está fora do ISR e o cluster perdeu redundância",
+                "Que o produtor está usando acks=0",
+                "Que há consumers demais"
+              ],
+              "answer": 1,
+              "explanation": "Réplicas fora do ISR reduzem a tolerância a falhas. Se o líder cair nesse estado, com min.insync.replicas alto, a produção pode ficar indisponível."
+            }
+          ]
+        },
+        {
+          "slug": "seguranca-multitenancy-upgrades",
+          "title": "Segurança, multi-tenancy e upgrades",
+          "summary": "Autenticação, autorização por tópico, quotas, isolamento de tenants e um plano de upgrade que não transforma manutenção em incidente.",
+          "minutes": 30,
+          "file": "lessons/16-seguranca-multitenancy-upgrades.md",
+          "takeaways": [
+            "SASL/SCRAM e mTLS com ACLs por prefixo",
+            "Quotas de producer e consumer para proteger o cluster",
+            "Ordem de upgrade de brokers e clientes"
+          ],
+          "quiz": [
+            {
+              "question": "Qual é o princípio para autorizar tenants em um cluster compartilhado?",
+              "options": [
+                "Todos os clientes podem ler todos os tópicos",
+                "ACLs por prefixo de tópico e group id, concedendo apenas o necessário",
+                "Uma senha única compartilhada",
+                "Desligar autenticação na rede interna"
+              ],
+              "answer": 1,
+              "explanation": "Prefixos bem definidos e ACLs por usuário limitam o blast radius. O modelo de menor privilégio vale também para o group id, não só para o tópico."
+            },
+            {
+              "question": "Qual é a ordem segura para atualizar um cluster Kafka?",
+              "options": [
+                "Atualizar todos os brokers ao mesmo tempo para economizar tempo",
+                "Atualizar clientes primeiro e brokers depois, sem compatibilidade",
+                "Atualizar brokers um a um, mantendo protocolo antigo durante a janela, depois clientes",
+                "Apagar os tópicos e recriar"
+              ],
+              "answer": 2,
+              "explanation": "Brokers suportam versões antigas de protocolo durante a transição. Atualize um broker por vez, valide ISR e depois mova os clientes e o protocolo."
+            },
+            {
+              "question": "Por que uma quota apenas por client.id é insuficiente?",
+              "options": [
+                "Porque client.id é sempre nulo",
+                "Porque um cliente pode mudar o id e escapar da quota; a quota por usuário cobre isso",
+                "Porque quotas só existem para consumers",
+                "Porque o broker ignora quotas em KRaft"
+              ],
+              "answer": 1,
+              "explanation": "client.id é autodeclarado. Para limite de tenant, use quota por usuário/principal e combine com ACLs."
+            }
+          ]
+        }
+      ],
+      "exercises": []
+    }
+  ]
+}

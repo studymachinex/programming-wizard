@@ -1,0 +1,21 @@
+{
+  "track": "estruturas-dados",
+  "slug": "dsa-dynamic-array",
+  "title": "Dynamic array do zero com crescimento amortizado",
+  "difficulty": "facil",
+  "tags": [
+    "array",
+    "amortizado",
+    "generics"
+  ],
+  "estimatedMinutes": 45,
+  "statement": "## Contexto\n\nImplemente um array dinâmico genérico para entender por que `ArrayList` cresce em dobro e como isso dá O(1) amortizado no `add`. Você não pode usar `ArrayList`, `Arrays.copyOf` ou coleções do JDK.\n\n## Contrato\n\n```java\nclass IntList {\n    void add(int value);\n    int get(int index);\n    void set(int index, int value);\n    int removeAt(int index);\n    int size();\n}\n```\n\n- `add` insere no fim e dobra a capacidade quando cheia.\n- `get`/`set` validam índice e lançam `IndexOutOfBoundsException`.\n- `removeAt` desloca os elementos à esquerda e devolve o removido.\n- `size` é o número de elementos, não a capacidade.\n\n## Exemplos\n\n```java\nvar l = new IntList();\nl.add(10); l.add(20); l.add(30);\nl.removeAt(1); // 20\nl.get(1);      // 30\n```\n\n## Restrições\n\n- Sem `java.util` para armazenamento.\n- Capacidade inicial 4, crescimento 2x.\n- Não deixe referências antigas no array após remoção (quando aplicável a objetos).",
+  "starterCode": "public class Solution {\n    static class IntList {\n        private int[] data = new int[4];\n        private int size = 0;\n\n        void add(int value) {\n            // TODO: crescer quando necessário\n        }\n\n        int get(int index) {\n            return 0; // TODO\n        }\n\n        void set(int index, int value) {\n            // TODO\n        }\n\n        int removeAt(int index) {\n            return 0; // TODO\n        }\n\n        int size() {\n            return size;\n        }\n    }\n}",
+  "solutionCode": "public class Solution {\n    static class IntList {\n        private int[] data = new int[4];\n        private int size = 0;\n\n        void add(int value) {\n            if (size == data.length) {\n                int[] novo = new int[data.length * 2];\n                System.arraycopy(data, 0, novo, 0, size);\n                data = novo;\n            }\n            data[size++] = value;\n        }\n\n        int get(int index) {\n            check(index);\n            return data[index];\n        }\n\n        void set(int index, int value) {\n            check(index);\n            data[index] = value;\n        }\n\n        int removeAt(int index) {\n            check(index);\n            int removido = data[index];\n            System.arraycopy(data, index + 1, data, index, size - index - 1);\n            size--;\n            return removido;\n        }\n\n        int size() { return size; }\n\n        private void check(int index) {\n            if (index < 0 || index >= size) {\n                throw new IndexOutOfBoundsException(\"indice \" + index + \", tamanho \" + size);\n            }\n        }\n    }\n}",
+  "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nclass SolutionTest {\n    @Test void adicionaAlemDaCapacidadeInicial() {\n        var l = new Solution.IntList();\n        for (int i = 0; i < 10; i++) l.add(i);\n        assertEquals(10, l.size());\n        assertEquals(9, l.get(9));\n    }\n\n    @Test void removeDeslocaElementos() {\n        var l = new Solution.IntList();\n        l.add(1); l.add(2); l.add(3);\n        assertEquals(2, l.removeAt(1));\n        assertEquals(3, l.get(1));\n        assertEquals(2, l.size());\n    }\n\n    @Test void indiceInvalidoFalha() {\n        var l = new Solution.IntList();\n        assertThrows(IndexOutOfBoundsException.class, () -> l.get(0));\n        assertThrows(IndexOutOfBoundsException.class, () -> l.set(-1, 5));\n    }\n}",
+  "hints": [
+    "Dobre a capacidade quando size == data.length.",
+    "Use System.arraycopy para mover blocos em vez de loop manual.",
+    "Valide o índice antes de acessar o array."
+  ]
+}

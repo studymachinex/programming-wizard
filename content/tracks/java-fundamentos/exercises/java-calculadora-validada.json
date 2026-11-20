@@ -1,0 +1,21 @@
+{
+  "track": "java-fundamentos",
+  "slug": "java-calculadora-validada",
+  "title": "Calculadora com validação e exceções de domínio",
+  "difficulty": "facil",
+  "tags": [
+    "excecoes",
+    "validacao",
+    "poo"
+  ],
+  "estimatedMinutes": 35,
+  "statement": "## Contexto\n\nImplemente uma calculadora que valida entradas e falha com mensagens úteis. O objetivo é praticar exceções, contratos e testes de borda — não a aritmética.\n\n## Contrato\n\n```java\nclass Calculadora {\n    double somar(double a, double b);\n    double subtrair(double a, double b);\n    double multiplicar(double a, double b);\n    double dividir(double a, double b);\n}\n```\n\n- `dividir` por zero lança `ArithmeticException` com mensagem contendo \"zero\".\n- Qualquer operação com `NaN` ou infinito lança `IllegalArgumentException`.\n- O resultado deve ser finito; caso contrário, `ArithmeticException`.\n\n## Exemplos\n\n```java\nnew Calculadora().dividir(10, 4); // 2.5\nnew Calculadora().dividir(1, 0);  // ArithmeticException\n```\n\n## Restrições\n\n- Não use `assert` para validação.\n- Preserve a causa quando aplicável.",
+  "starterCode": "public class Solution {\n    static class Calculadora {\n        double somar(double a, double b) { return 0; }\n        double subtrair(double a, double b) { return 0; }\n        double multiplicar(double a, double b) { return 0; }\n        double dividir(double a, double b) { return 0; }\n    }\n}",
+  "solutionCode": "public class Solution {\n    static class Calculadora {\n        double somar(double a, double b) { return validar(a + b); }\n        double subtrair(double a, double b) { return validar(a - b); }\n        double multiplicar(double a, double b) { return validar(a * b); }\n\n        double dividir(double a, double b) {\n            if (b == 0) throw new ArithmeticException(\"divisao por zero\");\n            return validar(a / b);\n        }\n\n        private double validar(double valor) {\n            if (!Double.isFinite(valor)) {\n                throw new IllegalArgumentException(\"operando ou resultado invalido\");\n            }\n            return valor;\n        }\n    }\n}",
+  "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nclass SolutionTest {\n    @Test void operacoesBasicas() {\n        var c = new Solution.Calculadora();\n        assertEquals(7.0, c.somar(3, 4));\n        assertEquals(2.5, c.dividir(10, 4));\n    }\n\n    @Test void divisaoPorZero() {\n        var e = assertThrows(ArithmeticException.class,\n            () -> new Solution.Calculadora().dividir(1, 0));\n        assertTrue(e.getMessage().contains(\"zero\"));\n    }\n\n    @Test void entradaInvalida() {\n        assertThrows(IllegalArgumentException.class,\n            () -> new Solution.Calculadora().somar(Double.NaN, 1));\n        assertThrows(IllegalArgumentException.class,\n            () -> new Solution.Calculadora().multiplicar(Double.POSITIVE_INFINITY, 0));\n    }\n}",
+  "hints": [
+    "Centralize a validação em um método privado.",
+    "Double.isFinite cobre NaN e infinitos.",
+    "Verifique o divisor antes de dividir."
+  ]
+}

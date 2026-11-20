@@ -1,0 +1,112 @@
+[
+  {
+    "slug": "lc-print-in-order",
+    "title": "Print in Order",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/print-in-order/",
+    "difficulty": "facil",
+    "level": 2,
+    "topic": "Concorrência",
+    "moduleSlug": "concorrencia",
+    "description": "Três threads precisam imprimir first, second e third nessa ordem, independentemente de quando startarem. É o exercício mínimo de happens-before: resolva com CountDownLatch, Semaphore ou um monitor e explique por que busy-wait é inaceitável."
+  },
+  {
+    "slug": "lc-print-foobar-alternately",
+    "title": "Print FooBar Alternately",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/print-foobar-alternately/",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "Concorrência",
+    "moduleSlug": "concorrencia",
+    "description": "Duas threads devem alternar foo e bar por n rodadas, sem perder nem duplicar turnos. Compare Semaphore, Condition e BlockingQueue; meça a diferença entre sinalização e polling e discuta o custo de acordar uma thread por rodada."
+  },
+  {
+    "slug": "lc-building-h2o",
+    "title": "Building H2O",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/building-h2o/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Concorrência",
+    "moduleSlug": "concorrencia",
+    "description": "Oxigênio e hidrogênio chegam em threads separadas e precisam formar H2O em grupos de três, com barreira por molécula. O desafio é evitar starvation e garantir que nenhum átomo fique preso quando o outro grupo acaba."
+  },
+  {
+    "slug": "lc-the-dining-philosophers",
+    "title": "The Dining Philosophers",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/the-dining-philosophers/",
+    "difficulty": "medio",
+    "level": 4,
+    "topic": "Concorrência",
+    "moduleSlug": "concorrencia",
+    "description": "Cinco filósofos, cinco garfos e a possibilidade clássica de deadlock. Implemente uma solução que funcione sob execução longa, prove ausência de deadlock por ordenação global ou limite de concorrência e discuta fairness versus throughput."
+  },
+  {
+    "slug": "lc-web-crawler-multithreaded",
+    "title": "Web Crawler Multithreaded",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/web-crawler-multithreaded/",
+    "difficulty": "medio",
+    "level": 4,
+    "topic": "Concorrência e I/O",
+    "moduleSlug": "concorrencia",
+    "description": "Crawle URLs a partir de um host com múltiplas threads, sem duplicar visitas e sem terminar antes que todas as URLs descobertas sejam processadas. É um problema de coordenação de tarefas dinâmicas: pense em concorrência de coleções, contadores de trabalho pendente e shutdown."
+  },
+  {
+    "slug": "lc-design-bounded-blocking-queue",
+    "title": "Design Bounded Blocking Queue",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/design-bounded-blocking-queue/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Concorrência e Collections",
+    "moduleSlug": "concorrencia",
+    "description": "Implemente uma fila limitada com enqueue e dequeue bloqueantes. Resolva sem ArrayBlockingQueue primeiro, com Condition, e depois compare com a implementação do JDK. Meça throughput com 1, 4 e 16 produtores e explique a diferença entre capacidade e contenção."
+  },
+  {
+    "slug": "hr-java-varargs",
+    "title": "Java Varargs - Simple Addition",
+    "platform": "HackerRank",
+    "url": "https://www.hackerrank.com/challenges/java-varargs/problem",
+    "difficulty": "facil",
+    "level": 1,
+    "topic": "Java avançado",
+    "moduleSlug": "jvm-por-dentro",
+    "description": "Aquecimento de linguagem e bytecode: varargs viram arrays em tempo de compilação. Resolva a soma e inspecione com javap a assinatura gerada, incluindo o bridge method e o custo de alocar o array em cada chamada."
+  },
+  {
+    "slug": "hr-java-priority-queue",
+    "title": "Java Priority Queue",
+    "platform": "HackerRank",
+    "url": "https://www.hackerrank.com/challenges/java-priority-queue/problem",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Collections",
+    "moduleSlug": "collections-e-streams",
+    "description": "Use PriorityQueue com Comparator para atender estudantes por CGPA e nome. A prática conecta heap, ordem total e desempate determinístico — o mesmo cuidado necessário ao usar filas de prioridade em schedulers reais."
+  },
+  {
+    "slug": "outro-jvms-se21",
+    "title": "Java Virtual Machine Specification, SE 21",
+    "platform": "Outro",
+    "url": "https://docs.oracle.com/javase/specs/jvms/se21/html/index.html",
+    "difficulty": "dificil",
+    "level": 4,
+    "topic": "JVM",
+    "moduleSlug": "jvm-por-dentro",
+    "description": "Leitura de referência para class loading, formato do .class, verificação e execução. Leia os capítulos 4 e 5 junto com javap -c -v de uma classe sua; o objetivo é ligar cada seção da especificação ao bytecode que você vê."
+  },
+  {
+    "slug": "outro-jep-444-virtual-threads",
+    "title": "JEP 444: Virtual Threads",
+    "platform": "Outro",
+    "url": "https://openjdk.org/jeps/444",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Virtual threads",
+    "moduleSlug": "concorrencia",
+    "description": "A especificação que finalizou virtual threads no Java 21. Leia as seções de motivação, pinning e scheduling e conecte com o experimento de 100 mil threads do módulo. Observe o que o JEP promete e o que deliberadamente deixa fora."
+  }
+]

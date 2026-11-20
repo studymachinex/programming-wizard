@@ -1,0 +1,817 @@
+{
+  "slug": "sql-postgres",
+  "title": "SQL & PostgreSQL de Verdade",
+  "subtitle": "Modelagem, queries, índices e performance para sistemas reais",
+  "description": "Uma trilha para quem já escreve SELECT e precisa parar de adivinhar. Você vai modelar schemas que sobrevivem a mudanças, escrever consultas que o planner executa bem, ler planos do PostgreSQL e operar o banco em produção sem sustos. Os exemplos usam um marketplace de verdade, com dados, custos e trade-offs.",
+  "level": "intermediario",
+  "icon": "database",
+  "accent": "mana",
+  "estimatedHours": 34,
+  "isCore": true,
+  "outcomes": [
+    "Escrever consultas em PostgreSQL 16 com JOINs, agregações, CTEs e window functions para responder perguntas de negócio sem retrabalho.",
+    "Modelar schemas normalizados com chaves, constraints e tipos que impedem anomalias antes que elas virem incidentes.",
+    "Ler planos do EXPLAIN (ANALYZE, BUFFERS) e decidir com dados quando um índice resolve — ou apenas esconde — uma query lenta.",
+    "Diagnosticar concorrência: escolher isolation level, evitar deadlocks e reconhecer transações que bloqueiam vacuum e usuários.",
+    "Operar PostgreSQL em produção com JSONB, full-text, partitioning, backups e migrations que não derrubam a aplicação."
+  ],
+  "modules": [
+    {
+      "slug": "fundamentos-sql",
+      "title": "Fundamentos que sustentam tudo",
+      "description": "A base que separa quem escreve SQL decorado de quem entende o que o banco faz com a query. Modelo relacional, filtros, joins e agregações com exemplos de um marketplace.",
+      "estimatedHours": 8,
+      "lessons": [
+        {
+          "slug": "modelo-relacional-anatomia-query",
+          "title": "Modelo relacional e a anatomia de uma query",
+          "summary": "O que é uma relação, como o PostgreSQL interpreta uma query e por que a ordem lógica não é a ordem em que você escreve.",
+          "minutes": 28,
+          "file": "lessons/01-modelo-relacional-anatomia-query.md",
+          "takeaways": [
+            "Relação, tupla e atributo sem metáfora de planilha",
+            "A ordem lógica de avaliação de uma query",
+            "Por que SELECT * e LIMIT sem ORDER BY são dívidas técnicas"
+          ],
+          "quiz": [
+            {
+              "question": "Qual é a ordem lógica de avaliação de uma query SQL?",
+              "options": [
+                "SELECT → FROM → WHERE → GROUP BY → ORDER BY → LIMIT",
+                "FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT",
+                "FROM → SELECT → WHERE → GROUP BY → HAVING → LIMIT → ORDER BY",
+                "WHERE → FROM → SELECT → HAVING → GROUP BY → ORDER BY → LIMIT"
+              ],
+              "answer": 1,
+              "explanation": "O banco primeiro monta as linhas de FROM/JOIN, filtra com WHERE, agrupa, filtra grupos, projeta o SELECT, ordena e só então corta com LIMIT."
+            },
+            {
+              "question": "Por que usar SELECT * em código de aplicação é arriscado?",
+              "options": [
+                "Porque o PostgreSQL não permite SELECT * em joins",
+                "Porque a query fica sintaticamente inválida quando a tabela tem índice",
+                "Porque mudanças de schema quebram o contrato e colunas desnecessárias trafegam e desalocam cache",
+                "Porque SELECT * sempre força um Seq Scan"
+              ],
+              "answer": 2,
+              "explanation": "SELECT * acopla a aplicação à ordem e à existência de todas as colunas, além de mover dados que você não usa. O planner não é obrigado a fazer Seq Scan por causa disso."
+            },
+            {
+              "question": "O que LIMIT 10 sem ORDER BY garante?",
+              "options": [
+                "As 10 primeiras linhas inseridas na tabela",
+                "As 10 linhas com menor custo de leitura",
+                "Nenhuma ordem específica: o resultado é tão arbitrário quanto o plano escolhido",
+                "As 10 linhas mais recentes, se houver uma coluna de timestamp"
+              ],
+              "answer": 2,
+              "explanation": "Sem ORDER BY não existe ordem definida. O plano pode mudar com estatísticas, índices ou paralelismo, e a 'primeira página' muda sem aviso."
+            }
+          ]
+        },
+        {
+          "slug": "select-where-order-limit",
+          "title": "SELECT, WHERE, ORDER BY e LIMIT sem achismo",
+          "summary": "Filtros, NULL de três valores, intervalos de datas, ordenação estável e paginação com limites que você consegue defender.",
+          "minutes": 30,
+          "file": "lessons/02-select-where-order-limit.md",
+          "takeaways": [
+            "Como NULL afeta WHERE, NOT IN e ORDER BY",
+            "Intervalos de timestamp com >= e < em vez de BETWEEN",
+            "Paginação com ORDER BY determinístico e custo do OFFSET"
+          ],
+          "quiz": [
+            {
+              "question": "O que `WHERE email = NULL` retorna em PostgreSQL?",
+              "options": [
+                "Todas as linhas com email vazio",
+                "Nenhuma linha, porque NULL nunca é igual a NULL",
+                "Erro de sintaxe",
+                "As linhas em que email é NULL"
+              ],
+              "answer": 1,
+              "explanation": "Comparações com NULL produzem UNKNOWN, que o WHERE descarta. Use IS NULL ou IS NOT NULL."
+            },
+            {
+              "question": "Qual filtro captura corretamente todo o mês de março de 2026 em uma coluna timestamptz?",
+              "options": [
+                "criado_em BETWEEN '2026-03-01' AND '2026-03-31'",
+                "criado_em >= '2026-03-01' AND criado_em < '2026-04-01'",
+                "date(criado_em) = '2026-03-01'",
+                "criado_em LIKE '2026-03%'"
+              ],
+              "answer": 1,
+              "explanation": "O intervalo semiaberto inclui todo o dia 31 e não depende de precisão de microssegundos. BETWEEN com '2026-03-31' perde quase todo o último dia."
+            },
+            {
+              "question": "Em PostgreSQL, qual é o comportamento padrão de NULL em ORDER BY ... ASC?",
+              "options": [
+                "NULLs vêm primeiro",
+                "NULLs vêm por último",
+                "NULLs são removidos do resultado",
+                "A query falha se houver NULL"
+              ],
+              "answer": 1,
+              "explanation": "No PostgreSQL, ASC coloca NULLs por último e DESC coloca NULLs primeiro. Use NULLS FIRST/LAST para tornar a intenção explícita."
+            }
+          ]
+        },
+        {
+          "slug": "joins-e-armadilhas",
+          "title": "JOINs: INNER, LEFT, FULL e as armadilhas que custam caro",
+          "summary": "Como o join multiplica linhas, por que filtros no lugar errado mudam o resultado e como medir fan-out antes de confiar no total.",
+          "minutes": 32,
+          "file": "lessons/03-joins-e-armadilhas.md",
+          "takeaways": [
+            "Diferença prática entre INNER, LEFT e FULL JOIN",
+            "ON versus WHERE em joins externos",
+            "Fan-out, count(*) e contagens distintas"
+          ],
+          "quiz": [
+            {
+              "question": "Você faz LEFT JOIN pedidos e coloca `WHERE pedidos.status = 'pago'`. O que acontece com clientes sem pedidos?",
+              "options": [
+                "Continuam no resultado com status NULL",
+                "São removidos, porque o WHERE transforma o LEFT JOIN em um INNER JOIN na prática",
+                "Aparecem duplicados",
+                "O PostgreSQL rejeita a query"
+              ],
+              "answer": 1,
+              "explanation": "Para linhas sem correspondência, pedidos.status é NULL; o WHERE descarta essas linhas. A condição deveria estar no ON se o objetivo fosse preservar todos os clientes."
+            },
+            {
+              "question": "Um cliente tem 3 pedidos e cada pedido tem 4 itens. O que `COUNT(*)` retorna ao juntar clientes, pedidos e itens sem agregação?",
+              "options": [
+                "3",
+                "4",
+                "12",
+                "7"
+              ],
+              "answer": 2,
+              "explanation": "O join produz 3 × 4 = 12 linhas para esse cliente. Para contar pedidos, use COUNT(DISTINCT pedidos.id)."
+            },
+            {
+              "question": "FULL JOIN entre A e B retorna o quê?",
+              "options": [
+                "Apenas linhas com correspondência nos dois lados",
+                "Todas as linhas de A, mesmo sem correspondência em B",
+                "Todas as linhas de A e de B, com NULL onde não há correspondência",
+                "O produto cartesiano completo"
+              ],
+              "answer": 2,
+              "explanation": "FULL JOIN preserva os dois lados. É útil para reconciliação, mas exige COALESCE nas chaves para não perder a identificação."
+            }
+          ]
+        },
+        {
+          "slug": "group-by-having-agregacoes",
+          "title": "GROUP BY, HAVING e agregações que contam a verdade",
+          "summary": "Agrupar sem multiplicar números, usar FILTER e DISTINCT com critério e entender por que média de médias é um erro clássico.",
+          "minutes": 30,
+          "file": "lessons/04-group-by-having-agregacoes.md",
+          "takeaways": [
+            "WHERE filtra linhas; HAVING filtra grupos",
+            "count(*) versus count(coluna) e count(DISTINCT)",
+            "Agregações com FILTER e GROUPING SETS"
+          ],
+          "quiz": [
+            {
+              "question": "O que HAVING faz que WHERE não faz?",
+              "options": [
+                "Filtra linhas antes do agrupamento",
+                "Filtra grupos depois do GROUP BY",
+                "Substitui o ORDER BY",
+                "Permite usar funções de janela"
+              ],
+              "answer": 1,
+              "explanation": "WHERE atua nas linhas de entrada; HAVING atua nos grupos já formados e pode referenciar agregações."
+            },
+            {
+              "question": "Uma tabela tem 10 linhas e a coluna `desconto` é NULL em 4 delas. O que `COUNT(desconto)` retorna?",
+              "options": [
+                "10",
+                "6",
+                "4",
+                "NULL"
+              ],
+              "answer": 1,
+              "explanation": "COUNT(coluna) ignora NULL. COUNT(*) conta as 10 linhas."
+            },
+            {
+              "question": "Por que `AVG(media_por_pedido)` costuma enganar?",
+              "options": [
+                "Porque o PostgreSQL não tem AVG",
+                "Porque cada média tem peso diferente; a média das médias não é a média geral",
+                "Porque AVG sempre retorna inteiro",
+                "Porque AVG ignora pedidos cancelados automaticamente"
+              ],
+              "answer": 1,
+              "explanation": "Pedidos com muitos itens deveriam pesar mais. Calcule a média a partir das linhas originais ou use média ponderada."
+            }
+          ]
+        }
+      ],
+      "exercises": []
+    },
+    {
+      "slug": "modelagem",
+      "title": "Modelagem que não vira dívida",
+      "description": "Normalização, chaves, constraints e tipos. O objetivo é fazer o banco recusar dados incoerentes antes que a aplicação precise lembrar de validar tudo.",
+      "estimatedHours": 6,
+      "lessons": [
+        {
+          "slug": "normalizacao-1fn-3fn",
+          "title": "Normalização de 1FN a 3FN e quando desnormalizar",
+          "summary": "Dependências funcionais, anomalias de escrita e o trade-off real de duplicar dados para leitura.",
+          "minutes": 30,
+          "file": "lessons/05-normalizacao-1fn-3fn.md",
+          "takeaways": [
+            "Identificar violações de 1FN, 2FN e 3FN em um schema real",
+            "Reconhecer anomalias de inserção, atualização e remoção",
+            "Desnormalizar com read model, snapshot ou materialized view"
+          ],
+          "quiz": [
+            {
+              "question": "Uma tabela de itens de pedido com chave (pedido_id, produto_id) guarda também o nome do produto. Qual é o problema?",
+              "options": [
+                "O nome do produto depende apenas de produto_id, não da chave completa: viola 2FN",
+                "Não há problema, pois nome é texto",
+                "A tabela viola 1FN porque tem duas colunas",
+                "O problema é usar chave composta, que o PostgreSQL não suporta"
+              ],
+              "answer": 0,
+              "explanation": "Em uma chave composta, todo atributo não-chave deve depender da chave inteira. O nome depende só do produto, configurando dependência parcial."
+            },
+            {
+              "question": "Quando desnormalizar pode ser uma decisão correta?",
+              "options": [
+                "Sempre que a tabela tiver mais de 10 mil linhas",
+                "Quando o custo de leitura e junção é dominante e existe uma estratégia clara para manter a cópia atualizada",
+                "Para evitar a criação de índices",
+                "Quando não há chave primária"
+              ],
+              "answer": 1,
+              "explanation": "Desnormalização troca escrita e consistência por leitura. Só vale se o ganho for medido e a atualização da cópia for confiável."
+            },
+            {
+              "question": "O que caracteriza 3FN?",
+              "options": [
+                "Todos os atributos são atômicos",
+                "Não existem dependências parciais da chave composta",
+                "Não existem dependências transitivas de atributos não-chave",
+                "Todas as tabelas têm chave estrangeira"
+              ],
+              "answer": 2,
+              "explanation": "3FN elimina atributos que dependem de outro atributo não-chave, como CEP determinando cidade e estado em uma tabela de clientes."
+            }
+          ]
+        },
+        {
+          "slug": "chaves-constraints-integridade",
+          "title": "Chaves, constraints e integridade no banco",
+          "summary": "Primary key, unique, foreign key, check e exclusion: o que cada uma garante, quanto custa e como validar em tabelas grandes.",
+          "minutes": 32,
+          "file": "lessons/06-chaves-constraints-integridade.md",
+          "takeaways": [
+            "Escolher entre chave natural, surrogate, bigint identity e UUID",
+            "Efeitos de ON DELETE e DEFERRABLE em transações",
+            "Adicionar constraints sem travar produção"
+          ],
+          "quiz": [
+            {
+              "question": "Uma foreign key no PostgreSQL cria automaticamente índice na coluna filha?",
+              "options": [
+                "Sim, sempre",
+                "Não; o índice é útil para deletes/updates no pai e para joins, mas precisa ser criado",
+                "Sim, mas só para chaves compostas",
+                "Não, porque foreign keys não precisam de índice"
+              ],
+              "answer": 1,
+              "explanation": "O PostgreSQL indexa a chave referenciada no pai, mas não a coluna filha. Sem índice, alterações no pai podem varrer a tabela filha e segurar locks."
+            },
+            {
+              "question": "Quantos valores NULL uma constraint UNIQUE comum aceita em PostgreSQL 16?",
+              "options": [
+                "Nenhum",
+                "Exatamente um",
+                "Vários, porque NULLs são considerados distintos",
+                "Depende do tipo da coluna"
+              ],
+              "answer": 2,
+              "explanation": "Por padrão, NULLs não colidem. Se você precisa de no máximo um NULL, use NULLS NOT DISTINCT ou um índice parcial."
+            },
+            {
+              "question": "Qual é o risco de ON DELETE CASCADE em uma tabela central?",
+              "options": [
+                "Ele impede a criação de índices",
+                "Um delete acidental pode apagar uma árvore inteira de dados relacionados",
+                "Ele não funciona com foreign keys",
+                "Ele obriga o uso de UUID"
+              ],
+              "answer": 1,
+              "explanation": "CASCADE é conveniente, mas transforma um DELETE em uma reação em cadeia. Use com limites claros e, se possível, soft delete ou restrição."
+            }
+          ]
+        },
+        {
+          "slug": "tipos-null-armadilhas",
+          "title": "Tipos de dados, NULL e armadilhas de modelagem",
+          "summary": "Dinheiro, tempo, texto e booleanos: escolhas de tipo que parecem detalhe e viram bug de arredondamento, fuso e tri-estado.",
+          "minutes": 30,
+          "file": "lessons/07-tipos-null-armadilhas.md",
+          "takeaways": [
+            "Por que dinheiro não deve ser float e quando usar numeric ou centavos",
+            "timestamptz, timestamp e o custo de ignorar fuso",
+            "NULL, DEFAULT e constraints para evitar estados impossíveis"
+          ],
+          "quiz": [
+            {
+              "question": "Qual tipo é mais adequado para armazenar R$ 19,90 em um sistema financeiro?",
+              "options": [
+                "real",
+                "double precision",
+                "numeric(12,2) ou bigint em centavos",
+                "money, sempre"
+              ],
+              "answer": 2,
+              "explanation": "Ponto flutuante introduz erro de representação. numeric é exato; inteiros em centavos também, com regras explícitas de arredondamento."
+            },
+            {
+              "question": "O que `timestamptz` armazena no PostgreSQL?",
+              "options": [
+                "A data e hora locais do servidor, sem fuso",
+                "Um instante absoluto, convertido para o fuso da sessão na leitura",
+                "Uma string com o fuso digitado",
+                "Apenas a data, sem hora"
+              ],
+              "answer": 1,
+              "explanation": "timestamptz normaliza para UTC internamente e mostra conforme TimeZone da sessão. timestamp sem fuso não carrega um instante absoluto."
+            },
+            {
+              "question": "Em uma coluna booleana nullable, o que NULL significa?",
+              "options": [
+                "Falso",
+                "Verdadeiro",
+                "Desconhecido; não é nem true nem false",
+                "O valor default da coluna"
+              ],
+              "answer": 2,
+              "explanation": "NULL é ausência de valor/desconhecimento. Se o domínio tem apenas dois estados, declare NOT NULL e um DEFAULT."
+            }
+          ]
+        }
+      ],
+      "exercises": []
+    },
+    {
+      "slug": "consultas-avancadas",
+      "title": "Consultas avançadas e concorrência",
+      "description": "Subqueries, CTEs, window functions, transações e locks. Ferramentas para perguntas que não cabem em um GROUP BY simples e para sistemas querecebem escrita concorrente.",
+      "estimatedHours": 8,
+      "lessons": [
+        {
+          "slug": "subqueries-ctes",
+          "title": "Subqueries, CTEs e o custo de materializar",
+          "summary": "EXISTS, IN, LATERAL e WITH: quando cada forma é mais legível e o que o planner faz com ela no PostgreSQL 16.",
+          "minutes": 30,
+          "file": "lessons/08-subqueries-ctes.md",
+          "takeaways": [
+            "Anti-join com NOT EXISTS e a armadilha do NOT IN com NULL",
+            "CTE inline versus MATERIALIZED no PostgreSQL 12+",
+            "LATERAL para joins dependentes e top-N por grupo"
+          ],
+          "quiz": [
+            {
+              "question": "Por que `NOT IN (SELECT cliente_id FROM pedidos)` pode retornar zero linhas?",
+              "options": [
+                "Porque o PostgreSQL não suporta NOT IN",
+                "Porque se a subquery retornar um NULL, a comparação vira UNKNOWN para todas as linhas",
+                "Porque NOT IN só funciona com números",
+                "Porque a subquery é sempre materializada"
+              ],
+              "answer": 1,
+              "explanation": "NOT IN é equivalente a uma cadeia de <>; qualquer NULL torna o resultado desconhecido e o WHERE descarta a linha. NOT EXISTS é seguro."
+            },
+            {
+              "question": "No PostgreSQL 12+, o que acontece por padrão com uma CTE não recursiva referenciada uma vez?",
+              "options": [
+                "É sempre materializada",
+                "Pode ser inline, a menos que você use MATERIALIZED ou ela tenha efeitos colaterais",
+                "É executada em paralelo obrigatoriamente",
+                "Vira uma tabela temporária"
+              ],
+              "answer": 1,
+              "explanation": "O planejador pode integrar a CTE à query principal. MATERIALIZED força a materialização e pode ser útil para estabilizar custo ou reutilizar o resultado."
+            },
+            {
+              "question": "Quando LATERAL é especialmente útil?",
+              "options": [
+                "Para criar índices automaticamente",
+                "Para permitir que uma subquery no FROM referencie colunas de tabelas anteriores, como top-N por cliente",
+                "Para substituir transações",
+                "Para forçar Seq Scan"
+              ],
+              "answer": 1,
+              "explanation": "LATERAL funciona como um for-each no FROM; é a forma limpa de buscar os 3 pedidos mais recentes de cada cliente."
+            }
+          ]
+        },
+        {
+          "slug": "window-functions",
+          "title": "Window functions: ROW_NUMBER, LAG e running totals",
+          "summary": "Rankings, comparações com a linha anterior e acumulados sem perder o grão da tabela. Inclui frames e armadilhas de empate.",
+          "minutes": 32,
+          "file": "lessons/09-window-functions.md",
+          "takeaways": [
+            "PARTITION BY versus GROUP BY",
+            "ROW_NUMBER, RANK e DENSE_RANK na prática",
+            "Frames ROWS/RANGE e running totals com empates"
+          ],
+          "quiz": [
+            {
+              "question": "Qual é a diferença entre ROW_NUMBER e RANK?",
+              "options": [
+                "ROW_NUMBER começa em 0 e RANK em 1",
+                "Em empates, ROW_NUMBER gera números únicos e RANK repete o rank, pulando os seguintes",
+                "RANK só funciona com PARTITION BY",
+                "ROW_NUMBER não pode ser usado em CTE"
+              ],
+              "answer": 1,
+              "explanation": "ROW_NUMBER sempre numera 1..N; RANK compartilha a posição em empates e deixa lacunas. DENSE_RANK não deixa lacunas."
+            },
+            {
+              "question": "Por que você não pode filtrar `WHERE rn = 1` no mesmo nível em que define `ROW_NUMBER() OVER (...) AS rn`?",
+              "options": [
+                "Porque window functions não podem ser usadas em SELECT",
+                "Porque WHERE é avaliado antes das window functions; é preciso uma subquery ou CTE",
+                "Porque rn é uma palavra reservada",
+                "Porque o PostgreSQL calcula window functions apenas no HAVING"
+              ],
+              "answer": 1,
+              "explanation": "A window function é calculada depois de WHERE/GROUP BY/HAVING e antes de ORDER BY. Para filtrar pelo resultado, envolva a query em outra camada."
+            },
+            {
+              "question": "Com ORDER BY dentro do OVER e sem frame explícito, qual é o frame padrão?",
+              "options": [
+                "ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW",
+                "RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW, incluindo empates",
+                "ROWS BETWEEN 1 PRECEDING AND 1 FOLLOWING",
+                "A tabela inteira, sem frame"
+              ],
+              "answer": 1,
+              "explanation": "O padrão é RANGE ... CURRENT ROW, que inclui todas as linhas empatadas na ordem. Para um acumulado linha a linha, declare ROWS."
+            }
+          ]
+        },
+        {
+          "slug": "transacoes-acid-isolation",
+          "title": "Transações, ACID e isolation levels",
+          "summary": "O que o PostgreSQL realmente garante em Read Committed, Repeatable Read e Serializable, e como escrever retry para serialization failure.",
+          "minutes": 34,
+          "file": "lessons/10-transacoes-acid-isolation.md",
+          "takeaways": [
+            "ACID com exemplos de falha, não definições decoradas",
+            "Anomalias permitidas em cada isolation level",
+            "Retry correto para SQLSTATE 40001 e 40P01"
+          ],
+          "quiz": [
+            {
+              "question": "Qual é o isolation level padrão do PostgreSQL?",
+              "options": [
+                "Read Uncommitted",
+                "Read Committed",
+                "Repeatable Read",
+                "Serializable"
+              ],
+              "answer": 1,
+              "explanation": "O padrão é Read Committed: cada statement vê um snapshot novo, então duas leituras na mesma transação podem enxergar dados diferentes."
+            },
+            {
+              "question": "O que fazer ao receber SQLSTATE 40001 (serialization_failure)?",
+              "options": [
+                "Ignorar e continuar a transação",
+                "Fazer rollback e repetir a transação inteira, com backoff",
+                "Trocar para Read Uncommitted",
+                "Desativar o autocommit"
+              ],
+              "answer": 1,
+              "explanation": "Serializable pode abortar transações para preservar a consistência. O retry precisa refazer a lógica desde o BEGIN, não apenas o último statement."
+            },
+            {
+              "question": "Repeatable Read no PostgreSQL impede qual fenômeno?",
+              "options": [
+                "Leituras não repetíveis, mas não necessariamente write skew",
+                "Todos os tipos de write skew",
+                "Deadlocks",
+                "Atualizações perdidas de qualquer tipo"
+              ],
+              "answer": 0,
+              "explanation": "Repeatable Read usa um snapshot estável e bloqueia atualizações conflitantes, mas write skew ainda é possível. Serializable adiciona SSI para detectá-lo."
+            }
+          ]
+        },
+        {
+          "slug": "locks-deadlocks-concorrencia",
+          "title": "Locks, deadlocks e concorrência real",
+          "summary": "Row locks, SKIP LOCKED, advisory locks e diagnóstico com pg_locks. Como evitar que duas transações se matem.",
+          "minutes": 32,
+          "file": "lessons/11-locks-deadlocks-concorrencia.md",
+          "takeaways": [
+            "FOR UPDATE, FOR NO KEY UPDATE e SKIP LOCKED",
+            "Ordem consistente de aquisição para evitar deadlocks",
+            "Consultar pg_locks e pg_stat_activity sem pânico"
+          ],
+          "quiz": [
+            {
+              "question": "Qual construção é mais adequada para uma fila de jobs com vários workers?",
+              "options": [
+                "SELECT ... FOR UPDATE sem filtro",
+                "SELECT ... FOR UPDATE SKIP LOCKED LIMIT 1",
+                "SELECT ... FOR SHARE",
+                "LOCK TABLE jobs IN ACCESS EXCLUSIVE MODE"
+              ],
+              "answer": 1,
+              "explanation": "SKIP LOCKED faz cada worker pegar uma linha livre sem esperar pelas já travadas. É a base de filas simples no PostgreSQL."
+            },
+            {
+              "question": "Qual é a causa clássica de deadlock?",
+              "options": [
+                "Duas transações adquirirem locks em ordens opostas",
+                "Usar índices B-tree",
+                "Ter mais de uma foreign key",
+                "Usar SELECT sem WHERE"
+              ],
+              "answer": 0,
+              "explanation": "Se T1 trava A e espera B, enquanto T2 trava B e espera A, ocorre ciclo. Padronize a ordem de aquisição ou reduza o escopo dos locks."
+            },
+            {
+              "question": "Por que uma transação 'idle in transaction' é perigosa?",
+              "options": [
+                "Porque impede o uso de JOINs",
+                "Porque mantém locks e um snapshot antigo, bloqueando vacuum e aumentando bloat",
+                "Porque desliga o autovacuum",
+                "Porque força o planner a usar Seq Scan"
+              ],
+              "answer": 1,
+              "explanation": "Mesmo sem executar nada, a transação aberta segura recursos. Configure idle_in_transaction_session_timeout e mantenha transações curtas."
+            }
+          ]
+        }
+      ],
+      "exercises": []
+    },
+    {
+      "slug": "performance",
+      "title": "Performance com evidência",
+      "description": "Índices, EXPLAIN e tuning. Menos opinião, mais buffers e tempo real. Você vai aprender a medir antes e depois, e a reconhecer quando o gargalo não é o banco.",
+      "estimatedHours": 7,
+      "lessons": [
+        {
+          "slug": "indices-btree-compostos-parciais",
+          "title": "Índices B-tree, compostos e parciais: seletividade importa",
+          "summary": "Como o B-tree funciona, por que a ordem das colunas muda tudo e quando um índice pequeno resolve mais que três grandes.",
+          "minutes": 32,
+          "file": "lessons/12-indices-btree-compostos-parciais.md",
+          "takeaways": [
+            "Ordem de colunas em índice composto: igualdade antes de range",
+            "Índices parciais, de expressão e covering com INCLUDE",
+            "Custo de escrita, bloat e CREATE INDEX CONCURRENTLY"
+          ],
+          "quiz": [
+            {
+              "question": "Para a query `WHERE tenant_id = ? AND status = ? AND criado_em > ?`, qual índice composto tende a ser mais útil?",
+              "options": [
+                "(criado_em, status, tenant_id)",
+                "(tenant_id, status, criado_em)",
+                "(status, criado_em)",
+                "Três índices separados, um por coluna"
+              ],
+              "answer": 1,
+              "explanation": "Colunas de igualdade primeiro permitem localizar a faixa exata; a coluna de range fica por último para o índice ser usado na varredura ordenada."
+            },
+            {
+              "question": "O que um índice parcial oferece?",
+              "options": [
+                "Indexa apenas metade das colunas",
+                "Indexa apenas as linhas que satisfazem um predicado, reduzindo tamanho e custo de manutenção",
+                "Funciona apenas com JSONB",
+                "É um índice que não precisa de VACUUM"
+              ],
+              "answer": 1,
+              "explanation": "Se 95% das consultas filtram status = 'pendente', um índice WHERE status = 'pendente' é menor e mais barato que um índice completo."
+            },
+            {
+              "question": "Por que `WHERE lower(email) = ?` não usa um índice B-tree comum em email?",
+              "options": [
+                "Porque lower() não existe no PostgreSQL",
+                "Porque o índice foi criado sobre email, não sobre o resultado de lower(email)",
+                "Porque índices B-tree não aceitam texto",
+                "Porque a comparação com = é inválida"
+              ],
+              "answer": 1,
+              "explanation": "É preciso criar um índice de expressão em lower(email), ou normalizar o email na escrita e indexar a coluna normalizada."
+            }
+          ]
+        },
+        {
+          "slug": "explain-analyze-planos",
+          "title": "EXPLAIN ANALYZE: lendo planos sem se enganar",
+          "summary": "Custos, rows estimados versus reais, loops, buffers e os nós que aparecem quando a query fica lenta de verdade.",
+          "minutes": 34,
+          "file": "lessons/13-explain-analyze-planos.md",
+          "takeaways": [
+            "Ler um plano de baixo para cima e multiplicar por loops",
+            "Identificar estimativa errada, desvio de buffers e spill em disco",
+            "Usar BUFFERS, pg_stat_statements e auto_explain"
+          ],
+          "quiz": [
+            {
+              "question": "O que EXPLAIN ANALYZE faz que EXPLAIN sozinho não faz?",
+              "options": [
+                "Cria índices automaticamente",
+                "Executa a query e mostra tempo real e linhas efetivamente processadas",
+                "Mostra o schema das tabelas",
+                "Traduz o plano para SQL"
+              ],
+              "answer": 1,
+              "explanation": "ANALYZE executa de verdade. Cuidado com writes: rode dentro de BEGIN ... ROLLBACK ou em transação controlada."
+            },
+            {
+              "question": "Um nó aparece com `rows=10` estimado e `rows=50000` real. O que isso indica?",
+              "options": [
+                "O índice está corrompido",
+                "A estimativa do planner está errada, muitas vezes por estatísticas desatualizadas ou correlação entre colunas",
+                "A query está correta e o plano é irrelevante",
+                "O PostgreSQL está com pouca memória RAM"
+              ],
+              "answer": 1,
+              "explanation": "Desvio grande leva a escolhas ruins de join e memória. Atualize estatísticas, aumente target de amostragem ou reescreva para ajudar o planner."
+            },
+            {
+              "question": "Em um Nested Loop, o custo total é aproximadamente:",
+              "options": [
+                "O custo do nó interno apenas",
+                "O custo do nó externo mais o custo do interno multiplicado pelo número de loops",
+                "A soma dos custos de todos os nós, sem multiplicação",
+                "Sempre o número de buffers"
+              ],
+              "answer": 1,
+              "explanation": "O loop executa o lado interno uma vez por linha externa. Por isso 'loops=10000' com custo interno 0.5 pode dominar o plano."
+            }
+          ]
+        },
+        {
+          "slug": "tuning-n-plus-1-paginacao",
+          "title": "Tuning de queries, N+1 e paginação em escala",
+          "summary": "Do ORM ao cursor: como achar N+1, trocar OFFSET profundo por keyset e dimensionar pool e fetch sem derrubar o banco.",
+          "minutes": 32,
+          "file": "lessons/14-tuning-n-plus-1-paginacao.md",
+          "takeaways": [
+            "Detectar N+1 por contagem de queries e padrão de acesso",
+            "Keyset pagination com cursor composto e índice correspondente",
+            "Connection pool, fetch size e limites de statement"
+          ],
+          "quiz": [
+            {
+              "question": "Por que OFFSET 100000 é caro mesmo com índice?",
+              "options": [
+                "Porque o PostgreSQL recalcula o índice inteiro",
+                "Porque o banco precisa percorrer e descartar as linhas anteriores antes de devolver a página",
+                "Porque OFFSET não pode usar índice",
+                "Porque OFFSET bloqueia a tabela"
+              ],
+              "answer": 1,
+              "explanation": "O custo cresce com o offset. Keyset usa a última chave como ponto de partida e lê direto a próxima faixa."
+            },
+            {
+              "question": "O que é N+1 queries?",
+              "options": [
+                "Uma query que retorna N+1 colunas",
+                "Uma consulta inicial seguida de uma consulta por item para carregar relações",
+                "Um índice com N+1 colunas",
+                "Um join que retorna uma linha a mais"
+              ],
+              "answer": 1,
+              "explanation": "É o padrão clássico de ORM: 1 query para a lista e N para cada relação. Resolve-se com join, batch ou carregamento antecipado."
+            },
+            {
+              "question": "Aumentar indefinidamente o pool de conexões é boa estratégia?",
+              "options": [
+                "Sim, porque o PostgreSQL atende conexões em paralelo sem custo",
+                "Não; conexões consomem memória e disputam CPU/locks, e um pool grande pode piorar a latência",
+                "Sim, desde que o servidor tenha SSD",
+                "Não, porque o PostgreSQL só aceita 10 conexões"
+              ],
+              "answer": 1,
+              "explanation": "O banco tem um ponto ótimo de concorrência. Pool pequeno com fila controlada costuma ser mais estável que centenas de conexões ociosas."
+            }
+          ]
+        }
+      ],
+      "exercises": []
+    },
+    {
+      "slug": "postgres-producao",
+      "title": "PostgreSQL em produção",
+      "description": "Recursos que você só aprende operando: JSONB, busca textual, extensões, partitioning, vacuum, replicação, backup e migrations sem downtime.",
+      "estimatedHours": 5,
+      "lessons": [
+        {
+          "slug": "jsonb-fulltext-extensions",
+          "title": "JSONB, full-text search e extensions",
+          "summary": "Quando JSONB ajuda e quando vira desculpa para não modelar; como indexar documentos e buscar texto em português.",
+          "minutes": 32,
+          "file": "lessons/15-jsonb-fulltext-extensions.md",
+          "takeaways": [
+            "Operadores JSONB, GIN e jsonb_path_ops",
+            "tsvector, dicionário português e ranking de busca",
+            "Extensões úteis e o custo de mantê-las"
+          ],
+          "quiz": [
+            {
+              "question": "Qual é a diferença entre `payload -> 'nome'` e `payload ->> 'nome'`?",
+              "options": [
+                "O primeiro retorna jsonb; o segundo retorna text",
+                "O primeiro retorna text; o segundo retorna jsonb",
+                "Os dois retornam text",
+                "O segundo só funciona com arrays"
+              ],
+              "answer": 0,
+              "explanation": "-> mantém o tipo JSON; ->> extrai o valor como texto. Para comparar com string, ->> costuma ser o operador certo."
+            },
+            {
+              "question": "Qual índice é mais adequado para `WHERE documento @> '{\"status\":\"pago\"}'`?",
+              "options": [
+                "B-tree em documento",
+                "GIN em documento, possivelmente com jsonb_path_ops",
+                "Hash em documento",
+                "Nenhum índice é possível"
+              ],
+              "answer": 1,
+              "explanation": "Contenção JSONB usa GIN. jsonb_path_ops é menor e mais rápido para @>, mas não serve para todos os operadores."
+            },
+            {
+              "question": "O que `to_tsvector('portuguese', titulo)` faz?",
+              "options": [
+                "Divide o texto em letras",
+                "Normaliza o texto com dicionário português, removendo stop words e aplicando stemming",
+                "Cria uma constraint",
+                "Traduz o texto para inglês"
+              ],
+              "answer": 1,
+              "explanation": "O dicionário reduz palavras a lexemas e descarta termos comuns. A busca precisa usar a mesma configuração em to_tsquery."
+            }
+          ]
+        },
+        {
+          "slug": "partitioning-vacuum-replicacao-migrations",
+          "title": "Partitioning, vacuum, replicação, backup e migrations",
+          "summary": "O ciclo de vida de uma tabela grande: dividir, limpar, replicar, restaurar e evoluir o schema sem janela de manutenção.",
+          "minutes": 36,
+          "file": "lessons/16-partitioning-vacuum-replicacao-migrations.md",
+          "takeaways": [
+            "Partition pruning e limitações de unique constraints",
+            "Autovacuum, bloat e transações longas",
+            "Migrations expand-contract, backup e teste de restore"
+          ],
+          "quiz": [
+            {
+              "question": "O que é partition pruning?",
+              "options": [
+                "Apagar partições antigas automaticamente",
+                "O planner ignorar partições que não podem satisfazer o filtro da query",
+                "Compactar índices automaticamente",
+                "Replicar apenas uma partição"
+              ],
+              "answer": 1,
+              "explanation": "Se a query filtra por criado_em, o planner pode ler só as partições do intervalo. Sem filtro na chave de partitionamento, ele lê todas."
+            },
+            {
+              "question": "Qual é o papel principal do autovacuum?",
+              "options": [
+                "Criar backups automáticos",
+                "Reclamar espaço de tuplas mortas e atualizar estatísticas, evitando bloat e wraparound de XID",
+                "Reescrever queries lentas",
+                "Sincronizar réplicas"
+              ],
+              "answer": 1,
+              "explanation": "O MVCC deixa versões antigas; o vacuum as torna reutilizáveis. Estatísticas atualizadas também alimentam o planner."
+            },
+            {
+              "question": "Qual é a forma mais segura de adicionar NOT NULL em uma tabela grande?",
+              "options": [
+                "ALTER TABLE ... SET NOT NULL direto, sempre",
+                "Adicionar um CHECK NOT VALID, validar em seguida e então usar SET NOT NULL",
+                "Recriar a tabela inteira com CREATE TABLE AS",
+                "Desligar o autovacuum antes"
+              ],
+              "answer": 1,
+              "explanation": "O CHECK validado permite que o PostgreSQL prove a ausência de NULLs sem varredura extra no SET NOT NULL, reduzindo o tempo de lock."
+            }
+          ]
+        }
+      ],
+      "exercises": []
+    }
+  ]
+}

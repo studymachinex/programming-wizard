@@ -1,0 +1,1070 @@
+{
+  "slug": "algoritmos-avancados",
+  "title": "Algoritmos Avançados & Padrões de Entrevista",
+  "subtitle": "DP, grafos, estruturas avançadas e o meta-jogo das entrevistas FAANG",
+  "description": "Uma trilha para quem já programa e quer transformar repertório de algoritmos em desempenho consistente em entrevistas de big tech. Cobre reconhecimento de padrões, programação dinâmica, grafos avançados, estruturas de dados e simulações cronometradas, com implementações em Java 21 e análise de complexidade em cada etapa.",
+  "level": "especialista",
+  "icon": "network",
+  "accent": "ember",
+  "estimatedHours": 52,
+  "isCore": true,
+  "outcomes": [
+    "Reconhecer o padrão de um problema de entrevista em menos de cinco minutos e justificar a escolha em voz alta",
+    "Derivar recorrências de programação dinâmica 1D, 2D, em árvores e com bitmask a partir do enunciado",
+    "Implementar segment tree com lazy propagation e Fenwick tree para atualizações e consultas de intervalo",
+    "Aplicar Bellman-Ford, Floyd-Warshall, Tarjan/Kosaraju e max flow/min cut em problemas de grafos",
+    "Estruturar uma resposta de 45 minutos com clarificação, trade-offs, código, testes e análise de complexidade",
+    "Conduzir um mock interview completo e avaliar o próprio desempenho com uma rubrica objetiva"
+  ],
+  "modules": [
+    {
+      "slug": "framework-de-entrevista",
+      "title": "O framework de entrevista",
+      "description": "O meta-jogo antes do algoritmo: reconhecer o padrão, comunicar decisões e validar bordas e complexidade sem perder tempo.",
+      "estimatedHours": 8,
+      "lessons": [
+        {
+          "slug": "reconhecendo-o-padrao",
+          "title": "Reconhecendo o padrão em menos de cinco minutos",
+          "summary": "Um protocolo para sair do enunciado e chegar a duas ou três abordagens candidatas antes de escrever a primeira linha.",
+          "minutes": 45,
+          "file": "lessons/reconhecendo-o-padrao.md",
+          "takeaways": [
+            "Classificar o problema pela saída esperada e pelas restrições de entrada",
+            "Mapear sinais do enunciado para padrões conhecidos sem cair em palavra-chave",
+            "Usar a força bruta como ponto de partida para justificar a otimização"
+          ],
+          "quiz": [
+            {
+              "question": "Qual sinal do enunciado aponta com mais força para uma janela deslizante?",
+              "options": [
+                "Pedido de todos os subconjuntos possíveis",
+                "Maior ou menor subarray/substring contígua com uma condição",
+                "Grafo com dependências entre tarefas",
+                "Consulta de mediana em um stream"
+              ],
+              "answer": 1,
+              "explanation": "Janela deslizante explora intervalos contíguos cuja validade pode ser mantida com dois ponteiros; subconjuntos pedem backtracking ou bitmask."
+            },
+            {
+              "question": "A restrição n <= 20 costuma sugerir qual complexidade?",
+              "options": [
+                "O(log n)",
+                "O(n)",
+                "O(2^n) com bitmask ou backtracking",
+                "O(n^3) obrigatoriamente"
+              ],
+              "answer": 2,
+              "explanation": "Com n <= 20, 2^20 é cerca de um milhão, então enumerar subconjuntos com bitmask ou backtracking é viável."
+            },
+            {
+              "question": "Por que clarificar o enunciado antes de escolher o algoritmo?",
+              "options": [
+                "Para ganhar tempo enquanto pensa",
+                "Porque o enunciado costuma omitir bordas e o custo de assumir errado é alto",
+                "Porque o entrevistador exige uma pergunta",
+                "Para mostrar que você decorou o problema"
+              ],
+              "answer": 1,
+              "explanation": "Entradas vazias, duplicatas, intervalos que se tocam e permissão de mutação mudam a solução; clarificar evita construir a coisa certa para o problema errado."
+            }
+          ]
+        },
+        {
+          "slug": "comunicacao-e-tradeoffs",
+          "title": "Pensar em voz alta: clarificação, trade-offs e sinais",
+          "summary": "Como transformar raciocínio silencioso em sinal avaliável, com perguntas certeiras e trade-offs quantificados.",
+          "minutes": 40,
+          "file": "lessons/comunicacao-e-tradeoffs.md",
+          "takeaways": [
+            "Fazer perguntas que mudam a solução, não perguntas de protocolo",
+            "Comparar abordagens com tempo, espaço e risco de implementação",
+            "Usar dicas do entrevistador como colaboração, não como derrota"
+          ],
+          "quiz": [
+            {
+              "question": "Qual frase comunica melhor um trade-off para top k?",
+              "options": [
+                "Vou usar heap porque é mais rápido.",
+                "Uso um min-heap de tamanho k: O(n log k) de tempo e O(k) de espaço; se k for próximo de n, ordenar pode ser mais simples.",
+                "Heap é sempre O(n).",
+                "Não sei a complexidade, mas funciona."
+              ],
+              "answer": 1,
+              "explanation": "A frase nomeia a estrutura, o custo e a condição em que a alternativa é melhor. Isso é o que o entrevistador consegue avaliar."
+            },
+            {
+              "question": "O entrevistador dá uma dica no meio da solução. O melhor movimento é:",
+              "options": [
+                "Ignorar e terminar o código",
+                "Incorporar a dica, explicar o impacto e ajustar o plano",
+                "Apagar tudo e começar de outra forma",
+                "Dizer que já ia fazer isso"
+              ],
+              "answer": 1,
+              "explanation": "Entrevistas avaliam colaboração. Incorporar a dica explicitamente mostra que você ouve, entende e adapta."
+            },
+            {
+              "question": "Qual pergunta de clarificação é provavelmente desperdício de tempo?",
+              "options": [
+                "A entrada pode ser vazia?",
+                "Posso modificar o array de entrada?",
+                "O array está ordenado?",
+                "Qual é o retorno quando não existe solução?"
+              ],
+              "answer": 2,
+              "explanation": "Se o enunciado ou as restrições já dizem que o array está ordenado, perguntar de novo sinaliza leitura superficial. As outras três mudam decisões de implementação."
+            }
+          ]
+        },
+        {
+          "slug": "bordas-complexidade-e-testes",
+          "title": "Bordas, complexidade e testes antes de codar",
+          "summary": "O ritual que evita o clássico 'passou no exemplo, quebrou no hidden test': enumerar bordas, provar complexidade e testar por camadas.",
+          "minutes": 40,
+          "file": "lessons/bordas-complexidade-e-testes.md",
+          "takeaways": [
+            "Enumerar bordas estruturais antes de escolher a estrutura de dados",
+            "Calcular complexidade incluindo pilha de recursão e estruturas auxiliares",
+            "Testar exemplo, borda, adversarial e volume, nessa ordem"
+          ],
+          "quiz": [
+            {
+              "question": "Por que `(lo + hi) / 2` é arriscado em Java?",
+              "options": [
+                "Porque a divisão inteira é lenta",
+                "Porque a soma pode estourar o limite de int antes da divisão",
+                "Porque não funciona com números negativos",
+                "Porque o compilador otimiza errado"
+              ],
+              "answer": 1,
+              "explanation": "Com lo e hi próximos de Integer.MAX_VALUE, a soma estoura. `lo + (hi - lo) / 2` evita o overflow."
+            },
+            {
+              "question": "Ao analisar a memória de uma DFS recursiva, o que deve entrar na conta?",
+              "options": [
+                "Apenas o array de entrada",
+                "Apenas a lista de resultados",
+                "A pilha de recursão, que pode ter profundidade O(V)",
+                "Nada, pois recursão não usa memória"
+              ],
+              "answer": 2,
+              "explanation": "Cada chamada empilha parâmetros e variáveis locais. Em um grafo de 100 mil nós, isso pode estourar a pilha padrão da JVM."
+            },
+            {
+              "question": "Qual é a melhor ordem para testar uma solução durante a entrevista?",
+              "options": [
+                "Volume, adversarial, exemplo, borda",
+                "Exemplo, borda, adversarial, volume",
+                "Só o exemplo do enunciado",
+                "Borda, volume, exemplo, adversarial"
+              ],
+              "answer": 1,
+              "explanation": "Começar pelo exemplo valida o caminho feliz; depois bordas e casos adversariais pegam os bugs mais comuns; volume confirma a complexidade."
+            }
+          ]
+        }
+      ],
+      "exercises": []
+    },
+    {
+      "slug": "padroes-classicos",
+      "title": "Padrões clássicos de entrevista",
+      "description": "Os padrões que aparecem em quase todo loop de entrevista: heaps duplos, intervalos, backtracking e greedy com prova.",
+      "estimatedHours": 10,
+      "lessons": [
+        {
+          "slug": "two-heaps-median-stream",
+          "title": "Two heaps: a mediana de um stream em O(log n)",
+          "summary": "Como manter as duas metades ordenadas sem ordenar nada, e por que essa ideia resolve uma família de problemas de stream.",
+          "minutes": 45,
+          "file": "lessons/two-heaps-median-stream.md",
+          "takeaways": [
+            "Manter a invariante de tamanho e de ordem entre os dois heaps",
+            "Implementar addNum e findMedian em O(log n) e O(1)",
+            "Reconhecer variantes com janela deslizante e lazy deletion"
+          ],
+          "quiz": [
+            {
+              "question": "Qual é a invariante central do padrão de dois heaps para mediana?",
+              "options": [
+                "Os dois heaps têm sempre o mesmo tamanho",
+                "O max-heap guarda a metade menor, o min-heap a metade maior, e todo elemento da esquerda é menor ou igual a todo elemento da direita",
+                "O min-heap guarda todos os elementos e o max-heap só o mínimo",
+                "A mediana fica sempre no topo do max-heap"
+              ],
+              "answer": 1,
+              "explanation": "A ordem entre os heaps garante que os topos sejam os dois elementos centrais; os tamanhos ficam balanceados com diferença de no máximo um."
+            },
+            {
+              "question": "Qual é o custo de inserir um número no MedianFinder?",
+              "options": [
+                "O(1)",
+                "O(log n)",
+                "O(n)",
+                "O(n log n)"
+              ],
+              "answer": 1,
+              "explanation": "A inserção e a eventual movimentação entre heaps custam O(log n), pois cada operação de heap é logarítmica."
+            },
+            {
+              "question": "Com um número par de elementos, como a mediana é calculada?",
+              "options": [
+                "Pelo topo do max-heap",
+                "Pelo topo do min-heap",
+                "Pela média dos dois topos",
+                "Pela diferença entre os topos"
+              ],
+              "answer": 2,
+              "explanation": "Com tamanhos iguais, os dois topos são os elementos centrais; a mediana é a média aritmética deles."
+            }
+          ]
+        },
+        {
+          "slug": "merge-intervals",
+          "title": "Merge intervals: ordenar para simplificar",
+          "summary": "O padrão de intervalos que resolve agendas, alocação de salas e fusão de faixas com uma única varredura após a ordenação.",
+          "minutes": 40,
+          "file": "lessons/merge-intervals.md",
+          "takeaways": [
+            "Provar por que ordenar pelo início elimina a necessidade de comparar todos os pares",
+            "Implementar merge e inserção de intervalo em O(n log n) e O(n)",
+            "Reconhecer variantes de salas, cobertura e agendamento"
+          ],
+          "quiz": [
+            {
+              "question": "Por que ordenar os intervalos pelo início antes de fundir?",
+              "options": [
+                "Para deixar o código mais bonito",
+                "Porque, após a ordenação, basta comparar cada intervalo com o último intervalo fundido",
+                "Porque a ordenação reduz a complexidade para O(n)",
+                "Porque intervalos desordenados não podem ser fundidos"
+              ],
+              "answer": 1,
+              "explanation": "A ordenação garante que nenhum intervalo futuro possa começar antes do atual; assim, a decisão de fundir depende só do último intervalo da saída."
+            },
+            {
+              "question": "Com a regra de que intervalos que se tocam devem ser fundidos, qual comparação está correta?",
+              "options": [
+                "`atual.inicio < ultimo.fim`",
+                "`atual.inicio <= ultimo.fim`",
+                "`atual.fim <= ultimo.inicio`",
+                "`atual.inicio == ultimo.inicio`"
+              ],
+              "answer": 1,
+              "explanation": "O `<=` funde [1,2] e [2,3]. Com `<`, eles permanecem separados. A regra precisa ser clarificada com o entrevistador."
+            },
+            {
+              "question": "Qual é a complexidade de fundir n intervalos com a abordagem de ordenar e varrer?",
+              "options": [
+                "O(n)",
+                "O(n log n)",
+                "O(n^2)",
+                "O(log n)"
+              ],
+              "answer": 1,
+              "explanation": "A ordenação domina o custo; a varredura é O(n). O espaço extra é O(n) para a saída."
+            }
+          ]
+        },
+        {
+          "slug": "backtracking-template",
+          "title": "Backtracking com template: permutations, subsets e N-Queens",
+          "summary": "Um único esqueleto de escolha, exploração e desfazer resolve enumeração de permutações, subconjuntos e tabuleiros.",
+          "minutes": 50,
+          "file": "lessons/backtracking-template.md",
+          "takeaways": [
+            "Aplicar o template escolher-explorar-desfazer sem duplicar código",
+            "Podar com índices, conjuntos de colisão e ordenação",
+            "Calcular o custo real de enumerar permutações e subconjuntos"
+          ],
+          "quiz": [
+            {
+              "question": "Qual é a ordem correta das operações no template de backtracking?",
+              "options": [
+                "Explorar, escolher, desfazer",
+                "Escolher, explorar, desfazer",
+                "Desfazer, escolher, explorar",
+                "Escolher, desfazer, explorar"
+              ],
+              "answer": 1,
+              "explanation": "Você adiciona a escolha ao estado, recursa para explorar, e remove a escolha ao voltar para que o próximo ramo comece limpo."
+            },
+            {
+              "question": "Por que subsets usa um índice `start` em vez de um array de visitados?",
+              "options": [
+                "Porque arrays de visitados são mais lentos",
+                "Porque a ordem dos elementos não importa, e o índice evita gerar a mesma combinação em ordens diferentes",
+                "Porque o índice garante que todos os subconjuntos tenham o mesmo tamanho",
+                "Porque o problema exige ordem lexicográfica"
+              ],
+              "answer": 1,
+              "explanation": "Ao avançar o índice, cada combinação é gerada uma única vez; sem isso, [1,2] e [2,1] apareceriam como subconjuntos distintos."
+            },
+            {
+              "question": "Em N-Queens, para que servem os conjuntos de colunas e diagonais?",
+              "options": [
+                "Para armazenar a solução final",
+                "Para podar posições atacadas em O(1) antes de recursar",
+                "Para ordenar as linhas",
+                "Para contar o número de rainhas"
+              ],
+              "answer": 1,
+              "explanation": "Cada rainha ataca coluna, diagonal principal (linha - coluna) e diagonal secundária (linha + coluna). Testar esses conjuntos evita explorar ramos inválidos."
+            },
+            {
+              "question": "Qual é a complexidade de gerar todas as permutações de n elementos?",
+              "options": [
+                "O(n^2)",
+                "O(n log n)",
+                "O(n * n!)",
+                "O(2^n)"
+              ],
+              "answer": 2,
+              "explanation": "São n! permutações e cada uma custa O(n) para ser copiada para a saída."
+            }
+          ]
+        },
+        {
+          "slug": "greedy-e-prova",
+          "title": "Greedy: quando o óbvio é correto e como provar",
+          "summary": "Greedy não é chute: é uma escolha local que precisa de prova por troca e de um contraexemplo para saber quando não usar.",
+          "minutes": 45,
+          "file": "lessons/greedy-e-prova.md",
+          "takeaways": [
+            "Formular a propriedade de escolha gulosa e a subestrutura ótima",
+            "Provar corretude com argumento de troca em três passos",
+            "Reconhecer quando greedy falha e DP é necessária"
+          ],
+          "quiz": [
+            {
+              "question": "O que é uma prova por argumento de troca?",
+              "options": [
+                "Trocar o algoritmo por outro mais rápido",
+                "Mostrar que qualquer solução ótima pode ser transformada na solução gulosa sem piorar",
+                "Testar todas as entradas possíveis",
+                "Comparar o tempo de execução de duas implementações"
+              ],
+              "answer": 1,
+              "explanation": "Você assume uma solução ótima que difere da gulosa na primeira decisão e mostra que trocar pela escolha gulosa mantém a viabilidade e não aumenta o custo."
+            },
+            {
+              "question": "Em qual caso greedy por maior moeda primeiro falha?",
+              "options": [
+                "Moedas de 1, 5 e 10",
+                "Moedas de 1, 3 e 4 para o valor 6",
+                "Qualquer sistema com moeda de 1",
+                "Moedas com valores potência de dois"
+              ],
+              "answer": 1,
+              "explanation": "Greedy escolhe 4 + 1 + 1 (3 moedas), mas o ótimo é 3 + 3 (2 moedas). Isso mostra que a propriedade gulosa precisa ser provada, não assumida."
+            },
+            {
+              "question": "No Jump Game, qual variável resume o estado relevante?",
+              "options": [
+                "O índice do último zero",
+                "O alcance máximo atingido até agora",
+                "A soma dos saltos",
+                "O número de saltos usados"
+              ],
+              "answer": 1,
+              "explanation": "Se o índice atual for maior que o alcance máximo, você está preso. Caso contrário, atualize o alcance com i + nums[i]."
+            },
+            {
+              "question": "No Gas Station, quando existe uma solução?",
+              "options": [
+                "Quando o primeiro posto tem mais gasolina",
+                "Quando a soma total de gasolina é maior ou igual à soma total de custo",
+                "Quando todos os postos têm gasolina",
+                "Quando o custo é sempre menor que a gasolina"
+              ],
+              "answer": 1,
+              "explanation": "Se o total for negativo, é impossível fechar o circuito. Se for não negativo, o início correto é o posto seguinte ao último ponto em que o tanque ficou negativo."
+            }
+          ]
+        }
+      ],
+      "exercises": [
+        "exercises/adv-permutations-backtracking.json"
+      ]
+    },
+    {
+      "slug": "programacao-dinamica",
+      "title": "Programação dinâmica de verdade",
+      "description": "Da recorrência à implementação: DP 1D, 2D, knapsack, LIS, intervalos, stocks, árvores e bitmask.",
+      "estimatedHours": 12,
+      "lessons": [
+        {
+          "slug": "dp-1d",
+          "title": "DP 1D: Fibonacci, coin change e house robber",
+          "summary": "Como definir estado, recorrência, base e ordem de iteração sem decorar tabelas.",
+          "minutes": 50,
+          "file": "lessons/dp-1d.md",
+          "takeaways": [
+            "Derivar a recorrência a partir da última decisão",
+            "Escolher entre memoização e tabulação com critério",
+            "Otimizar espaço sem quebrar a ordem de dependência"
+          ],
+          "quiz": [
+            {
+              "question": "Quais duas propriedades justificam usar programação dinâmica?",
+              "options": [
+                "Ordenação e busca binária",
+                "Subestrutura ótima e subproblemas sobrepostos",
+                "Grafos acíclicos e pesos positivos",
+                "Recursão e divisão e conquista"
+              ],
+              "answer": 1,
+              "explanation": "A solução ótima precisa ser composta de soluções ótimas de subproblemas, e esses subproblemas precisam se repetir para valer a pena memorizar."
+            },
+            {
+              "question": "Em coin change, qual é a recorrência correta para o mínimo de moedas?",
+              "options": [
+                "`dp[i] = dp[i-1] + 1`",
+                "`dp[i] = min(dp[i - moeda] + 1)` para cada moeda que cabe",
+                "`dp[i] = max(dp[i - moeda]) + 1`",
+                "`dp[i] = dp[i/2] + moeda`"
+              ],
+              "answer": 1,
+              "explanation": "A última moeda escolhida deixa um subproblema de valor i - moeda; o mínimo entre todas as escolhas é o ótimo."
+            },
+            {
+              "question": "Como o house robber atinge O(1) de espaço?",
+              "options": [
+                "Usando um hash map",
+                "Guardando apenas os dois últimos estados, já que a recorrência olha só para i-1 e i-2",
+                "Ordenando as casas",
+                "Usando recursão sem memoização"
+              ],
+              "answer": 1,
+              "explanation": "A recorrência `dp[i] = max(dp[i-1], dp[i-2] + nums[i])` depende apenas de duas posições anteriores, então dois escalares bastam."
+            },
+            {
+              "question": "Por que usar `amount + 1` como sentinela de impossível em coin change?",
+              "options": [
+                "Porque é o maior inteiro possível",
+                "Porque é maior que qualquer resposta viável e evita overflow ao somar 1",
+                "Porque o Java exige esse valor",
+                "Porque representa zero moedas"
+              ],
+              "answer": 1,
+              "explanation": "O máximo de moedas é amount (todas de valor 1). Usar `amount + 1` como infinito permite comparar e somar sem estourar como `Integer.MAX_VALUE + 1`."
+            }
+          ]
+        },
+        {
+          "slug": "dp-2d-knapsack",
+          "title": "DP 2D e knapsack: tabelas que contam uma história",
+          "summary": "Edit distance, subset sum e 0/1 knapsack: como ler a tabela, escrever a recorrência e comprimir para uma dimensão.",
+          "minutes": 50,
+          "file": "lessons/dp-2d-knapsack.md",
+          "takeaways": [
+            "Definir o significado de dp[i][j] em uma frase antes de codar",
+            "Implementar edit distance e knapsack 0/1 com bases corretas",
+            "Comprimir a tabela para 1D iterando na direção certa"
+          ],
+          "quiz": [
+            {
+              "question": "Em edit distance, o que significa `dp[i][j]`?",
+              "options": [
+                "O número de caracteres iguais entre os prefixos",
+                "O custo mínimo para transformar o prefixo de word1 de tamanho i no prefixo de word2 de tamanho j",
+                "O tamanho da maior subsequência comum",
+                "O número de operações já realizadas"
+              ],
+              "answer": 1,
+              "explanation": "Cada célula representa o custo de alinhar dois prefixos; as operações de inserir, remover e substituir geram as três transições."
+            },
+            {
+              "question": "No knapsack 0/1 com array 1D, por que iterar a capacidade de trás para frente?",
+              "options": [
+                "Para economizar memória",
+                "Para garantir que cada item seja usado no máximo uma vez",
+                "Para ordenar os itens",
+                "Porque o Java exige índices decrescentes"
+              ],
+              "answer": 1,
+              "explanation": "Se você iterar para frente, o valor atualizado de `dp[c - peso]` pode incluir o item que está sendo processado, transformando 0/1 em unbounded."
+            },
+            {
+              "question": "Subset sum é uma instância de qual problema?",
+              "options": [
+                "Knapsack 0/1 com valor igual ao peso",
+                "Knapsack unbounded",
+                "LIS",
+                "Floyd-Warshall"
+              ],
+              "answer": 0,
+              "explanation": "Você decide para cada número se ele entra ou não no subconjunto, e quer atingir uma soma exata; é knapsack booleano."
+            },
+            {
+              "question": "Qual é a base correta da primeira linha de edit distance?",
+              "options": [
+                "`dp[0][j] = 0`",
+                "`dp[0][j] = j`, pois transformar vazio no prefixo de tamanho j custa j inserções",
+                "`dp[0][j] = 1`",
+                "`dp[0][j] = i + j`"
+              ],
+              "answer": 1,
+              "explanation": "A primeira linha representa transformar a string vazia em um prefixo de word2; cada caractere precisa ser inserido."
+            }
+          ]
+        },
+        {
+          "slug": "lis-intervalos-stocks",
+          "title": "LIS, interval DP e a família de stock problems",
+          "summary": "Três famílias que parecem distintas, mas compartilham a mesma disciplina de estado e ordem de dependência.",
+          "minutes": 55,
+          "file": "lessons/lis-intervalos-stocks.md",
+          "takeaways": [
+            "Implementar LIS em O(n log n) e explicar o que o array tails representa",
+            "Ordenar a iteração de interval DP por comprimento",
+            "Modelar stock problems como máquina de estados"
+          ],
+          "quiz": [
+            {
+              "question": "O array `tails` da LIS O(n log n) contém:",
+              "options": [
+                "A própria LIS",
+                "O menor final possível para uma subsequência crescente de cada comprimento",
+                "Todos os elementos já processados",
+                "Os índices da LIS"
+              ],
+              "answer": 1,
+              "explanation": "`tails[k]` é o menor valor com que uma subsequência crescente de comprimento k+1 pode terminar. O array não é necessariamente uma subsequência válida."
+            },
+            {
+              "question": "Para LIS estritamente crescente, qual busca binária se usa sobre `tails`?",
+              "options": [
+                "O primeiro elemento maior ou igual ao atual",
+                "O primeiro elemento maior que o atual",
+                "O último elemento menor que o atual",
+                "Uma busca linear"
+              ],
+              "answer": 0,
+              "explanation": "Substituir o primeiro `>= x` mantém a sequência estritamente crescente. Para LIS não decrescente, usa-se o primeiro `> x`."
+            },
+            {
+              "question": "Em interval DP, por que iterar por comprimento do intervalo?",
+              "options": [
+                "Para economizar memória",
+                "Porque dp[i][j] depende de intervalos menores, que precisam estar calculados",
+                "Porque o array precisa estar ordenado",
+                "Para evitar overflow"
+              ],
+              "answer": 1,
+              "explanation": "A recorrência divide [i, j] em [i, k] e [k, j]; esses subintervalos são menores, então a ordem por comprimento garante que já foram resolvidos."
+            },
+            {
+              "question": "No stock problem com cooldown, qual estado é necessário além de `hold` e `sold`?",
+              "options": [
+                "O número de transações",
+                "O estado de cooldown, que impede comprar no dia seguinte à venda",
+                "O preço máximo histórico",
+                "A quantidade de ações"
+              ],
+              "answer": 1,
+              "explanation": "A venda força um dia de espera. Modelar `cooldown` (ou `rest`) separa o dia em que não se pode comprar do dia em que se está apenas sem posição."
+            }
+          ]
+        },
+        {
+          "slug": "tree-dp-bitmask",
+          "title": "Tree DP e bitmask DP: estados que cabem em um inteiro",
+          "summary": "Quando a árvore pede pós-ordem e quando o conjunto de elementos visitados cabe em 20 bits.",
+          "minutes": 50,
+          "file": "lessons/tree-dp-bitmask.md",
+          "takeaways": [
+            "Propagar estados de filhos para pais em pós-ordem",
+            "Evitar stack overflow em árvores profundas",
+            "Implementar bitmask DP com memoização sobre máscaras"
+          ],
+          "quiz": [
+            {
+              "question": "Por que tree DP normalmente usa pós-ordem?",
+              "options": [
+                "Porque a raiz precisa ser processada primeiro",
+                "Porque o estado do pai depende dos estados já calculados dos filhos",
+                "Porque a árvore precisa estar ordenada",
+                "Porque evita usar memória"
+              ],
+              "answer": 1,
+              "explanation": "Em pós-ordem, os filhos são resolvidos antes do pai, permitindo combinar os resultados na volta da recursão."
+            },
+            {
+              "question": "Bitmask DP é mais indicado quando:",
+              "options": [
+                "n é maior que 10^5",
+                "n é pequeno, tipicamente até 20, e o estado é o conjunto de elementos visitados",
+                "O grafo tem pesos negativos",
+                "A entrada está ordenada"
+              ],
+              "answer": 1,
+              "explanation": "2^20 é cerca de um milhão de máscaras; acima disso, o número de estados cresce rápido demais."
+            },
+            {
+              "question": "Como testar se o bit i está ligado na máscara?",
+              "options": [
+                "`mask | (1 << i)`",
+                "`(mask & (1 << i)) != 0`",
+                "`mask ^ (1 << i)`",
+                "`mask >> i`"
+              ],
+              "answer": 1,
+              "explanation": "O AND com a máscara de um bit isola o bit; diferente de zero significa ligado."
+            },
+            {
+              "question": "Em binary tree maximum path sum, o que a recursão retorna ao pai?",
+              "options": [
+                "A soma dos dois lados",
+                "O maior ganho de um caminho que desce por um único lado, ignorando ganhos negativos",
+                "O número de nós",
+                "A altura da árvore"
+              ],
+              "answer": 1,
+              "explanation": "Um caminho que sobe para o pai não pode se bifurcar. O máximo global é atualizado com a soma dos dois lados, mas o retorno escolhe apenas um."
+            }
+          ]
+        }
+      ],
+      "exercises": [
+        "exercises/adv-coin-change-reconstruction.json"
+      ]
+    },
+    {
+      "slug": "grafos-avancados",
+      "title": "Grafos avançados",
+      "description": "Pesos negativos, componentes fortemente conexas e fluxo: os algoritmos que separam quem sabe grafos de quem só sabe BFS.",
+      "estimatedHours": 9,
+      "lessons": [
+        {
+          "slug": "bellman-ford-floyd-warshall",
+          "title": "Bellman-Ford e Floyd-Warshall: pesos negativos sem sustos",
+          "summary": "Quando Dijkstra não vale, como detectar ciclos negativos e como calcular todos os pares com uma tripla ordem de laços.",
+          "minutes": 50,
+          "file": "lessons/bellman-ford-floyd-warshall.md",
+          "takeaways": [
+            "Relaxar arestas V-1 vezes e detectar ciclo negativo na passada extra",
+            "Implementar Floyd-Warshall com sentinela de infinito segura",
+            "Escolher entre Bellman-Ford, Floyd-Warshall e Dijkstra"
+          ],
+          "quiz": [
+            {
+              "question": "Por que Bellman-Ford relaxa todas as arestas V-1 vezes?",
+              "options": [
+                "Porque um caminho simples tem no máximo V-1 arestas",
+                "Porque V é o número de arestas",
+                "Para garantir que o grafo seja conexo",
+                "Para ordenar as arestas"
+              ],
+              "answer": 0,
+              "explanation": "Cada rodada garante caminhos com uma aresta a mais; após V-1 rodadas, todos os caminhos simples possíveis foram considerados."
+            },
+            {
+              "question": "Como Bellman-Ford detecta um ciclo negativo alcançável?",
+              "options": [
+                "Se a soma dos pesos for negativa",
+                "Se ainda for possível relaxar alguma aresta na V-ésima passada",
+                "Se o grafo tiver mais de V arestas",
+                "Se existir um vértice com grau zero"
+              ],
+              "answer": 1,
+              "explanation": "Se uma aresta ainda pode ser relaxada depois de V-1 passadas, existe um caminho com V arestas que melhora, o que só é possível com ciclo negativo."
+            },
+            {
+              "question": "Qual é a complexidade de Floyd-Warshall?",
+              "options": [
+                "O(V + E)",
+                "O(V^2)",
+                "O(V^3)",
+                "O(E log V)"
+              ],
+              "answer": 2,
+              "explanation": "São três laços aninhados sobre os vértices; o espaço é O(V^2) para a matriz de distâncias."
+            },
+            {
+              "question": "Por que Dijkstra não pode ser usado com arestas negativas?",
+              "options": [
+                "Porque o heap não aceita números negativos",
+                "Porque a invariante de que o vértice extraído tem distância final pode falhar",
+                "Porque a complexidade muda para O(V^3)",
+                "Porque o grafo precisa ser acíclico"
+              ],
+              "answer": 1,
+              "explanation": "Dijkstra assume que qualquer caminho futuro só aumenta a distância. Com peso negativo, um caminho mais longo pode ficar mais barato depois, invalidando a extração gulosa."
+            }
+          ]
+        },
+        {
+          "slug": "scc-tarjan-kosaraju",
+          "title": "SCC: Tarjan e Kosaraju para componentes fortemente conexas",
+          "summary": "Duas formas de colapsar ciclos dirigidos, detectar dependências circulares e construir o DAG de componentes.",
+          "minutes": 50,
+          "file": "lessons/scc-tarjan-kosaraju.md",
+          "takeaways": [
+            "Explicar disc e low-link no algoritmo de Tarjan",
+            "Implementar Kosaraju com ordem de término e grafo reverso",
+            "Usar a condensação para resolver dependências e 2-SAT"
+          ],
+          "quiz": [
+            {
+              "question": "No Tarjan, o que `low[v]` representa?",
+              "options": [
+                "A distância mínima da raiz até v",
+                "O menor tempo de descoberta alcançável a partir de v usando a pilha de recursão",
+                "O número de arestas que saem de v",
+                "A altura de v na árvore DFS"
+              ],
+              "answer": 1,
+              "explanation": "Low-link é o menor `disc` alcançável por v e seus descendentes, considerando arestas de retorno para nós ainda na pilha."
+            },
+            {
+              "question": "Qual é a ideia central de Kosaraju?",
+              "options": [
+                "Duas BFS simultâneas",
+                "DFS no grafo original para a ordem de término e DFS no grafo reverso nessa ordem",
+                "Ordenar os vértices por grau",
+                "Relaxar arestas V-1 vezes"
+              ],
+              "answer": 1,
+              "explanation": "A ordem de término garante que, no grafo reverso, cada DFS visite exatamente uma SCC."
+            },
+            {
+              "question": "Como saber se um grafo dirigido tem ciclo a partir das SCCs?",
+              "options": [
+                "Se houver mais de uma SCC",
+                "Se alguma SCC tiver tamanho maior que 1 ou existir uma aresta de um vértice para ele mesmo",
+                "Se o número de arestas for maior que o de vértices",
+                "Se a condensação for um DAG"
+              ],
+              "answer": 1,
+              "explanation": "Ciclos só existem dentro de uma SCC. Uma SCC com dois ou mais vértices, ou um self-loop, caracteriza ciclo."
+            },
+            {
+              "question": "Qual é a complexidade de Tarjan e Kosaraju?",
+              "options": [
+                "O(V^2)",
+                "O(V + E)",
+                "O(E log V)",
+                "O(V^3)"
+              ],
+              "answer": 1,
+              "explanation": "Ambos fazem uma ou duas DFS, visitando cada vértice e aresta um número constante de vezes."
+            }
+          ]
+        },
+        {
+          "slug": "max-flow-min-cut",
+          "title": "Max flow, min cut e matching: modelagem antes do algoritmo",
+          "summary": "Como transformar atribuição, pareamento e gargalo em rede de fluxo, e por que o corte mínimo prova o máximo.",
+          "minutes": 50,
+          "file": "lessons/max-flow-min-cut.md",
+          "takeaways": [
+            "Modelar matching bipartido como fluxo com capacidades unitárias",
+            "Implementar Dinic com BFS de níveis e DFS de bloqueio",
+            "Interpretar o min cut e reconstruir a partição"
+          ],
+          "quiz": [
+            {
+              "question": "O teorema max-flow min-cut afirma que:",
+              "options": [
+                "O fluxo máximo é sempre igual ao número de arestas",
+                "O valor do fluxo máximo é igual à capacidade do corte mínimo",
+                "Todo grafo tem fluxo máximo par",
+                "O corte mínimo é único"
+              ],
+              "answer": 1,
+              "explanation": "É o resultado central da dualidade de fluxo: nenhum fluxo pode exceder qualquer corte, e existe um fluxo que atinge o corte mínimo."
+            },
+            {
+              "question": "Para resolver matching bipartido máximo com fluxo, quais capacidades são usadas?",
+              "options": [
+                "Capacidade 1 da fonte para a esquerda, 1 nas arestas e 1 da direita para o sorvedouro",
+                "Capacidade infinita em tudo",
+                "Capacidade igual ao grau do vértice",
+                "Capacidade negativa"
+              ],
+              "answer": 0,
+              "explanation": "Capacidades unitárias garantem que cada vértice participe de no máximo um pareamento; o valor do fluxo é o tamanho do matching."
+            },
+            {
+              "question": "Qual é a complexidade de Edmonds-Karp?",
+              "options": [
+                "O(V + E)",
+                "O(VE^2)",
+                "O(V^3)",
+                "O(E log V)"
+              ],
+              "answer": 1,
+              "explanation": "Edmonds-Karp usa BFS para achar caminhos aumentantes; o número de augmentações é O(VE), cada BFS custa O(E)."
+            },
+            {
+              "question": "Para que serve uma aresta residual reversa?",
+              "options": [
+                "Para aumentar a capacidade total",
+                "Para permitir desfazer parte de um fluxo já enviado e corrigir escolhas",
+                "Para tornar o grafo não dirigido",
+                "Para detectar ciclos negativos"
+              ],
+              "answer": 1,
+              "explanation": "O fluxo residual reverso representa a possibilidade de cancelar fluxo; é o que permite que algoritmos gulosos encontrem o ótimo global."
+            }
+          ]
+        }
+      ],
+      "exercises": []
+    },
+    {
+      "slug": "estruturas-avancadas",
+      "title": "Estruturas avançadas",
+      "description": "Segment tree, Fenwick, sparse table e as estruturas de sistema que aparecem em entrevistas de infraestrutura.",
+      "estimatedHours": 9,
+      "lessons": [
+        {
+          "slug": "segment-tree-lazy",
+          "title": "Segment tree com lazy propagation",
+          "summary": "Atualizações e consultas de intervalo em O(log n), com a propagação preguiçosa explicada sem mágica.",
+          "minutes": 55,
+          "file": "lessons/segment-tree-lazy.md",
+          "takeaways": [
+            "Construir, consultar e atualizar uma segment tree recursiva",
+            "Aplicar lazy add e empurrar para os filhos antes de descer",
+            "Reconhecer quando Fenwick resolve e quando a segment tree é necessária"
+          ],
+          "quiz": [
+            {
+              "question": "Quando o lazy de um nó precisa ser empurrado para os filhos?",
+              "options": [
+                "Sempre que a árvore é construída",
+                "Antes de descer para um filho em uma consulta ou atualização parcial",
+                "Somente na raiz",
+                "Nunca, o lazy pode ficar acumulado"
+              ],
+              "answer": 1,
+              "explanation": "Se você precisa visitar os filhos, o valor pendente do pai deve ser aplicado a eles para que as somas parciais fiquem corretas."
+            },
+            {
+              "question": "Qual é a complexidade de uma atualização de intervalo com lazy propagation?",
+              "options": [
+                "O(1)",
+                "O(log n)",
+                "O(n)",
+                "O(n log n)"
+              ],
+              "answer": 1,
+              "explanation": "A atualização visita O(log n) nós completamente cobertos e suas fronteiras; o lazy evita descer em todos os elementos."
+            },
+            {
+              "question": "Por que o array da segment tree costuma ter tamanho 4n?",
+              "options": [
+                "Porque cada nó ocupa quatro inteiros",
+                "Porque a árvore binária completa sobre n folhas pode precisar de até 4n posições no array",
+                "Porque n precisa ser potência de dois",
+                "Porque o Java aloca em blocos de quatro"
+              ],
+              "answer": 1,
+              "explanation": "A indexação 1-based de uma árvore balanceada sobre n folhas cabe em 4n; é uma cota segura e simples."
+            },
+            {
+              "question": "Qual operação NÃO é bem servida por uma segment tree com lazy add?",
+              "options": [
+                "Soma de intervalo com adição",
+                "Mínimo de intervalo com adição",
+                "Atribuição de intervalo com soma",
+                "Atualização de ponto com consulta de ponto"
+              ],
+              "answer": 2,
+              "explanation": "Atribuição também funciona, mas exige um lazy de atribuição separado ou um cuidado extra para não misturar com adição. A pergunta testa se você sabe que o lazy precisa combinar com a operação."
+            }
+          ]
+        },
+        {
+          "slug": "fenwick-sparse-table",
+          "title": "Fenwick, sparse table e range queries",
+          "summary": "Duas estruturas menores que a segment tree que resolvem prefix sums dinâmicos e RMQ estático com menos código.",
+          "minutes": 50,
+          "file": "lessons/fenwick-sparse-table.md",
+          "takeaways": [
+            "Implementar Fenwick com update e prefix query em O(log n)",
+            "Construir sparse table e responder RMQ em O(1)",
+            "Escolher a estrutura certa para consultas estáticas versus dinâmicas"
+          ],
+          "quiz": [
+            {
+              "question": "No Fenwick, qual é o próximo índice no update?",
+              "options": [
+                "`i + 1`",
+                "`i + (i & -i)`",
+                "`i - (i & -i)`",
+                "`2 * i`"
+              ],
+              "answer": 1,
+              "explanation": "O update sobe pelos nós responsáveis somando o bit menos significativo; a consulta desce subtraindo esse bit."
+            },
+            {
+              "question": "Sparse table é adequada para qual tipo de operação?",
+              "options": [
+                "Soma de intervalo com atualizações",
+                "Mínimo/máximo de intervalo estático, com operação idempotente",
+                "Inserção e remoção de elementos",
+                "Ordenação de consultas"
+              ],
+              "answer": 1,
+              "explanation": "A tabela é construída uma vez em O(n log n) e responde O(1), mas não suporta updates. Operações idempotentes permitem sobrepor os dois blocos."
+            },
+            {
+              "question": "Qual é o custo de uma consulta de prefixo no Fenwick?",
+              "options": [
+                "O(1)",
+                "O(log n)",
+                "O(n)",
+                "O(n log n)"
+              ],
+              "answer": 1,
+              "explanation": "Cada passo remove o bit menos significativo, então o número de iterações é o número de bits 1 no índice, O(log n)."
+            },
+            {
+              "question": "Por que o Fenwick usa indexação 1-based?",
+              "options": [
+                "Porque o Java começa em 1",
+                "Porque o bit menos significativo de 0 é 0 e o update entraria em loop infinito",
+                "Porque ocupa menos memória",
+                "Porque a soma precisa começar em 1"
+              ],
+              "answer": 1,
+              "explanation": "`i & -i` com i = 0 resulta 0, então o índice não avança. A convenção 1-based evita o caso especial."
+            }
+          ]
+        },
+        {
+          "slug": "lru-lfu-skiplist-bloom",
+          "title": "LRU, LFU, skip list e bloom filter",
+          "summary": "Estruturas de sistema que caem em entrevistas de infraestrutura: cache com política de despejo, listas probabilísticas e filtros aproximados.",
+          "minutes": 50,
+          "file": "lessons/lru-lfu-skiplist-bloom.md",
+          "takeaways": [
+            "Implementar LRU O(1) com hash map e lista duplamente ligada",
+            "Explicar LFU com buckets de frequência e minFreq",
+            "Justificar bloom filter e skip list por custo e garantias"
+          ],
+          "quiz": [
+            {
+              "question": "Quais duas estruturas compõem um LRU cache O(1)?",
+              "options": [
+                "Heap e array",
+                "Hash map e lista duplamente ligada",
+                "Árvore balanceada e fila",
+                "Bloom filter e pilha"
+              ],
+              "answer": 1,
+              "explanation": "O hash map dá acesso O(1) ao nó; a lista mantém a ordem de recência e permite mover/remover em O(1) com ponteiros."
+            },
+            {
+              "question": "No LFU, o que `minFreq` representa?",
+              "options": [
+                "A maior frequência já vista",
+                "A menor frequência entre os grupos não vazios, usada para escolher quem despejar",
+                "O número total de acessos",
+                "A capacidade do cache"
+              ],
+              "answer": 1,
+              "explanation": "O LFU remove o item menos frequente; manter minFreq evita varrer todos os buckets a cada despejo."
+            },
+            {
+              "question": "Qual garantia um bloom filter oferece?",
+              "options": [
+                "Nunca dá falso positivo",
+                "Pode dar falso positivo, mas nunca falso negativo para elementos inseridos",
+                "Armazena os elementos exatos",
+                "Permite remoção sem reconstrução"
+              ],
+              "answer": 1,
+              "explanation": "Se todos os bits testados estão ligados, o elemento pode ou não estar no conjunto; se algum está desligado, com certeza não está."
+            },
+            {
+              "question": "Qual é a complexidade esperada de busca em uma skip list?",
+              "options": [
+                "O(1)",
+                "O(log n)",
+                "O(n)",
+                "O(n log n)"
+              ],
+              "answer": 1,
+              "explanation": "Com níveis probabilísticos, a busca percorre cerca de O(log n) nós em média, com alta probabilidade."
+            }
+          ]
+        }
+      ],
+      "exercises": [
+        "exercises/adv-segment-tree-lazy.json"
+      ]
+    },
+    {
+      "slug": "simulados",
+      "title": "Simulados cronometrados",
+      "description": "O teste de fogo: três problemas em 45 minutos, com roteiro, rubrica e critérios para avaliar o próprio desempenho.",
+      "estimatedHours": 4,
+      "lessons": [
+        {
+          "slug": "mock-interview-45-minutos",
+          "title": "O simulado de 45 minutos: três problemas, um roteiro",
+          "summary": "Um roteiro completo de mock interview com aquecimento, problema principal e follow-up, mais uma rubrica para se avaliar.",
+          "minutes": 60,
+          "file": "lessons/mock-interview-45-minutos.md",
+          "takeaways": [
+            "Distribuir 45 minutos entre clarificação, código e testes",
+            "Escolher três problemas que cobrem padrões diferentes",
+            "Avaliar comunicação, corretude e complexidade com evidências"
+          ],
+          "quiz": [
+            {
+              "question": "Qual é uma distribuição razoável para um simulado de 45 minutos com três problemas?",
+              "options": [
+                "40 minutos de código e 5 de perguntas",
+                "Cerca de 5 minutos de clarificação, 10 no aquecimento, 18 no principal e 12 no follow-up e revisão",
+                "15 minutos por problema, sem revisão",
+                "30 minutos no primeiro problema e 15 nos outros dois"
+              ],
+              "answer": 1,
+              "explanation": "O aquecimento valida o setup e a comunicação; o problema principal recebe mais tempo; o follow-up e a revisão fecham a avaliação."
+            },
+            {
+              "question": "O que fazer se você travar no meio do código?",
+              "options": [
+                "Ficar em silêncio até lembrar",
+                "Verbalizar o bloqueio, voltar ao exemplo pequeno e simplificar a abordagem",
+                "Apagar tudo e começar de novo",
+                "Pedir a resposta ao entrevistador"
+              ],
+              "answer": 1,
+              "explanation": "O entrevistador avalia o processo. Verbalizar, reduzir o problema e testar uma versão simples mostra controle, mesmo sem a solução completa."
+            },
+            {
+              "question": "Na rubrica de autoavaliação, o que deve ser registrado?",
+              "options": [
+                "Apenas se o código compilou",
+                "Evidências concretas de comunicação, abordagem, corretude, testes e complexidade",
+                "O tempo total e nada mais",
+                "A nota que você acha que merece"
+              ],
+              "answer": 1,
+              "explanation": "Notas sem evidência não ajudam a melhorar. Anote o que você disse, onde travou, quais testes rodou e o que faria diferente."
+            },
+            {
+              "question": "Por que não gastar 20 minutos no problema de aquecimento?",
+              "options": [
+                "Porque ele não conta na avaliação",
+                "Porque o tempo é o recurso mais escasso e o problema principal carrega mais sinal",
+                "Porque o aquecimento é sempre fácil",
+                "Porque o entrevistador proíbe"
+              ],
+              "answer": 1,
+              "explanation": "O aquecimento serve para calibrar, não para ganhar a entrevista. Um aquecimento longo rouba tempo do problema que mais diferencia candidatos."
+            }
+          ]
+        }
+      ],
+      "exercises": []
+    }
+  ]
+}

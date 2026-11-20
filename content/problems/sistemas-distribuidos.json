@@ -1,0 +1,112 @@
+[
+  {
+    "slug": "dist-system-design-primer",
+    "title": "System Design Primer — fundamentos distribuídos",
+    "platform": "Outro",
+    "url": "https://github.com/donnemartin/system-design-primer",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "Fundamentos",
+    "moduleSlug": "fundamentos",
+    "description": "Leia as seções de CAP, consistência, disponibilidade e partição. Escreva um resumo de duas páginas com exemplos próprios para cada combinação CP/AP. O objetivo é parar de repetir 'escolhe dois' sem explicar o que acontece durante uma partição real."
+  },
+  {
+    "slug": "dist-raft-visualization",
+    "title": "Raft Consensus — visualização interativa",
+    "platform": "Outro",
+    "url": "https://raft.github.io/",
+    "difficulty": "dificil",
+    "level": 4,
+    "topic": "Consenso",
+    "moduleSlug": "fundamentos",
+    "description": "Use a visualização para acompanhar eleição, replicação de log e recuperação de partição. Depois implemente um mini-Raft em Java com três nós em memória: RequestVote, AppendEntries e commit index. Teste com mensagens atrasadas e nó que volta com log desatualizado."
+  },
+  {
+    "slug": "dist-aws-timeouts-retries",
+    "title": "Timeouts, Retries and Backoff with Jitter (AWS)",
+    "platform": "Outro",
+    "url": "https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Resiliência",
+    "moduleSlug": "comunicacao",
+    "description": "Leia o artigo e implemente um cliente HTTP com timeout de conexão, timeout total, retry apenas para erros retryable e backoff exponencial com jitter. Simule 30% de falhas e compare a carga gerada com e sem jitter. Meça o tail latency."
+  },
+  {
+    "slug": "dist-aws-health-checks",
+    "title": "Implementing Health Checks (AWS Builders' Library)",
+    "platform": "Outro",
+    "url": "https://aws.amazon.com/builders-library/implementing-health-checks/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Health checks",
+    "moduleSlug": "comunicacao",
+    "description": "Diferencie liveness, readiness e deep health check. Implemente endpoints em Quarkus com SmallRye Health que não derrubem o pod por dependência lenta e explique o risco de um health check que consulta o banco em cascata. Defina timeouts e thresholds."
+  },
+  {
+    "slug": "dist-idempotency-pattern",
+    "title": "Idempotent Consumer (microservices.io)",
+    "platform": "Outro",
+    "url": "https://microservices.io/patterns/communication-style/idempotent-consumer.html",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Idempotência",
+    "moduleSlug": "comunicacao",
+    "description": "Implemente um consumidor idempotente com tabela de mensagens processadas na mesma transação do efeito de negócio. Teste entrega duplicada, concorrência entre duas instâncias e falha após o commit. Explique por que uma chave de idempotência sem constraint única não basta."
+  },
+  {
+    "slug": "dist-saga-pattern",
+    "title": "Saga Pattern (microservices.io)",
+    "platform": "Outro",
+    "url": "https://microservices.io/patterns/data/saga.html",
+    "difficulty": "dificil",
+    "level": 4,
+    "topic": "Transações distribuídas",
+    "moduleSlug": "dados-distribuidos",
+    "description": "Modele uma compra com estoque, pagamento e envio usando saga orquestrada. Implemente compensações idempotentes e trate o caso em que a compensação também falha. Compare coreografia e orquestração com números de acoplamento e observabilidade."
+  },
+  {
+    "slug": "dist-postgres-isolation",
+    "title": "PostgreSQL — Transaction Isolation",
+    "platform": "Outro",
+    "url": "https://www.postgresql.org/docs/16/transaction-iso.html",
+    "difficulty": "dificil",
+    "level": 4,
+    "topic": "Isolamento",
+    "moduleSlug": "dados-distribuidos",
+    "description": "Reproduza read committed, repeatable read e serializable no PostgreSQL com duas sessões. Prove lost update, non-repeatable read e serialization failure. Reescreva a operação com SELECT FOR UPDATE ou retry serializable e explique o custo de cada abordagem."
+  },
+  {
+    "slug": "dist-fowler-microservices",
+    "title": "Microservices — Martin Fowler",
+    "platform": "Outro",
+    "url": "https://martinfowler.com/articles/microservices.html",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Arquitetura",
+    "moduleSlug": "arquitetura",
+    "description": "Leia o artigo e liste os custos que ele reconhece explicitamente: operação, latência, consistência eventual, versionamento e testes. Desenhe um monolito modular com fronteiras claras e defina o gatilho mensurável para extrair o primeiro serviço."
+  },
+  {
+    "slug": "dist-fowler-patterns",
+    "title": "Patterns of Distributed Systems — Martin Fowler",
+    "platform": "Outro",
+    "url": "https://martinfowler.com/articles/patterns-of-distributed-systems/",
+    "difficulty": "dificil",
+    "level": 4,
+    "topic": "Padrões distribuídos",
+    "moduleSlug": "arquitetura",
+    "description": "Escolha quatro padrões (lease, quorum, replicated log, consistent core) e implemente uma versão mínima em Java para cada um. Documente a garantia que o padrão oferece e o que ele não resolve. Sem isso, 'usar consenso' vira palavra mágica."
+  },
+  {
+    "slug": "dist-sre-book",
+    "title": "Google SRE Book — SLIs, SLOs e error budgets",
+    "platform": "Outro",
+    "url": "https://sre.google/sre-book/table-of-contents/",
+    "difficulty": "dificil",
+    "level": 4,
+    "topic": "SRE",
+    "moduleSlug": "resiliencia-e-operacao",
+    "description": "Leia os capítulos de SLIs/SLOs e error budgets. Defina SLI, SLO e orçamento para um serviço com duas dependências e escreva a política de congelamento de deploys quando o orçamento estoura. Use números reais e uma janela de 28 dias."
+  }
+]

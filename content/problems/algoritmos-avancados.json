@@ -1,0 +1,167 @@
+[
+  {
+    "slug": "adv-subsets",
+    "title": "Subsets",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/subsets/",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "Backtracking",
+    "moduleSlug": "padroes-classicos",
+    "description": "O template de backtracking mais simples: incluir ou não cada elemento. Implemente com decisão binária e com loop de início, e explique por que a segunda versão evita duplicatas em problemas de combinação."
+  },
+  {
+    "slug": "adv-permutations",
+    "title": "Permutations",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/permutations/",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "Backtracking",
+    "moduleSlug": "padroes-classicos",
+    "description": "Gere todas as ordens de n elementos e analise o custo O(n·n!). Compare usar um boolean[] de usados com trocar elementos in-place; meça alocação e explique o impacto em n=8."
+  },
+  {
+    "slug": "adv-combination-sum",
+    "title": "Combination Sum",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/combination-sum/",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "Backtracking",
+    "moduleSlug": "padroes-classicos",
+    "description": "Combinações com repetição e poda por soma. Aprenda a ordenar candidatos, parar cedo e evitar permutações duplicadas. É o mesmo raciocínio de troco com moedas e composição de planos."
+  },
+  {
+    "slug": "adv-word-search",
+    "title": "Word Search",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/word-search/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Backtracking em grid",
+    "moduleSlug": "padroes-classicos",
+    "description": "DFS com marcação e desmarcação no grid. O detalhe que separa a solução correta da lenta é restaurar a célula ao voltar. Analise complexidade O(m·n·4^L) e poda por caractere."
+  },
+  {
+    "slug": "adv-word-search-ii",
+    "title": "Word Search II",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/word-search-ii/",
+    "difficulty": "dificil",
+    "level": 4,
+    "topic": "Backtracking + Trie",
+    "moduleSlug": "padroes-classicos",
+    "description": "Combine Trie e DFS para buscar centenas de palavras em uma passada. Entenda por que reiniciar a busca por palavra estoura o tempo e como remover nós mortos do Trie acelera a poda."
+  },
+  {
+    "slug": "adv-n-queens",
+    "title": "N-Queens",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/n-queens/",
+    "difficulty": "dificil",
+    "level": 4,
+    "topic": "Backtracking",
+    "moduleSlug": "padroes-classicos",
+    "description": "Coloque n rainhas sem ataques usando sets de colunas e diagonais. Treine representação de estado (r+c e r-c), poda e reconstrução da solução. Compare com a versão que valida o tabuleiro a cada passo."
+  },
+  {
+    "slug": "adv-coin-change",
+    "title": "Coin Change",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/coin-change/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "DP 1D",
+    "moduleSlug": "programacao-dinamica",
+    "description": "O problema de mínimas moedas com DP bottom-up e BFS. Prove a subestrutura ótima, trate o caso impossível e compare com greedy — que falha para denominações arbitrárias."
+  },
+  {
+    "slug": "adv-longest-increasing-subsequence",
+    "title": "Longest Increasing Subsequence",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/longest-increasing-subsequence/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "DP / Binary Search",
+    "moduleSlug": "programacao-dinamica",
+    "description": "Resolva em O(n²) com DP e depois em O(n log n) com patience sorting e binary search. Explique por que o array de tails não é a subsequência em si e como reconstruí-la com parent pointers."
+  },
+  {
+    "slug": "adv-edit-distance",
+    "title": "Edit Distance",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/edit-distance/",
+    "difficulty": "dificil",
+    "level": 4,
+    "topic": "DP 2D",
+    "moduleSlug": "programacao-dinamica",
+    "description": "Transforme uma string em outra com inserção, remoção e substituição. Derive a recorrência, desenhe a tabela e reduza para O(min(m,n)) de espaço. É a base de diff, spellcheck e alinhamento de sequências."
+  },
+  {
+    "slug": "adv-burst-balloons",
+    "title": "Burst Balloons",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/burst-balloons/",
+    "difficulty": "dificil",
+    "level": 5,
+    "topic": "DP intervalar",
+    "moduleSlug": "programacao-dinamica",
+    "description": "O clássico 'pense no último balão estourado' para transformar um problema de escolha em DP intervalar. Difícil de derivar, excelente para treinar definição de estado e ordem de cálculo."
+  },
+  {
+    "slug": "adv-network-delay-time",
+    "title": "Network Delay Time",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/network-delay-time/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Dijkstra",
+    "moduleSlug": "grafos-avancados",
+    "description": "Dijkstra com PriorityQueue em grafo dirigido ponderado. Treine relaxamento, fila de prioridade preguiçosa e detecção de nós inalcançáveis. Conecte com latência de rede e roteamento."
+  },
+  {
+    "slug": "adv-cheapest-flights-k-stops",
+    "title": "Cheapest Flights Within K Stops",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/cheapest-flights-within-k-stops/",
+    "difficulty": "medio",
+    "level": 4,
+    "topic": "Bellman-Ford / Dijkstra com estado",
+    "moduleSlug": "grafos-avancados",
+    "description": "O caminho mais barato com limite de arestas. Compare Bellman-Ford com k iterações, Dijkstra com estado (cidade, paradas) e BFS por camadas. Explique por que Dijkstra puro pode retornar cedo demais."
+  },
+  {
+    "slug": "adv-critical-connections",
+    "title": "Critical Connections in a Network",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/critical-connections-in-a-network/",
+    "difficulty": "dificil",
+    "level": 4,
+    "topic": "Tarjan / Bridges",
+    "moduleSlug": "grafos-avancados",
+    "description": "Encontre pontes com DFS e low-link. Entenda discovery time, back edges e por que arestas de árvore com low[v] > disc[u] são críticas. É a base de confiabilidade de redes e dependências."
+  },
+  {
+    "slug": "adv-sliding-window-maximum",
+    "title": "Sliding Window Maximum",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/sliding-window-maximum/",
+    "difficulty": "dificil",
+    "level": 3,
+    "topic": "Monotonic Deque",
+    "moduleSlug": "estruturas-avancadas",
+    "description": "Deque monotônica decrescente para máximo em janela O(n). Compare com heap O(n log n) e explique a invariante de índices. O mesmo padrão resolve mínimo em janela e detecção de picos."
+  },
+  {
+    "slug": "adv-maximum-accepted-invitations",
+    "title": "Maximum Number of Accepted Invitations",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/maximum-number-of-accepted-invitations/",
+    "difficulty": "dificil",
+    "level": 5,
+    "topic": "Max Flow / Matching",
+    "moduleSlug": "grafos-avancados",
+    "description": "Matching bipartido com augmenting paths. Resolva primeiro com DFS e depois discuta a redução para max-flow e o teorema de König. É o tipo de problema que separa quem sabe grafos de quem decora BFS."
+  }
+]

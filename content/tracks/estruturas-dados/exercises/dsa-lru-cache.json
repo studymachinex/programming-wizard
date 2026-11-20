@@ -1,0 +1,21 @@
+{
+  "track": "estruturas-dados",
+  "slug": "dsa-lru-cache",
+  "title": "LRU Cache com HashMap e lista duplamente ligada",
+  "difficulty": "dificil",
+  "tags": [
+    "lru",
+    "design",
+    "linked-list"
+  ],
+  "estimatedMinutes": 75,
+  "statement": "## Contexto\n\nImplemente um cache LRU com `get` e `put` em O(1). A combinação de mapa e lista duplamente ligada é o padrão que aparece em entrevistas e em bibliotecas como Caffeine.\n\n## Contrato\n\n```java\nclass LRUCache {\n    LRUCache(int capacity);\n    int get(int key);          // -1 se ausente\n    void put(int key, int value);\n}\n```\n\n- `get` marca a chave como mais recente.\n- `put` em chave existente atualiza o valor e a recência.\n- Ao exceder a capacidade, remova o menos recente.\n- Capacidade >= 1.\n\n## Exemplos\n\n```text\ncap=2: put(1,1), put(2,2), get(1)=1, put(3,3) remove 2\n```\n\n## Restrições\n\n- O(1) para get e put.\n- Não use LinkedHashMap.",
+  "starterCode": "import java.util.HashMap;\nimport java.util.Map;\n\npublic class Solution {\n    static class LRUCache {\n        private final int capacity;\n        private final Map<Integer, Node> mapa = new HashMap<>();\n        // TODO: sentinelas e operações\n\n        LRUCache(int capacity) { this.capacity = capacity; }\n        int get(int key) { return -1; }\n        void put(int key, int value) { }\n    }\n}",
+  "solutionCode": "import java.util.HashMap;\nimport java.util.Map;\n\npublic class Solution {\n    static class LRUCache {\n        private static class Node {\n            int key, value;\n            Node prev, next;\n            Node(int key, int value) { this.key = key; this.value = value; }\n        }\n\n        private final int capacity;\n        private final Map<Integer, Node> mapa = new HashMap<>();\n        private final Node head = new Node(0, 0);\n        private final Node tail = new Node(0, 0);\n\n        LRUCache(int capacity) {\n            this.capacity = capacity;\n            head.next = tail;\n            tail.prev = head;\n        }\n\n        int get(int key) {\n            var n = mapa.get(key);\n            if (n == null) return -1;\n            moverParaFrente(n);\n            return n.value;\n        }\n\n        void put(int key, int value) {\n            var n = mapa.get(key);\n            if (n != null) {\n                n.value = value;\n                moverParaFrente(n);\n                return;\n            }\n            if (mapa.size() == capacity) {\n                var antigo = tail.prev;\n                remover(antigo);\n                mapa.remove(antigo.key);\n            }\n            var novo = new Node(key, value);\n            mapa.put(key, novo);\n            inserirNaFrente(novo);\n        }\n\n        private void moverParaFrente(Node n) {\n            remover(n);\n            inserirNaFrente(n);\n        }\n\n        private void remover(Node n) {\n            n.prev.next = n.next;\n            n.next.prev = n.prev;\n        }\n\n        private void inserirNaFrente(Node n) {\n            n.next = head.next;\n            n.prev = head;\n            head.next.prev = n;\n            head.next = n;\n        }\n    }\n}",
+  "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nclass SolutionTest {\n    @Test void expulsaMenosRecente() {\n        var c = new Solution.LRUCache(2);\n        c.put(1, 1); c.put(2, 2);\n        assertEquals(1, c.get(1));\n        c.put(3, 3);\n        assertEquals(-1, c.get(2));\n        assertEquals(3, c.get(3));\n    }\n\n    @Test void atualizarChaveNaoCresce() {\n        var c = new Solution.LRUCache(1);\n        c.put(1, 1); c.put(1, 2);\n        assertEquals(2, c.get(1));\n    }\n\n    @Test void getMarcaRecencia() {\n        var c = new Solution.LRUCache(2);\n        c.put(1, 1); c.put(2, 2);\n        c.get(1); c.put(3, 3);\n        assertEquals(-1, c.get(2));\n        assertEquals(1, c.get(1));\n    }\n}",
+  "hints": [
+    "Use sentinelas head e tail para eliminar casos especiais.",
+    "O mapa guarda o nó, não o valor.",
+    "Toda operação de recência é remover + inserir na frente."
+  ]
+}

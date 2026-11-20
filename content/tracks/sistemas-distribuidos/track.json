@@ -1,0 +1,925 @@
+{
+  "slug": "sistemas-distribuidos",
+  "title": "Sistemas Distribuídos & Arquitetura",
+  "subtitle": "Consistência, falhas e decisões de arquitetura em escala de milhões",
+  "description": "Sistemas distribuídos raramente falham por falta de código; falham porque o modelo mental estava errado. Esta trilha trata consistência, replicação, mensageria e arquitetura como decisões com custo explícito: você projeta para partições, latência e falhas parciais, defende trade-offs em design docs e diagnostica incidentes reais. É para quem já opera serviços em produção e precisa decidir quando um quorum, uma saga ou um monólito modular é a resposta certa.",
+  "level": "especialista",
+  "icon": "network",
+  "accent": "rose",
+  "estimatedHours": 40,
+  "isCore": true,
+  "outcomes": [
+    "Escolher e defender um modelo de consistência por operação, com latência, RPO e RTO quantificados",
+    "Projetar replicação com quorum, failover e fencing que sobreviva à perda de uma região",
+    "Implementar idempotência, retries com jitter e timeout budget ponta a ponta sem amplificar falhas",
+    "Modelar dados distribuídos com sharding, sagas e outbox, explicitando hot partitions e compensações",
+    "Delimitar bounded contexts e decidir entre monólito modular, microservices, CQRS e event sourcing",
+    "Operar com SLOs, error budgets, chaos engineering e postmortems que mudam o sistema"
+  ],
+  "modules": [
+    {
+      "slug": "fundamentos",
+      "title": "Fundamentos que evitam decisões erradas",
+      "description": "O vocabulário que separa arquitetura de improviso: o que CAP realmente afirma, como nomear consistência, por que relógios mentem e o que consenso resolve — e quanto custa.",
+      "estimatedHours": 10,
+      "lessons": [
+        {
+          "slug": "cap-pacelc-na-pratica",
+          "title": "CAP, PACELC e o que realmente significa",
+          "summary": "O que C, A e P exigem em uma partição real e como PACELC obriga você a decidir também no caminho sem falha.",
+          "minutes": 35,
+          "file": "lessons/cap-pacelc-na-pratica.md",
+          "takeaways": [
+            "Distinguir linearizability de disponibilidade de SLO",
+            "Classificar um sistema em CAP e PACELC com justificativa",
+            "Escolher o comportamento de uma operação durante a partição"
+          ],
+          "quiz": [
+            {
+              "question": "Em uma partição de rede, o que o A do CAP exige de cada nó não falho?",
+              "options": [
+                "Responder em menos de 100 ms",
+                "Responder sem erro, mesmo que o valor retornado esteja desatualizado",
+                "Retornar sempre a última escrita",
+                "Continuar aceitando escritas mesmo se todos os discos falharem"
+              ],
+              "answer": 1,
+              "explanation": "A no CAP é sobre toda réplica não falha conseguir responder sem erro. O conteúdo pode estar velho; o que não pode é a requisição terminar em erro ou timeout por causa da partição."
+            },
+            {
+              "question": "O que o E de PACELC adiciona ao debate?",
+              "options": [
+                "Que, sem partição, ainda existe trade-off entre latência e consistência",
+                "Que a durabilidade é mais importante que a disponibilidade",
+                "Que partições só importam em data centers multi-região",
+                "Que todo sistema precisa de consenso para ser consistente"
+              ],
+              "answer": 0,
+              "explanation": "PACELC lembra que mesmo no caminho feliz há escolha: quorum remoto ou confirmação local. Spanner escolhe consistência e paga com commit-wait; Dynamo escolhe latência e aceita leituras mais fracas."
+            },
+            {
+              "question": "Um time configura N=3, W=1 e R=1 para o carrinho de compras. Durante uma partição, cada lado continua aceitando escritas. Qual é a consequência mais provável?",
+              "options": [
+                "O sistema perde a disponibilidade, mas mantém linearizability",
+                "Duas versões divergentes do carrinho podem existir e precisam de merge ou conflito explícito",
+                "O sistema garante read-your-writes em qualquer réplica",
+                "O banco passa a exigir 2PC para toda escrita"
+              ],
+              "answer": 1,
+              "explanation": "Com W=1 e R=1 não há sobreposição de quóruns. Lados distintos da partição aceitam versões diferentes; alguém terá de resolver o conflito depois, e o usuário pode ver estados diferentes conforme a réplica consultada."
+            }
+          ]
+        },
+        {
+          "slug": "modelos-de-consistencia",
+          "title": "Modelos de consistência: linearizable, causal e eventual",
+          "summary": "Um mapa preciso das garantias por operação, das sessões do usuário ao consenso global, com o custo de cada uma.",
+          "minutes": 35,
+          "file": "lessons/modelos-de-consistencia.md",
+          "takeaways": [
+            "Diferenciar linearizability, serializability e consistência causal",
+            "Escolher garantias de sessão sem pagar por consenso global",
+            "Reconhecer anomalias de leitura em réplicas atrasadas"
+          ],
+          "quiz": [
+            {
+              "question": "Qual afirmação descreve corretamente linearizability?",
+              "options": [
+                "Toda transação parece executar em alguma ordem serial, sem relação com o tempo real",
+                "Cada operação de leitura e escrita em um único objeto parece ocorrer instantaneamente entre seu início e fim, respeitando o tempo real",
+                "As réplicas convergem depois que as escritas param",
+                "É o mesmo que snapshot isolation"
+              ],
+              "answer": 1,
+              "explanation": "Linearizability é uma garantia de objeto único com tempo real: se a escrita terminou antes da leitura começar, a leitura precisa enxergá-la. Serializability é sobre transações e não exige ordem de tempo real."
+            },
+            {
+              "question": "Um usuário atualiza o perfil e, no segundo seguinte, abre outra aba que lê de uma réplica atrasada. Que garantia de sessão evita o efeito 'minha alteração sumiu'?",
+              "options": [
+                "Monotonic reads",
+                "Read-your-writes",
+                "Causal consistency entre usuários distintos",
+                "Linearizable writes em todas as réplicas"
+              ],
+              "answer": 1,
+              "explanation": "Read-your-writes garante que o próprio autor observe suas escritas. Pode ser implementado com sticky session, leitura da liderança ou um token de versão mínimo exigido na réplica."
+            },
+            {
+              "question": "Consistência eventual significa que:",
+              "options": [
+                "As leituras sempre retornam o valor mais recente após 1 segundo",
+                "Na ausência de novas escritas, as réplicas eventualmente convergem, sem limite de tempo definido",
+                "O sistema fica indisponível durante a convergência",
+                "Toda leitura é linearizável, mas a escrita não"
+              ],
+              "answer": 1,
+              "explanation": "Eventual não define prazo; define convergência na ausência de escritas. Para transformar isso em contrato de produto, você precisa de métricas de lag, limites de staleness ou garantias de sessão."
+            }
+          ]
+        },
+        {
+          "slug": "tempo-relogios-e-ordem",
+          "title": "Tempo, relógios e ordenação de eventos",
+          "summary": "Por que timestamps de parede não ordenam fatos, como Lamport, vetores e HLC funcionam, e onde fencing tokens salvam o sistema.",
+          "minutes": 30,
+          "file": "lessons/tempo-relogios-e-ordem.md",
+          "takeaways": [
+            "Escolher relógio monotônico para duração e HLC para ordenação",
+            "Detectar concorrência com version vectors",
+            "Usar fencing tokens contra líderes obsoletos"
+          ],
+          "quiz": [
+            {
+              "question": "Por que medir latência com System.currentTimeMillis é uma armadilha?",
+              "options": [
+                "Porque o relógio de parede pode sofrer ajuste do NTP e até andar para trás",
+                "Porque ele tem resolução de apenas 1 segundo",
+                "Porque só funciona em Linux",
+                "Porque não pode ser serializado em JSON"
+              ],
+              "answer": 0,
+              "explanation": "Relógios de parede são ajustados por NTP e podem dar saltos. Para duração, use System.nanoTime, que é monotônico e não representa uma data."
+            },
+            {
+              "question": "Um relógio de Lamport consegue dizer o que sobre dois eventos A e B?",
+              "options": [
+                "Se A aconteceu antes de B no tempo real",
+                "Se A aconteceu antes de B causalmente ou se são concorrentes, mas não distingue os dois casos apenas pelo valor",
+                "A duração exata entre A e B",
+                "Qual evento foi persistido primeiro em disco"
+              ],
+              "answer": 1,
+              "explanation": "Lamport garante que A → B implica L(A) < L(B), mas a recíproca não vale. Para detectar concorrência é preciso um version vector ou estruturas equivalentes."
+            },
+            {
+              "question": "Para que serve um fencing token em um sistema com líderes e leases?",
+              "options": [
+                "Para renovar o lease mais rápido",
+                "Para impedir que um líder antigo, ainda se achando líder, escreva depois de um novo líder assumir",
+                "Para sincronizar os relógios com o NTP",
+                "Para criptografar o tráfego entre réplicas"
+              ],
+              "answer": 1,
+              "explanation": "O token é um número monotônico emitido a cada eleição. O recurso rejeita tokens menores que o último visto, então um líder pausado por GC não consegue sobrescrever o novo líder."
+            }
+          ]
+        },
+        {
+          "slug": "consensus-e-raft",
+          "title": "Consensus, Raft e por que isso importa",
+          "summary": "Como um cluster escolhe um líder e replica um log sem split brain, com os custos de quorum que aparecem na fatura.",
+          "minutes": 35,
+          "file": "lessons/consensus-e-raft.md",
+          "takeaways": [
+            "Explicar eleição, termos e commit no Raft",
+            "Dimensionar quóruns e tolerância a falhas",
+            "Decidir quando consenso é caro demais para o caso de uso"
+          ],
+          "quiz": [
+            {
+              "question": "Um cluster Raft com 5 nós perde 2 nós. Quantos continuam necessários para eleger líder e confirmar escritas?",
+              "options": [
+                "2",
+                "3",
+                "4",
+                "5"
+              ],
+              "answer": 1,
+              "explanation": "O quórum é a maioria de 5, ou seja, 3. Com 2 falhas restam 3 nós, exatamente o mínimo para continuar operando. Uma terceira falha paralisa o cluster."
+            },
+            {
+              "question": "Por que o timeout de eleição do Raft é randomizado?",
+              "options": [
+                "Para reduzir o uso de disco",
+                "Para evitar que vários seguidores iniciem eleições simultâneas e dividam o voto indefinidamente",
+                "Para garantir que o líder nunca falhe",
+                "Para permitir que qualquer nó confirme escritas sem quórum"
+              ],
+              "answer": 1,
+              "explanation": "Timeouts aleatórios entre 150 e 300 ms, por exemplo, fazem um nó disparar antes dos outros e conseguir votos. Sem jitter, eleições empatadas podem se repetir."
+            },
+            {
+              "question": "Qual é o efeito de adicionar um quarto nó a um cluster Raft de 3 nós?",
+              "options": [
+                "A tolerância sobe de 1 para 2 falhas",
+                "A tolerância continua em 1 falha, mas o quórum passa de 2 para 3 e a latência de escrita tende a subir",
+                "O cluster deixa de precisar de líder",
+                "A consistência passa a ser eventual"
+              ],
+              "answer": 1,
+              "explanation": "Com 4 nós o quórum é 3; ainda se tolera 1 falha. Você pagou mais um nó, aumentou o custo de cada escrita e não ganhou resiliência. Para ganhar, vá para 5."
+            }
+          ]
+        }
+      ],
+      "exercises": [
+        "exercises/dist-quorum-failover.json"
+      ]
+    },
+    {
+      "slug": "comunicacao",
+      "title": "Comunicação entre serviços",
+      "description": "Como serviços conversam sem se acoplar: contratos explícitos, gRPC, idempotência, retries com jitter e orçamentos de tempo que sobrevivem a falhas parciais.",
+      "estimatedHours": 8,
+      "lessons": [
+        {
+          "slug": "sincrono-vs-assincrono-contratos",
+          "title": "Síncrono vs assíncrono e contratos",
+          "summary": "O acoplamento temporal, espacial e semântico de cada estilo, e como evoluir contratos sem quebrar consumidores.",
+          "minutes": 30,
+          "file": "lessons/sincrono-vs-assincrono-contratos.md",
+          "takeaways": [
+            "Quantificar amplificação de latência e falha em chamadas síncronas",
+            "Escolher coreografia ou orquestração com critério",
+            "Aplicar compatibilidade backward e forward em eventos"
+          ],
+          "quiz": [
+            {
+              "question": "Dez serviços são chamados em série; cada um tem p99 de 200 ms. Qual é o p99 aproximado da jornada, desconsiderando retries?",
+              "options": [
+                "200 ms",
+                "400 ms",
+                "2.000 ms",
+                "20.000 ms"
+              ],
+              "answer": 2,
+              "explanation": "Em série, os p99 se somam no pior caso: 10 × 200 ms = 2.000 ms. Em paralelo, o p99 seria próximo de 200 ms, mas a probabilidade de pelo menos um estourar aumenta."
+            },
+            {
+              "question": "Qual mudança em um evento Avro/Protobuf é normalmente compatível para consumidores antigos?",
+              "options": [
+                "Renomear um campo existente",
+                "Adicionar um campo opcional com um novo número de tag",
+                "Reutilizar o número de um campo removido com outro tipo",
+                "Trocar o tipo de int para string no mesmo campo"
+              ],
+              "answer": 1,
+              "explanation": "Campos opcionais novos, com tags novas, são ignorados por consumidores antigos. Renomear, reutilizar tags e mudar tipo quebram o contrato binário."
+            },
+            {
+              "question": "Por que publicar no Kafka dentro da mesma transação do banco não resolve o dual-write em geral?",
+              "options": [
+                "Porque o Kafka não aceita transações",
+                "Porque não há transação atômica entre o commit do banco e o publish no broker; o outbox resolve isso com uma transação local",
+                "Porque o banco sempre commita antes",
+                "Porque o Kafka só aceita JSON"
+              ],
+              "answer": 1,
+              "explanation": "São dois recursos distintos. Se o processo cair entre o commit e o publish, o evento se perde; se publicar antes, o evento pode falar de algo que não commitou. O outbox grava os dois na mesma transação local."
+            }
+          ]
+        },
+        {
+          "slug": "grpc-rest-serializacao",
+          "title": "gRPC, REST e serialização",
+          "summary": "O que muda no fio, no contrato e no load balancer quando você troca JSON por Protobuf e HTTP/2 por gRPC.",
+          "minutes": 30,
+          "file": "lessons/grpc-rest-serializacao.md",
+          "takeaways": [
+            "Comparar payload, streaming e semântica de REST e gRPC",
+            "Projetar evolução de schema com field numbers",
+            "Evitar armadilhas de deadline, LB e mensagens grandes"
+          ],
+          "quiz": [
+            {
+              "question": "Por que nunca se deve reutilizar o número de um campo removido no Protobuf?",
+              "options": [
+                "Porque o compilador recusa números ímpares",
+                "Porque consumidores antigos podem interpretar o novo campo como o antigo, corrompendo dados",
+                "Porque aumenta o tamanho da mensagem",
+                "Porque impede o uso de streaming"
+              ],
+              "answer": 1,
+              "explanation": "O número é a identidade no fio. Reutilizá-lo com outro tipo ou significado faz um leitor antigo decodificar bytes errados. Use reserved para aposentar tags."
+            },
+            {
+              "question": "Qual é a função de um deadline no gRPC?",
+              "options": [
+                "Definir o timeout do load balancer apenas",
+                "Propagar o tempo restante para que o servidor cancele trabalho que já não interessa ao cliente",
+                "Garantir que a resposta chegue em ordem",
+                "Substituir a necessidade de idempotência"
+              ],
+              "answer": 1,
+              "explanation": "O deadline viaja como header grpc-timeout. O servidor deve abortar quando ele expira; sem isso, o cliente desiste mas o backend continua gastando CPU e conexões."
+            },
+            {
+              "question": "Um cliente recebe 503 de um serviço idempotente. Qual é a leitura correta?",
+              "options": [
+                "É erro permanente; não tente de novo",
+                "É falha transitória ou sobrecarga; pode tentar de novo com backoff e jitter, respeitando o orçamento",
+                "É sempre erro de validação",
+                "Indica que o payload está grande demais"
+              ],
+              "answer": 1,
+              "explanation": "503 sinaliza indisponibilidade temporária. Com idempotência e backoff, o retry é razoável. Já 400/422 não devem ser repetidos sem mudar a requisição."
+            }
+          ]
+        },
+        {
+          "slug": "idempotencia-retries-backoff",
+          "title": "Idempotência, retries, backoff e jitter",
+          "summary": "Como transformar timeouts ambíguos em operações seguras, com chaves de idempotência, dedupe e retries que não derrubam o backend.",
+          "minutes": 35,
+          "file": "lessons/idempotencia-retries-backoff.md",
+          "takeaways": [
+            "Implementar idempotência com fingerprint e replay de resposta",
+            "Calcular a amplificação de retries em múltiplas camadas",
+            "Aplicar full jitter e retry budget"
+          ],
+          "quiz": [
+            {
+              "question": "Um cliente recebe timeout ao cobrar um cartão. O que se sabe sobre o efeito colateral?",
+              "options": [
+                "Com certeza não aconteceu",
+                "Com certeza aconteceu",
+                "É ambíguo: pode ter acontecido e a resposta ter se perdido",
+                "Aconteceu exatamente duas vezes"
+              ],
+              "answer": 2,
+              "explanation": "Timeout não informa se o servidor processou. Por isso a operação precisa ser idempotente ou consultável por chave antes de tentar de novo."
+            },
+            {
+              "question": "Qual fórmula representa full jitter no retry?",
+              "options": [
+                "base × 2^attempt",
+                "random(0, min(cap, base × 2^attempt))",
+                "cap × attempt",
+                "base + attempt"
+              ],
+              "answer": 1,
+              "explanation": "Full jitter sorteia uniformemente entre zero e o teto exponencial. Isso espalha os retries e evita que todos os clientes batam no backend no mesmo instante."
+            },
+            {
+              "question": "Se cinco camadas da pilha fazem 3 tentativas cada, quantas chamadas ao banco podem resultar de uma requisição no pior caso?",
+              "options": [
+                "15",
+                "81",
+                "243",
+                "3"
+              ],
+              "answer": 2,
+              "explanation": "3^5 = 243. Retries se multiplicam entre camadas. A prática recomendada é concentrar retries em um único ponto da pilha e usar orçamento."
+            }
+          ]
+        },
+        {
+          "slug": "circuit-breaker-bulkhead-timeout",
+          "title": "Circuit breaker, bulkhead e timeout budget",
+          "summary": "Padrões de isolamento que impedem que uma dependência lenta consuma todos os recursos e derrube o serviço inteiro.",
+          "minutes": 30,
+          "file": "lessons/circuit-breaker-bulkhead-timeout.md",
+          "takeaways": [
+            "Dimensionar pools com a Lei de Little",
+            "Implementar breaker com janela e half-open",
+            "Distribuir um timeout budget entre dependências"
+          ],
+          "quiz": [
+            {
+              "question": "O que o estado open de um circuit breaker faz?",
+              "options": [
+                "Aumenta o timeout da dependência",
+                "Falha rápido sem chamar a dependência, até que a janela de teste permita uma chamada de sondagem",
+                "Abre uma conexão TCP dedicada",
+                "Redistribui a carga para todas as réplicas"
+              ],
+              "answer": 1,
+              "explanation": "Open interrompe chamadas e libera recursos. Depois do intervalo, half-open deixa passar um número limitado de requisições para verificar se a dependência se recuperou."
+            },
+            {
+              "question": "Um endpoint tem orçamento total de 800 ms. Ele precisa de duas dependências em paralelo e 100 ms de processamento local. Qual é o timeout máximo por dependência, deixando 100 ms de folga?",
+              "options": [
+                "800 ms",
+                "400 ms",
+                "300 ms",
+                "100 ms"
+              ],
+              "answer": 2,
+              "explanation": "800 - 100 (local) - 100 (folga) = 600 ms para as duas chamadas em paralelo, ou 300 ms se elas forem sequenciais. O orçamento é dividido, não repetido."
+            },
+            {
+              "question": "Por que um bulkhead com pool separado por dependência ajuda?",
+              "options": [
+                "Porque aumenta a largura de banda da rede",
+                "Porque uma dependência lenta esgota apenas seu pool, deixando threads para as demais rotas",
+                "Porque elimina a necessidade de timeout",
+                "Porque garante consistência forte"
+              ],
+              "answer": 1,
+              "explanation": "Sem isolamento, uma dependência lenta consome todo o pool compartilhado. Com pools separados, o dano fica contido, embora você aceite subutilização e mais complexidade."
+            }
+          ]
+        }
+      ],
+      "exercises": [
+        "exercises/dist-idempotencia-ponta-a-ponta.json"
+      ]
+    },
+    {
+      "slug": "dados-distribuidos",
+      "title": "Dados distribuídos na prática",
+      "description": "Onde os dados moram e como se movem: replicação, quorum, failover, sharding, rebalanceamento, transações e o custo real de cada garantia.",
+      "estimatedHours": 8,
+      "lessons": [
+        {
+          "slug": "replicacao-quorum-failover",
+          "title": "Replicação, quorum e failover",
+          "summary": "Como R + W > N vira uma decisão de produto, o que o failover realmente perde e por que fencing não é opcional.",
+          "minutes": 35,
+          "file": "lessons/replicacao-quorum-failover.md",
+          "takeaways": [
+            "Dimensionar N, R e W para latência, durabilidade e disponibilidade",
+            "Calcular RPO e RTO de topologias de replicação",
+            "Projetar failover sem split brain"
+          ],
+          "quiz": [
+            {
+              "question": "Em N=3, R=2 e W=2, o que acontece se uma réplica ficar indisponível?",
+              "options": [
+                "Leituras e escritas continuam com as duas restantes",
+                "O sistema perde escritas mas mantém leituras",
+                "O sistema entra em modo somente leitura",
+                "É necessário promover um novo líder imediatamente"
+              ],
+              "answer": 0,
+              "explanation": "Com 2 de 3 réplicas disponíveis ainda há quórum para ler e escrever. Uma segunda falha paralisa as operações que exigem maioria."
+            },
+            {
+              "question": "Um failover de leader com replicação assíncrona para outra região tende a ter qual propriedade?",
+              "options": [
+                "RPO zero e RTO zero",
+                "RPO maior que zero: as últimas escritas podem não ter chegado à réplica promovida",
+                "Consistência linearizável garantida",
+                "Perda de dados impossível"
+              ],
+              "answer": 1,
+              "explanation": "Assíncrono significa que o líder confirma antes da réplica. Na falha, transações ainda não replicadas se perdem. O RPO é a janela de lag no momento do desastre."
+            },
+            {
+              "question": "Qual problema um fencing token resolve no failover?",
+              "options": [
+                "Réplicas atrasadas retornando dados velhos",
+                "Um líder antigo pausado que volta a escrever depois de perder o lease",
+                "Latência entre data centers",
+                "Corrupção de disco"
+              ],
+              "answer": 1,
+              "explanation": "O token monotônico invalida escritas de líderes com geração anterior. Sem ele, um processo pausado por GC pode acordar e sobrescrever o novo líder."
+            }
+          ]
+        },
+        {
+          "slug": "sharding-rebalanceamento",
+          "title": "Sharding, rebalanceamento e hot partitions",
+          "summary": "Como escolher a chave de partição, por que médias escondem desastres e como mover dados sem parar o sistema.",
+          "minutes": 35,
+          "file": "lessons/sharding-rebalanceamento.md",
+          "takeaways": [
+            "Escolher chaves de partição de alta cardinalidade",
+            "Mitigar hot keys com salting, split e agregação",
+            "Planejar rebalanceamento com dual-write e throttling"
+          ],
+          "quiz": [
+            {
+              "question": "Qual chave tende a criar hot partition em um feed ordenado por tempo?",
+              "options": [
+                "UUID aleatório do usuário",
+                "Timestamp com granularidade de segundo",
+                "Hash do par usuário + entidade",
+                "ID de cidade combinado com hash de usuário"
+              ],
+              "answer": 1,
+              "explanation": "Timestamps crescentes concentram todas as escritas recentes na mesma partição. Além disso, consultas por período varrem poucos shards e saturam CPU."
+            },
+            {
+              "question": "Por que consistent hashing costuma usar virtual nodes?",
+              "options": [
+                "Para criptografar as chaves",
+                "Para distribuir melhor a carga quando o número de nós é pequeno ou irregular",
+                "Para eliminar a necessidade de replicação",
+                "Para garantir linearizability"
+              ],
+              "answer": 1,
+              "explanation": "Com poucos pontos no anel, um nó pode receber uma faixa enorme. Várias posições virtuais por nó suavizam a distribuição e facilitam o rebalanceamento."
+            },
+            {
+              "question": "Um usuário com 80 milhões de seguidores publica um post. Qual estratégia evita gravar 80 milhões de linhas no fan-out de escrita?",
+              "options": [
+                "Aumentar o timeout do banco",
+                "Fan-out híbrido: escrever no feed dos seguidores ativos e mesclar o conteúdo do autor na leitura",
+                "Usar 2PC em todos os shards",
+                "Recolocar o usuário para um shard maior"
+              ],
+              "answer": 1,
+              "explanation": "O fan-out híbrido trata celebridades como exceção: o post fica em um storage do autor e é mesclado no read path. Você troca custo de escrita por latência e complexidade de leitura."
+            }
+          ]
+        },
+        {
+          "slug": "transacoes-saga-outbox",
+          "title": "Transações distribuídas: saga, outbox e 2PC",
+          "summary": "Por que 2PC bloqueia, como sagas compensam sem rollback e como o outbox elimina o dual-write.",
+          "minutes": 35,
+          "file": "lessons/transacoes-saga-outbox.md",
+          "takeaways": [
+            "Explicar o bloqueio e o in-doubt do 2PC",
+            "Desenhar saga com pivot, compensações idempotentes e estado persistido",
+            "Implementar outbox com relay e dedupe"
+          ],
+          "quiz": [
+            {
+              "question": "Qual é o principal risco operacional do 2PC quando o coordenador falha após o prepare?",
+              "options": [
+                "Os participantes ficam com locks e em estado in-doubt até a recuperação",
+                "Os dados são automaticamente apagados",
+                "O sistema perde a disponibilidade para leitura, mas não para escrita",
+                "O protocolo vira consistência eventual"
+              ],
+              "answer": 0,
+              "explanation": "Participantes que votaram sim não podem commitar nem abortar sozinhos. Ficam bloqueados segurando locks até o coordenador voltar, o que pode derrubar throughput."
+            },
+            {
+              "question": "Em uma saga, o que uma compensação faz?",
+              "options": [
+                "Desfaz fisicamente a transação original com rollback do banco",
+                "Executa uma ação de negócio que neutraliza o efeito anterior, como estornar ou liberar reserva",
+                "Garante isolamento serializável",
+                "Reinicia todo o workflow do zero"
+              ],
+              "answer": 1,
+              "explanation": "Saga não tem rollback global. Compensar é uma nova operação de negócio, idempotente e muitas vezes visível ao cliente, como um estorno que pode ter tarifa."
+            },
+            {
+              "question": "O padrão outbox resolve qual problema?",
+              "options": [
+                "A latência de escrita no banco",
+                "A inconsistência entre commitar o estado e publicar o evento, usando uma transação local para ambos",
+                "A necessidade de idempotência no consumidor",
+                "O hot partition do banco"
+              ],
+              "answer": 1,
+              "explanation": "O outbox grava o evento na mesma transação local do estado. Um relay lê e publica depois; o consumidor ainda precisa deduplicar porque a entrega é at-least-once."
+            }
+          ]
+        }
+      ],
+      "exercises": []
+    },
+    {
+      "slug": "arquitetura",
+      "title": "Arquitetura e fronteiras",
+      "description": "Decisões de fronteira: quando microservices ajudam, como DDD delimita contextos e quando CQRS, event sourcing e service mesh são overengineering.",
+      "estimatedHours": 6,
+      "lessons": [
+        {
+          "slug": "monolito-microservices",
+          "title": "Monólito vs microservices (e quando voltar)",
+          "summary": "O custo organizacional e técnico de cada estilo, com números de disponibilidade e um roteiro de extração que não vira distributed monolith.",
+          "minutes": 30,
+          "file": "lessons/monolito-microservices.md",
+          "takeaways": [
+            "Calcular o custo de saltos de rede e falhas em cadeia",
+            "Reconhecer sintomas de distributed monolith",
+            "Extrair serviços por subdomínio com strangler fig"
+          ],
+          "quiz": [
+            {
+              "question": "Qual é o benefício primário de microservices em uma organização grande?",
+              "options": [
+                "Latência menor em qualquer cenário",
+                "Autonomia de times e deploys independentes, ao custo de complexidade distribuída",
+                "Consistência forte automática",
+                "Eliminação da necessidade de observabilidade"
+              ],
+              "answer": 1,
+              "explanation": "O ganho principal é organizacional: times conseguem evoluir e implantar sem coordenação total. Tecnicamente, quase tudo fica mais difícil."
+            },
+            {
+              "question": "Qual sintoma indica um distributed monolith?",
+              "options": [
+                "Serviços com bancos separados e contratos versionados",
+                "Deploys coordenados entre serviços e um banco compartilhado como fonte de verdade",
+                "Uso de filas para desacoplar picos",
+                "Serviços com SLOs próprios"
+              ],
+              "answer": 1,
+              "explanation": "Se você precisa deployar vários serviços juntos e todos leem/escrevem o mesmo schema, você pagou o preço de distribuir sem ganhar autonomia."
+            },
+            {
+              "question": "Oito serviços em série, cada um com 99,99% de disponibilidade. Qual é a disponibilidade aproximada da cadeia?",
+              "options": [
+                "99,99%",
+                "99,92%",
+                "99,999%",
+                "100%"
+              ],
+              "answer": 1,
+              "explanation": "0,9999^8 ≈ 0,9992, ou 99,92%. A indisponibilidade cresce de ~52 minutos para ~7 horas por ano, mesmo com cada serviço muito bom."
+            }
+          ]
+        },
+        {
+          "slug": "ddd-bounded-contexts",
+          "title": "DDD estratégico/tático e bounded contexts",
+          "summary": "Como a linguagem revela fronteiras, o que um agregado protege e como mapear contextos sem transformar DDD em diagrama bonito.",
+          "minutes": 30,
+          "file": "lessons/ddd-bounded-contexts.md",
+          "takeaways": [
+            "Distinguir subdomínio, bounded context e serviço",
+            "Desenhar agregados como fronteiras de invariantes",
+            "Aplicar context map e anti-corruption layer"
+          ],
+          "quiz": [
+            {
+              "question": "O que é um bounded context?",
+              "options": [
+                "Um módulo de código com o mesmo nome do time",
+                "Uma fronteira explícita onde um modelo e sua linguagem têm significado preciso",
+                "Um cluster de bancos de dados",
+                "Uma camada de API gateway"
+              ],
+              "answer": 1,
+              "explanation": "Bounded context é uma fronteira linguística e de modelo. Pode ser implementado como módulo, serviço ou processo, mas não é sinônimo de nenhum deles."
+            },
+            {
+              "question": "Qual é o critério prático para o limite de um agregado?",
+              "options": [
+                "O número de tabelas do banco",
+                "O conjunto de invariantes que precisa ser consistente em uma única transação",
+                "O número de endpoints REST",
+                "A quantidade de classes do domínio"
+              ],
+              "answer": 1,
+              "explanation": "Agregado é a unidade de consistência transacional. Se duas partes não precisam ser atualizadas atomicamente, provavelmente são agregados distintos."
+            },
+            {
+              "question": "Para que serve uma anti-corruption layer entre contextos?",
+              "options": [
+                "Impedir acesso não autorizado",
+                "Traduzir o modelo externo para o modelo local, evitando que a linguagem de outro contexto contamine o seu",
+                "Acelerar consultas SQL",
+                "Replicar dados entre regiões"
+              ],
+              "answer": 1,
+              "explanation": "A ACL é uma camada de tradução. Ela protege o modelo local de mudanças e idiossincrasias do fornecedor, ao custo de código e latência adicionais."
+            }
+          ]
+        },
+        {
+          "slug": "cqrs-event-sourcing-mesh",
+          "title": "CQRS, event sourcing e service mesh",
+          "summary": "Três ferramentas poderosas que costumam ser usadas cedo demais: o que cada uma resolve, o que cobra e quando dizer não.",
+          "minutes": 30,
+          "file": "lessons/cqrs-event-sourcing-mesh.md",
+          "takeaways": [
+            "Separar CQRS de event sourcing",
+            "Projetar event store com versão esperada e snapshots",
+            "Decidir quando um service mesh paga seu custo"
+          ],
+          "quiz": [
+            {
+              "question": "CQRS implica event sourcing?",
+              "options": [
+                "Sim, sempre",
+                "Não: CQRS separa modelos de leitura e escrita; event sourcing é uma forma específica de persistir o estado como eventos",
+                "Só quando se usa Kafka",
+                "Só em microservices"
+              ],
+              "answer": 1,
+              "explanation": "Você pode ter CQRS com um banco relacional e projeções materializadas, sem event sourcing. E pode ter event sourcing sem separar consultas."
+            },
+            {
+              "question": "Qual problema snapshots resolvem em event sourcing?",
+              "options": [
+                "A falta de transações",
+                "O tempo de reconstrução de um agregado a partir de milhares de eventos",
+                "A duplicação de mensagens",
+                "O hot partition"
+              ],
+              "answer": 1,
+              "explanation": "Um snapshot é o estado em uma versão. Para reconstruir, carrega-se o snapshot e aplica-se apenas os eventos posteriores, reduzindo latência de leitura."
+            },
+            {
+              "question": "Qual é o maior risco de configurar retries automáticos no service mesh e também no código da aplicação?",
+              "options": [
+                "Aumento do custo de certificados",
+                "Multiplicação de tentativas e amplificação de carga durante uma falha",
+                "Perda de suporte a HTTP/2",
+                "Impossibilidade de usar mTLS"
+              ],
+              "answer": 1,
+              "explanation": "Camadas diferentes repetindo a mesma chamada multiplicam o tráfego. Defina um único ponto responsável por retry e um orçamento global."
+            }
+          ]
+        }
+      ],
+      "exercises": []
+    },
+    {
+      "slug": "resiliencia-e-operacao",
+      "title": "Resiliência e operação",
+      "description": "Como medir e ensaiar resiliência: SLOs, error budgets, capacidade, caos controlado, resposta a incidentes e decisões multi-região.",
+      "estimatedHours": 4,
+      "lessons": [
+        {
+          "slug": "slo-sli-error-budget",
+          "title": "SLO, SLI, error budget, capacity e carga",
+          "summary": "Como transformar confiabilidade em número, alertar por sintoma e dimensionar capacidade antes que a fila exploda.",
+          "minutes": 35,
+          "file": "lessons/slo-sli-error-budget.md",
+          "takeaways": [
+            "Escrever SLIs e SLOs centrados na jornada do usuário",
+            "Calcular error budget e burn rate",
+            "Dimensionar capacidade com Lei de Little e headroom"
+          ],
+          "quiz": [
+            {
+              "question": "Um SLO de 99,9% em uma janela de 30 dias permite aproximadamente quanto de indisponibilidade?",
+              "options": [
+                "4 minutos e 19 segundos",
+                "43 minutos e 12 segundos",
+                "7 horas e 12 minutos",
+                "72 horas"
+              ],
+              "answer": 1,
+              "explanation": "30 dias têm 43.200 minutos; 0,1% disso são 43,2 minutos. Em 28 dias, o valor clássico é 40m19s."
+            },
+            {
+              "question": "Para que serve o error budget?",
+              "options": [
+                "Para justificar 100% de disponibilidade",
+                "Para equilibrar confiabilidade e velocidade de mudança com um limite acordado de erro",
+                "Para medir apenas CPU e memória",
+                "Para substituir postmortems"
+              ],
+              "answer": 1,
+              "explanation": "O budget é o complemento do SLO. Se está sobrando, você pode arriscar mais deploys; se está queimando rápido, prioriza estabilidade."
+            },
+            {
+              "question": "Por que manter utilização de servidores perto de 100% é perigoso?",
+              "options": [
+                "Porque o custo de energia dobra",
+                "Porque o tempo de fila cresce de forma não linear e qualquer pico cria latência exponencial",
+                "Porque o TLS deixa de funcionar",
+                "Porque impede o uso de containers"
+              ],
+              "answer": 1,
+              "explanation": "Em sistemas de fila, a espera cresce com ρ/(1-ρ). A 80% já há 4× o tempo de serviço; a 95%, 20×. Headroom é seguro, não desperdício."
+            }
+          ]
+        },
+        {
+          "slug": "chaos-engineering-incidentes-multi-region",
+          "title": "Chaos engineering, incident response e multi-region",
+          "summary": "Como ensaiar falhas com hipótese e blast radius, comandar um incidente e escolher uma estratégia de DR que caiba no orçamento.",
+          "minutes": 35,
+          "file": "lessons/chaos-engineering-incidentes-multi-region.md",
+          "takeaways": [
+            "Desenhar experimentos de caos com hipótese e abort",
+            "Estruturar comando de incidente e postmortem sem culpa",
+            "Comparar pilot light, warm standby e active-active"
+          ],
+          "quiz": [
+            {
+              "question": "O que um experimento de chaos engineering precisa ter antes de rodar?",
+              "options": [
+                "Aprovação de todos os clientes",
+                "Hipótese mensurável, steady state, blast radius limitado e critério de abort",
+                "Um ambiente exclusivamente de desenvolvimento",
+                "Pelo menos 10 regiões"
+              ],
+              "answer": 1,
+              "explanation": "Caos não é sair matando instâncias. É um experimento controlado: você observa uma métrica de steady state, injeta uma variável e compara com o controle."
+            },
+            {
+              "question": "Uma estratégia warm standby com 30% da capacidade do primário consegue absorver uma falha total de região?",
+              "options": [
+                "Sim, porque o failover dobra a capacidade",
+                "Não, a menos que haja degradação graciosa ou escala rápida suficiente; 30% não atende 100% da carga",
+                "Sim, se o DNS tiver TTL de 60 segundos",
+                "Sim, porque o standby herda os servidores do primário"
+              ],
+              "answer": 1,
+              "explanation": "Capacidade não aparece por mágica. Sem escala comprovada ou degradação planejada, o standby afunda. O dimensionamento precisa considerar o pico, não a média."
+            },
+            {
+              "question": "Qual é o objetivo de um postmortem blameless?",
+              "options": [
+                "Identificar e punir o operador que errou",
+                "Entender causas sistêmicas e melhorar detecção, resposta e prevenção",
+                "Reduzir o número de incidentes escondendo métricas",
+                "Substituir o plano de continuidade"
+              ],
+              "answer": 1,
+              "explanation": "Sem culpa não significa sem responsabilidade. O foco é no sistema que permitiu o erro humano causar impacto, com ações verificáveis e donos."
+            }
+          ]
+        }
+      ],
+      "exercises": []
+    },
+    {
+      "slug": "estudos-de-caso",
+      "title": "Estudos de caso em escala",
+      "description": "Arquiteturas reais dissecadas: os mecanismos por trás de Netflix, Uber, Google, Amazon e WhatsApp — e o que não copiar.",
+      "estimatedHours": 4,
+      "lessons": [
+        {
+          "slug": "netflix-uber-escala",
+          "title": "Netflix e Uber: matching, streaming e resiliência",
+          "summary": "Dois modelos de escala: leitura massiva distribuída por CDN e matching transacional geodistribuído.",
+          "minutes": 35,
+          "file": "lessons/netflix-uber-escala.md",
+          "takeaways": [
+            "Comparar scale-out de leitura com scale-out de escrita",
+            "Entender H3, sharding geográfico e state machines de corrida",
+            "Reconhecer o que não se copia sem o mesmo contexto"
+          ],
+          "quiz": [
+            {
+              "question": "Qual é o papel da Open Connect na arquitetura da Netflix?",
+              "options": [
+                "Bancos de dados relacionais multi-região",
+                "Rede de entrega de conteúdo com appliances próximos aos provedores, reduzindo latência e tráfego na nuvem",
+                "Serviço de autenticação de usuários",
+                "Fila de eventos para billing"
+              ],
+              "answer": 1,
+              "explanation": "A Open Connect tira o vídeo do caminho crítico da nuvem. O catálogo e a sessão ficam nos serviços, mas os bytes são servidos por CDN embarcada."
+            },
+            {
+              "question": "Para que a Uber usa H3?",
+              "options": [
+                "Para criptografar IDs de corrida",
+                "Para indexar e agregar dados geoespaciais em células hexagonais hierárquicas",
+                "Para armazenar eventos em log append-only",
+                "Para substituir o DNS"
+              ],
+              "answer": 1,
+              "explanation": "H3 transforma lat/long em um índice de célula com resoluções hierárquicas. Isso permite agregações e buscas por vizinhança sem varrer todos os pontos."
+            },
+            {
+              "question": "No feed de uma rede social, fan-out on write significa:",
+              "options": [
+                "Montar o feed na leitura consultando todos os autores",
+                "Gravar o post na caixa de entrada de cada seguidor no momento da publicação",
+                "Deixar o post apenas no cache",
+                "Publicar em todos os data centers ao mesmo tempo"
+              ],
+              "answer": 1,
+              "explanation": "Fan-out on write paga na publicação para deixar a leitura barata. Com celebridades, o custo explode; por isso arquiteturas reais usam híbridos."
+            }
+          ]
+        },
+        {
+          "slug": "google-amazon-whatsapp-escala",
+          "title": "Google, Amazon e WhatsApp: índice, Dynamo e mensageria",
+          "summary": "Três lições de escala: fan-out de índice com tail latency, quorum com hinted handoff e conexões persistentes com filas por destinatário.",
+          "minutes": 35,
+          "file": "lessons/google-amazon-whatsapp-escala.md",
+          "takeaways": [
+            "Entender o custo de fan-out em busca e tail latency",
+            "Distinguir o paper Dynamo do serviço DynamoDB",
+            "Projetar entrega de mensagens com ordem, ack e offline storage"
+          ],
+          "quiz": [
+            {
+              "question": "Por que um índice de busca distribuído precisa se preocupar com tail latency?",
+              "options": [
+                "Porque a média é sempre igual ao p99",
+                "Porque uma consulta espera o shard mais lento; com centenas de shards, o p99 de cada um aparece com frequência",
+                "Porque índices não podem ser replicados",
+                "Porque o disco é mais rápido que a rede"
+              ],
+              "answer": 1,
+              "explanation": "Fan-out faz a cauda de cada shard dominar. Se cada shard tem 1% de chance de passar de 100 ms e você consulta 100 shards, a chance de ao menos um estourar é ~63%."
+            },
+            {
+              "question": "O que o paper Dynamo descreve?",
+              "options": [
+                "Um banco SQL fortemente consistente com TrueTime",
+                "Um key-value store altamente disponível com consistent hashing, vector clocks e sloppy quorum",
+                "Um serviço de mensagens Erlang",
+                "Um sistema de arquivos distribuído"
+              ],
+              "answer": 1,
+              "explanation": "Dynamo é o paper de 2007 com eventual consistency, hinted handoff e anti-entropy. DynamoDB é um serviço posterior com outras escolhas e garantias."
+            },
+            {
+              "question": "Em mensageria, por que uma fila por destinatário ajuda no WhatsApp?",
+              "options": [
+                "Porque elimina a necessidade de ack",
+                "Porque mantém ordem por conversa e permite entregar ou armazenar offline sem bloquear outros usuários",
+                "Porque permite broadcast sem custo",
+                "Porque substitui a criptografia ponta a ponta"
+              ],
+              "answer": 1,
+              "explanation": "A fila por destinatário isola o estado de entrega. Se o usuário está offline, a mensagem fica armazenada; a ordem por conversa é preservada sem uma fila global."
+            }
+          ]
+        }
+      ],
+      "exercises": []
+    }
+  ]
+}

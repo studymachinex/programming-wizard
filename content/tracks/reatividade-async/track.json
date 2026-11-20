@@ -1,0 +1,730 @@
+{
+  "slug": "reatividade-async",
+  "title": "Reatividade e Async em Java",
+  "subtitle": "Concorrência moderna, Reactive Streams e Mutiny sem bloquear o event loop",
+  "description": "Uma trilha para quem já domina Java e quer parar de usar threads como se fossem gratuitas. Você vai entender o que bloqueia, quando usar CompletableFuture, virtual threads ou programação reativa, como o contrato Reactive Streams e o backpressure funcionam por dentro, e como construir APIs e consumidores com Mutiny e Quarkus. O foco é o que quebra em produção: event loop travado, fila sem limite, retry que amplifica falha, teste com sleep e vazamento de memória.",
+  "level": "avancado",
+  "icon": "radio",
+  "accent": "ember",
+  "estimatedHours": 36,
+  "isCore": false,
+  "outcomes": [
+    "Escolher entre threads de plataforma, virtual threads e event loop com critério de CPU, I/O e latência",
+    "Compor operações assíncronas com CompletableFuture, timeouts, fallback e cancelamento cooperativo",
+    "Aplicar o contrato Reactive Streams, backpressure e operadores sem bloquear o event loop",
+    "Construir APIs e consumidores reativos com Quarkus REST e Mutiny, preservando a semântica de entrega",
+    "Proteger o sistema com bulkhead, timeout, retry e circuit breaker, sem amplificar falhas",
+    "Testar código assíncrono com UniAsserter, StepVerifier e Awaitility, diagnosticando deadlocks e vazamentos"
+  ],
+  "modules": [
+    {
+      "slug": "fundamentos-async",
+      "title": "O custo de bloquear",
+      "description": "Threads, event loop, CompletableFuture e virtual threads: o modelo mental que evita tratar concorrência como detalhe de framework.",
+      "estimatedHours": 9,
+      "lessons": [
+        {
+          "slug": "modelo-threads-bloqueio",
+          "title": "Threads, event loop e o custo de bloquear",
+          "summary": "O que acontece quando uma thread bloqueia, como o event loop do Quarkus funciona e por que uma chamada JDBC pode parar o servidor inteiro.",
+          "minutes": 45,
+          "file": "lessons/01-modelo-threads-bloqueio.md",
+          "takeaways": [
+            "Diferenciar tarefas CPU-bound de I/O-bound",
+            "Entender o event loop e o conceito de thread de plataforma",
+            "Reconhecer uma chamada bloqueante dentro de código reativo",
+            "Escolher entre worker thread, virtual thread e não bloquear"
+          ],
+          "quiz": [
+            {
+              "question": "Uma thread de event loop executa uma chamada JDBC bloqueante. Qual é o efeito?",
+              "options": [
+                "Apenas aquela requisição atrasa",
+                "O event loop fica preso e todas as conexões atendidas por ele param",
+                "O Quarkus move a chamada para outra thread automaticamente",
+                "O JDBC é convertido em reativo pelo driver"
+              ],
+              "answer": 1,
+              "explanation": "O event loop é um único thread (ou poucos) que atende muitas conexões. Uma chamada bloqueante impede que ele processe qualquer outro evento enquanto espera, degradando todo o serviço."
+            },
+            {
+              "question": "Qual das tarefas abaixo é CPU-bound?",
+              "options": [
+                "Ler um arquivo do disco",
+                "Calcular o hash SHA-256 de 1 GB em memória",
+                "Esperar a resposta de uma API HTTP",
+                "Consultar uma tabela no PostgreSQL"
+              ],
+              "answer": 1,
+              "explanation": "CPU-bound significa que o tempo é gasto processando, não esperando. Hashear 1 GB consome CPU continuamente; as demais tarefas passam a maior parte do tempo esperando I/O."
+            }
+          ]
+        },
+        {
+          "slug": "completable-future",
+          "title": "CompletableFuture: composição sem callback hell",
+          "summary": "thenCompose, thenCombine, allOf e exceptionally; como compor chamadas independentes sem bloquear e sem esconder erros.",
+          "minutes": 50,
+          "file": "lessons/02-completable-future.md",
+          "takeaways": [
+            "Diferenciar thenApply, thenCompose e thenCombine",
+            "Agregar vários resultados com allOf sem perder exceções",
+            "Tratar falhas com handle, exceptionally e whenComplete",
+            "Evitar get() e joins que anulam o ganho da assincronia"
+          ],
+          "quiz": [
+            {
+              "question": "Qual método encadeia uma etapa que também retorna CompletableFuture, evitando aninhamento?",
+              "options": [
+                "thenApply",
+                "thenCompose",
+                "thenCombine",
+                "handle"
+              ],
+              "answer": 1,
+              "explanation": "thenCompose é o flatMap do CompletableFuture: a função retorna outro Future e o resultado é achatado. thenApply serve para transformações síncronas."
+            },
+            {
+              "question": "O que allOf retorna e o que ele não faz?",
+              "options": [
+                "Retorna a lista de resultados e propaga exceções",
+                "Retorna CompletableFuture<Void> que completa quando todos completam, mas não agrega os resultados",
+                "Retorna o primeiro resultado disponível",
+                "Cancela todos os futures quando um falha"
+              ],
+              "answer": 1,
+              "explanation": "allOf apenas sinaliza a conclusão de todos. Você precisa manter as referências individuais para coletar os valores; se um falhar, o Future agregado falha, mas os demais não são cancelados automaticamente."
+            }
+          ]
+        },
+        {
+          "slug": "timeouts-erros-cancelamento",
+          "title": "Timeout, exceções e cancelamento cooperativo",
+          "summary": "orTimeout, completeOnTimeout, whenComplete e por que cancelar o Future não interrompe necessariamente a chamada HTTP subjacente.",
+          "minutes": 45,
+          "file": "lessons/03-timeouts-erros-cancelamento.md",
+          "takeaways": [
+            "Aplicar timeout no Future e no cliente HTTP",
+            "Diferenciar falha de negócio de falha técnica",
+            "Entender cancelamento cooperativo e interrupção",
+            "Evitar exceções engolidas em callbacks"
+          ],
+          "quiz": [
+            {
+              "question": "O que orTimeout faz?",
+              "options": [
+                "Interrompe a thread que executa a tarefa",
+                "Completa excepcionalmente com TimeoutException se a tarefa não terminar no prazo",
+                "Cancela a operação remota no servidor",
+                "Repete a tarefa automaticamente"
+              ],
+              "answer": 1,
+              "explanation": "orTimeout apenas completa o Future com TimeoutException. A tarefa original pode continuar rodando; por isso o timeout também precisa ser configurado no cliente HTTP ou na operação subjacente."
+            },
+            {
+              "question": "Por que cancelar um CompletableFuture não garante que o trabalho pare?",
+              "options": [
+                "Porque o cancelamento só vale para virtual threads",
+                "Porque o cancelamento é cooperativo e a tarefa precisa checar o estado ou responder à interrupção",
+                "Porque a JVM ignora cancelamentos",
+                "Porque o Future é imutável"
+              ],
+              "answer": 1,
+              "explanation": "cancel(true) tenta interromper a thread, mas o código precisa tratar InterruptedException ou verificar cancelamento. Bibliotecas de I/O podem ou não responder à interrupção."
+            }
+          ]
+        },
+        {
+          "slug": "virtual-threads",
+          "title": "Virtual threads e structured concurrency",
+          "summary": "Como virtual threads mudam o custo de bloquear, quando usar @RunOnVirtualThread no Quarkus e como structured concurrency organiza o ciclo de vida das tarefas.",
+          "minutes": 50,
+          "file": "lessons/04-virtual-threads.md",
+          "takeaways": [
+            "Entender carrier threads, mounting e pinning",
+            "Usar virtual threads para I/O bloqueante com código simples",
+            "Aplicar @RunOnVirtualThread sem criar uma thread por requisição manualmente",
+            "Organizar tarefas filhas com structured concurrency"
+          ],
+          "quiz": [
+            {
+              "question": "Qual é o principal ganho das virtual threads?",
+              "options": [
+                "Aumentar a velocidade de CPU por núcleo",
+                "Reduzir o custo de threads bloqueadas em I/O, permitindo muitas tarefas concorrentes",
+                "Eliminar a necessidade de pools e limites",
+                "Substituir o garbage collector"
+              ],
+              "answer": 1,
+              "explanation": "Virtual threads são baratas e liberam a carrier thread quando bloqueiam em I/O. Elas simplificam o código concorrente, mas não removem a necessidade de limites, timeouts e backpressure."
+            },
+            {
+              "question": "O que structured concurrency garante?",
+              "options": [
+                "Que todas as tarefas filhas terminem ou sejam canceladas antes do escopo pai sair",
+                "Que não haverá exceções",
+                "Que o código roda no event loop",
+                "Que a CPU será usada ao máximo"
+              ],
+              "answer": 0,
+              "explanation": "O escopo define o ciclo de vida das tarefas filhas: o pai não sai enquanto elas não terminam, e falhas/cancelamentos são propagados de forma previsível."
+            }
+          ]
+        }
+      ],
+      "exercises": [
+        "exercises/pipeline-completable-future.json"
+      ]
+    },
+    {
+      "slug": "reactive-streams",
+      "title": "O contrato reativo",
+      "description": "Publisher, Subscriber, demanda e backpressure. As regras que explicam por que um stream reativo se comporta diferente de uma fila comum.",
+      "estimatedHours": 7,
+      "lessons": [
+        {
+          "slug": "contrato-reactive-streams",
+          "title": "O contrato Reactive Streams",
+          "summary": "Publisher, Subscriber, Subscription e Processor; as regras de demanda, completion e cancelamento que todo operador precisa respeitar.",
+          "minutes": 45,
+          "file": "lessons/05-contrato-reactive-streams.md",
+          "takeaways": [
+            "Explicar os quatro tipos do contrato e quem chama quem",
+            "Entender request(n) e a ausência de push ilimitado",
+            "Reconhecer sinais terminais e a regra de não emitir depois deles",
+            "Diferenciar Publisher frio de Publisher quente"
+          ],
+          "quiz": [
+            {
+              "question": "Quem controla o ritmo em Reactive Streams?",
+              "options": [
+                "O Publisher, que empurra o quanto quiser",
+                "O Subscriber, que solicita demanda via Subscription.request(n)",
+                "O scheduler, que define a taxa",
+                "O garbage collector"
+              ],
+              "answer": 1,
+              "explanation": "O Subscriber sinaliza quantos itens consegue processar. O Publisher só pode emitir até a demanda acumulada; isso é a base do backpressure."
+            },
+            {
+              "question": "O que onError e onComplete têm em comum?",
+              "options": [
+                "Podem ser chamados várias vezes",
+                "São sinais terminais e mutuamente exclusivos",
+                "Só existem em Multi",
+                "Cancelam a subscription automaticamente"
+              ],
+              "answer": 1,
+              "explanation": "Um stream termina com sucesso (onComplete) ou com erro (onError), nunca com os dois. Depois de um sinal terminal, nenhum outro item pode ser emitido."
+            }
+          ]
+        },
+        {
+          "slug": "backpressure",
+          "title": "Backpressure: quando o consumidor é mais lento",
+          "summary": "Estratégias de buffer, drop, latest e error; como dimensionar filas e por que ignorar backpressure derruba o serviço com OOM.",
+          "minutes": 50,
+          "file": "lessons/06-backpressure.md",
+          "takeaways": [
+            "Reconhecer produtor rápido e consumidor lento",
+            "Comparar buffer, drop, latest e error",
+            "Dimensionar fila com base em latência e memória",
+            "Evitar buffer ilimitado como solução padrão"
+          ],
+          "quiz": [
+            {
+              "question": "O que acontece ao usar onBackpressureBuffer sem limite em um produtor mais rápido que o consumidor?",
+              "options": [
+                "A fila cresce indefinidamente e pode estourar a memória",
+                "O produtor é bloqueado automaticamente",
+                "O consumidor acelera sozinho",
+                "O stream entra em modo batch"
+              ],
+              "answer": 0,
+              "explanation": "Sem limite, o buffer absorve a diferença até a memória acabar. Backpressure de verdade exige limitar, descartar, desacelerar ou rejeitar."
+            },
+            {
+              "question": "Quando onBackpressureDrop é aceitável?",
+              "options": [
+                "Quando todo evento é obrigatório",
+                "Quando eventos são amostras e perder alguns não quebra o negócio",
+                "Quando o consumidor é mais rápido que o produtor",
+                "Sempre, pois o consumidor nunca perde dados"
+              ],
+              "answer": 1,
+              "explanation": "Drop é uma política de perda consciente. Serve para telemetria, métricas e amostragem; não para pagamentos ou eventos que precisam de entrega garantida."
+            }
+          ]
+        },
+        {
+          "slug": "operadores-schedulers",
+          "title": "Operadores e schedulers sem bloquear",
+          "summary": "map, flatMap, concatMap, merge, zip e publishOn/subscribeOn; onde cada operador executa e como não poluir o event loop.",
+          "minutes": 55,
+          "file": "lessons/07-operadores-schedulers.md",
+          "takeaways": [
+            "Escolher entre flatMap, concatMap e merge com consciência de ordem e concorrência",
+            "Entender publishOn versus subscribeOn",
+            "Mover trabalho bloqueante para um scheduler adequado",
+            "Evitar operadores que acumulam estado global"
+          ],
+          "quiz": [
+            {
+              "question": "Qual é a diferença central entre flatMap e concatMap?",
+              "options": [
+                "flatMap preserva ordem e concatMap não",
+                "flatMap intercala execuções concorrentes; concatMap processa uma por vez preservando a ordem",
+                "concatMap é assíncrono e flatMap é síncrono",
+                "Não há diferença"
+              ],
+              "answer": 1,
+              "explanation": "flatMap assina vários inner publishers ao mesmo tempo e pode intercalar resultados. concatMap espera o anterior terminar, preservando a ordem ao custo de menor paralelismo."
+            },
+            {
+              "question": "Para que serve publishOn?",
+              "options": [
+                "Mover a execução dos operadores seguintes para outro scheduler",
+                "Definir o timeout do stream",
+                "Criar um novo Publisher",
+                "Assinar o stream"
+              ],
+              "answer": 0,
+              "explanation": "publishOn afeta os operadores downstream a partir do ponto onde aparece. É útil para tirar processamento do event loop sem alterar a fonte."
+            },
+            {
+              "question": "O que subscribeOn define?",
+              "options": [
+                "O scheduler onde a assinatura e a fonte são executadas",
+                "O scheduler dos operadores seguintes",
+                "O número de retries",
+                "O tamanho do buffer"
+              ],
+              "answer": 0,
+              "explanation": "subscribeOn influencia onde a assinatura acontece e, portanto, onde a fonte é executada. O local no encadeamento importa menos que publishOn, mas o efeito é sobre a origem."
+            }
+          ]
+        }
+      ],
+      "exercises": []
+    },
+    {
+      "slug": "mutiny-quarkus",
+      "title": "Mutiny e Quarkus reativo",
+      "description": "Uni, Multi, composição, recuperação e a integração com REST e mensageria. A API que o Quarkus usa para não bloquear o event loop.",
+      "estimatedHours": 9,
+      "lessons": [
+        {
+          "slug": "mutiny-uni-multi",
+          "title": "Mutiny: Uni, Multi e composição",
+          "summary": "A API da SmallRye Mutiny: Uni para um resultado, Multi para streams, laziness e composição com transform, chain e combine.",
+          "minutes": 50,
+          "file": "lessons/08-mutiny-uni-multi.md",
+          "takeaways": [
+            "Escolher entre Uni e Multi",
+            "Entender lazy evaluation e a necessidade de assinatura",
+            "Compor com transform, chain, combine e merge",
+            "Evitar blocos que retornam null ou engolem falhas"
+          ],
+          "quiz": [
+            {
+              "question": "Qual tipo usar para uma operação que produz exatamente um resultado ou falha?",
+              "options": [
+                "Multi",
+                "Uni",
+                "CompletableFuture",
+                "Stream"
+              ],
+              "answer": 1,
+              "explanation": "Uni representa zero ou um item, com falha possível. Multi representa zero ou muitos itens e é usado para streams."
+            },
+            {
+              "question": "O que uni.onItem().transform(...) faz?",
+              "options": [
+                "Executa só quando há assinatura, transformando o item",
+                "Executa imediatamente ao construir o Uni",
+                "Cria um Multi",
+                "Substitui a falha por um valor padrão"
+              ],
+              "answer": 0,
+              "explanation": "Mutiny é lazy: a computação só acontece na assinatura. transform registra a função que será aplicada ao item quando ele chegar."
+            },
+            {
+              "question": "O que chain faz diferente de transform?",
+              "options": [
+                "chain achata um Uni retornado pela função",
+                "transform é assíncrono e chain é síncrono",
+                "chain só funciona com Multi",
+                "Não há diferença"
+              ],
+              "answer": 0,
+              "explanation": "transform é para uma função que retorna um valor; chain é para uma função que retorna outro Uni, evitando Uni<Uni<T>>."
+            }
+          ]
+        },
+        {
+          "slug": "recuperacao-mutiny",
+          "title": "Recuperação, retry e fallback em Mutiny",
+          "summary": "onFailure, recoverWithItem, recoverWithUni, retry e exponential backoff; como falhar rápido sem esconder erro de programação.",
+          "minutes": 50,
+          "file": "lessons/09-recuperacao-mutiny.md",
+          "takeaways": [
+            "Escolher entre recuperar, transformar e propagar uma falha",
+            "Aplicar retry com limite, backoff e jitter",
+            "Diferenciar erro transitório de erro permanente",
+            "Registrar falhas sem vazar dados sensíveis"
+          ],
+          "quiz": [
+            {
+              "question": "Qual a diferença entre recoverWithItem e recoverWithUni?",
+              "options": [
+                "O primeiro substitui por um item imediato; o segundo por outro Uni que pode falhar",
+                "Os dois são idênticos",
+                "O primeiro só funciona em Multi",
+                "O segundo não permite fallback"
+              ],
+              "answer": 0,
+              "explanation": "recoverWithItem devolve um valor conhecido. recoverWithUni delega a uma operação de fallback, que também pode falhar e precisa ser tratada."
+            },
+            {
+              "question": "Por que retry infinito é perigoso?",
+              "options": [
+                "Porque o Mutiny não suporta retry",
+                "Porque amplifica falhas e pode esgotar recursos sem limite",
+                "Porque bloqueia o event loop",
+                "Porque perde a assinatura"
+              ],
+              "answer": 1,
+              "explanation": "Sem limite e backoff, o retry multiplica chamadas a uma dependência já degradada, piorando a indisponibilidade e consumindo threads, conexões e filas."
+            }
+          ]
+        },
+        {
+          "slug": "rest-reativo-quarkus",
+          "title": "REST reativo com Quarkus",
+          "summary": "Resources que retornam Uni e Multi, @Blocking versus event loop, streaming e o cuidado com bibliotecas bloqueantes.",
+          "minutes": 55,
+          "file": "lessons/10-rest-reativo-quarkus.md",
+          "takeaways": [
+            "Escrever resources que retornam Uni e Multi",
+            "Decidir entre event loop, worker e virtual threads",
+            "Transmitir respostas grandes com Multi sem acumular",
+            "Reconhecer uma biblioteca bloqueante disfarçada"
+          ],
+          "quiz": [
+            {
+              "question": "Um resource retorna Uni<Pedido> e usa um driver reativo. Em qual thread ele deve executar?",
+              "options": [
+                "Sempre em uma worker thread",
+                "No event loop, sem bloquear",
+                "Em uma thread nova por requisição",
+                "Não importa"
+              ],
+              "answer": 1,
+              "explanation": "Drivers reativos devolvem Uni/Multi e não bloqueiam. O resource pode permanecer no event loop; se houver chamada bloqueante, ela precisa ser movida com @Blocking."
+            },
+            {
+              "question": "O que @Blocking faz?",
+              "options": [
+                "Move a execução para uma worker thread",
+                "Bloqueia o event loop de propósito",
+                "Desativa o REST",
+                "Cria uma transação"
+              ],
+              "answer": 1,
+              "explanation": "@Blocking instrui o Quarkus a executar o método em uma worker thread, liberando o event loop. É a válvula de escape para código bloqueante, não uma otimização."
+            },
+            {
+              "question": "Qual é o risco de chamar JDBC dentro de um resource que retorna Multi?",
+              "options": [
+                "Nenhum, pois o Multi cria uma thread",
+                "Bloquear o event loop e degradar todas as requisições",
+                "Perder apenas o backpressure",
+                "O Multi vira Uni automaticamente"
+              ],
+              "answer": 1,
+              "explanation": "O tipo de retorno não muda a natureza da chamada. JDBC bloqueia a thread que o executa; no event loop, isso trava o atendimento de outras conexões."
+            }
+          ]
+        },
+        {
+          "slug": "mensageria-eventos",
+          "title": "Mensageria e streams com Mutiny",
+          "summary": "Consumo e produção com Kafka/RabbitMQ, ack, retry e processamento por partição; onde a reatividade encontra a semântica de entrega.",
+          "minutes": 50,
+          "file": "lessons/11-mensageria-eventos.md",
+          "takeaways": [
+            "Consumir e produzir mensagens com Mutiny",
+            "Posicionar o ack depois do efeito de negócio",
+            "Entender ordem por partição e concorrência",
+            "Evitar retry que duplica efeitos colaterais"
+          ],
+          "quiz": [
+            {
+              "question": "Em um consumidor reativo, quando o ack deve ser enviado?",
+              "options": [
+                "Antes do processamento, para liberar o broker",
+                "Depois que o efeito de negócio foi concluído com sucesso",
+                "Nunca",
+                "A cada lote de 1000 mensagens"
+              ],
+              "answer": 1,
+              "explanation": "Ack antecipado transforma falha em perda. O ack deve vir depois do commit/efeito; se o processamento falhar, a mensagem precisa ser reentregue ou enviada para DLQ."
+            },
+            {
+              "question": "Por que a ordem por chave importa em Kafka?",
+              "options": [
+                "Porque o Kafka ordena globalmente",
+                "Porque eventos da mesma chave vão para a mesma partição e são processados em ordem",
+                "Porque o consumidor reativo não suporta concorrência",
+                "Porque o broker ordena por timestamp"
+              ],
+              "answer": 1,
+              "explanation": "Kafka garante ordem dentro de uma partição. Usar a chave de negócio (pedido, conta) na partição preserva a ordem dos eventos daquela entidade."
+            }
+          ]
+        }
+      ],
+      "exercises": [
+        "exercises/backpressure-fila-limitada.json"
+      ]
+    },
+    {
+      "slug": "resiliencia-padroes",
+      "title": "Resiliência e isolamento",
+      "description": "Bulkhead, timeout, retry, circuit breaker e processamento incremental. Como impedir que uma dependência lenta derrube o sistema inteiro.",
+      "estimatedHours": 7,
+      "lessons": [
+        {
+          "slug": "bulkhead-concorrencia",
+          "title": "Bulkhead, concorrência limitada e isolamento",
+          "summary": "Semáforos, filas limitadas e pools separados; como evitar que uma dependência lenta consuma toda a capacidade do serviço.",
+          "minutes": 50,
+          "file": "lessons/12-bulkhead-concorrencia.md",
+          "takeaways": [
+            "Isolar pools por dependência",
+            "Dimensionar concorrência e fila com base no p99",
+            "Aplicar rejeição explícita em vez de fila infinita",
+            "Medir saturação e tempo de espera"
+          ],
+          "quiz": [
+            {
+              "question": "O que um bulkhead resolve?",
+              "options": [
+                "Aumentar o throughput de qualquer operação",
+                "Isolar recursos para que uma dependência lenta não esgote todo o serviço",
+                "Eliminar a necessidade de retries",
+                "Melhorar a serialização JSON"
+              ],
+              "answer": 1,
+              "explanation": "Bulkhead particiona a capacidade (threads, conexões, semáforos). Se uma dependência trava, apenas o compartimento dela satura; os demais continuam funcionando."
+            },
+            {
+              "question": "Por que uma fila ilimitada na frente de um pool é perigosa?",
+              "options": [
+                "Porque o pool cresce sozinho",
+                "Porque a latência sobe sem limite e a memória pode estourar",
+                "Porque o semáforo não funciona",
+                "Porque o Kafka rejeita a fila"
+              ],
+              "answer": 1,
+              "explanation": "A fila acumula trabalho que não será processado no tempo esperado. O cliente já desistiu, mas o servidor continua gastando memória e processando itens obsoletos."
+            }
+          ]
+        },
+        {
+          "slug": "retry-timeout-circuit-breaker",
+          "title": "Timeout, retry e circuit breaker reativo",
+          "summary": "Como compor políticas com SmallRye Fault Tolerance e Mutiny, escolher backoff e evitar retry em erros não transitórios.",
+          "minutes": 50,
+          "file": "lessons/13-retry-timeout-circuit-breaker.md",
+          "takeaways": [
+            "Aplicar timeout antes de retry",
+            "Limitar tentativas e adicionar backoff com jitter",
+            "Abrir o circuito em falhas persistentes",
+            "Não repetir operações não idempotentes sem chave"
+          ],
+          "quiz": [
+            {
+              "question": "Quando não se deve fazer retry?",
+              "options": [
+                "Em timeout",
+                "Em erro 500",
+                "Em erro 400 de validação ou falha permanente",
+                "Em conexão recusada"
+              ],
+              "answer": 2,
+              "explanation": "Erros de validação e regras de negócio não vão mudar com nova tentativa. Retry serve para falhas transitórias, com limite e backoff."
+            },
+            {
+              "question": "O que o circuit breaker evita?",
+              "options": [
+                "Latência de rede",
+                "Chamadas repetidas a uma dependência já degradada",
+                "Erros de compilação",
+                "Uso de cache"
+              ],
+              "answer": 1,
+              "explanation": "Quando a taxa de falha passa do limite, o circuito abre e as chamadas falham rápido. Isso dá tempo para a dependência se recuperar e evita a cascata."
+            },
+            {
+              "question": "Qual combinação de anotações Quarkus aplica timeout, retry e circuit breaker?",
+              "options": [
+                "@Transactional, @CacheResult, @Scheduled",
+                "@Timeout, @Retry, @CircuitBreaker",
+                "@Blocking, @NonBlocking, @RunOnVirtualThread",
+                "@GET, @POST, @PUT"
+              ],
+              "answer": 1,
+              "explanation": "A extensão quarkus-smallrye-fault-tolerance oferece @Timeout, @Retry, @CircuitBreaker, @Bulkhead e @Fallback, combináveis no mesmo método."
+            }
+          ]
+        },
+        {
+          "slug": "streams-processamento",
+          "title": "Processamento incremental e streaming",
+          "summary": "Ler, transformar e gravar grandes volumes com Multi, batches e contrapressão sem carregar tudo na memória.",
+          "minutes": 50,
+          "file": "lessons/14-streams-processamento.md",
+          "takeaways": [
+            "Processar em lotes com limite de memória",
+            "Aplicar concorrência limitada em vez de flatMap sem controle",
+            "Persistir em batch e medir throughput",
+            "Retomar de onde parou com checkpoint"
+          ],
+          "quiz": [
+            {
+              "question": "Por que não chamar collect().asList() em um stream infinito?",
+              "options": [
+                "Porque o Mutiny proíbe",
+                "Porque nunca termina e a memória cresce sem limite",
+                "Porque perde a ordem",
+                "Porque não compila"
+              ],
+              "answer": 1,
+              "explanation": "collect().asList() materializa todos os itens. Em um stream infinito ou muito grande, isso nunca retorna e esgota a memória."
+            },
+            {
+              "question": "Qual estratégia processa em lotes limitados?",
+              "options": [
+                "buffer com tamanho e processamento sequencial ou concorrência limitada",
+                "retry infinito",
+                "publishOn",
+                "cache"
+              ],
+              "answer": 0,
+              "explanation": "buffer(n) agrupa até n itens e aplica backpressure a montante. Você processa o lote, confirma e segue; o tamanho precisa caber na memória e no tempo do commit."
+            }
+          ]
+        }
+      ],
+      "exercises": []
+    },
+    {
+      "slug": "testes-armadilhas",
+      "title": "Testes e armadilhas de produção",
+      "description": "Como provar que o código assíncrono funciona sem sleeps e reconhecer os incidentes clássicos: deadlock, starvation, assinatura esquecida e buffer sem limite.",
+      "estimatedHours": 4,
+      "lessons": [
+        {
+          "slug": "testando-async",
+          "title": "Testando código assíncrono sem flakiness",
+          "summary": "Awaitility, UniAsserter, StepVerifier e relógio controlado; como testar tempo, ordem e cancelamento sem sleep.",
+          "minutes": 50,
+          "file": "lessons/15-testando-async.md",
+          "takeaways": [
+            "Substituir sleep por espera determinística",
+            "Verificar item, falha e cancelamento com UniAsserter",
+            "Validar a sequência de sinais com StepVerifier",
+            "Controlar tempo com Clock e schedulers de teste"
+          ],
+          "quiz": [
+            {
+              "question": "Por que Thread.sleep em testes assíncronos é ruim?",
+              "options": [
+                "Porque é lento e ainda assim instável",
+                "Porque não compila",
+                "Porque o JUnit proíbe",
+                "Porque bloqueia o garbage collector"
+              ],
+              "answer": 0,
+              "explanation": "Sleep adiciona tempo fixo e não garante que a condição ocorreu. Awaitility e asserções reativas esperam pelo sinal, com timeout, sem depender de sorte."
+            },
+            {
+              "question": "O que UniAsserter permite?",
+              "options": [
+                "Verificar item, falha, cancelamento e timeout de um Uni",
+                "Criar um banco de dados",
+                "Substituir o JUnit",
+                "Compilar para native"
+              ],
+              "answer": 0,
+              "explanation": "UniAsserter assina o Uni e oferece asserções sobre o item, a falha e o cancelamento, com timeout configurável."
+            },
+            {
+              "question": "O que StepVerifier faz?",
+              "options": [
+                "Verifica a sequência de sinais de um Publisher",
+                "Cria mocks automaticamente",
+                "Mede uso de CPU",
+                "Gera relatório de cobertura"
+              ],
+              "answer": 0,
+              "explanation": "StepVerifier permite declarar a sequência esperada de onNext, onComplete e onError, além de verificar demanda e cancelamento."
+            }
+          ]
+        },
+        {
+          "slug": "armadilhas-producao",
+          "title": "Deadlocks, starvation e vazamentos",
+          "summary": "Os incidentes clássicos de código assíncrono: ordem de locks, starvation de pool, assinaturas esquecidas e memória presa em buffers.",
+          "minutes": 50,
+          "file": "lessons/16-armadilhas-producao.md",
+          "takeaways": [
+            "Diagnosticar starvation por tarefas bloqueantes no mesmo pool",
+            "Reconhecer deadlock por ordem de aquisição de locks",
+            "Detectar Uni/Multi não assinado e efeito que nunca acontece",
+            "Encontrar buffers e subscriptions que vazam memória"
+          ],
+          "quiz": [
+            {
+              "question": "O que causa starvation em um pool pequeno?",
+              "options": [
+                "Tarefas rápidas demais",
+                "Tarefas bloqueantes ocupando todas as threads enquanto esperam umas às outras",
+                "Uso de virtual threads",
+                "Cache hit alto"
+              ],
+              "answer": 1,
+              "explanation": "Se todas as threads do pool ficam bloqueadas aguardando tarefas que precisariam do mesmo pool, não há thread livre para progredir. Isolar pools ou não bloquear dentro deles é essencial."
+            },
+            {
+              "question": "Por que esquecer de assinar um Uni é um bug silencioso?",
+              "options": [
+                "Porque o Uni lança exceção na construção",
+                "Porque nada executa até a assinatura, então o efeito simplesmente não acontece",
+                "Porque o Uni vira Multi",
+                "Porque a JVM otimiza a chamada"
+              ],
+              "answer": 1,
+              "explanation": "Mutiny é lazy. Sem subscribe/await, a cadeia não é executada; não há erro, apenas um efeito ausente que pode passar despercebido em testes mal escritos."
+            },
+            {
+              "question": "Qual é o risco de manter buffers por conexão sem limite?",
+              "options": [
+                "Aumento de latência apenas",
+                "Vazamento de memória e OOM sob carga",
+                "Perda de backpressure",
+                "Nenhum, pois o GC limpa tudo"
+              ],
+              "answer": 1,
+              "explanation": "Buffers por conexão sem limite crescem com a diferença entre produção e consumo. Sob carga, a memória estoura e derruba o processo; o GC não resolve referências ainda ativas."
+            }
+          ]
+        }
+      ],
+      "exercises": [
+        "exercises/bulkhead-executor-assincrono.json"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "track": "algoritmos-avancados",
+  "slug": "adv-permutations-backtracking",
+  "title": "Permutações únicas com backtracking",
+  "difficulty": "dificil",
+  "tags": [
+    "backtracking",
+    "permutacoes",
+    "duplicatas"
+  ],
+  "estimatedMinutes": 55,
+  "statement": "## Contexto\n\nBacktracking é a técnica de explorar decisões, desfazer e tentar a próxima. Permutações são o exemplo canônico: escolha um elemento não usado, desça, colete e volte. O desafio extra é lidar com duplicatas sem gerar resultados repetidos.\n\n## Contrato\n\n```java\nstatic List<List<Integer>> permutar(int[] nums);\n```\n\n- Devolva **todas as permutações únicas** em ordem lexicográfica.\n- `nums` pode conter duplicatas.\n- Array vazio devolve uma lista com uma permutação vazia: `[[]]`.\n- Não altere o array de entrada.\n\n## Exemplos\n\n```text\n[1,1,2] => [[1,1,2],[1,2,1],[2,1,1]]\n[1,2,3] => 6 permutações, de [1,2,3] a [3,2,1]\n[]      => [[]]\n```\n\n## Restrições\n\n- Sem usar bibliotecas de permutação.\n- Complexidade O(n · n!) no pior caso, inevitável para a saída.\n- A ordenação lexicográfica deve ser consequência do percurso, não de um sort final.",
+  "starterCode": "import java.util.ArrayList;\nimport java.util.Arrays;\nimport java.util.List;\n\npublic class Solution {\n    static List<List<Integer>> permutar(int[] nums) {\n        var resultado = new ArrayList<List<Integer>>();\n        int[] ordenado = nums.clone();\n        Arrays.sort(ordenado);\n        // TODO: backtracking com boolean[] usado\n        return resultado;\n    }\n\n    private static void explorar(int[] nums, boolean[] usado,\n                                 List<Integer> atual, List<List<Integer>> saida) {\n        // TODO\n    }\n}",
+  "solutionCode": "import java.util.ArrayList;\nimport java.util.Arrays;\nimport java.util.List;\n\npublic class Solution {\n    static List<List<Integer>> permutar(int[] nums) {\n        var resultado = new ArrayList<List<Integer>>();\n        int[] ordenado = nums.clone();\n        Arrays.sort(ordenado);\n        explorar(ordenado, new boolean[ordenado.length], new ArrayList<>(), resultado);\n        return resultado;\n    }\n\n    private static void explorar(int[] nums, boolean[] usado,\n                                 List<Integer> atual, List<List<Integer>> saida) {\n        if (atual.size() == nums.length) {\n            saida.add(new ArrayList<>(atual));\n            return;\n        }\n        for (int i = 0; i < nums.length; i++) {\n            if (usado[i]) continue;\n            // pula duplicata se a anterior igual ainda não foi usada neste nível\n            if (i > 0 && nums[i] == nums[i - 1] && !usado[i - 1]) continue;\n            usado[i] = true;\n            atual.add(nums[i]);\n            explorar(nums, usado, atual, saida);\n            atual.remove(atual.size() - 1);\n            usado[i] = false;\n        }\n    }\n}",
+  "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\nimport java.util.List;\n\nclass SolutionTest {\n    @Test void permutacoesComDuplicatas() {\n        assertEquals(List.of(\n            List.of(1,1,2),\n            List.of(1,2,1),\n            List.of(2,1,1)\n        ), Solution.permutar(new int[]{1,1,2}));\n    }\n\n    @Test void ordemLexicografica() {\n        var p = Solution.permutar(new int[]{3,1,2});\n        assertEquals(6, p.size());\n        assertEquals(List.of(1,2,3), p.get(0));\n        assertEquals(List.of(3,2,1), p.get(5));\n    }\n\n    @Test void arrayVazio() {\n        assertEquals(List.of(List.of()), Solution.permutar(new int[]{}));\n    }\n\n    @Test void naoAlteraEntrada() {\n        int[] entrada = {2,1,2};\n        Solution.permutar(entrada);\n        assertArrayEquals(new int[]{2,1,2}, entrada);\n    }\n\n    @Test void umElemento() {\n        assertEquals(List.of(List.of(7)), Solution.permutar(new int[]{7}));\n    }\n}",
+  "hints": [
+    "Ordene uma cópia do array para que o percurso gere ordem lexicográfica.",
+    "Use boolean[] para marcar elementos já escolhidos no caminho atual.",
+    "Para pular duplicatas: se nums[i] == nums[i-1] e o anterior não está em uso, pule.",
+    "Desfaça a escolha (remove + usado=false) ao voltar da recursão."
+  ]
+}

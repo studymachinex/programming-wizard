@@ -1,0 +1,836 @@
+{
+  "slug": "poo-design",
+  "title": "POO, SOLID e Design Patterns",
+  "subtitle": "Projete código que sobrevive a mudanças — e a code reviews de sênior",
+  "description": "Uma trilha para quem já escreve Java e quer parar de empilhar if/else. Você vai aplicar SOLID com refatorações reais, escolher padrões criacionais, estruturais e comportamentais sabendo o custo de cada um e reorganizar um serviço gordo em componentes coesos. O fio condutor é sempre o mesmo: mudança de requisito, impacto no código e evidência em testes JUnit 5.",
+  "level": "intermediario",
+  "icon": "braces",
+  "accent": "rune",
+  "estimatedHours": 30,
+  "isCore": true,
+  "outcomes": [
+    "Aplicar SRP, OCP, LSP, ISP e DIP para justificar cada classe e dependência em uma code review",
+    "Escolher entre padrões criacionais, estruturais e comportamentais sabendo quando o padrão é exagero",
+    "Refatorar um serviço gordo em componentes coesos sem alterar o comportamento observável",
+    "Isolar o domínio de frameworks com Ports & Adapters e testar regras sem banco ou rede",
+    "Escrever testes JUnit 5 que documentam contratos e protegem refatorações incrementais"
+  ],
+  "modules": [
+    {
+      "slug": "solid-na-pratica",
+      "title": "SOLID na prática",
+      "description": "Coesão, acoplamento e os cinco princípios com código antes/depois. O objetivo é justificar cada classe e dependência, não recitar siglas.",
+      "estimatedHours": 7,
+      "lessons": [
+        {
+          "slug": "coesao-acoplamento-metricas",
+          "title": "Coesão, acoplamento e as métricas que denunciam design ruim",
+          "summary": "Aprenda a medir instabilidade, coesão e complexidade para discutir design com fatos, não com gosto pessoal.",
+          "minutes": 40,
+          "file": "lessons/01-coesao-acoplamento.md",
+          "takeaways": [
+            "Ler acoplamento aferente/efrente e instabilidade sem decorar fórmula",
+            "Reconhecer baixa coesão por LCOM e por motivos de mudança",
+            "Usar churn e complexidade como sinais de onde refatorar primeiro",
+            "Trocar o argumento 'é mais bonito' por evidência de manutenção"
+          ],
+          "quiz": [
+            {
+              "question": "Uma classe tem Ca = 2 (duas classes dependem dela) e Ce = 8 (ela depende de oito). Qual é a instabilidade I = Ce / (Ca + Ce)?",
+              "options": [
+                "0,2",
+                "0,8",
+                "4",
+                "10"
+              ],
+              "answer": 1,
+              "explanation": "I = 8 / (2 + 8) = 0,8. Perto de 1 significa que a classe depende de muita coisa e é pouco usada; ela é instável e pode mudar sem derrubar muitos clientes."
+            },
+            {
+              "question": "O que um LCOM alto indica em uma classe?",
+              "options": [
+                "Que os métodos usam campos pouco relacionados entre si, sinal de baixa coesão",
+                "Que a classe tem muitas dependências externas",
+                "Que o acoplamento aferente está alto",
+                "Que a complexidade ciclomática é baixa"
+              ],
+              "answer": 0,
+              "explanation": "LCOM (Lack of Cohesion of Methods) cresce quando métodos distintos tocam conjuntos distintos de campos. É um convite a dividir a classe por responsabilidade."
+            },
+            {
+              "question": "Você precisa priorizar uma refatoração. Qual combinação é o melhor sinal de urgência?",
+              "options": [
+                "Classe com nome curto e poucos comentários",
+                "Arquivo grande, alta complexidade e alto churn no Git",
+                "Muitos testes unitários e baixo acoplamento",
+                "Uso de records e interfaces seladas"
+              ],
+              "answer": 1,
+              "explanation": "Tamanho e complexidade só viram problema quando aquele código muda com frequência. Churn alto multiplica o custo de entender e alterar; é ali que o retorno da refatoração aparece."
+            }
+          ]
+        },
+        {
+          "slug": "srp-ocp-refatoracao",
+          "title": "SRP e OCP: refatoração real de um cálculo de desconto",
+          "summary": "Separe motivos de mudança e abra o código para novos tipos de desconto sem editar a lógica existente.",
+          "minutes": 40,
+          "file": "lessons/02-srp-ocp-refatoracao.md",
+          "takeaways": [
+            "Distinguir 'um método por classe' de 'um motivo para mudar'",
+            "Refatorar um switch de regras para polimorfismo com registro explícito",
+            "Entender o limite do OCP em hierarquias seladas e plugins",
+            "Evitar abstração prematura em regras que não variam"
+          ],
+          "quiz": [
+            {
+              "question": "O que SRP realmente pede?",
+              "options": [
+                "Uma classe com um único método",
+                "Uma classe com um único motivo para mudar, ligado a um stakeholder ou eixo de mudança",
+                "Uma classe por tabela do banco",
+                "Que todo cálculo fique em um utilitário estático"
+              ],
+              "answer": 1,
+              "explanation": "SRP é sobre razões de mudança. Uma classe pode ter vários métodos e continuar coesa se todos servem ao mesmo eixo de responsabilidade."
+            },
+            {
+              "question": "Qual refatoração respeita melhor OCP ao adicionar desconto para estudantes?",
+              "options": [
+                "Adicionar mais um case no switch de tipo de cliente",
+                "Criar uma implementação de Desconto e registrá-la na composição, sem alterar o cálculo",
+                "Duplicar o service inteiro para o novo público",
+                "Colocar o novo desconto em um if antes do switch existente"
+              ],
+              "answer": 1,
+              "explanation": "Uma nova implementação mais o registro em um único ponto de composição deixa o cálculo fechado para modificação. Ainda há um ponto de configuração, mas ele não concentra regras."
+            },
+            {
+              "question": "Quando o polimorfismo para descontos costuma ser exagero?",
+              "options": [
+                "Quando há dez tipos de cliente com regras que mudam todo trimestre",
+                "Quando existe uma regra única e estável, com um único cliente do código",
+                "Quando as regras precisam ser testadas isoladamente",
+                "Quando o cálculo é usado por vários canais"
+              ],
+              "answer": 1,
+              "explanation": "Se a variação é hipotética e a regra é estável, uma função simples e testada comunica melhor. Abstração tem custo de navegação e deve pagar por variação real."
+            }
+          ]
+        },
+        {
+          "slug": "lsp-isp-contratos",
+          "title": "LSP e ISP: por que contratos quebram em produção",
+          "summary": "Reconheça subtipos que explodem com UnsupportedOperationException e interfaces gordas que obrigam implementações vazias.",
+          "minutes": 40,
+          "file": "lessons/03-lsp-isp-contratos.md",
+          "takeaways": [
+            "Identificar violações de LSP por pré-condições, pós-condições e exceções inesperadas",
+            "Modelar hierarquias em que todo subtipo pode cumprir o contrato",
+            "Dividir interfaces por cliente real, não por entidade",
+            "Evitar interfaces de conveniência que viram depósito de métodos"
+          ],
+          "quiz": [
+            {
+              "question": "Qual é o sinal mais claro de violação de LSP?",
+              "options": [
+                "O subtipo adiciona um método novo",
+                "O subtipo lança UnsupportedOperationException em um método herdado que o cliente usa",
+                "O subtipo tem um construtor diferente",
+                "A superclasse é abstrata"
+              ],
+              "answer": 1,
+              "explanation": "Se o cliente pode chamar o método pela superinterface, todo subtipo precisa honrar esse contrato. Recusar a operação em runtime quebra a substituibilidade."
+            },
+            {
+              "question": "Uma interface de repositório tem salvar, buscar, listar e exportarCsv. Um cliente só lê. Qual correção segue ISP?",
+              "options": [
+                "Fazer o cliente implementar exportarCsv vazio",
+                "Dividir em interfaces de leitura e escrita e depender só da que o cliente usa",
+                "Trocar a interface por uma classe abstrata",
+                "Adicionar valores default que lançam exceção"
+              ],
+              "answer": 1,
+              "explanation": "ISP trata de não forçar clientes a depender de métodos que não usam. Interfaces pequenas por papel permitem implementações honestas e testes mais simples."
+            },
+            {
+              "question": "Um subtipo pode reforçar a pré-condição de um método herdado?",
+              "options": [
+                "Sim, desde que documente no Javadoc",
+                "Não, porque o cliente que conhece a superclasse pode passar valores válidos que o subtipo rejeita",
+                "Sim, se lançar IllegalArgumentException",
+                "Depende apenas do modificador de acesso"
+              ],
+              "answer": 1,
+              "explanation": "LSP exige que o subtipo aceite pelo menos tudo que a superclasse aceita. Reforçar pré-condições quebra a promessa e desloca a falha para o cliente."
+            }
+          ]
+        },
+        {
+          "slug": "dip-ioc-testabilidade",
+          "title": "DIP, inversão de controle e testabilidade",
+          "summary": "Inverta dependências para testar regras sem Postgres nem SMTP e entenda onde a composição deve acontecer.",
+          "minutes": 40,
+          "file": "lessons/04-dip-ioc-testabilidade.md",
+          "takeaways": [
+            "Diferenciar DIP, injeção de dependência e inversão de controle",
+            "Injetar portas por construtor e montar o grafo na borda da aplicação",
+            "Escrever testes rápidos com fakes em vez de mocks frágeis",
+            "Reconhecer service locator e dependências escondidas"
+          ],
+          "quiz": [
+            {
+              "question": "O que DIP propõe?",
+              "options": [
+                "Que todo módulo dependa de detalhes concretos para ser explícito",
+                "Que políticas de alto nível e detalhes dependam de abstrações, com a abstração definida pelo lado que a consome",
+                "Que o framework escolha todas as dependências em runtime",
+                "Que não existam classes concretas no sistema"
+              ],
+              "answer": 1,
+              "explanation": "DIP inverte a direção da dependência: o domínio define a porta e a infraestrutura implementa. O detalhe passa a depender da regra de negócio, não o contrário."
+            },
+            {
+              "question": "Injeção de dependência é a mesma coisa que inversão de controle?",
+              "options": [
+                "Sim, são sinônimos exatos",
+                "Não: IoC é o princípio mais amplo de ceder o controle; DI é uma técnica para fornecer dependências",
+                "Não: DI exige um container de injeção",
+                "Sim, desde que se use anotações"
+              ],
+              "answer": 1,
+              "explanation": "IoC inclui callbacks, templates e eventos. DI é uma forma de IoC em que o objeto recebe suas colaboradoras de fora, com ou sem container."
+            },
+            {
+              "question": "Qual ganho de teste aparece ao depender de uma interface PedidoRepository?",
+              "options": [
+                "O teste precisa subir um banco em memória obrigatoriamente",
+                "É possível substituir a implementação por um fake e verificar a regra sem I/O",
+                "A classe deixa de precisar de construtor",
+                "O compilador garante que a implementação real está correta"
+              ],
+              "answer": 1,
+              "explanation": "A interface é uma costura de substituição. O teste da regra passa a rodar em milissegundos com um fake, enquanto o adapter real ganha um teste de integração separado."
+            }
+          ]
+        }
+      ],
+      "exercises": []
+    },
+    {
+      "slug": "padroes-criacionais",
+      "title": "Padrões criacionais",
+      "description": "Factory Method, Abstract Factory, Builder, Singleton e Prototype: o que resolvem, quanto custam e quando o new direto é a melhor resposta.",
+      "estimatedHours": 5,
+      "lessons": [
+        {
+          "slug": "factory-method-abstract-factory",
+          "title": "Factory Method vs Abstract Factory: criar sem espalhar new",
+          "summary": "Centralize a criação de objetos e garanta consistência entre famílias de produtos com duas fábricas diferentes.",
+          "minutes": 40,
+          "file": "lessons/05-factory-method-abstract-factory.md",
+          "takeaways": [
+            "Aplicar Factory Method para variar um produto sem espalhar condicionais",
+            "Usar Abstract Factory quando produtos precisam ser compatíveis entre si",
+            "Escolher entre fábrica, registro de suppliers e new direto",
+            "Evitar explosão de classes e fábricas que escondem configuração"
+          ],
+          "quiz": [
+            {
+              "question": "Qual problema o Factory Method resolve?",
+              "options": [
+                "Garantir que exista apenas uma instância de cada classe",
+                "Delegar a criação de um produto a um ponto extensível, para que o cliente não conheça as classes concretas",
+                "Compensar a ausência de construtores em Java",
+                "Eliminar a necessidade de interfaces"
+              ],
+              "answer": 1,
+              "explanation": "O cliente trabalha com a abstração do produto e com um criador. Novas variações entram por novas subclasses ou implementações de fábrica, sem espalhar new pelo código."
+            },
+            {
+              "question": "Quando Abstract Factory é mais indicada que Factory Method?",
+              "options": [
+                "Quando há um único produto e ele nunca muda",
+                "Quando vários produtos relacionados precisam ser criados pela mesma família, como storage e fila do mesmo provedor",
+                "Quando o objeto tem muitos parâmetros opcionais",
+                "Quando se quer permitir undo de operações"
+              ],
+              "answer": 1,
+              "explanation": "Abstract Factory garante consistência entre produtos que precisam funcionar juntos. A fábrica concreta escolhida define a família inteira."
+            },
+            {
+              "question": "Qual é um custo comum de Abstract Factory em projetos pequenos?",
+              "options": [
+                "Impede testes unitários",
+                "Cria muitas interfaces e classes para uma variação que talvez nunca exista",
+                "Torna impossível usar injeção de dependência",
+                "Obriga o uso de reflexão"
+              ],
+              "answer": 1,
+              "explanation": "O padrão adiciona uma camada de tipos por família. Se só existe uma implementação real e nenhuma previsão de outra, novas classes custam mais do que o new simples."
+            }
+          ]
+        },
+        {
+          "slug": "builder-imutabilidade",
+          "title": "Builder e imutabilidade: construa objetos válidos",
+          "summary": "Troque construtores telescópicos e setters por um builder que valida invariantes e entrega objetos imutáveis.",
+          "minutes": 40,
+          "file": "lessons/06-builder-imutabilidade.md",
+          "takeaways": [
+            "Reconhecer construtores telescópicos e objetos que nascem em estado inválido",
+            "Implementar builder com validação e cópia defensiva de coleções",
+            "Usar records e withers para mudanças pequenas",
+            "Evitar builders que escondem campos obrigatórios ou compartilham estado mutável"
+          ],
+          "quiz": [
+            {
+              "question": "Qual cenário justifica melhor um Builder?",
+              "options": [
+                "Um record com dois campos obrigatórios",
+                "Um objeto com muitos campos opcionais, combinações válidas e invariantes que precisam ser verificadas na criação",
+                "Uma classe sem estado",
+                "Um enum com três constantes"
+              ],
+              "answer": 1,
+              "explanation": "Builder brilha quando a lista de parâmetros cresce e a validação precisa acontecer em um único ponto. Para dois campos, o construtor do record é mais direto."
+            },
+            {
+              "question": "Por que um record com List precisa de List.copyOf no construtor compacto?",
+              "options": [
+                "Para ordenar a lista automaticamente",
+                "Para impedir que o chamador altere a lista depois e quebre a imutabilidade do record",
+                "Porque records não aceitam listas mutáveis",
+                "Para serializar a lista em JSON"
+              ],
+              "answer": 1,
+              "explanation": "O record só torna a referência final; se a lista original for mutável, o conteúdo muda por fora. List.copyOf cria uma cópia imutável e defensiva."
+            },
+            {
+              "question": "Qual cuidado é necessário ao reutilizar o mesmo Builder em threads diferentes?",
+              "options": [
+                "Nenhum: builders são sempre thread-safe",
+                "O builder é mutável e não deve ser compartilhado sem sincronização; construa um por fluxo",
+                "Basta marcar o método build como synchronized",
+                "É preciso usar apenas tipos primitivos"
+              ],
+              "answer": 1,
+              "explanation": "Builders acumulam estado em campos mutáveis. Compartilhar a mesma instância entre threads mistura configurações; o padrão é criar um builder por construção."
+            }
+          ]
+        },
+        {
+          "slug": "singleton-prototype-antipattern",
+          "title": "Singleton, Prototype e por que singleton costuma ser anti-pattern",
+          "summary": "Entenda quando uma instância única ajuda e quando ela vira estado global difícil de testar; veja cópia profunda com Prototype.",
+          "minutes": 40,
+          "file": "lessons/07-singleton-prototype.md",
+          "takeaways": [
+            "Implementar singleton com holder ou enum sem armadilhas de serialização",
+            "Reconhecer estado global, dependência escondida e testes dependentes de ordem",
+            "Aplicar Prototype para variantes de objetos caros ou complexos",
+            "Diferenciar cópia rasa de cópia profunda e seus riscos"
+          ],
+          "quiz": [
+            {
+              "question": "Por que singleton é frequentemente chamado de anti-pattern?",
+              "options": [
+                "Porque a JVM não suporta instância única",
+                "Porque costuma introduzir estado global mutável, dependências escondidas e testes que dependem de ordem",
+                "Porque impede o uso de interfaces",
+                "Porque sempre causa deadlock"
+              ],
+              "answer": 1,
+              "explanation": "O problema não é ter uma instância, é o acesso global e mutável. Quem chama getInstance não declara a dependência e fica difícil isolar em teste."
+            },
+            {
+              "question": "Qual vantagem o singleton via enum oferece sobre o padrão com construtor privado?",
+              "options": [
+                "Permite herança múltipla",
+                "Resiste melhor a serialização e reflexão, que podem criar instâncias extras no padrão clássico",
+                "É mais rápido em todos os benchmarks",
+                "Dispensa sincronização em qualquer cenário"
+              ],
+              "answer": 1,
+              "explanation": "A JVM garante a unicidade das constantes enum, inclusive na desserialização, e o construtor é protegido contra reflexão. Ainda assim, continua sendo estado global."
+            },
+            {
+              "question": "O que um Prototype com cópia profunda precisa garantir?",
+              "options": [
+                "Que objetos internos mutáveis também sejam copiados, não apenas as referências",
+                "Que a cópia compartilhe a mesma lista interna para economizar memória",
+                "Que o objeto original seja destruído",
+                "Que a cópia use reflexão obrigatoriamente"
+              ],
+              "answer": 0,
+              "explanation": "Cópia rasa compartilha listas e objetos internos. Alterar a cópia pode alterar o original. Cópia profunda replica a estrutura, com custo e necessidade de lidar com ciclos."
+            }
+          ]
+        }
+      ],
+      "exercises": []
+    },
+    {
+      "slug": "padroes-estruturais",
+      "title": "Padrões estruturais",
+      "description": "Adapter, Decorator, Facade, Composite e Proxy aplicados a integrações e composição, com foco no custo de cada camada de indireção.",
+      "estimatedHours": 5,
+      "lessons": [
+        {
+          "slug": "adapter-decorator",
+          "title": "Adapter e Decorator: compatibilidade sem contaminar o domínio",
+          "summary": "Envolva APIs legadas com Adapter e empilhe comportamentos ortogonais com Decorator sem alterar a classe base.",
+          "minutes": 40,
+          "file": "lessons/08-adapter-decorator.md",
+          "takeaways": [
+            "Diferenciar conversão de interface (Adapter) de adição de comportamento (Decorator)",
+            "Adaptar um gateway legado sem vazar tipos e semânticas estranhas ao domínio",
+            "Compor retry, log e métricas em ordem consciente",
+            "Evitar decorators que escondem falhas ou multiplicam chamadas"
+          ],
+          "quiz": [
+            {
+              "question": "Qual é a diferença central entre Adapter e Decorator?",
+              "options": [
+                "Adapter muda a interface para encaixar um cliente; Decorator mantém a interface e adiciona comportamento",
+                "Adapter é sempre mais rápido que Decorator",
+                "Decorator só funciona com classes abstratas",
+                "Os dois são idênticos, mudando apenas o nome"
+              ],
+              "answer": 0,
+              "explanation": "Adapter traduz um contrato existente para outro que o cliente espera. Decorator implementa o mesmo contrato e envolve outro objeto para acrescentar responsabilidades."
+            },
+            {
+              "question": "Por que a ordem dos decorators importa?",
+              "options": [
+                "Porque o compilador exige ordem alfabética",
+                "Porque cada camada altera o que a próxima vê: métrica fora do retry conta tentativas; dentro conta chamadas",
+                "Porque decorators não podem ser aninhados",
+                "Porque a JVM otimiza apenas uma ordem"
+              ],
+              "answer": 1,
+              "explanation": "A composição define o fluxo. Colocar log por fora do retry registra uma operação; por dentro, registra cada tentativa. A semântica muda, não só o estilo."
+            },
+            {
+              "question": "Quando um Decorator é a escolha errada?",
+              "options": [
+                "Quando o comportamento precisa variar em runtime e a classe original não deve ser alterada",
+                "Quando a variação é única e fixa, ou quando a pilha de wrappers torna o fluxo impossível de depurar",
+                "Quando existem várias implementações da mesma interface",
+                "Quando se quer compor métricas e logs"
+              ],
+              "answer": 1,
+              "explanation": "Se o comportamento é fixo, um método privado ou uma estratégia simples resolve com menos cerimônia. Muitos decorators também fragmentam stack traces e dificultam o diagnóstico."
+            }
+          ]
+        },
+        {
+          "slug": "facade-composite",
+          "title": "Facade e Composite: simplifique a borda, trate árvores como um todo",
+          "summary": "Esconda subsistemas atrás de um caso de uso e represente hierarquias em que folha e contêiner respondem à mesma operação.",
+          "minutes": 40,
+          "file": "lessons/09-facade-composite.md",
+          "takeaways": [
+            "Desenhar uma fachada de caso de uso sem criar um novo deus",
+            "Aplicar Composite para kits, árvores de arquivos e regras hierárquicas",
+            "Definir operações uniformes e invariantes de contêiner",
+            "Reconhecer quando o Composite esconde regras de negócio demais"
+          ],
+          "quiz": [
+            {
+              "question": "O que uma Facade faz?",
+              "options": [
+                "Adiciona comportamento a um objeto sem mudar sua interface",
+                "Oferece uma interface simples para um conjunto de subsistemas, reduzindo o acoplamento do cliente",
+                "Garante uma única instância do subsistema",
+                "Converte tipos incompatíveis"
+              ],
+              "answer": 1,
+              "explanation": "A fachada coordena chamadas e expõe um contrato de alto nível. O cliente deixa de conhecer a ordem e os detalhes dos subsistemas."
+            },
+            {
+              "question": "No Composite, o que permite tratar folha e contêiner do mesmo jeito?",
+              "options": [
+                "Herança múltipla",
+                "Uma interface comum que declara a operação, implementada tanto por elementos simples quanto por grupos",
+                "Uso obrigatório de recursão com pilha explícita",
+                "Um singleton que guarda a árvore"
+              ],
+              "answer": 1,
+              "explanation": "O cliente depende do componente comum. Produto e Kit, por exemplo, expõem preco(); o kit soma os filhos, que podem ser outros kits."
+            },
+            {
+              "question": "Qual risco de uma Facade mal desenhada?",
+              "options": [
+                "Ela pode virar um ponto único com dezenas de métodos e regras, repetindo o problema que deveria resolver",
+                "Ela impede qualquer teste unitário",
+                "Ela obriga o uso de herança",
+                "Ela elimina a coesão do subsistema"
+              ],
+              "answer": 0,
+              "explanation": "Fachada por caso de uso é saudável; fachada que concentra todos os fluxos vira god object. Se cada tela ganha um método, o limite está errado."
+            }
+          ]
+        },
+        {
+          "slug": "proxy-custos",
+          "title": "Proxy: virtual, remoto e de proteção — com custos",
+          "summary": "Adie criação caríssima, controle acesso ou atravesse a rede com um intermediário que implementa o mesmo contrato.",
+          "minutes": 40,
+          "file": "lessons/10-proxy-custos.md",
+          "takeaways": [
+            "Implementar proxy virtual e de proteção mantendo o contrato do alvo",
+            "Entender proxy dinâmico com java.lang.reflect.Proxy",
+            "Reconhecer o pitfall de self-invocation em proxies de framework",
+            "Medir o custo de indireção e decidir quando não usar"
+          ],
+          "quiz": [
+            {
+              "question": "Qual é a função de um proxy virtual?",
+              "options": [
+                "Adiar a criação ou o carregamento de um objeto caro até o primeiro uso",
+                "Traduzir a interface de um sistema legado",
+                "Guardar o histórico de comandos para undo",
+                "Notificar observadores sobre mudanças"
+              ],
+              "answer": 0,
+              "explanation": "O proxy virtual finge ser o objeto real e só o instancia quando um método é chamado. É a ideia por trás de lazy loading e imagens sob demanda."
+            },
+            {
+              "question": "Por que chamar um método anotado de dentro da mesma classe pode não disparar o proxy do container?",
+              "options": [
+                "Porque o proxy só intercepta chamadas que entram pela referência externa; a auto-chamada usa this",
+                "Porque anotações não funcionam em métodos privados",
+                "Porque o container desliga proxies em testes",
+                "Porque a JVM remove a anotação em runtime"
+              ],
+              "answer": 0,
+              "explanation": "A interceptação acontece quando o cliente chama o proxy. Dentro do objeto, this aponta para o alvo real, então a chamada não passa pela camada de proxy."
+            },
+            {
+              "question": "Qual é um custo real de usar proxy dinâmico em um caminho quente?",
+              "options": [
+                "Ele impede o garbage collector",
+                "Há alocação, despacho reflexivo e perda de clareza em stack traces, o que pode aparecer em benchmarks e diagnósticos",
+                "Ele força serialização de todos os argumentos",
+                "Ele não suporta interfaces"
+              ],
+              "answer": 1,
+              "explanation": "Proxy dinâmico é poderoso, mas não é gratuito. Em caminhos chamados milhões de vezes, reflexão e alocações contam; em stack traces, a origem real fica menos óbvia."
+            }
+          ]
+        }
+      ],
+      "exercises": []
+    },
+    {
+      "slug": "padroes-comportamentais",
+      "title": "Padrões comportamentais",
+      "description": "Strategy, Observer, Command, Template Method, State e Chain of Responsibility para eliminar condicionais e organizar fluxos que mudam.",
+      "estimatedHours": 8,
+      "lessons": [
+        {
+          "slug": "strategy-fim-if-else",
+          "title": "Strategy e o fim dos if/else gigantes",
+          "summary": "Transforme regras mutuamente exclusivas em objetos testáveis e mantenha a escolha em um único ponto de composição.",
+          "minutes": 40,
+          "file": "lessons/11-strategy-fim-if-else.md",
+          "takeaways": [
+            "Refatorar cadeias de condicionais em estratégias com contrato claro",
+            "Selecionar estratégias por mapa sem esconder erros de configuração",
+            "Testar cada regra isoladamente e a composição no limite",
+            "Reconhecer condicionais que não merecem Strategy"
+          ],
+          "quiz": [
+            {
+              "question": "Depois de aplicar Strategy, o switch/if de seleção desaparece por completo?",
+              "options": [
+                "Sim, sempre; o código não pode ter condicionais",
+                "Não: a seleção ainda existe em algum ponto de composição ou registro, mas sai do cálculo",
+                "Sim, porque o Java escolhe a implementação pela assinatura",
+                "Não, mas é proibido usar Map"
+              ],
+              "answer": 1,
+              "explanation": "Strategy remove a condicional da regra, não do mundo. Alguém precisa escolher a implementação; o ideal é que seja um ponto único, na borda, e não um switch espalhado."
+            },
+            {
+              "question": "Quando NÃO vale extrair Strategy?",
+              "options": [
+                "Quando há cinco modalidades com regras que mudam com frequência",
+                "Quando são dois ramos estáveis, sem previsão de variação e cobertos por um teste simples",
+                "Quando as regras precisam ser testadas separadamente",
+                "Quando o cálculo é usado por vários canais"
+              ],
+              "answer": 1,
+              "explanation": "Duas linhas estáveis não pagam o custo de interfaces, classes e fiação. O padrão é uma ferramenta para variação real, não uma medalha de bom design."
+            },
+            {
+              "question": "Qual cuidado ao selecionar estratégia por Map<String, Strategy>?",
+              "options": [
+                "O mapa precisa ser ordenado",
+                "Uma chave ausente deve falhar de forma explícita, nunca cair silenciosamente em um comportamento default",
+                "As estratégias não podem ser stateless",
+                "O mapa deve ser público e mutável"
+              ],
+              "answer": 1,
+              "explanation": "Falha silenciosa em um default esconde erro de configuração e produz cobrança errada. O mapa deve ser imutável e a ausência, tratada com exceção clara."
+            }
+          ]
+        },
+        {
+          "slug": "observer-event-driven",
+          "title": "Observer e event-driven: reaja sem acoplar",
+          "summary": "Publique eventos de domínio para vários interessados e aprenda onde a abordagem em processo quebra.",
+          "minutes": 40,
+          "file": "lessons/12-observer-event-driven.md",
+          "takeaways": [
+            "Implementar um barramento síncrono com registro e remoção de observadores",
+            "Isolar falhas de observadores para não derrubar o publicador",
+            "Entender ordem, latência acumulada e vazamento de referências",
+            "Decidir quando usar mensageria durável em vez de Observer local"
+          ],
+          "quiz": [
+            {
+              "question": "Qual acoplamento o Observer reduz?",
+              "options": [
+                "O publicador passa a conhecer apenas a interface do observador, não as classes concretas dos interessados",
+                "O publicador deixa de precisar de qualquer contrato",
+                "Os observadores passam a compartilhar o mesmo estado do publicador",
+                "O evento deixa de ter dados"
+              ],
+              "answer": 0,
+              "explanation": "O subject conhece uma lista de observadores pela interface. Novos interessados entram sem alterar o publicador, desde que respeitem o contrato do evento."
+            },
+            {
+              "question": "Um observador lança RuntimeException. O que um barramento síncrono bem desenhado deve fazer?",
+              "options": [
+                "Propagar imediatamente e impedir os demais observadores",
+                "Capturar e registrar a falha, permitindo que os outros observadores recebam o evento",
+                "Ignorar silenciosamente",
+                "Reverter a transação do publicador"
+              ],
+              "answer": 1,
+              "explanation": "Um efeito colateral não deve impedir os demais. Logar com contexto e seguir é o mínimo; se a falha precisa ser garantida, o evento tem de ser durável e assíncrono."
+            },
+            {
+              "question": "Quando Observer em processo não é suficiente?",
+              "options": [
+                "Quando há mais de dois observadores",
+                "Quando o evento precisa sobreviver a crash, ser reprocessado ou cruzar serviços",
+                "Quando o publicador é uma classe final",
+                "Quando se usa Java 21"
+              ],
+              "answer": 1,
+              "explanation": "Observer vive na memória do processo. Se o processo cai, o evento some. Para garantia, retry e desacoplamento entre serviços, use broker com outbox ou transação local."
+            }
+          ]
+        },
+        {
+          "slug": "command-undo-queues",
+          "title": "Command: encapsule operações para undo e filas",
+          "summary": "Transforme uma ação em objeto para desfazer, enfileirar, registrar e executar com contexto controlado.",
+          "minutes": 40,
+          "file": "lessons/13-command-undo-queues.md",
+          "takeaways": [
+            "Implementar comandos com executar/desfazer e histórico",
+            "Usar comandos em filas com limites de tentativa e idempotência",
+            "Escolher entre desfazer por inverso e por snapshot (Memento)",
+            "Evitar command soup em operações triviais"
+          ],
+          "quiz": [
+            {
+              "question": "O que o padrão Command encapsula?",
+              "options": [
+                "Uma solicitação como objeto, com os parâmetros necessários para executá-la depois",
+                "Apenas o resultado de uma função",
+                "O estado global da aplicação",
+                "A conexão com o banco"
+              ],
+              "answer": 0,
+              "explanation": "Ao transformar a ação em objeto, você pode passá-la para filas, logs, histórico e undo. O invocador não precisa conhecer os detalhes da operação."
+            },
+            {
+              "question": "Quando desfazer por inverso fica insustentável?",
+              "options": [
+                "Quando a operação é simples e determinística",
+                "Quando o estado é complexo ou várias operações se sobrepõem, tornando o snapshot mais seguro",
+                "Quando se usa uma interface",
+                "Quando o comando é registrado em log"
+              ],
+              "answer": 1,
+              "explanation": "Inverso funciona bem para inserir/remover texto. Para edições compostas, transformações e estado compartilhado, guardar o estado anterior (Memento) costuma ser mais confiável, ao custo de memória."
+            },
+            {
+              "question": "Por que comandos em fila precisam pensar em idempotência?",
+              "options": [
+                "Porque a fila sempre entrega duas vezes",
+                "Porque retries e reentregas podem executar a mesma operação mais de uma vez; o efeito precisa ser seguro",
+                "Porque comandos não podem ser serializados",
+                "Porque a JVM duplica threads"
+              ],
+              "answer": 1,
+              "explanation": "Filas reais reentregam mensagens após falha ou timeout. Sem chave de idempotência ou verificação de estado, um pagamento pode ser cobrado duas vezes."
+            }
+          ]
+        },
+        {
+          "slug": "template-method-state-chain",
+          "title": "Template Method vs State vs Chain of Responsibility",
+          "summary": "Compare três formas de organizar variação e fluxo: herança com esqueleto fixo, estados que transicionam e handlers em cadeia.",
+          "minutes": 40,
+          "file": "lessons/14-template-method-state-chain.md",
+          "takeaways": [
+            "Aplicar Template Method para pipelines com passos fixos e hooks",
+            "Modelar ciclo de vida com State e transições explícitas",
+            "Montar cadeias de aprovação com handler terminal e ordem clara",
+            "Escolher composição em vez de herança quando a variação é grande"
+          ],
+          "quiz": [
+            {
+              "question": "Qual é a principal fragilidade do Template Method?",
+              "options": [
+                "Ele não permite reutilização de código",
+                "Ele acopla subclasses ao esqueleto da superclasse; mudanças no algoritmo base podem quebrar todas",
+                "Ele impede o uso de métodos protected",
+                "Ele não funciona com classes abstratas"
+              ],
+              "answer": 1,
+              "explanation": "O algoritmo fica na superclasse e as subclasses preenchem hooks. Isso é eficiente, mas cria fragile base class: alterar a ordem ou o contrato dos passos atinge toda a hierarquia."
+            },
+            {
+              "question": "Qual a diferença prática entre State e Strategy?",
+              "options": [
+                "State não usa interface; Strategy sim",
+                "Em State, o objeto muda de estado e a transição normalmente parte dele; em Strategy, o cliente escolhe o algoritmo",
+                "Strategy só serve para cálculos; State só para jogos",
+                "Ambos são sinônimos"
+              ],
+              "answer": 1,
+              "explanation": "Os dois delegam comportamento. A diferença está no controle da troca: no State, o próprio contexto/estado decide a próxima transição; na Strategy, a seleção é externa e costuma ser fixa durante a operação."
+            },
+            {
+              "question": "O que acontece se uma Chain of Responsibility chega ao fim sem handler?",
+              "options": [
+                "O Java lança uma exceção automaticamente",
+                "A requisição pode ser silenciosamente ignorada; por isso a cadeia precisa de um handler terminal ou falha explícita",
+                "O primeiro handler é reexecutado",
+                "A cadeia reinicia do zero"
+              ],
+              "answer": 1,
+              "explanation": "O padrão não obriga ninguém a tratar. Sem um handler final que rejeite ou um retorno explícito, o pedido some — um bug clássico em cadeias de aprovação."
+            }
+          ]
+        }
+      ],
+      "exercises": [
+        "exercises/oop-pricing-strategy-testes.json",
+        "exercises/oop-notificacoes-observer.json"
+      ]
+    },
+    {
+      "slug": "arquitetura-e-refatoracao",
+      "title": "Arquitetura e refatoração",
+      "description": "Ports & Adapters, catálogo de anti-patterns e refatoração incremental de um serviço gordo com testes de caracterização.",
+      "estimatedHours": 5,
+      "lessons": [
+        {
+          "slug": "ports-adapters-hexagonal",
+          "title": "Ports & Adapters: o domínio no centro, frameworks na borda",
+          "summary": "Isole casos de uso de JPA, HTTP e SDKs com portas explícitas e adapters substituíveis.",
+          "minutes": 40,
+          "file": "lessons/15-ports-adapters-hexagonal.md",
+          "takeaways": [
+            "Aplicar a regra de dependência entre domínio, aplicação e infraestrutura",
+            "Definir portas pelo lado que consome, não pelo banco",
+            "Trocar adapters em teste sem subir framework",
+            "Reconhecer quando a arquitetura hexagonal vira cerimônia"
+          ],
+          "quiz": [
+            {
+              "question": "Na arquitetura hexagonal, para onde apontam as dependências de código?",
+              "options": [
+                "Do domínio para os adapters, para conhecer detalhes",
+                "Da infraestrutura e da aplicação para o domínio, que não importa frameworks",
+                "Sempre para o banco de dados",
+                "Para o pacote de configuração, em qualquer direção"
+              ],
+              "answer": 1,
+              "explanation": "O domínio é o centro e não importa Quarkus nem JPA. Adapters dependem das portas definidas pelo núcleo; a regra de dependência aponta para dentro."
+            },
+            {
+              "question": "Quem deve definir o formato de uma porta de persistência?",
+              "options": [
+                "O fornecedor do banco",
+                "O caso de uso/domínio que precisa da operação, expressa em termos do negócio",
+                "O controller HTTP",
+                "O framework de migração"
+              ],
+              "answer": 1,
+              "explanation": "Porta é necessidade do consumidor. Se o domínio define buscarPorId e salvar, o adapter JPA se adapta a isso; o inverso vaza detalhes de tabela para a regra."
+            },
+            {
+              "question": "Quando a separação hexagonal pode custar mais do que entrega?",
+              "options": [
+                "Em sistemas com muitas regras e integrações que mudam",
+                "Em CRUDs pequenos, com uma única fonte de dados e pouca regra, onde o mapeamento extra não paga",
+                "Quando há testes de domínio",
+                "Quando existem múltiplos adapters reais"
+              ],
+              "answer": 1,
+              "explanation": "Hexagonal brilha quando há complexidade de domínio ou várias bordas. Em CRUD trivial, criar porta, use case e mapper para cada campo vira cerimônia sem retorno."
+            }
+          ]
+        },
+        {
+          "slug": "refatorando-servico-gordo",
+          "title": "Refatorando um serviço gordo: antes, depois e catálogo de anti-patterns",
+          "summary": "Quebre um PedidoService de 700 linhas em colaboradores coesos, começando por testes de caracterização e mudanças pequenas.",
+          "minutes": 40,
+          "file": "lessons/16-refatorando-servico-gordo.md",
+          "takeaways": [
+            "Reconhecer God Object, Feature Envy, Shotgun Surgery e Temporal Coupling",
+            "Criar testes de caracterização antes de mover código",
+            "Extrair colaboradores por motivo de mudança, não por tamanho de método",
+            "Refatorar incrementalmente com feature flag e rollback"
+          ],
+          "quiz": [
+            {
+              "question": "Qual deve ser o primeiro passo antes de dividir um serviço gordo?",
+              "options": [
+                "Reescrever tudo em outro framework",
+                "Criar testes de caracterização que capturem o comportamento observável atual",
+                "Trocar todas as dependências por interfaces",
+                "Mover todos os métodos para utilitários estáticos"
+              ],
+              "answer": 1,
+              "explanation": "Sem uma rede de segurança, você não sabe se a refatoração mudou comportamento. Testes de caracterização documentam o que existe, inclusive esquisitices, antes de mover código."
+            },
+            {
+              "question": "O que é Shotgun Surgery?",
+              "options": [
+                "Uma mudança pequena exige editar muitos arquivos e classes diferentes",
+                "Uma classe concentra todas as operações do sistema",
+                "Um método chama outro da mesma classe",
+                "Um teste depende de outro"
+              ],
+              "answer": 0,
+              "explanation": "É o sintoma oposto ao God Object: a responsabilidade está espalhada demais. Uma regra muda em vários lugares, aumentando o risco de esquecer um ponto."
+            },
+            {
+              "question": "Qual é o risco de dividir um serviço em classes demais?",
+              "options": [
+                "O compilador passa a rejeitar injeção por construtor",
+                "Aumenta a cerimônia e o custo de navegação; cada chamada vira um salto mental sem ganho de isolamento",
+                "O código perde tipagem",
+                "Não é possível testar"
+              ],
+              "answer": 1,
+              "explanation": "Coesão é o critério, não contagem de linhas. Extrair uma classe por método produz fragmentos anêmicos e dificulta enxergar o fluxo. Separe pelos eixos reais de mudança."
+            }
+          ]
+        }
+      ],
+      "exercises": []
+    }
+  ]
+}

@@ -1,0 +1,524 @@
+{
+  "slug": "mongodb-redis",
+  "title": "MongoDB & Redis na Prática",
+  "subtitle": "Documentos, cache e dados quentes com clientes Java",
+  "description": "As duas peças que aparecem em quase toda arquitetura moderna: MongoDB para persistir documentos com schema evolutivo e Redis para responder em microssegundos. Você modela, consulta, indexa, agrega e opera os dois com clientes Java, entendendo quando cada um resolve o problema — e quando vira dívida técnica.",
+  "level": "avancado",
+  "icon": "database",
+  "accent": "rune",
+  "estimatedHours": 32,
+  "isCore": true,
+  "outcomes": [
+    "Modelar documentos no MongoDB decidindo entre embed e referência com critérios de acesso e cardinalidade",
+    "Escrever consultas, aggregation pipelines e índices compostos com justificativa via explain",
+    "Implementar cache-aside, invalidação e proteção contra stampede com Redis e Java",
+    "Aplicar rate limiting, filas leves e locks distribuídos com scripts Lua atômicos",
+    "Operar réplica set, sharding e persistência Redis entendendo os trade-offs de consistência",
+    "Diagnosticar latência, big keys, hot keys e memory pressure em produção"
+  ],
+  "modules": [
+    {
+      "slug": "modelagem-mongodb",
+      "title": "Modelagem e consultas no MongoDB",
+      "description": "Do modelo relacional ao documento: como decidir o que embutir, como consultar com o driver Java e como índices mudam completamente o custo de uma query.",
+      "estimatedHours": 9,
+      "lessons": [
+        {
+          "slug": "documento-vs-relacional",
+          "title": "Documento vs. relacional: quando o schema flexível ajuda",
+          "summary": "Critérios concretos para escolher MongoDB sem moda: padrões de acesso, cardinalidade, atomicidade e custo de joins na aplicação.",
+          "minutes": 45,
+          "file": "lessons/documento-vs-relacional.md",
+          "takeaways": [
+            "Decidir entre embed e referência por padrão de acesso, não por estética",
+            "Reconhecer quando o schema flexível vira schema caótico",
+            "Explicar o custo de consistência entre documentos"
+          ],
+          "quiz": [
+            {
+              "question": "Qual é o critério mais importante para embutir um documento dentro de outro?",
+              "options": [
+                "O tamanho do documento filho",
+                "O fato de os dois serem sempre lidos e escritos juntos, com cardinalidade limitada",
+                "A preferência pessoal do time",
+                "A quantidade de campos do filho"
+              ],
+              "answer": 1,
+              "explanation": "Embed reduz round-trips e mantém atomicidade no documento, mas exige que o acesso seja conjunto e que o array não cresça sem limite."
+            },
+            {
+              "question": "Quando uma referência entre coleções é a melhor escolha?",
+              "options": [
+                "Sempre que houver mais de 10 campos",
+                "Quando o filho é grande, muda com frequência ou é compartilhado por muitos pais",
+                "Quando o banco é pequeno",
+                "Quando não existem índices"
+              ],
+              "answer": 1,
+              "explanation": "Referências evitam duplicação e documentos gigantes; o custo é resolver o join na aplicação ou com $lookup."
+            },
+            {
+              "question": "O que o MongoDB garante por padrão em uma escrita de um único documento?",
+              "options": [
+                "Atomicidade entre coleções",
+                "Atomicidade no documento, sem transação multi-documento",
+                "Isolamento serializable global",
+                "Nada além de durabilidade eventual"
+              ],
+              "answer": 1,
+              "explanation": "Uma escrita em um documento é atômica. Operações que afetam vários documentos exigem transações explícitas, com custo maior."
+            }
+          ]
+        },
+        {
+          "slug": "crud-consultas-java",
+          "title": "CRUD e consultas com o driver Java",
+          "summary": "MongoClient, BSON, filtros, projeções, updates atômicos e paginação por cursor — sem esconder o custo atrás de um ORM.",
+          "minutes": 55,
+          "file": "lessons/crud-consultas-java.md",
+          "takeaways": [
+            "Escrever filtros e projeções com os builders do driver Java",
+            "Escolher updates atômicos em vez de read-modify-write",
+            "Paginar com cursor e evitar skip profundo"
+          ],
+          "quiz": [
+            {
+              "question": "Por que `skip(100000).limit(20)` fica lento no MongoDB?",
+              "options": [
+                "Porque o servidor precisa varrer e descartar os documentos anteriores",
+                "Porque o driver Java não suporta skip",
+                "Porque limit é aplicado antes do skip",
+                "Porque índices não funcionam com skip"
+              ],
+              "answer": 0,
+              "explanation": "Skip profundo paga o custo de percorrer tudo até o offset. Keyset pagination usando o último valor indexado evita esse custo."
+            },
+            {
+              "question": "Qual operador atualiza um contador sem race condition?",
+              "options": [
+                "`$set` com valor calculado na aplicação",
+                "`$inc`",
+                "`$unset`",
+                "`$rename`"
+              ],
+              "answer": 1,
+              "explanation": "`$inc` é atômico no servidor. Ler, somar na aplicação e gravar com `$set` perde atualizações concorrentes."
+            },
+            {
+              "question": "Para que serve uma projeção em uma consulta?",
+              "options": [
+                "Para criar um índice automaticamente",
+                "Para retornar apenas os campos necessários e reduzir rede e memória",
+                "Para embaralhar os resultados",
+                "Para aplicar transações"
+              ],
+              "answer": 1,
+              "explanation": "Projeções diminuem o payload e permitem covered queries quando todos os campos estão no índice."
+            }
+          ]
+        },
+        {
+          "slug": "indices-explain",
+          "title": "Índices, ESR e leitura de explain",
+          "summary": "Índices compostos na ordem Equality-Sort-Range, cardinalidade, índices parciais e como provar que a query usa o plano esperado.",
+          "minutes": 55,
+          "file": "lessons/indices-explain.md",
+          "takeaways": [
+            "Montar índices compostos com a regra ESR",
+            "Ler winningPlan, stages e docsExamined no explain",
+            "Usar índices parciais e TTL quando o problema não é busca"
+          ],
+          "quiz": [
+            {
+              "question": "Na regra ESR, qual é a ordem dos campos em um índice composto?",
+              "options": [
+                "Range, Equality, Sort",
+                "Equality, Sort, Range",
+                "Sort, Range, Equality",
+                "Qualquer ordem, o otimizador resolve"
+              ],
+              "answer": 1,
+              "explanation": "Igualdade primeiro, depois campos de ordenação, por último o range. Isso permite ao índice satisfazer filtro e sort antes de varrer o intervalo."
+            },
+            {
+              "question": "Um explain mostra `COLLSCAN` e `docsExamined` igual ao total da coleção. O que isso indica?",
+              "options": [
+                "A query está ótima",
+                "Não há índice adequado e o servidor varreu a coleção",
+                "O índice está corrompido",
+                "A transação falhou"
+              ],
+              "answer": 1,
+              "explanation": "COLLSCAN é varredura completa. A correção é criar um índice que cubra igualdade, ordenação e intervalo usados na consulta."
+            }
+          ]
+        }
+      ],
+      "exercises": [
+        "exercises/mongo-crud-consultas.json"
+      ]
+    },
+    {
+      "slug": "agregacoes-e-producao",
+      "title": "Agregações, transações e escala",
+      "description": "Pipeline de agregação para relatórios reais, padrões de modelagem para arrays e séries temporais, transações multi-documento, réplica set e sharding.",
+      "estimatedHours": 8,
+      "lessons": [
+        {
+          "slug": "aggregation-pipeline",
+          "title": "Aggregation pipeline sem medo",
+          "summary": "match, project, group, unwind, lookup e facet: como montar pipelines que o índice ainda consegue ajudar.",
+          "minutes": 55,
+          "file": "lessons/aggregation-pipeline.md",
+          "takeaways": [
+            "Colocar $match e $sort antes de estágios que explodem cardinalidade",
+            "Evitar $unwind desnecessário e $lookup em coleções sem índice",
+            "Usar $facet para múltiplos relatórios em uma passada"
+          ],
+          "quiz": [
+            {
+              "question": "Onde `$match` deve ficar em um pipeline de agregação?",
+              "options": [
+                "No final, depois do $group",
+                "O mais cedo possível, para reduzir documentos antes dos estágios caros",
+                "Sempre depois de $unwind",
+                "Não importa"
+              ],
+              "answer": 1,
+              "explanation": "Filtrar cedo reduz o volume que atravessa group, unwind e lookup. O otimizador move parte do match, mas não garante tudo."
+            },
+            {
+              "question": "Qual é o risco de `$lookup` sem índice na coleção estrangeira?",
+              "options": [
+                "Nenhum, o MongoDB sempre usa hash join",
+                "Uma varredura por documento de entrada, com custo potencialmente quadrático",
+                "Perda de durabilidade",
+                "Bloqueio global do banco"
+              ],
+              "answer": 1,
+              "explanation": "$lookup precisa localizar correspondências para cada documento; sem índice, cada busca pode varrer a coleção estrangeira."
+            },
+            {
+              "question": "Para que serve `$facet`?",
+              "options": [
+                "Para criar réplicas",
+                "Para executar múltiplos subpipelines sobre o mesmo conjunto de entrada",
+                "Para compactar documentos",
+                "Para criar transações"
+              ],
+              "answer": 1,
+              "explanation": "$facet permite gerar, por exemplo, contagem por categoria, top N e total na mesma passada, reaproveitando o resultado filtrado."
+            }
+          ]
+        },
+        {
+          "slug": "transacoes-padroes-modelagem",
+          "title": "Padrões de modelagem, arrays e transações",
+          "summary": "Bucket, outlier, subset e computed patterns; quando usar transações multi-documento e por que elas não substituem boa modelagem.",
+          "minutes": 50,
+          "file": "lessons/transacoes-padroes-modelagem.md",
+          "takeaways": [
+            "Aplicar bucket e outlier patterns para séries e arrays crescentes",
+            "Delimitar o escopo de uma transação e seus custos",
+            "Reconhecer quando duplicar dados é a decisão correta"
+          ],
+          "quiz": [
+            {
+              "question": "Qual problema o bucket pattern resolve?",
+              "options": [
+                "Excesso de índices",
+                "Arrays ou séries que cresceriam sem limite dentro de um documento",
+                "Falta de autenticação",
+                "Latência de rede do driver"
+              ],
+              "answer": 1,
+              "explanation": "O bucket pattern agrupa leituras relacionadas em documentos limitados, evitando documentos gigantes e rewrites caros."
+            },
+            {
+              "question": "Transações multi-documento no MongoDB:",
+              "options": [
+                "São gratuitas e devem ser o padrão",
+                "Têm custo e duração limitada; use quando a invariante realmente cruza documentos",
+                "Não existem",
+                "Só funcionam em standalone"
+              ],
+              "answer": 1,
+              "explanation": "Transações existem em replica sets/sharded clusters, mas mantêm locks e têm limites de tempo. Modelar para atomicidade no documento costuma ser melhor."
+            }
+          ]
+        },
+        {
+          "slug": "replica-set-sharding",
+          "title": "Réplica set, read preference e sharding",
+          "summary": "Como o MongoDB replica, o que write concern e read concern significam na prática e como uma shard key errada destrói a escala.",
+          "minutes": 50,
+          "file": "lessons/replica-set-sharding.md",
+          "takeaways": [
+            "Escolher write concern e read preference por requisito de negócio",
+            "Explicar failover e o preço de ler de secundários",
+            "Avaliar cardinalidade e hotspots de uma shard key"
+          ],
+          "quiz": [
+            {
+              "question": "O que `writeConcern: majority` garante?",
+              "options": [
+                "Que a escrita foi aplicada em todas as shards",
+                "Que a escrita foi reconhecida pela maioria dos membros votantes do replica set",
+                "Que a escrita nunca será revertida",
+                "Que a escrita foi compactada"
+              ],
+              "answer": 1,
+              "explanation": "Majority confirma replicação na maioria, reduzindo risco de rollback em failover, ao custo de latência."
+            },
+            {
+              "question": "Qual é o sintoma clássico de uma shard key monotônica como timestamp?",
+              "options": [
+                "Distribuição uniforme",
+                "Hotspot: todas as escritas novas caem na mesma shard",
+                "Perda de índices",
+                "Aumento de durabilidade"
+              ],
+              "answer": 1,
+              "explanation": "Valores sempre crescentes concentram inserções na última faixa. Uma chave hashed ou composta distribui melhor."
+            }
+          ]
+        }
+      ],
+      "exercises": []
+    },
+    {
+      "slug": "redis-fundamentos",
+      "title": "Redis: estruturas, cache e atomicidade",
+      "description": "Modagem com strings, hashes, sorted sets e streams; cache-aside com TTL e invalidação; scripts Lua para operações atômicas e locks distribuídos.",
+      "estimatedHours": 9,
+      "lessons": [
+        {
+          "slug": "estruturas-redis",
+          "title": "Estruturas de dados do Redis e modelagem",
+          "summary": "Strings, hashes, lists, sets, sorted sets, HyperLogLog e streams: qual estrutura resolve cada problema e com qual custo de memória.",
+          "minutes": 50,
+          "file": "lessons/estruturas-redis.md",
+          "takeaways": [
+            "Mapear requisitos para a estrutura Redis correta",
+            "Entender custos de memória e comandos O(n)",
+            "Usar sorted sets para ranking e streams para filas com replay"
+          ],
+          "quiz": [
+            {
+              "question": "Qual estrutura é ideal para um ranking paginado por pontuação?",
+              "options": [
+                "List",
+                "Sorted set",
+                "Hash",
+                "String"
+              ],
+              "answer": 1,
+              "explanation": "Sorted sets mantêm ordem por score com ZRANGE/ZREVRANGE em O(log n), e permitem rank em O(log n)."
+            },
+            {
+              "question": "Por que evitar `KEYS *` em produção?",
+              "options": [
+                "Porque só funciona em cluster",
+                "Porque varre o keyspace inteiro e bloqueia o event loop do Redis",
+                "Porque apaga chaves",
+                "Porque não retorna TTL"
+              ],
+              "answer": 1,
+              "explanation": "KEYS é O(n) e bloqueante. Use SCAN com cursor, que é incremental e não trava o servidor por longos períodos."
+            },
+            {
+              "question": "Qual estrutura oferece consumer groups e replay de mensagens?",
+              "options": [
+                "Pub/Sub",
+                "Streams",
+                "Lists",
+                "Hashes"
+              ],
+              "answer": 1,
+              "explanation": "Streams têm IDs persistentes, consumer groups, ACK e replay. Pub/Sub é fire-and-forget, sem histórico."
+            }
+          ]
+        },
+        {
+          "slug": "cache-aside-ttl",
+          "title": "Cache-aside, TTL e invalidação sem mentir",
+          "summary": "O padrão que 90% dos sistemas usam, os três problemas clássicos (penetration, stampede, avalanche) e como mitigar cada um.",
+          "minutes": 55,
+          "file": "lessons/cache-aside-ttl.md",
+          "takeaways": [
+            "Implementar cache-aside com TTL e jitter em Java",
+            "Mitigar penetration, stampede e avalanche",
+            "Decidir entre write-through, write-behind e invalidação"
+          ],
+          "quiz": [
+            {
+              "question": "No cache-aside, qual é a ordem correta em uma escrita?",
+              "options": [
+                "Atualizar o banco e depois invalidar o cache",
+                "Atualizar o cache e nunca o banco",
+                "Invalidar o cache antes de atualizar o banco, sempre",
+                "Não há escrita no cache-aside"
+              ],
+              "answer": 0,
+              "explanation": "Atualize a fonte da verdade e invalide a chave. Invalidar antes abre janela para um leitor repopular com dado antigo."
+            },
+            {
+              "question": "Como mitigar cache stampede em uma chave muito quente?",
+              "options": [
+                "Aumentar o TTL para infinito",
+                "Usar lock ou single-flight para recomputar, e TTL com jitter",
+                "Desligar o cache",
+                "Usar KEYS para encontrar a chave"
+              ],
+              "answer": 1,
+              "explanation": "Single-flight evita que N requisições recomputem ao mesmo tempo; jitter espalha expirações para não derrubarem tudo junto."
+            },
+            {
+              "question": "O que é cache penetration?",
+              "options": [
+                "Quando o cache está cheio",
+                "Quando requisições de chaves inexistentes atravessam o cache e chegam ao banco",
+                "Quando o Redis reinicia",
+                "Quando o TTL é muito alto"
+              ],
+              "answer": 1,
+              "explanation": "Chaves que nunca existem não são cacheadas e geram carga constante. Cachear null com TTL curto ou usar Bloom filter resolve."
+            }
+          ]
+        },
+        {
+          "slug": "atomicidade-lua-locks",
+          "title": "Lua, transações e locks distribuídos",
+          "summary": "Scripts Lua atômicos, MULTI/EXEC, locks com token e fencing, e por que Redlock não é uma bala de prata.",
+          "minutes": 55,
+          "file": "lessons/atomicidade-lua-locks.md",
+          "takeaways": [
+            "Escrever scripts Lua idempotentes e com poucas chaves",
+            "Implementar lock com token e liberação segura",
+            "Reconhecer os limites de um lock Redis sob partição"
+          ],
+          "quiz": [
+            {
+              "question": "Por que a liberação de um lock Redis deve verificar o token?",
+              "options": [
+                "Para economizar memória",
+                "Para não apagar o lock de outro dono após expiração e reaquisição",
+                "Porque o Redis exige",
+                "Para aumentar o TTL"
+              ],
+              "answer": 1,
+              "explanation": "Se o lock expirou e outro cliente o adquiriu, deletar sem comparar o token remove o lock alheio. O check-and-delete precisa ser atômico via Lua."
+            },
+            {
+              "question": "Qual é a principal limitação de um lock baseado apenas em Redis?",
+              "options": [
+                "Não funciona em Java",
+                "Sob partição de rede, o cliente pode acreditar que ainda detém o lock",
+                "Não suporta TTL",
+                "Só funciona com uma chave"
+              ],
+              "answer": 1,
+              "explanation": "Locks distribuídos não eliminam a necessidade de fencing tokens ou idempotência nas operações protegidas; o processo pode ficar isolado."
+            }
+          ]
+        }
+      ],
+      "exercises": [
+        "exercises/redis-cache-aside.json",
+        "exercises/redis-rate-limiter-lua.json"
+      ]
+    },
+    {
+      "slug": "redis-producao",
+      "title": "Redis em produção",
+      "description": "Persistência, réplica, Sentinel, Cluster, pipelining, gestão de memória e observabilidade para manter latência previsível.",
+      "estimatedHours": 6,
+      "lessons": [
+        {
+          "slug": "persistencia-alta-disponibilidade",
+          "title": "RDB, AOF, Sentinel e Cluster",
+          "summary": "O que você aceita perder em um restart, como funciona failover e quando o Cluster vale a complexidade.",
+          "minutes": 50,
+          "file": "lessons/persistencia-alta-disponibilidade.md",
+          "takeaways": [
+            "Escolher entre RDB e AOF por RPO/RTO",
+            "Explicar failover com Sentinel e os limites do Cluster",
+            "Evitar operações multi-key que quebram em cluster"
+          ],
+          "quiz": [
+            {
+              "question": "Qual é o trade-off central entre RDB e AOF?",
+              "options": [
+                "RDB é sempre mais seguro",
+                "RDB é compacto e rápido no restart, mas pode perder mais dados; AOF perde menos, com arquivos maiores",
+                "AOF não sobrevive a restart",
+                "Os dois são idênticos"
+              ],
+              "answer": 1,
+              "explanation": "RDB tira snapshots periódicos; AOF registra operações. A escolha depende de quanto de dados você aceita perder e do custo de replay."
+            },
+            {
+              "question": "Por que uma operação com múltiplas chaves pode falhar no Redis Cluster?",
+              "options": [
+                "Porque o cluster não suporta TTL",
+                "Porque as chaves podem estar em slots diferentes, e operações multi-key exigem o mesmo slot",
+                "Porque o cluster é read-only",
+                "Porque o Lua não existe no cluster"
+              ],
+              "answer": 1,
+              "explanation": "Use hash tags como `{user:42}:profile` e `{user:42}:sessions` para forçar o mesmo slot quando precisar de operações atômicas entre chaves."
+            }
+          ]
+        },
+        {
+          "slug": "performance-observabilidade",
+          "title": "Pipelining, memória e diagnóstico de latência",
+          "summary": "Reduza round-trips com pipeline, encontre big keys e hot keys, configure maxmemory-policy e meça latência com critério.",
+          "minutes": 50,
+          "file": "lessons/performance-observabilidade.md",
+          "takeaways": [
+            "Usar pipeline e batching sem estourar memória",
+            "Diagnosticar big keys, hot keys e fragmentação",
+            "Escolher uma política de eviction coerente com o caso de uso"
+          ],
+          "quiz": [
+            {
+              "question": "Qual é o benefício do pipelining?",
+              "options": [
+                "Executar comandos em paralelo no servidor",
+                "Enviar vários comandos sem esperar a resposta de cada um, reduzindo RTT",
+                "Aumentar a durabilidade",
+                "Compactar a memória"
+              ],
+              "answer": 1,
+              "explanation": "O pipeline amortiza o custo de rede. Os comandos continuam sendo processados em ordem pelo servidor."
+            },
+            {
+              "question": "O que uma big key pode causar?",
+              "options": [
+                "Nada, o Redis é sempre O(1)",
+                "Latência alta e bloqueio do event loop ao acessar, deletar ou serializar a chave",
+                "Perda de persistência",
+                "Aumento de segurança"
+              ],
+              "answer": 1,
+              "explanation": "Operações em big keys são O(n) e podem bloquear o servidor. Divida a estrutura e evite DEL síncrono de volumes enormes."
+            },
+            {
+              "question": "Para um cache que pode perder dados, qual política de eviction faz sentido?",
+              "options": [
+                "noeviction",
+                "allkeys-lru ou allkeys-lfu",
+                "volatile-ttl apenas",
+                "Nenhuma"
+              ],
+              "answer": 1,
+              "explanation": "Se tudo no Redis é cache descartável, allkeys-lru/lfu mantém os itens mais úteis. noeviction passa a rejeitar escritas quando a memória enche."
+            }
+          ]
+        }
+      ],
+      "exercises": []
+    }
+  ]
+}

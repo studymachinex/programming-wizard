@@ -1,0 +1,112 @@
+[
+  {
+    "slug": "kafka-confluent-kafka-101",
+    "title": "Apache Kafka 101 (curso oficial Confluent)",
+    "platform": "Outro",
+    "url": "https://developer.confluent.io/courses/apache-kafka/events/",
+    "difficulty": "facil",
+    "level": 1,
+    "topic": "Fundamentos",
+    "moduleSlug": "fundamentos-kafka",
+    "description": "Percorra o curso introdutório e reproduza cada conceito em um cluster local: tópico com três partições, produtor com key, consumidor em grupo e leitura de offsets. Ao final, explique em uma página por que a ordem é garantida por partição, não por tópico."
+  },
+  {
+    "slug": "kafka-docs-producer-config",
+    "title": "Producer Configs — documentação oficial",
+    "platform": "Outro",
+    "url": "https://kafka.apache.org/documentation/#producerconfigs",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "Produtores e acks",
+    "moduleSlug": "fundamentos-kafka",
+    "description": "Estude acks, linger.ms, batch.size, compression.type, enable.idempotence e delivery.timeout.ms. Monte uma matriz de configuração para três cargas: telemetria de alto volume, eventos de pagamento e logs. Justifique cada escolha com latência e durabilidade."
+  },
+  {
+    "slug": "kafka-docs-consumer-config",
+    "title": "Consumer Configs — documentação oficial",
+    "platform": "Outro",
+    "url": "https://kafka.apache.org/documentation/#consumerconfigs",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "Consumidores e lag",
+    "moduleSlug": "fundamentos-kafka",
+    "description": "Compare auto.commit, commit manual síncrono e assíncrono, max.poll.records e session.timeout.ms. Implemente um consumidor Java que processe em lote e faça commit apenas após o efeito colateral. Simule um crash no meio do lote e explique a duplicação resultante."
+  },
+  {
+    "slug": "kafka-docs-delivery-semantics",
+    "title": "Message Delivery Semantics — documentação oficial",
+    "platform": "Outro",
+    "url": "https://kafka.apache.org/documentation/#semantics",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Garantias de entrega",
+    "moduleSlug": "confiabilidade",
+    "description": "Leia a seção de semântica de entrega e escreva três consumers: at-most-once, at-least-once e exactly-once transacional. Para cada um, descreva o cenário exato de perda ou duplicação e o custo operacional. Implemente idempotência no consumidor final."
+  },
+  {
+    "slug": "kafka-schema-registry-docs",
+    "title": "Schema Registry — documentação Confluent",
+    "platform": "Outro",
+    "url": "https://docs.confluent.io/platform/current/schema-registry/index.html",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Schema e evolução",
+    "moduleSlug": "confiabilidade",
+    "description": "Suba o Schema Registry com Docker, registre um Avro schema e evolua o contrato adicionando um campo com default. Teste compatibilidade BACKWARD, FORWARD e FULL. Depois quebre o contrato de propósito e leia o erro — entender a rejeição vale mais que decorar a regra."
+  },
+  {
+    "slug": "kafka-confluent-error-handling",
+    "title": "Error Handling Patterns in Kafka (Confluent)",
+    "platform": "Outro",
+    "url": "https://www.confluent.io/blog/error-handling-patterns-in-kafka/",
+    "difficulty": "dificil",
+    "level": 4,
+    "topic": "DLQ e retries",
+    "moduleSlug": "confiabilidade",
+    "description": "Implemente retry com tópicos intermediários, backoff e DLQ. Diferencie erro transitório de erro permanente e garanta que a DLQ registre headers de origem, exceção e tentativa. Responda: quando reprocessar a DLQ e como evitar loop infinito?"
+  },
+  {
+    "slug": "kafka-streams-101",
+    "title": "Kafka Streams 101 (curso oficial Confluent)",
+    "platform": "Outro",
+    "url": "https://developer.confluent.io/courses/kafka-streams/get-started/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Kafka Streams",
+    "moduleSlug": "kafka-streams",
+    "description": "Percorra o curso e construa uma topologia que conte eventos por chave em uma janela de cinco minutos. Inspecione o changelog do state store, derrube uma instância e observe a restauração. Explique a diferença entre KStream, KTable e GlobalKTable."
+  },
+  {
+    "slug": "kafka-streams-docs",
+    "title": "Kafka Streams — documentação oficial",
+    "platform": "Outro",
+    "url": "https://kafka.apache.org/documentation/streams/",
+    "difficulty": "dificil",
+    "level": 4,
+    "topic": "Estado e janelas",
+    "moduleSlug": "kafka-streams",
+    "description": "Estude state stores, janelas tumbling/hopping/sliding, grace period e joins. Implemente um join entre pedidos e pagamentos tolerando eventos atrasados. Meça o custo de retenção do changelog e justifique o tamanho do state store."
+  },
+  {
+    "slug": "kafka-exactly-once-blog",
+    "title": "Exactly-once semantics in Kafka (Confluent)",
+    "platform": "Outro",
+    "url": "https://www.confluent.io/blog/exactly-once-semantics-are-possible-heres-how-apache-kafka-does-it/",
+    "difficulty": "dificil",
+    "level": 5,
+    "topic": "Transações",
+    "moduleSlug": "kafka-streams",
+    "description": "Leia o artigo e implemente um pipeline read-process-write transacional com processing.guarantee=exactly_once_v2. Prove o efeito com reinício no meio do processamento. Explique por que exactly-once do Kafka não cobre um efeito externo como enviar e-mail."
+  },
+  {
+    "slug": "kafka-transactional-outbox",
+    "title": "Transactional Outbox (microservices.io)",
+    "platform": "Outro",
+    "url": "https://microservices.io/patterns/data/transactional-outbox.html",
+    "difficulty": "dificil",
+    "level": 4,
+    "topic": "Outbox e consistência",
+    "moduleSlug": "arquitetura-event-driven",
+    "description": "Implemente o outbox no PostgreSQL dentro da mesma transação do agregado, com um relay que publica no Kafka e marca como enviado. Teste falha entre commit e publicação. Compare polling relay, CDC com Debezium e publicação direta — e explique por que esta última mente."
+  }
+]

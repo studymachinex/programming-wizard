@@ -1,0 +1,123 @@
+[
+  {
+    "slug": "mr-mongo-data-modeling",
+    "title": "MongoDB Data Modeling (leitura aplicada)",
+    "platform": "Outro",
+    "url": "https://www.mongodb.com/docs/manual/data-modeling/",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "Modelagem",
+    "moduleSlug": "modelagem-mongodb",
+    "description": "Leia sobre embed vs reference e os padrões de modelagem. Depois modele um catálogo de produtos com variantes, avaliações e histórico de preços. Justifique cada embed/reference com padrão de acesso e cardinalidade."
+  },
+  {
+    "slug": "mr-mongo-indexes",
+    "title": "MongoDB Indexes (leitura aplicada)",
+    "platform": "Outro",
+    "url": "https://www.mongodb.com/docs/manual/indexes/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Índices",
+    "moduleSlug": "modelagem-mongodb",
+    "description": "Estude tipos de índice, ESR e covered queries. Crie uma coleção com 100 mil documentos, meça uma query sem índice e depois com um índice composto. Registre docsExamined e executionTimeMillis."
+  },
+  {
+    "slug": "mr-mongo-aggregation",
+    "title": "MongoDB Aggregation Pipeline (leitura aplicada)",
+    "platform": "Outro",
+    "url": "https://www.mongodb.com/docs/manual/core/aggregation-pipeline/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Agregação",
+    "moduleSlug": "agregacoes-e-producao",
+    "description": "Implemente um relatório de vendas por categoria e mês com $match, $group, $sort e $facet. Depois refaça com $lookup e compare o custo com uma denormalização deliberada. Explique quando cada um vence."
+  },
+  {
+    "slug": "mr-mongo-replication",
+    "title": "MongoDB Replication (leitura aplicada)",
+    "platform": "Outro",
+    "url": "https://www.mongodb.com/docs/manual/replication/",
+    "difficulty": "dificil",
+    "level": 4,
+    "topic": "Réplica set",
+    "moduleSlug": "agregacoes-e-producao",
+    "description": "Suba um replica set local de três nós com Docker, derrube o primary e observe a eleição. Teste writeConcern majority e readPreference secondary. Documente latência, failover e o que acontece com leituras stale."
+  },
+  {
+    "slug": "mr-mongo-sharding",
+    "title": "MongoDB Sharding (leitura aplicada)",
+    "platform": "Outro",
+    "url": "https://www.mongodb.com/docs/manual/sharding/",
+    "difficulty": "dificil",
+    "level": 5,
+    "topic": "Sharding",
+    "moduleSlug": "agregacoes-e-producao",
+    "description": "Compare shard keys range, hash e composta para um feed de pedidos. Simule a distribuição de 10 milhões de documentos e mostre onde ficam os hotspots. Explique o custo de uma query que não inclui a shard key."
+  },
+  {
+    "slug": "mr-redis-data-types",
+    "title": "Redis Data Types (leitura aplicada)",
+    "platform": "Outro",
+    "url": "https://redis.io/docs/latest/develop/data-types/",
+    "difficulty": "facil",
+    "level": 2,
+    "topic": "Estruturas",
+    "moduleSlug": "redis-fundamentos",
+    "description": "Percorra strings, hashes, lists, sets, sorted sets, HyperLogLog e streams. Para cada um, escreva um caso de uso real e a complexidade do comando principal. Implemente três deles com Lettuce em Java."
+  },
+  {
+    "slug": "mr-redis-distributed-locks",
+    "title": "Redis Distributed Locks (leitura aplicada)",
+    "platform": "Outro",
+    "url": "https://redis.io/docs/latest/develop/use/patterns/distributed-locks/",
+    "difficulty": "dificil",
+    "level": 4,
+    "topic": "Locks",
+    "moduleSlug": "redis-fundamentos",
+    "description": "Implemente um lock com SET NX PX e liberação atômica via Lua. Depois leia a crítica ao Redlock e escreva quando um fencing token ou idempotência é obrigatório. Teste com expiração e concorrência real."
+  },
+  {
+    "slug": "mr-redis-persistence",
+    "title": "Redis Persistence (leitura aplicada)",
+    "platform": "Outro",
+    "url": "https://redis.io/docs/latest/operate/oss_and_stack/management/persistence/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Persistência",
+    "moduleSlug": "redis-producao",
+    "description": "Configure RDB, AOF e híbrido em três containers. Faça crash simulado com kill -9 e compare quantos dados sobrevivem e quanto tempo o restart leva. Defina RPO/RTO para um cache e para uma fila."
+  },
+  {
+    "slug": "mr-lc-time-based-kv",
+    "title": "Time Based Key-Value Store",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/time-based-key-value-store/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Design / Série temporal",
+    "moduleSlug": "redis-fundamentos",
+    "description": "Implemente get/set com timestamps e busca do valor mais recente <= t. Resolva com TreeMap e depois com binary search em listas. Compare com sorted sets do Redis e discuta relógio e ordenação."
+  },
+  {
+    "slug": "mr-lc-hit-counter",
+    "title": "Design Hit Counter",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/design-hit-counter/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Design / Janela",
+    "moduleSlug": "redis-fundamentos",
+    "description": "Conte hits em uma janela de 300 segundos. Implemente com array circular e depois propague para Redis com INCR + EXPIRE ou sorted set. Compare precisão, memória e atomicidade sob concorrência."
+  },
+  {
+    "slug": "mr-lc-auth-manager",
+    "title": "Design Authentication Manager",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/design-authentication-manager/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Design / TTL",
+    "moduleSlug": "redis-producao",
+    "description": "Implemente tokens com expiração e renovação. Depois desenhe a versão distribuída com Redis: hash de token, TTL, revogação e o custo de limpeza. Explique o que acontece se o relógio dos nós divergir."
+  }
+]

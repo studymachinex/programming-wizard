@@ -1,0 +1,39 @@
+name: programming-wizard
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: pw-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: wizard
+      POSTGRES_PASSWORD: wizard
+      POSTGRES_DB: programming_wizard
+    ports:
+      - "5434:5432"
+    volumes:
+      - pw-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wizard -d programming_wizard"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: pw-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6380:6379"
+    volumes:
+      - pw-redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  pw-postgres-data:
+  pw-redis-data:

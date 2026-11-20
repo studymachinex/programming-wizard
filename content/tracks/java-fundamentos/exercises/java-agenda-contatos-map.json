@@ -1,0 +1,21 @@
+{
+  "track": "java-fundamentos",
+  "slug": "java-agenda-contatos-map",
+  "title": "Agenda de contatos com Map e ordenação",
+  "difficulty": "medio",
+  "tags": [
+    "collections",
+    "map",
+    "tree-map"
+  ],
+  "estimatedMinutes": 45,
+  "statement": "## Contexto\n\nImplemente uma agenda que associa nomes a telefones, permite remoção, busca e listagem ordenada. O exercício treina a escolha entre `HashMap` e `TreeMap` e o contrato de `equals/hashCode`.\n\n## Contrato\n\n```java\nclass Agenda {\n    void adicionar(String nome, String telefone);\n    boolean remover(String nome);\n    Optional<String> buscar(String nome);\n    List<String> listarOrdenado();\n    int tamanho();\n}\n```\n\n- Nome/telefone em branco lança `IllegalArgumentException`.\n- Adicionar nome existente substitui o telefone.\n- `listarOrdenado` ordena por nome, sem diferenciar maiúsculas.\n- `buscar` devolve `Optional.empty()` se ausente.\n\n## Exemplos\n\n```java\na.adicionar(\"Ana\", \"111\"); a.adicionar(\"bruno\", \"222\");\na.listarOrdenado(); // [Ana, bruno]\n```\n\n## Restrições\n\n- Use `Map`.\n- Não ordene a lista com bubble sort.",
+  "starterCode": "import java.util.*;\n\npublic class Solution {\n    static class Agenda {\n        private final Map<String, String> contatos = new HashMap<>();\n\n        void adicionar(String nome, String telefone) { }\n        boolean remover(String nome) { return false; }\n        Optional<String> buscar(String nome) { return Optional.empty(); }\n        List<String> listarOrdenado() { return List.of(); }\n        int tamanho() { return contatos.size(); }\n    }\n}",
+  "solutionCode": "import java.util.*;\n\npublic class Solution {\n    static class Agenda {\n        private final Map<String, String> contatos = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);\n\n        void adicionar(String nome, String telefone) {\n            if (nome == null || nome.isBlank() || telefone == null || telefone.isBlank()) {\n                throw new IllegalArgumentException(\"nome e telefone obrigatorios\");\n            }\n            contatos.put(nome, telefone);\n        }\n\n        boolean remover(String nome) {\n            return contatos.remove(nome) != null;\n        }\n\n        Optional<String> buscar(String nome) {\n            return Optional.ofNullable(contatos.get(nome));\n        }\n\n        List<String> listarOrdenado() {\n            return new ArrayList<>(contatos.keySet());\n        }\n\n        int tamanho() { return contatos.size(); }\n    }\n}",
+  "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nclass SolutionTest {\n    @Test void adicionaEBuscaCaseInsensitive() {\n        var a = new Solution.Agenda();\n        a.adicionar(\"Ana\", \"111\");\n        assertEquals(\"111\", a.buscar(\"ana\").orElseThrow());\n    }\n\n    @Test void substituiTelefone() {\n        var a = new Solution.Agenda();\n        a.adicionar(\"Ana\", \"111\");\n        a.adicionar(\"ana\", \"222\");\n        assertEquals(1, a.tamanho());\n        assertEquals(\"222\", a.buscar(\"ANA\").orElseThrow());\n    }\n\n    @Test void listagemOrdenada() {\n        var a = new Solution.Agenda();\n        a.adicionar(\"bruno\", \"2\"); a.adicionar(\"Ana\", \"1\");\n        assertEquals(java.util.List.of(\"Ana\", \"bruno\"), a.listarOrdenado());\n    }\n\n    @Test void removeEAusente() {\n        var a = new Solution.Agenda();\n        a.adicionar(\"Ana\", \"1\");\n        assertTrue(a.remover(\"ana\"));\n        assertFalse(a.remover(\"ana\"));\n        assertTrue(a.buscar(\"Ana\").isEmpty());\n    }\n}",
+  "hints": [
+    "TreeMap com CASE_INSENSITIVE_ORDER resolve busca e ordenação.",
+    "Optional.ofNullable evita NullPointerException no contrato.",
+    "Valide antes de inserir para manter a invariante."
+  ]
+}

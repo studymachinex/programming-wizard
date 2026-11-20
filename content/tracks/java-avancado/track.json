@@ -1,0 +1,921 @@
+{
+  "slug": "java-avancado",
+  "title": "Java de Produção: JVM, Concorrência e Performance",
+  "subtitle": "O que separa quem escreve Java de quem opera Java em escala",
+  "description": "Uma trilha para quem já domina a linguagem e precisa entender o que acontece abaixo do código: class loading, memória, garbage collectors, JIT, concorrência, executors, virtual threads, collections, Streams, JMH, profiling e I/O. O foco é tomar decisões defensáveis com dados e reconhecer as armadilhas que só aparecem em produção.",
+  "level": "avancado",
+  "icon": "layers",
+  "accent": "rose",
+  "estimatedHours": 42,
+  "isCore": true,
+  "outcomes": [
+    "Diagnosticar problemas de memória, GC e JIT usando jcmd, JFR, heap dumps e logs de GC",
+    "Projetar código concorrente correto com locks, atomics, executors, CompletableFuture e virtual threads",
+    "Escolher collections e construir pipelines de Streams com custo e complexidade previsíveis",
+    "Medir performance com JMH, construir benchmarks honestos e otimizar com profiling em vez de intuição",
+    "Implementar I/O de arquivos e integrações HTTP resilientes com timeouts, retries e serialização segura"
+  ],
+  "modules": [
+    {
+      "slug": "jvm-por-dentro",
+      "title": "A JVM por dentro",
+      "description": "O caminho do .class até a execução otimizada: class loading, layout de memória, garbage collectors e JIT. É a base para explicar qualquer incidente de produção.",
+      "estimatedHours": 10,
+      "lessons": [
+        {
+          "slug": "class-loading-e-bytecode",
+          "title": "Class loading e bytecode: o que roda quando você dá java -jar",
+          "summary": "Como a JVM encontra, verifica, liga e inicializa classes, e por que ClassNotFoundException e NoClassDefFoundError contam histórias diferentes.",
+          "minutes": 30,
+          "file": "lessons/class-loading-e-bytecode.md",
+          "takeaways": [
+            "As três fases do class loading e o que acontece em cada uma",
+            "Delegação parent-first, classloaders customizados e vazamentos em containers",
+            "Como ler bytecode com javap sem decorar opcodes"
+          ],
+          "quiz": [
+            {
+              "question": "Em que fase o inicializador estático (`<clinit>`) de uma classe é executado?",
+              "options": [
+                "Loading",
+                "Linking",
+                "Initialization",
+                "Verification"
+              ],
+              "answer": 2,
+              "explanation": "A inicialização é a fase em que a JVM executa `<clinit>`, atribui valores iniciais a campos estáticos e dispara a inicialização de superclasses. Verificação e resolução fazem parte do linking e não executam código Java da classe."
+            },
+            {
+              "question": "Um `NoClassDefFoundError` em produção normalmente indica o quê?",
+              "options": [
+                "Que a classe nunca existiu no classpath",
+                "Que a classe existia na compilação, mas falhou ao ser carregada ou inicializada em runtime",
+                "Que o garbage collector removeu a classe",
+                "Que o método main foi compilado com a versão errada do JDK"
+              ],
+              "answer": 1,
+              "explanation": "O erro costuma significar que a classe estava disponível na compilação, mas não está no classpath de execução, ou que sua inicialização estática falhou. Já ClassNotFoundException é lançado por APIs de carregamento quando o nome não é encontrado."
+            },
+            {
+              "question": "Por que um classloader customizado que não libera referências pode causar OOM em um servidor de aplicação?",
+              "options": [
+                "Porque cada classe carregada consome uma thread do pool",
+                "Porque o classloader mantém a metaspace e as classes carregadas vivas enquanto houver referência a ele",
+                "Porque o JIT não consegue compilar classes de classloaders customizados",
+                "Porque o heap jovem não aceita objetos dessas classes"
+              ],
+              "answer": 1,
+              "explanation": "Um classloader referencia todas as classes que carregou, e cada classe referencia seu classloader. Se um objeto ou thread mantém o classloader vivo após um redeploy, as classes e a metaspace associada nunca são coletadas."
+            }
+          ]
+        },
+        {
+          "slug": "memoria-heap-stack-metaspace",
+          "title": "Memória da JVM: heap, stack, metaspace e TLABs",
+          "summary": "Onde cada coisa vive, quanto custa, por que o RSS não bate com o -Xmx e como TLABs e escape analysis mudam a alocação.",
+          "minutes": 35,
+          "file": "lessons/memoria-heap-stack-metaspace.md",
+          "takeaways": [
+            "Separar heap, stack, metaspace, code cache e memória nativa em um incidente",
+            "Entender TLAB, compressed oops e por que alocar é barato na JVM",
+            "Reconhecer StackOverflowError, OOM de heap e OOM de metaspace"
+          ],
+          "quiz": [
+            {
+              "question": "Qual região normalmente cresce quando há milhares de classes geradas dinamicamente e o heap está saudável?",
+              "options": [
+                "Metaspace",
+                "Eden",
+                "Stack de cada thread",
+                "Code cache"
+              ],
+              "answer": 0,
+              "explanation": "Metadados de classes, métodos e constantes ficam na metaspace, que usa memória nativa. Proxies e classes geradas em excesso podem esgotá-la mesmo com heap folgado."
+            },
+            {
+              "question": "O que é um TLAB?",
+              "options": [
+                "Um buffer de rede usado pelo HttpClient",
+                "Uma área privada de cada thread no Eden para alocar objetos sem contenção",
+                "Um log binário de eventos do GC",
+                "Uma fila de tarefas do ForkJoinPool"
+              ],
+              "answer": 1,
+              "explanation": "Thread-Local Allocation Buffers são fatias do Eden reservadas por thread. O caminho rápido de alocação é apenas um bump pointer dentro do TLAB, sem sincronização entre threads."
+            },
+            {
+              "question": "Por que o RSS de um processo Java pode ser bem maior que o -Xmx configurado?",
+              "options": [
+                "Porque o -Xmx inclui apenas o heap jovem",
+                "Porque metaspace, code cache, stacks, buffers diretos e estruturas nativas ficam fora do heap",
+                "Porque a JVM reserva sempre o dobro do -Xmx em swap",
+                "Porque o GC copia todo o heap para a memória nativa a cada pausa"
+              ],
+              "answer": 1,
+              "explanation": "O -Xmx limita somente o heap Java. Metaspace, code cache, stacks de threads, buffers diretos, memória de bibliotecas nativas e estruturas internas da JVM somam ao consumo do processo."
+            }
+          ]
+        },
+        {
+          "slug": "garbage-collectors-g1-zgc-shenandoah",
+          "title": "Garbage collectors: G1, ZGC e Shenandoah sem mito",
+          "summary": "Como cada coletor organiza o heap e cobra seu preço, e como escolher com base em pausas, vazão e tamanho de heap.",
+          "minutes": 35,
+          "file": "lessons/garbage-collectors-g1-zgc-shenandoah.md",
+          "takeaways": [
+            "Modelo de regiões do G1, remembered sets e objetos humongous",
+            "O que ZGC e Shenandoah mudam para conseguir pausas baixas",
+            "Um roteiro de escolha e de leitura de logs de GC"
+          ],
+          "quiz": [
+            {
+              "question": "No G1, o que é um objeto humongous?",
+              "options": [
+                "Um objeto que vive mais de dez coletas",
+                "Um objeto maior que metade de uma região do heap",
+                "Um objeto alocado diretamente na metaspace",
+                "Um array que o JIT decide alocar na stack"
+              ],
+              "answer": 1,
+              "explanation": "Objetos maiores que 50% do tamanho de uma região são tratados como humongous e ocupam regiões inteiras, o que pode gerar fragmentação e coletas caras."
+            },
+            {
+              "question": "Qual é a principal troca ao escolher ZGC em vez de G1?",
+              "options": [
+                "Pausas muito menores, com maior custo de barreiras de leitura e throughput",
+                "Pausas maiores, mas sem qualquer uso de memória nativa",
+                "Menor uso de CPU, mas pausas de vários segundos",
+                "Compatibilidade apenas com heaps menores que 4 GB"
+              ],
+              "answer": 0,
+              "explanation": "ZGC usa colored pointers e load barriers para mover objetos concorrentemente, alcançando pausas sub-milissegundo. O preço aparece em throughput, uso de CPU e memória extra para estruturas de forwarding."
+            },
+            {
+              "question": "O que `-XX:MaxGCPauseMillis=50` garante no G1?",
+              "options": [
+                "Que nenhuma pausa passará de 50 ms",
+                "Que o GC fará no máximo 50 pausas por minuto",
+                "Que o G1 vai tentar se aproximar dessa meta, sem garantia contratual",
+                "Que o heap será dividido em regiões de 50 MB"
+              ],
+              "answer": 2,
+              "explanation": "É uma meta de best effort usada pelo coletor para dimensionar o conjunto de regiões a coletar. Pausas de young collection, humongous allocations e eventos externos podem estourá-la."
+            }
+          ]
+        },
+        {
+          "slug": "jit-escape-analysis-e-ferramentas",
+          "title": "JIT, escape analysis e o kit de ferramentas de diagnóstico",
+          "summary": "Como o código esquenta, é compilado e desotimizado, e como usar jcmd, JFR, async-profiler e heap dumps para responder perguntas concretas.",
+          "minutes": 35,
+          "file": "lessons/jit-escape-analysis-e-ferramentas.md",
+          "takeaways": [
+            "Tiered compilation, inlining, deoptimização e escape analysis",
+            "Quando scalar replacement e lock elision mudam o custo real",
+            "Um fluxo de diagnóstico com jcmd, JFR, async-profiler e heap dump"
+          ],
+          "quiz": [
+            {
+              "question": "Por que um microbenchmark com `System.nanoTime()` em volta de um loop pode concluir que uma operação custa zero?",
+              "options": [
+                "Porque nanoTime tem resolução de um segundo",
+                "Porque o JIT pode eliminar código cujo resultado não é usado",
+                "Porque o GC pausa o cronômetro",
+                "Porque a JVM arredonda tempos abaixo de 1 ms"
+              ],
+              "answer": 1,
+              "explanation": "Dead code elimination e constant folding podem remover o trabalho medido. JMH usa Blackhole e outras técnicas para impedir que o compilador apague o experimento."
+            },
+            {
+              "question": "O que escape analysis permite ao JIT fazer com um objeto que não escapa do método?",
+              "options": [
+                "Movê-lo automaticamente para a metaspace",
+                "Substituí-lo por campos escalares e, às vezes, eliminar a alocação",
+                "Promovê-lo direto para o old generation",
+                "Serializá-lo no code cache"
+              ],
+              "answer": 1,
+              "explanation": "Se o objeto não escapa, o JIT pode fazer scalar replacement, desmontando o objeto em variáveis locais. Isso remove a alocação e pode permitir eliminar locks associados."
+            },
+            {
+              "question": "Qual ferramenta é mais adequada para descobrir onde o tempo de CPU é gasto em produção com overhead baixo?",
+              "options": [
+                "Heap dump",
+                "JFR ou async-profiler",
+                "javap -c",
+                "jmap -histo:live repetido a cada segundo"
+              ],
+              "answer": 1,
+              "explanation": "JFR e async-profiler fazem amostragem com overhead tipicamente baixo e mostram stacks agregadas. Heap dump responde sobre retenção de memória, não sobre consumo de CPU."
+            }
+          ]
+        }
+      ],
+      "exercises": [
+        "exercises/jvm-thread-safe-counter.json"
+      ]
+    },
+    {
+      "slug": "concorrencia",
+      "title": "Concorrência de verdade",
+      "description": "Do modelo de memória aos virtual threads: escrever código concorrente que não depende de sorte, mede contenção e desliga sem vazar threads.",
+      "estimatedHours": 12,
+      "lessons": [
+        {
+          "slug": "threads-lifecycle-context-switch",
+          "title": "Threads, ciclo de vida e o custo real de trocar de contexto",
+          "summary": "O que uma thread platform realmente reserva, como interpretar seus estados e por que milhares delas podem ser um problema antes de serem lentas.",
+          "minutes": 30,
+          "file": "lessons/threads-lifecycle-context-switch.md",
+          "takeaways": [
+            "Estados de Thread e transições relevantes para diagnóstico",
+            "Custo de stack, criação e context switch em platform threads",
+            "Como detectar thread leak e nomear threads para sobreviver ao incidente"
+          ],
+          "quiz": [
+            {
+              "question": "Uma thread platform bloqueada em `Object.wait()` aparece em qual estado?",
+              "options": [
+                "RUNNABLE",
+                "BLOCKED",
+                "WAITING",
+                "TERMINATED"
+              ],
+              "answer": 2,
+              "explanation": "WAITING indica espera indefinida por outro thread, como em wait(), join() ou park(). BLOCKED é específico para tentar entrar em um monitor ocupado."
+            },
+            {
+              "question": "Qual é o custo típico dominante de criar muitas platform threads?",
+              "options": [
+                "Cada thread reserva uma stack, tipicamente ~1 MB de memória virtual",
+                "Cada thread duplica o heap jovem",
+                "Cada thread cria um novo classloader",
+                "Cada thread exige um garbage collector dedicado"
+              ],
+              "answer": 0,
+              "explanation": "A stack de uma platform thread é reservada no espaço nativo, com padrão próximo de 1 MB (dependendo de plataforma e flags). O commit real cresce com o uso, mas a reserva limita a quantidade de threads."
+            },
+            {
+              "question": "Por que nomear threads importa em produção?",
+              "options": [
+                "Porque a JVM só agenda threads com nome",
+                "Porque jstack, JFR e logs passam a identificar o dono da thread sem correlação manual",
+                "Porque nomes reduzem o custo de context switch",
+                "Porque threads sem nome não podem ser interrompidas"
+              ],
+              "answer": 1,
+              "explanation": "Um nome como `order-worker-7` transforma um dump de 400 threads em informação utilizável. Sem nome, você vê apenas pool-3-thread-17 e perde minutos correlacionando."
+            }
+          ]
+        },
+        {
+          "slug": "race-conditions-synchronized-volatile",
+          "title": "Race conditions, synchronized e volatile: o memory model na prática",
+          "summary": "Happens-before, visibilidade, reordenação e publicação segura, com os bugs que compilam e falham uma vez por semana.",
+          "minutes": 40,
+          "file": "lessons/race-conditions-synchronized-volatile.md",
+          "takeaways": [
+            "Relações happens-before e por que volatile não resolve tudo",
+            "Synchronized, monitores e o custo de bloquear",
+            "Double-checked locking correto e publicação segura de objetos"
+          ],
+          "quiz": [
+            {
+              "question": "O que `volatile` garante em Java?",
+              "options": [
+                "Atomicidade para qualquer operação composta",
+                "Visibilidade e ordenação, mas não atomicidade de incremento",
+                "Que a variável fica na stack em vez do heap",
+                "Exclusão mútua entre threads"
+              ],
+              "answer": 1,
+              "explanation": "volatile estabelece happens-before entre escrita e leitura e impede certos reordenamentos, mas `x++` continua sendo leitura-modificação-escrita não atômica."
+            },
+            {
+              "question": "Por que o double-checked locking quebrado precisa de `volatile` no campo?",
+              "options": [
+                "Para impedir que o objeto seja coletado",
+                "Porque a publicação pode expor uma referência antes da construção terminar",
+                "Porque sem volatile o campo não aceita null",
+                "Porque o JIT não compila construtores sem volatile"
+              ],
+              "answer": 1,
+              "explanation": "Sem volatile, a escrita da referência pode ser visível antes das escritas dos campos do objeto, e outra thread pode ver um objeto parcialmente construído. Volatile impede esse reordenamento."
+            },
+            {
+              "question": "Qual é um risco de sincronizar em uma `String` literal ou em `Integer.valueOf(1)`?",
+              "options": [
+                "O compilador remove o synchronized",
+                "Outro código pode usar o mesmo objeto como lock sem saber, criando contenção ou deadlock",
+                "Strings não podem ser usadas como monitor",
+                "O lock fica limitado a 1 ms"
+              ],
+              "answer": 1,
+              "explanation": "Literais e valores de cache podem ser compartilhados por todo o processo. Um lock deve ser um objeto privado e final, cuja identidade você controla."
+            }
+          ]
+        },
+        {
+          "slug": "locks-atomics-contention",
+          "title": "Locks, atomics e contenção: medindo o que dói",
+          "summary": "ReentrantLock, StampedLock, CAS, LongAdder e false sharing: escolhas de sincronização guiadas por contenção e latência, não por moda.",
+          "minutes": 40,
+          "file": "lessons/locks-atomics-contention.md",
+          "takeaways": [
+            "Quando preferir ReentrantLock, ReadWriteLock ou StampedLock",
+            "Como CAS e LongAdder escalam sob contenção",
+            "Reconhecer false sharing e deadlock por ordem de locks"
+          ],
+          "quiz": [
+            {
+              "question": "Qual vantagem o `ReentrantLock` tem sobre `synchronized`?",
+              "options": [
+                "É sempre mais rápido",
+                "Permite tryLock com timeout, interrupção e múltiplas Conditions",
+                "Não exige liberar o lock",
+                "Funciona apenas com virtual threads"
+              ],
+              "answer": 1,
+              "explanation": "A API explícita permite tentar adquirir sem bloquear indefinidamente, responder a interrupção e ter condições nomeadas. Em troca, exige try/finally e é mais fácil de errar."
+            },
+            {
+              "question": "Por que `LongAdder` costuma superar `AtomicLong` em alta contenção?",
+              "options": [
+                "Porque usa um único CAS mais rápido",
+                "Porque distribui as atualizações em células separadas e soma no final",
+                "Porque não é thread-safe",
+                "Porque usa synchronized internamente"
+              ],
+              "answer": 1,
+              "explanation": "LongAdder mantém uma célula por thread (ou grupo) e reduz o contended CAS. O custo aparece na leitura, que precisa somar as células e não é um snapshot atômico."
+            },
+            {
+              "question": "O que é false sharing?",
+              "options": [
+                "Duas threads lendo o mesmo objeto imutável",
+                "Threads escrevendo variáveis distintas que caem na mesma linha de cache",
+                "Compartilhar um lock entre dois serviços",
+                "Um bug de serialização de objetos"
+              ],
+              "answer": 1,
+              "explanation": "A coerência de cache trabalha em linhas de 64 bytes. Variáveis independentes na mesma linha fazem o cache ping-pong e degradam a performance mesmo sem disputa lógica."
+            }
+          ]
+        },
+        {
+          "slug": "executors-thread-pools-filas",
+          "title": "Executors, thread pools e filas: dimensionar, limitar e desligar",
+          "summary": "ThreadPoolExecutor por dentro, filas bounded, políticas de rejeição, dimensionamento para CPU e I/O e shutdown que não deixa thread órfã.",
+          "minutes": 35,
+          "file": "lessons/executors-thread-pools-filas.md",
+          "takeaways": [
+            "Os sete parâmetros do ThreadPoolExecutor e a ordem em que agem",
+            "Por que newFixedThreadPool com fila ilimitada é uma bomba-relógio",
+            "Dimensionamento, rejeição, monitoramento e shutdown gracioso"
+          ],
+          "quiz": [
+            {
+              "question": "Com `corePoolSize=4`, `maximumPoolSize=8` e fila `ArrayBlockingQueue(100)`, quando uma nova tarefa cria a quinta thread?",
+              "options": [
+                "Imediatamente ao chegar a quinta tarefa",
+                "Somente quando a fila de 100 posições estiver cheia",
+                "Somente após 60 segundos",
+                "Nunca, porque o máximo é ignorado"
+              ],
+              "answer": 1,
+              "explanation": "O ThreadPoolExecutor só cresce além do core quando a fila está cheia. Com fila grande, o máximo raramente é atingido, o que surpreende quem espera escalar por número de tarefas."
+            },
+            {
+              "question": "Qual política de rejeição executa a tarefa na thread que submeteu?",
+              "options": [
+                "AbortPolicy",
+                "DiscardPolicy",
+                "CallerRunsPolicy",
+                "DiscardOldestPolicy"
+              ],
+              "answer": 2,
+              "explanation": "CallerRunsPolicy aplica backpressure: a thread chamadora executa a tarefa, desacelerando quem produz. É útil quando perder trabalho é pior que bloquear o produtor."
+            },
+            {
+              "question": "Por que um pool de threads dentro de outro pool pode causar deadlock?",
+              "options": [
+                "Porque a JVM proíbe pools aninhados",
+                "Porque tarefas podem esperar resultados de tarefas enfileiradas atrás delas no mesmo pool saturado",
+                "Porque o GC pausa pools aninhados",
+                "Porque ThreadLocal não funciona em pools"
+              ],
+              "answer": 1,
+              "explanation": "Se todas as threads do pool externo esperam tarefas submetidas ao mesmo pool e não há thread livre, ocorre starvation. A solução é pools separados, virtual threads ou não bloquear dentro da tarefa."
+            }
+          ]
+        },
+        {
+          "slug": "completable-future-composicao",
+          "title": "CompletableFuture: composição assíncrona sem perder o fio",
+          "summary": "thenApply, thenCompose, thenCombine, allOf, timeouts, fallback e o custo escondido de usar o ForkJoinPool comum.",
+          "minutes": 35,
+          "file": "lessons/completable-future-composicao.md",
+          "takeaways": [
+            "Diferença entre thenApply, thenCompose e thenCombine",
+            "Tratamento de erro, timeout e fallback por etapa",
+            "Quando o common pool sabota a latência da aplicação"
+          ],
+          "quiz": [
+            {
+              "question": "Qual método use quando a função passada também retorna um `CompletableFuture`?",
+              "options": [
+                "thenApply",
+                "thenCompose",
+                "thenAccept",
+                "thenRun"
+              ],
+              "answer": 1,
+              "explanation": "thenCompose achata o resultado e evita um `CompletableFuture<CompletableFuture<T>>`. thenApply é para transformação síncrona do valor."
+            },
+            {
+              "question": "O que `orTimeout(2, TimeUnit.SECONDS)` faz?",
+              "options": [
+                "Interrompe a thread que executa a etapa",
+                "Completa excepcionalmente o future com TimeoutException, sem cancelar o trabalho subjacente",
+                "Cancela o executor inteiro",
+                "Repete a etapa até completar"
+              ],
+              "answer": 1,
+              "explanation": "orTimeout agenda uma falha no future; a tarefa original pode continuar rodando. Para tentar parar o trabalho, é preciso combinar com cancelamento e código interruptível."
+            },
+            {
+              "question": "Por que é arriscado usar `supplyAsync` sem executor em uma aplicação web?",
+              "options": [
+                "Porque o ForkJoinPool.commonPool tem paralelismo fixo e é compartilhado com parallel streams",
+                "Porque não aceita exceções",
+                "Porque só funciona com virtual threads",
+                "Porque impede o uso de timeouts"
+              ],
+              "answer": 0,
+              "explanation": "O common pool tem paralelismo igual a CPUs-1 por padrão e é compartilhado. Tarefas bloqueantes podem esgotá-lo e afetar parallel streams e outras partes do processo."
+            }
+          ]
+        },
+        {
+          "slug": "virtual-threads-structured-concurrency",
+          "title": "Virtual threads e structured concurrency: o novo contrato",
+          "summary": "Como virtual threads montam e desmontam, onde ainda pinam, por que não se faz pool delas e como structured concurrency muda o tratamento de falhas e cancelamento.",
+          "minutes": 40,
+          "file": "lessons/virtual-threads-structured-concurrency.md",
+          "takeaways": [
+            "Modelo de virtual thread, carrier e pinning em Java 21",
+            "Quando virtual threads ajudam e quando não ajudam",
+            "Structured concurrency e cancelamento cooperativo"
+          ],
+          "quiz": [
+            {
+              "question": "O que acontece quando uma virtual thread bloqueia em I/O?",
+              "options": [
+                "O carrier thread também bloqueia até o I/O terminar",
+                "A virtual thread desmonta e libera o carrier para outra tarefa",
+                "A JVM cria um novo processo",
+                "O GC pausa para liberar a stack"
+              ],
+              "answer": 1,
+              "explanation": "Em operações integradas ao scheduler, a virtual thread é desmontada da carrier e sua stack vai para o heap. O carrier fica livre para executar outras virtual threads."
+            },
+            {
+              "question": "Qual é o principal motivo para NÃO fazer pool de virtual threads?",
+              "options": [
+                "Elas não podem ser reutilizadas",
+                "Elas são baratas e o pool reintroduz limite, fila e complexidade desnecessários",
+                "O pool impede o GC de coletá-las",
+                "A JVM lança exceção ao criar mais de 10 mil"
+              ],
+              "answer": 1,
+              "explanation": "O ponto de virtual threads é criar uma por tarefa. Fazer pool limita concorrência sem necessidade e traz de volta problemas de fila e vazamento. Para limitar acesso a recurso, use Semaphore."
+            },
+            {
+              "question": "O que pode prender uma virtual thread ao carrier em Java 21?",
+              "options": [
+                "Usar `Thread.sleep`",
+                "Bloquear dentro de um bloco `synchronized` ou em chamada nativa",
+                "Ler um arquivo com `Files.readString`",
+                "Aguardar em `CompletableFuture.join`"
+              ],
+              "answer": 1,
+              "explanation": "Em Java 21, synchronized e chamadas nativas podem pinar a virtual thread ao carrier. A recomendação é preferir ReentrantLock em caminhos que bloqueiam."
+            }
+          ]
+        }
+      ],
+      "exercises": [
+        "exercises/jvm-producer-consumer.json"
+      ]
+    },
+    {
+      "slug": "collections-e-streams",
+      "title": "Collections e Streams em produção",
+      "description": "O custo real das estruturas que você usa todos os dias e como construir pipelines de Streams legíveis, corretos e rápidos — ou decidir que paralelismo não vale.",
+      "estimatedHours": 7,
+      "lessons": [
+        {
+          "slug": "arraylist-hashmap-por-dentro",
+          "title": "ArrayList e HashMap por dentro: complexidade real e custos escondidos",
+          "summary": "Crescimento, redimensionamento, hashing, colisões e treeificação: por que a complexidade assintótica não conta a história inteira.",
+          "minutes": 35,
+          "file": "lessons/arraylist-hashmap-por-dentro.md",
+          "takeaways": [
+            "Como ArrayList cresce e quando pré-dimensionar",
+            "HashMap: spreading, load factor, resize e treeificação",
+            "Contratos de equals/hashCode e riscos de chaves mutáveis"
+          ],
+          "quiz": [
+            {
+              "question": "Qual é o fator de crescimento típico do `ArrayList` no JDK?",
+              "options": [
+                "2x",
+                "1,5x",
+                "1,25x",
+                "Dobra apenas quando atinge 1024 elementos"
+              ],
+              "answer": 1,
+              "explanation": "O ArrayList cresce para `oldCapacity + (oldCapacity >> 1)`. Isso amortiza cópias, mas ainda gera arrays intermediários e pressão no GC."
+            },
+            {
+              "question": "Com capacidade inicial 16 e load factor 0,75, quando o HashMap redimensiona?",
+              "options": [
+                "Ao inserir o 12º elemento",
+                "Ao inserir o 13º elemento",
+                "Ao inserir o 16º elemento",
+                "Somente quando ocorre uma colisão"
+              ],
+              "answer": 1,
+              "explanation": "O threshold é 16 × 0,75 = 12. Após 12 elementos, a próxima inserção dispara resize para 32. O HashMap verifica o tamanho antes de inserir."
+            },
+            {
+              "question": "Por que usar um objeto mutável como chave de HashMap é perigoso?",
+              "options": [
+                "Porque o HashMap copia a chave e ocupa mais memória",
+                "Porque mudar campos usados no hashCode torna a entrada inalcançável",
+                "Porque o HashMap não aceita objetos",
+                "Porque o hash é recalculado a cada leitura"
+              ],
+              "answer": 1,
+              "explanation": "O bucket é escolhido no momento da inserção. Se o hashCode mudar depois, a busca passa a olhar outro bucket e não encontra a entrada, que fica viva até o próximo resize."
+            }
+          ]
+        },
+        {
+          "slug": "stream-api-avancada-collectors",
+          "title": "Stream API avançada e collectors customizados",
+          "summary": "Pipelines lazy, operações stateful, teeing, groupingBy com downstream e um Collector próprio que funciona até em paralelo.",
+          "minutes": 40,
+          "file": "lessons/stream-api-avancada-collectors.md",
+          "takeaways": [
+            "Lazy evaluation e o momento em que cada operação executa",
+            "Collector customizado com supplier, accumulator, combiner e finisher",
+            "Armadilhas de toMap, groupingBy e streams reutilizados"
+          ],
+          "quiz": [
+            {
+              "question": "Quando as operações intermediárias de um Stream são executadas?",
+              "options": [
+                "Assim que são encadeadas",
+                "Somente quando uma operação terminal é invocada",
+                "Durante a compilação JIT",
+                "A cada chamada de toString"
+              ],
+              "answer": 1,
+              "explanation": "Streams são lazy: filter e map apenas constroem o pipeline. O trabalho acontece quando uma operação terminal como collect, forEach ou reduce é chamada."
+            },
+            {
+              "question": "Para que serve o método `combiner` de um Collector?",
+              "options": [
+                "Para ordenar o resultado final",
+                "Para mesclar dois acumuladores parciais em execução paralela",
+                "Para converter o tipo do Stream",
+                "Para fechar recursos abertos"
+              ],
+              "answer": 1,
+              "explanation": "Em processamento paralelo, cada partição tem seu acumulador. O combiner une esses acumuladores. Em sequential, ele normalmente não é chamado, mas ainda precisa estar correto."
+            },
+            {
+              "question": "O que acontece ao chamar `Collectors.toMap` com duas chaves iguais e sem merge function?",
+              "options": [
+                "A última entrada vence silenciosamente",
+                "Uma `IllegalStateException` é lançada",
+                "As entradas são descartadas",
+                "O mapa vira uma lista"
+              ],
+              "answer": 1,
+              "explanation": "O toMap de dois argumentos usa uma merge function que lança IllegalStateException em duplicatas. Use a sobrecarga com merge para decidir o comportamento."
+            }
+          ]
+        },
+        {
+          "slug": "parallel-streams-quando-pioram",
+          "title": "Parallel streams: quando elas pioram tudo",
+          "summary": "Spliterators, o ForkJoinPool comum, custo de merge e contenção: um roteiro para decidir com medição se paralelizar compensa.",
+          "minutes": 35,
+          "file": "lessons/parallel-streams-quando-pioram.md",
+          "takeaways": [
+            "Quando um pipeline é bem divisível e quando não é",
+            "Por que parallel streams em aplicação web compartilham o common pool",
+            "Como medir speedup e reconhecer regressões"
+          ],
+          "quiz": [
+            {
+              "question": "Qual pool executa `list.parallelStream()` por padrão?",
+              "options": [
+                "Um pool novo por stream",
+                "O ForkJoinPool.commonPool",
+                "O pool de virtual threads",
+                "A thread chamadora, sempre"
+              ],
+              "answer": 1,
+              "explanation": "Parallel streams usam o common pool, cujo paralelismo padrão é CPUs-1. Isso o torna um recurso compartilhado e fácil de saturar com tarefas bloqueantes."
+            },
+            {
+              "question": "Em qual cenário parallel stream tende a piorar?",
+              "options": [
+                "Soma de um array grande de primitivos",
+                "Pipeline com I/O bloqueante ou operação sequencial cara por elemento",
+                "Filtro e map sobre ArrayList grande",
+                "Redução de números com operação associativa"
+              ],
+              "answer": 1,
+              "explanation": "I/O bloqueante consome threads do common pool sem paralelizar trabalho de CPU. Operações sequenciais caras também dominam e o custo de coordenar supera o ganho."
+            },
+            {
+              "question": "O que `forEachOrdered` garante em um parallel stream?",
+              "options": [
+                "Que cada elemento será processado na thread principal",
+                "Que os efeitos colaterais ocorrem na ordem de encounter do stream",
+                "Que o pipeline fica mais rápido",
+                "Que exceções são ignoradas"
+              ],
+              "answer": 1,
+              "explanation": "forEachOrdered preserva a ordem de encontro, mas exige coordenação e pode anular ganhos de paralelismo. Ainda assim, efeitos colaterais em forEach são má prática."
+            }
+          ]
+        }
+      ],
+      "exercises": [
+        "exercises/jvm-stream-report.json"
+      ]
+    },
+    {
+      "slug": "performance",
+      "title": "Performance guiada por dados",
+      "description": "Medir antes de otimizar: JMH, alocação, GC tuning e profiling com JFR e async-profiler. Menos opinião, mais evidência.",
+      "estimatedHours": 7,
+      "lessons": [
+        {
+          "slug": "jmh-medir-sem-enganar",
+          "title": "JMH: como medir sem enganar a si mesmo",
+          "summary": "Warmup, forks, Blackhole, dead code elimination e modes: por que quase todo benchmark caseiro mente.",
+          "minutes": 40,
+          "file": "lessons/jmh-medir-sem-enganar.md",
+          "takeaways": [
+            "Anatomia de um benchmark JMH confiável",
+            "Como evitar constant folding, dead code e loop unrolling",
+            "Interpretar média, percentis e intervalos de confiança"
+          ],
+          "quiz": [
+            {
+              "question": "Por que JMH usa forks por padrão?",
+              "options": [
+                "Para usar mais núcleos no mesmo benchmark",
+                "Para isolar o JIT e o estado do heap entre execuções",
+                "Para reduzir o tempo de compilação",
+                "Para permitir benchmarks sem warmup"
+              ],
+              "answer": 1,
+              "explanation": "Cada fork é uma nova JVM. Isso evita que perfil de compilação, inflação de código e estado de heap de um benchmark contaminem o próximo."
+            },
+            {
+              "question": "Qual é a função do `Blackhole`?",
+              "options": [
+                "Descartar exceções",
+                "Consumir resultados para impedir que o JIT elimine o código medido",
+                "Limpar o heap entre iterações",
+                "Fixar a thread em um núcleo"
+              ],
+              "answer": 1,
+              "explanation": "O Blackhole torna o resultado observável, impedindo dead code elimination, e oferece operações que não podem ser otimizadas para fora."
+            },
+            {
+              "question": "Por que a média sozinha é insuficiente para avaliar latência?",
+              "options": [
+                "Porque o JMH não calcula média",
+                "Porque caudas (p99, p99.9) podem esconder experiências ruins mesmo com média baixa",
+                "Porque a média só existe em benchmarks de throughput",
+                "Porque a média ignora o warmup"
+              ],
+              "answer": 1,
+              "explanation": "Distribuições de latência têm cauda. Um p99 alto significa que 1 em 100 requisições é lenta, o que afeta SLOs mesmo que a média pareça saudável."
+            }
+          ]
+        },
+        {
+          "slug": "alocacao-gc-tuning-pressao",
+          "title": "Alocação, GC tuning e pressão de memória",
+          "summary": "Taxa de alocação, gerações, promoção e humongous objects: como ler o GC e ajustar o que realmente importa.",
+          "minutes": 40,
+          "file": "lessons/alocacao-gc-tuning-pressao.md",
+          "takeaways": [
+            "Calcular taxa de alocação e tempo de GC a partir de logs",
+            "Ajustar young generation, survivor spaces e pausas com critério",
+            "Evitar pooling prematuro e vazamentos de buffers diretos"
+          ],
+          "quiz": [
+            {
+              "question": "O que uma alta taxa de alocação (GB/s) provoca?",
+              "options": [
+                "Mais coletas jovens e maior chance de promoção prematura",
+                "Menos uso de CPU",
+                "Eliminação automática de objetos pelo JIT",
+                "Redução do metaspace"
+              ],
+              "answer": 0,
+              "explanation": "Alocar rápido enche o Eden rápido. Coletas jovens frequentes custam CPU, e objetos que sobrevivem são promovidos, aumentando a pressão no old generation."
+            },
+            {
+              "question": "Quando faz sentido aumentar o young generation?",
+              "options": [
+                "Quando há muitas coletas jovens e objetos de vida curta, com pausas aceitáveis",
+                "Sempre que o old generation enche",
+                "Quando o metaspace cresce",
+                "Quando o CPU está ocioso"
+              ],
+              "answer": 0,
+              "explanation": "Mais Eden reduz a frequência de young GCs e dá tempo para objetos morrerem antes da promoção. O limite é o custo de pausa e o espaço disponível no container."
+            },
+            {
+              "question": "Por que object pooling manual costuma piorar a performance em Java moderno?",
+              "options": [
+                "Porque o GC não coleta objetos de pools",
+                "Porque alocação em TLAB é barata e o pool adiciona sincronização, estado e vazamento",
+                "Porque pools desativam o JIT",
+                "Porque a JVM proíbe reutilização"
+              ],
+              "answer": 1,
+              "explanation": "A alocação jovem é extremamente barata e o GC foi desenhado para objetos de vida curta. Pools introduzem contenção, limites e bugs de reciclagem, sendo úteis apenas para recursos caros como buffers e conexões."
+            }
+          ]
+        },
+        {
+          "slug": "profiling-cpu-memoria-dados",
+          "title": "Profiling de CPU e memória: otimizar com evidência",
+          "summary": "Flame graphs, JFR, heap histograms e dominator trees: transformar um sintoma em uma hipótese testável e medir o ganho.",
+          "minutes": 40,
+          "file": "lessons/profiling-cpu-memoria-dados.md",
+          "takeaways": [
+            "Ler flame graphs e separar CPU de wall time",
+            "Usar JFR, jcmd e heap dump para memória e contenção",
+            "Fechar o ciclo medir-otimizar-medir sem regressão"
+          ],
+          "quiz": [
+            {
+              "question": "Em um flame graph de CPU, o que uma barra larga no topo representa?",
+              "options": [
+                "Uma função que consome muito tempo de CPU em suas próprias instruções",
+                "Uma função que foi compilada pelo C1",
+                "Uma exceção frequente",
+                "Um vazamento de memória"
+              ],
+              "answer": 0,
+              "explanation": "A largura representa amostras. Uma barra larga no topo indica tempo gasto naquela função sem filhos dominantes, ou seja, CPU própria."
+            },
+            {
+              "question": "Qual ferramenta mostra quais objetos retêm mais memória, incluindo caminhos de referência?",
+              "options": [
+                "jstack",
+                "Heap dump analisado com dominator tree",
+                "jcmd VM.version",
+                "javap -c"
+              ],
+              "answer": 1,
+              "explanation": "O heap dump captura o grafo de objetos. Ferramentas como Eclipse MAT calculam dominadores e mostram o que mantém os objetos vivos, algo que um histograma de classes não revela."
+            },
+            {
+              "question": "Por que otimizar sem medir o cenário real é arriscado?",
+              "options": [
+                "Porque a JVM muda de comportamento a cada execução",
+                "Porque o gargalo pode estar em I/O, contenção ou GC, e não no código que parece lento",
+                "Porque benchmarks não podem ser repetidos",
+                "Porque o compilador proíbe otimizações manuais"
+              ],
+              "answer": 1,
+              "explanation": "Sem profiling, você otimiza o que é visível, não o que domina. Muitas vezes o tempo está em espera de lock, rede ou coleta, e micro-otimizações não movem a agulha."
+            }
+          ]
+        }
+      ],
+      "exercises": [
+        "exercises/jvm-nio-large-file.json"
+      ]
+    },
+    {
+      "slug": "io-e-redes",
+      "title": "I/O, HTTP e resiliência",
+      "description": "Arquivos grandes sem estourar o heap e integrações HTTP que sobrevivem a timeouts, falhas parciais e respostas inesperadas.",
+      "estimatedHours": 6,
+      "lessons": [
+        {
+          "slug": "nio-buffers-channels-files",
+          "title": "NIO: buffers, channels e arquivos grandes",
+          "summary": "ByteBuffer, flip/clear/compact, direct buffers, memory-mapped files e transferTo: I/O previsível com memória controlada.",
+          "minutes": 40,
+          "file": "lessons/nio-buffers-channels-files.md",
+          "takeaways": [
+            "Ciclo de vida de ByteBuffer e os erros clássicos de posição",
+            "Quando usar direct buffers, mmap e transferTo",
+            "Processar arquivos grandes com memória O(buffer), não O(arquivo)"
+          ],
+          "quiz": [
+            {
+              "question": "O que `flip()` faz em um ByteBuffer após uma leitura?",
+              "options": [
+                "Inverte a ordem dos bytes",
+                "Ajusta limit para position e position para zero, preparando a leitura do que foi escrito",
+                "Limpa todo o buffer",
+                "Aumenta a capacidade"
+              ],
+              "answer": 1,
+              "explanation": "Depois de escrever, position aponta para o fim dos dados. flip() transforma esse limite em limit e rebobina position, permitindo ler exatamente o que foi escrito."
+            },
+            {
+              "question": "Qual é o risco de buffers diretos em excesso?",
+              "options": [
+                "Eles são coletados apenas pelo GC normal, sem custo",
+                "Eles consomem memória nativa fora do heap e podem causar OOM difícil de diagnosticar",
+                "Eles impedem o uso de FileChannel",
+                "Eles são sempre mais lentos"
+              ],
+              "answer": 1,
+              "explanation": "DirectByteBuffer aloca memória nativa, limitada por MaxDirectMemorySize e pela RAM do processo. O GC só os libera quando o buffer é coletado, então vazamentos aparecem como OOM nativo."
+            },
+            {
+              "question": "Por que `FileChannel.transferTo` pode ser mais eficiente para copiar arquivos?",
+              "options": [
+                "Porque carrega o arquivo inteiro no heap",
+                "Porque pode usar zero-copy no sistema operacional, evitando cópias para o espaço do usuário",
+                "Porque usa compressão automática",
+                "Porque ignora o sistema de arquivos"
+              ],
+              "answer": 1,
+              "explanation": "transferTo pode delegar a cópia ao kernel (sendfile), reduzindo cópias e mudanças de contexto. A disponibilidade e o desempenho dependem da plataforma."
+            }
+          ]
+        },
+        {
+          "slug": "httpclient-timeouts-retries-jackson",
+          "title": "HttpClient, timeouts, retries e serialização com Jackson",
+          "summary": "Integrações HTTP que não travam a aplicação: timeouts separados, retries idempotentes com jitter, pool de conexões e Jackson configurado com segurança.",
+          "minutes": 45,
+          "file": "lessons/httpclient-timeouts-retries-jackson.md",
+          "takeaways": [
+            "Diferença entre connect timeout e request timeout",
+            "Retries com backoff exponencial, jitter e orçamento",
+            "ObjectMapper reutilizado, tipos seguros e validação de resposta"
+          ],
+          "quiz": [
+            {
+              "question": "O que acontece com um `HttpClient` que não define request timeout?",
+              "options": [
+                "Ele usa 30 segundos por padrão",
+                "Uma requisição pode esperar indefinidamente por uma resposta",
+                "Ele cancela após 1 minuto",
+                "O sistema operacional impõe 5 segundos"
+              ],
+              "answer": 1,
+              "explanation": "O HttpClient não tem request timeout padrão. Sem configurar, uma conexão estabelecida pode ficar esperando resposta por tempo indeterminado e prender a thread."
+            },
+            {
+              "question": "Por que adicionar jitter ao backoff de retries?",
+              "options": [
+                "Para aumentar o tempo total de espera",
+                "Para espalhar tentativas e evitar que muitos clientes retentem no mesmo instante",
+                "Para garantir que o retry sempre funcione",
+                "Para reduzir o tamanho da resposta"
+              ],
+              "answer": 1,
+              "explanation": "Sem jitter, clientes que falharam juntos retentam juntos, criando ondas de carga. O jitter distribui as tentativas ao longo do tempo."
+            },
+            {
+              "question": "Qual prática reduz o risco de desserialização insegura com Jackson?",
+              "options": [
+                "Habilitar default typing globalmente",
+                "Evitar polimorfismo baseado em nomes vindos do cliente e usar tipos concretos/allowlist",
+                "Usar ObjectMapper novo a cada requisição",
+                "Desabilitar todas as validações"
+              ],
+              "answer": 1,
+              "explanation": "Default typing com tipos controlados pelo atacante é uma superfície de gadget chains. Prefira DTOs concretos, valide campos e restrinja subtipos quando polimorfismo for necessário."
+            }
+          ]
+        }
+      ],
+      "exercises": [
+        "exercises/jvm-completable-future-aggregator.json"
+      ]
+    }
+  ]
+}

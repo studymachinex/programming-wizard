@@ -1,0 +1,464 @@
+[
+  {
+    "slug": "api-tarefas-quarkus-postgres",
+    "title": "API de Tarefas com Quarkus e PostgreSQL",
+    "description": "Construa uma API de tarefas pronta para portfólio, com autenticação JWT, filtros combináveis, versionamento otimista e testes de integração com Dev Services e Testcontainers. O foco é dominar o caminho completo de um serviço Quarkus em produção: migrações, erros padronizados, observabilidade e entrega contínua.",
+    "level": "intermediario",
+    "estimatedHours": 20,
+    "stack": [
+      "Java 21",
+      "Quarkus 3",
+      "PostgreSQL",
+      "Flyway",
+      "Panache",
+      "Testcontainers",
+      "Docker",
+      "GitHub Actions"
+    ],
+    "requirements": [
+      "CRUD completo em /api/v1/tasks com DTOs validados por Bean Validation, erros no formato ProblemDetail (RFC 9457) e especificação OpenAPI 3.1 publicada em /q/openapi.",
+      "Schema PostgreSQL versionado com Flyway (users, tasks, labels, task_labels), índices para status, due_date e owner_id, e quarkus.hibernate-orm.database.generation=validate no perfil de produção.",
+      "Autenticação JWT com access token de 15 minutos e refresh token rotativo de 7 dias, senhas com Argon2id; testes de integração cobrindo 401 sem token e 403 ao acessar tarefa de outro usuário.",
+      "Listagem com filtros combináveis por status, prioridade e intervalo de vencimento, paginação com limite máximo de 100 itens e ordenação estável documentada no contrato.",
+      "Concorrência otimista com coluna version; teste dispara duas atualizações simultâneas e comprova que a segunda recebe 409 Conflict, sem lost update.",
+      "Suíte de testes com @QuarkusTest, Dev Services e Testcontainers PostgreSQL cobrindo repositório, serviços e API; cobertura mínima de 80% nas classes de serviço verificada pelo JaCoCo no build.",
+      "Observabilidade com SmallRye Health (/q/health/live e /q/health/ready), métricas Micrometer de latência e taxa de erro por endpoint e logs JSON correlacionados por requestId e traceId.",
+      "Dockerfile multi-stage com fast-jar, usuário não-root e docker compose subindo API e PostgreSQL com healthcheck; README com execução local, variáveis de ambiente e exemplos curl.",
+      "CI no GitHub Actions executando ./mvnw verify com Testcontainers, checagem de dependências vulneráveis e build da imagem; deploy documentado em Fly.io ou ECS com migração automática."
+    ],
+    "stretchGoals": [
+      "Busca full-text com tsvector e ranking por relevância, comparada a ILIKE em um benchmark documentado.",
+      "Sincronização offline-first com idempotency key e resolução de conflitos por versão.",
+      "Multi-tenancy com Row Level Security no PostgreSQL e testes de isolamento entre tenants.",
+      "Teste de carga com k6 provando p95 < 150 ms e taxa de erro < 0,5% a 200 req/s, com relatório no repositório."
+    ],
+    "trackSlug": "quarkus-backend"
+  },
+  {
+    "slug": "encurtador-url-redis-analytics",
+    "title": "Encurtador de URLs com Redis, Analytics e Rate Limit",
+    "description": "Implemente um encurtador com redirecionamento de baixa latência, cache Redis, analytics de cliques e rate limit distribuído. É o projeto ideal para entender cache-aside, estruturas probabilísticas e os detalhes de operação que separam um CRUD de um serviço que aguenta tráfego real.",
+    "level": "intermediario",
+    "estimatedHours": 25,
+    "stack": [
+      "Java 21",
+      "Quarkus 3",
+      "PostgreSQL",
+      "Redis",
+      "Testcontainers",
+      "k6",
+      "Docker"
+    ],
+    "requirements": [
+      "Endpoint POST /api/v1/links cria código Base62 de 7 caracteres ou alias customizado validado, com retry em colisão e resposta 201 contendo shortUrl e expiresAt.",
+      "Redirecionamento GET /{code} com cache-aside no Redis e fallback para PostgreSQL; teste de integração comprova 302 correto, cache hit e invalidação após remoção do link.",
+      "Analytics com HyperLogLog para visitantes únicos e sorted set para cliques diários; GET /api/v1/links/{code}/stats retorna séries de 7 e 30 dias em menos de 100 ms.",
+      "Rate limit distribuído por API key com token bucket em script Lua atômico no Redis; resposta 429 com Retry-After e teste com Testcontainers Redis comprovando o limite.",
+      "Expiração de links com TTL no Redis e coluna expires_at no PostgreSQL; links vencidos retornam 410 Gone e um job de limpeza remove registros com mais de 90 dias.",
+      "Segurança de destino: apenas http e https, bloqueio de IPs privados e do metadado 169.254.169.254, validação de alias e testes para javascript:, file: e open redirect.",
+      "Testes de integração com Testcontainers PostgreSQL e Redis, teste de contrato do redirect e script k6 com SLO de p95 < 50 ms no cache hit e taxa de erro < 0,5%.",
+      "Observabilidade com métricas de cache hit/miss, latência por rota, links criados e rate limit acionado; dashboard Grafana exportado em JSON no repositório.",
+      "Docker compose com API, PostgreSQL e Redis, README com decisões de cache, exemplos curl e execução local; CI no GitHub Actions rodando testes e build da imagem, com deploy documentado em container ou PaaS."
+    ],
+    "stretchGoals": [
+      "Domínios customizados com roteamento por Host e TLS automático via Caddy, com teste de dois domínios apontando para o mesmo serviço.",
+      "Geração de QR Code em PNG e SVG no endpoint /links/{code}/qr com cache de 24 horas.",
+      "Detecção de abuso com Bloom filter no Redis e bloqueio temporário de códigos com picos anômalos.",
+      "Dashboard em tempo real via SSE com cliques por minuto e ranking dos links mais acessados."
+    ],
+    "trackSlug": "mongodb-redis"
+  },
+  {
+    "slug": "livro-razao-pagamentos-outbox-kafka",
+    "title": "Livro-Razão de Pagamentos Idempotente com Outbox e Kafka",
+    "description": "Projete o núcleo financeiro de uma fintech: lançamentos de partidas dobradas, idempotência real, outbox transacional e publicação confiável no Kafka. O projeto exercita as garantias que impedem dinheiro duplicado ou perdido quando o processo cai no pior momento possível.",
+    "level": "avancado",
+    "estimatedHours": 40,
+    "stack": [
+      "Java 21",
+      "Quarkus 3",
+      "PostgreSQL",
+      "Apache Kafka",
+      "Transactional Outbox",
+      "Testcontainers",
+      "Docker"
+    ],
+    "requirements": [
+      "POST /api/v1/payments autenticado por API key mais HMAC exige Idempotency-Key com escopo por merchant; restrição única garante que 10 requisições concorrentes idênticas gerem um único lançamento e devolvam a mesma resposta.",
+      "Livro-razão de partidas dobradas em PostgreSQL: cada transação tem lançamentos que somam zero por moeda, validados por constraint diferida; lançamentos são imutáveis e correções usam estorno.",
+      "Transactional outbox gravado na mesma transação do lançamento; publicador envia ao Kafka com acks=all e idempotência, marca como enviado somente após o ack e nunca faz dual-write.",
+      "Consumidores idempotentes com tabela processed_events por event_id; teste entrega o mesmo evento duas vezes e verifica que saldo e efeitos colaterais não mudam.",
+      "Retry com backoff exponencial e jitter, limite de tentativas e DLQ por tópico; comando de replay documentado e testado com evento envenenado.",
+      "Valores monetários em unidades mínimas (long) ou BigDecimal com escala fixa, moeda ISO 4217 e rejeição de operações entre moedas sem cotação explícita.",
+      "Bloqueio por conta (SELECT FOR UPDATE ou advisory lock) e teste de concorrência com 100 débitos simultâneos comprovando que o saldo nunca fica negativo quando o limite é respeitado.",
+      "README com matriz de falhas do outbox (crash antes e depois do commit e da publicação), garantias de entrega e procedimento de reconciliação; diagrama Mermaid do fluxo.",
+      "Observabilidade com métricas de lag do outbox, eventos publicados e consumidos, tamanho da DLQ e tracing propagado por headers Kafka; alerta de lag > 30 s documentado.",
+      "CI com Testcontainers PostgreSQL e Kafka rodando mvn verify, imagem Docker não-root e compose com um comando; deploy documentado com migração e smoke test."
+    ],
+    "stretchGoals": [
+      "Substituir o poller por Debezium CDC e comparar latência e carga no banco com benchmark documentado.",
+      "Job diário de reconciliação comparando o livro-razão com o arquivo de settlement do PSP e relatório de divergências.",
+      "Suporte a câmbio com trava de cotação por 60 segundos e testes de arredondamento.",
+      "Teste de caos com Toxiproxy derrubando o broker durante a publicação e comprovando recuperação sem perda."
+    ],
+    "trackSlug": "sistemas-distribuidos"
+  },
+  {
+    "slug": "plataforma-eventos-kafka-streams",
+    "title": "Plataforma de Eventos com Kafka Streams, Schema Registry e DLQ",
+    "description": "Construa uma plataforma de ingestão de eventos com contratos versionados, processamento exactly-once e operação de falhas. Você vai lidar com evolução de schema, deduplicação, janelas de agregação e replay de DLQ, os problemas que aparecem quando eventos deixam de ser um exemplo de tutorial.",
+    "level": "avancado",
+    "estimatedHours": 40,
+    "stack": [
+      "Java 21",
+      "Quarkus 3",
+      "Apache Kafka",
+      "Kafka Streams",
+      "Schema Registry",
+      "Avro",
+      "Grafana",
+      "Docker"
+    ],
+    "requirements": [
+      "Contratos Avro ou Protobuf no Schema Registry com compatibilidade BACKWARD; pipeline de CI executa teste de compatibilidade e falha ao remover ou renomear campo obrigatório.",
+      "Endpoint POST /api/v1/events recebe envelope com eventId, type, version, occurredAt, traceId e payload, valida no schema e responde 202 com a localização do recurso.",
+      "Topologia Kafka Streams com deduplicação por eventId em state store, agregação em janela tumbling de 5 minutos por tipo e sink em tópico de métricas.",
+      "Configuração exactly_once_v2 e teste de restart no meio do processamento comprovando que os agregados não duplicam após rebalanceamento.",
+      "DLQ com headers de erro, stack trace, tópico, partição e offset originais e payload; CLI de replay com filtro por tipo e dry-run documentada e coberta por teste.",
+      "Tópicos criados por código ou container de init, com partições justificadas, retenção e compaction por tópico e script de verificação de configuração.",
+      "Testes de topologia com TopologyTestDriver e integração com Testcontainers Kafka mais Schema Registry, cobrindo evento inválido, duplicado e fora de ordem.",
+      "Observabilidade com consumer lag, taxa de processamento, tamanho da DLQ e SLO de 99% dos eventos processados em até 5 segundos; dashboard Grafana em JSON.",
+      "Segurança com SASL/SCRAM ou mTLS no compose, ACLs por serviço e nenhum segredo commitado; README explica como rotacionar credenciais.",
+      "README com diagrama Mermaid, catálogo de eventos, decisões de partição e execução local em um comando; CI com mvn verify e build de imagem."
+    ],
+    "stretchGoals": [
+      "Implementar o mesmo caso no ksqlDB e comparar linhas de código, latência e esforço operacional.",
+      "Join stream-stream enriquecendo eventos com dados de pedidos e teste da janela de tolerância.",
+      "Evolução de schema com upcasting de versões antigas e replay de evento migrado.",
+      "Replay de 10 milhões de eventos com relatório de throughput, lag e custo estimado."
+    ],
+    "trackSlug": "kafka-streaming"
+  },
+  {
+    "slug": "matching-geoespacial-tempo-real",
+    "title": "Matching Geoespacial em Tempo Real estilo Uber",
+    "description": "Implemente o coração de um app de mobilidade: ingestão de posições, busca geoespacial, cálculo de ETA, máquina de estados da corrida e comunicação em tempo real por WebSocket. O desafio é manter latência baixa e consistência quando milhares de motoristas se movem ao mesmo tempo.",
+    "level": "especialista",
+    "estimatedHours": 60,
+    "stack": [
+      "Java 21",
+      "Quarkus 3",
+      "PostGIS",
+      "Redis",
+      "Apache Kafka",
+      "WebSocket",
+      "Testcontainers",
+      "Docker"
+    ],
+    "requirements": [
+      "Ingestão de localização em lote a 1 Hz em POST /api/v1/drivers/{id}/locations, gravando no Redis GEO e persistindo histórico no PostGIS; teste de integração valida as duas escritas.",
+      "Busca de candidatos com GEOSEARCH no Redis e refinamento ST_DWithin no PostGIS por raio e tipo de veículo, retornando no máximo 10 motoristas ordenados por ETA.",
+      "ETA calculado por distância geodésica e velocidade média da via, com cache de 10 segundos; benchmark documenta p95 < 100 ms para 5 mil motoristas na região.",
+      "Máquina de estados da corrida (REQUESTED, MATCHED, ARRIVING, IN_PROGRESS, COMPLETED, CANCELLED) com transições permitidas, versionamento otimista e 409 para transição inválida.",
+      "Idempotência na solicitação de corrida por clientRequestId; requisições repetidas retornam a mesma corrida e não criam cobrança duplicada.",
+      "WebSocket com autenticação JWT no handshake, canais por corrida e por motorista, heartbeat de presença e reconexão com replay a partir do lastEventId.",
+      "Histórico de localização em tabela particionada por dia com retenção de 30 dias e job de drop de partições; EXPLAIN ANALYZE da consulta de auditoria versionado.",
+      "Segurança por papel (rider, driver, admin), localização aproximada do motorista antes do match, rate limit por usuário e testes de autorização cruzada.",
+      "Observabilidade com histograma de latência de match, corridas sem motorista, sessões WebSocket ativas e trace ponta a ponta HTTP, Kafka e WebSocket; SLO de 99% dos matches em 2 segundos.",
+      "Teste de carga com 1.000 motoristas e 200 solicitações por minuto usando Gatling ou k6, relatório com p95 e p99, compose com PostGIS, Redis e Kafka, README com decisões de arquitetura e deploy, e CI rodando testes de integração a cada pull request."
+    ],
+    "stretchGoals": [
+      "Indexação H3 e benchmark contra PostGIS para consultas de raio e células vizinhas.",
+      "Preço dinâmico por célula com oferta e demanda e simulação de elasticidade.",
+      "Operação ativa-ativa em duas regiões com resolução de conflito de corrida.",
+      "Modelo de ETA treinado com dados sintéticos comparado ao baseline geométrico."
+    ],
+    "trackSlug": "system-design-interview"
+  },
+  {
+    "slug": "feed-social-fanout-hibrido",
+    "title": "Feed Social com Fanout Híbrido e Paginação por Cursor",
+    "description": "Monte um feed que funciona com usuários comuns e celebridades: fanout push no Redis, merge pull no read path, cache com proteção contra stampede e paginação por cursor. É um exercício de trade-offs entre latência de leitura, custo de escrita e consistência.",
+    "level": "avancado",
+    "estimatedHours": 45,
+    "stack": [
+      "Java 21",
+      "Quarkus 3",
+      "PostgreSQL",
+      "Redis",
+      "Apache Kafka",
+      "k6",
+      "Grafana",
+      "Docker"
+    ],
+    "requirements": [
+      "Publicação de posts, follow e unfollow, com feed em GET /api/v1/feed?cursor=&limit= usando keyset pagination (created_at, id) sem OFFSET; teste insere posts durante a paginação e não repete nem pula itens.",
+      "Fanout híbrido: push para sorted set no Redis para autores com até 10 mil seguidores e pull com merge no read path para celebridades; limiar configurável e testes para os dois caminhos.",
+      "Invalidação de cache ao publicar, seguir ou deixar de seguir, com proteção contra stampede via lock e single-flight; métrica de hit ratio deve superar 90% no teste de carga.",
+      "Schema PostgreSQL com posts, follows e likes, índices compostos para feed e contagens; EXPLAIN ANALYZE antes e depois da otimização commitado no README.",
+      "Curtidas idempotentes com unique (post_id, user_id); contadores no Redis reconciliados por job periódico e métrica de drift entre cache e banco.",
+      "Privacidade: perfis privados exigem aprovação de follow, bloqueios removem conteúdo do feed e das buscas; testes de autorização e de vazamento entre usuários.",
+      "Rate limit de publicação e de follow por usuário com Redis, respostas 429 e testes de abuso; limites documentados.",
+      "Observabilidade com p95 de feed < 200 ms, duração do fanout, profundidade de fila, hit ratio e erros por dependência; dashboard Grafana e SLO com error budget.",
+      "Teste de carga k6 com 10 mil usuários, 500 req/s de leitura e pico de publicação; relatório identifica gargalos e compara antes e depois.",
+      "CI com Testcontainers PostgreSQL e Redis, compose de um comando, README com tabela de decisão push versus pull e deploy documentado em container ou PaaS."
+    ],
+    "stretchGoals": [
+      "Ranking de feed por afinidade e recência com score explicável e teste A/B simulado.",
+      "Fanout assíncrono com Kafka Streams e comparação de latência e custo com o job atual.",
+      "Réplicas de cache multi-região com invalidação por pub/sub e teste de consistência eventual.",
+      "Pipeline de moderação com fila de revisão e bloqueio automático por denúncias."
+    ],
+    "trackSlug": "sistemas-distribuidos"
+  },
+  {
+    "slug": "pipeline-observabilidade-opentelemetry",
+    "title": "Pipeline de Observabilidade com OpenTelemetry, Prometheus e Grafana",
+    "description": "Instrumente serviços reais e construa a stack de observabilidade que você usaria em produção: coletor OpenTelemetry, métricas, logs e traces correlacionados, SLOs e alertas de error budget. O entregável é uma plataforma que sobe do zero e explica qualquer incidente simulado.",
+    "level": "avancado",
+    "estimatedHours": 35,
+    "stack": [
+      "Java 21",
+      "Quarkus 3",
+      "OpenTelemetry",
+      "Prometheus",
+      "Grafana",
+      "Loki",
+      "Tempo",
+      "Docker"
+    ],
+    "requirements": [
+      "Duas aplicações Quarkus instrumentadas com OpenTelemetry (agente Java ou Quarkus OpenTelemetry) exportando traces, métricas e logs para um Collector, sem backend hardcoded no código.",
+      "Collector com receivers OTLP, processadores memory_limiter, batch e tail_sampling (10% do tráfego, 100% de erros e latência acima de 1 segundo) e exporters para Prometheus, Tempo e Loki; arquivos versionados.",
+      "Prometheus com scrape, recording rules e alertas de queima de error budget para SLO de 99,9%, latência e saturação; regras validadas por promtool no CI.",
+      "Dashboards Grafana provisionados como código com métricas RED e USE, exemplars ligando métrica a trace e painel de SLO; a stack sobe do zero e carrega os dashboards sem passos manuais.",
+      "Logs estruturados em JSON com trace_id e span_id, política de retenção e controle de cardinalidade; consultas Loki documentadas no runbook.",
+      "Gerador de tráfego com k6 ou Gatling e cenários normal, erro e lentidão que disparam os alertas previstos; documento lista alerta, sintoma e comando para reproduzir.",
+      "Runbook por alerta com impacto, consulta de diagnóstico, mitigação e rollback; a anotação de cada alerta aponta para o runbook correspondente.",
+      "Docker compose com healthchecks, limites de memória e portas documentadas; README com execução local, tempo de subida abaixo de 2 minutos comprovado e script de smoke test, além do deploy da stack documentado para um cluster Kubernetes gerenciado.",
+      "CI valida otelcol config, promtool e amtool, faz build das imagens e roda os testes dos serviços; README com diagrama Mermaid do fluxo de telemetria e custo estimado por volume."
+    ],
+    "stretchGoals": [
+      "Manifests Kubernetes ou Helm com kube-prometheus-stack e HPA por métrica customizada.",
+      "Profiling contínuo com Pyroscope correlacionado a traces lentos.",
+      "Gerar painéis de SLO automaticamente a partir de uma especificação YAML.",
+      "Demonstrar um alerta disparando e recuperando com capturas e timeline no README."
+    ],
+    "trackSlug": "cloud-devops"
+  },
+  {
+    "slug": "ecommerce-sagas-estoque-concorrente",
+    "title": "E-commerce com Sagas, Estoque Concorrente e Consistência",
+    "description": "Implemente o checkout de um e-commerce distribuído com saga, compensações, reserva de estoque e pagamento idempotente. O objetivo é provar, com testes de concorrência e falha injetada, que o sistema não vende o mesmo item duas vezes nem deixa pedidos órfãos.",
+    "level": "especialista",
+    "estimatedHours": 60,
+    "stack": [
+      "Java 21",
+      "Quarkus 3",
+      "PostgreSQL",
+      "Apache Kafka",
+      "Transactional Outbox",
+      "Sagas",
+      "Testcontainers",
+      "Docker"
+    ],
+    "requirements": [
+      "Saga de checkout orquestrada entre pedidos, pagamento, estoque e envio, com máquina de estados explícita e compensações; testes cobrem o caminho feliz e ao menos três falhas: pagamento recusado, estoque esgotado e timeout.",
+      "Reserva de estoque com lock pessimista ou versão otimista; teste com 200 tentativas concorrentes para 50 unidades resulta exatamente em 50 reservas e zero oversell.",
+      "TTL de reserva com job de liberação idempotente e métrica de reservas expiradas; teste comprova que o estoque volta a ficar disponível após o vencimento.",
+      "Autorização de pagamento idempotente com timeout; em timeout a saga consulta o status antes de compensar, comportamento coberto por teste com stub que atrasa a resposta.",
+      "Outbox mais Kafka em todos os eventos entre serviços, consumidores idempotentes por event_id, DLQ e runbook de replay testado com evento corrompido.",
+      "Job de reconciliação compara o estado dos pedidos com pagamentos e estoque, reporta divergências e é testado com falha injetada no meio da saga.",
+      "Segurança com OAuth2/JWT e escopos por serviço, chamadas serviço a serviço assinadas ou mTLS, rate limit no checkout e nenhum dado de cartão armazenado, com nota de escopo PCI.",
+      "Observabilidade com latência por passo da saga, contador de compensações, alerta de saga presa há mais de 5 minutos e trace único por pedido; SLO de 99,5% de checkout concluído.",
+      "Teste de carga de 100 pedidos por segundo com p95 < 500 ms no aceite do pedido, relatório de gargalos e transações por segundo no banco.",
+      "CI com Testcontainers PostgreSQL e Kafka, compose completo, README com diagrama de arquitetura, matriz de falhas e instruções de deploy e execução local."
+    ],
+    "stretchGoals": [
+      "Comparar a orquestração própria com Temporal ou Camunda em uma prova de conceito documentada.",
+      "Alocação multi-armazém otimizando frete e disponibilidade com testes de cenário.",
+      "Read model CQRS para acompanhamento de pedido com consistência eventual mensurada.",
+      "Caos com Toxiproxy e verificação automática de recuperação após derrubar pagamento ou broker.",
+      "Simulação de Black Friday com 10 vezes a carga e autoscaling em Kubernetes."
+    ],
+    "trackSlug": "sistemas-distribuidos"
+  },
+  {
+    "slug": "servico-busca-full-text-opensearch",
+    "title": "Serviço de Busca com Ingestão, OpenSearch e Ranking",
+    "description": "Construa um serviço de busca com PostgreSQL como fonte da verdade, sincronização para OpenSearch, analyzers em português e avaliação de ranking com NDCG. Você vai medir qualidade de busca, não apenas verificar se o endpoint responde.",
+    "level": "especialista",
+    "estimatedHours": 50,
+    "stack": [
+      "Java 21",
+      "Quarkus 3",
+      "PostgreSQL",
+      "OpenSearch",
+      "Debezium",
+      "Testcontainers",
+      "Docker"
+    ],
+    "requirements": [
+      "Ingestão em lote POST /api/v1/documents/bulk com upsert idempotente por external_id, lotes de 500, retry com backoff e resposta por item no formato bulk.",
+      "PostgreSQL como fonte da verdade com outbox ou Debezium sincronizando o OpenSearch; teste comprova que um documento criado no banco aparece no índice em até 2 segundos.",
+      "Mapping OpenSearch com analyzer português, sinônimos versionados, campos multifield para título e descrição e aliases blue/green para reindexação sem downtime.",
+      "Busca GET /api/v1/search com multi_match, function_score considerando recência, popularidade e boosts por campo, highlighting e facetas por categoria; contrato documentado no OpenAPI.",
+      "Harness de avaliação de ranking com 50 consultas rotuladas calculando NDCG@10 e MRR; CI falha se o NDCG cair mais de 5% em relação ao baseline commitado.",
+      "Tolerância a erros de digitação com fuzziness e sugestão did-you-mean; testes cobrem acentos, stemming português (correr e correndo) e consultas vazias.",
+      "Paginação com search_after, limite de result window e rejeição de paginação profunda; teste garante ordem estável com documentos atualizados durante a navegação.",
+      "Segurança com API key, sanitização de query DSL, filtro por tenant e teste que tenta acessar documento de outro tenant e recebe 404.",
+      "Observabilidade com latência de busca p95 < 150 ms a 500 req/s, taxa de zero resultados, lag de indexação e falhas de bulk; dashboard e SLO definidos.",
+      "CI com Testcontainers OpenSearch e PostgreSQL, compose de um comando, README com arquitetura de ingestão, runbook de reindexação e deploy documentado."
+    ],
+    "stretchGoals": [
+      "Busca híbrida BM25 mais kNN com embeddings e comparação de NDCG contra o baseline lexical.",
+      "Learning-to-rank com modelo leve treinado em cliques sintéticos e avaliação offline.",
+      "Sugestões de consulta a partir de logs com anonimização e filtro de PII.",
+      "Índices multilíngues com detecção de idioma e avaliação por locale."
+    ],
+    "trackSlug": "sql-postgres"
+  },
+  {
+    "slug": "visualizador-algoritmos-api-frontend",
+    "title": "Visualizador de Algoritmos com API Java e Frontend",
+    "description": "Crie uma API que transforma a execução de algoritmos em frames reproduzíveis e uma interface que permite avançar passo a passo. O projeto consolida estruturas de dados, design de contrato e frontend acessível, com um entregável que impressiona em entrevistas.",
+    "level": "intermediario",
+    "estimatedHours": 30,
+    "stack": [
+      "Java 21",
+      "Quarkus 3",
+      "React",
+      "TypeScript",
+      "JUnit 5",
+      "Docker",
+      "GitHub Actions"
+    ],
+    "requirements": [
+      "API Java 21 expõe POST /api/v1/visualizations para bubble sort, merge sort, quicksort, BFS, DFS, Dijkstra e BST, retornando frames com passo, linha do pseudocódigo, estruturas destacadas e métricas.",
+      "Contrato de frames documentado em JSON Schema e validado em teste; limite de 5 MB e 50 mil frames por requisição com resposta 413 e mensagem explicativa.",
+      "Algoritmos implementados do zero, sem Collections.sort nos demonstrativos, com testes JUnit 5 comparando contra implementação de referência em milhares de entradas aleatórias e casos de borda.",
+      "Metadados de complexidade de tempo e espaço por algoritmo expostos na API e na interface, com explicação curta do porquê.",
+      "Frontend React com TypeScript e controles de play, pause, passo, velocidade e reinício, renderização em SVG ou Canvas e layout responsivo; build de produção servido pela API ou por Nginx.",
+      "Acessibilidade: navegação por teclado, rótulos ARIA, contraste adequado e respeito a prefers-reduced-motion; checklist e testes com Testing Library.",
+      "Validação de entrada (tamanho, valores, algoritmo) e rate limit por IP; CORS restrito, CSP e headers de segurança configurados com testes.",
+      "Observabilidade com contadores por algoritmo, histograma de tamanho de frame e latência; SLO de p95 < 300 ms para arrays de 1.000 elementos.",
+      "README com GIF ou screenshots, exemplos curl, execução local via docker compose e deploy documentado; CI roda mvn test, npm test e build das duas partes."
+    ],
+    "stretchGoals": [
+      "Comparar dois algoritmos lado a lado com a mesma entrada e métricas de comparações e trocas.",
+      "Compartilhar visualização por link com estado codificado na URL e expiração.",
+      "Editor de entrada customizado com salvamento local e importação de JSON.",
+      "Modo de depuração que permite editar o array durante a execução e recalcular os passos."
+    ],
+    "trackSlug": "estruturas-dados"
+  },
+  {
+    "slug": "chat-tempo-real-entrega-garantida",
+    "title": "Chat em Tempo Real com Presença e Entrega Garantida",
+    "description": "Implemente um chat que não perde mensagens: sequência por conversa, ack do cliente, retomada após reconexão, presença distribuída e histórico paginado. O projeto força você a pensar em ordenação, idempotência e estado efêmero em múltiplas instâncias.",
+    "level": "especialista",
+    "estimatedHours": 50,
+    "stack": [
+      "Java 21",
+      "Quarkus 3",
+      "PostgreSQL",
+      "Redis",
+      "WebSocket",
+      "Testcontainers",
+      "Docker"
+    ],
+    "requirements": [
+      "WebSocket autenticado por JWT no handshake, assinatura por conversa e autorização por participante; teste de integração com dois usuários comprova que ninguém recebe mensagem de sala alheia.",
+      "Entrega com ack do cliente e sequência monotônica por conversa atribuída no servidor; reconexão com since=seq reenvia apenas o que falta, sem lacunas nem duplicatas, comprovado por teste automatizado.",
+      "Persistência em PostgreSQL particionada por mês com índice (conversation_id, seq), paginação antes e depois por cursor e teste de histórico com 100 mil mensagens.",
+      "Presença e digitação com heartbeat e TTL no Redis, fanout via pub/sub entre instâncias; teste comprova presença expirada após o TTL e evento entregue em outra instância.",
+      "Idempotência por clientMessageId único por remetente; retry do cliente não duplica a mensagem e o servidor devolve o seq original.",
+      "Fila de entrega offline simulada com retry e DLQ, métrica de mensagens não entregues e comando de inspeção e replay documentado.",
+      "Escala horizontal com duas instâncias da aplicação atrás de um load balancer sem sticky session; teste sobe dois containers e troca mensagens entre clientes conectados a instâncias diferentes.",
+      "Segurança: limite de tamanho, rate limit por conexão, sanitização de conteúdo no render, tokens nunca logados e testes para payload malicioso e conexão sem permissão.",
+      "Observabilidade com latência de entrega p95 < 100 ms na mesma região, sessões conectadas, timeouts de ack e profundidade da fila; dashboard e SLO com error budget.",
+      "Teste de carga com 5 mil conexões WebSocket e 1 mil mensagens por segundo usando Gatling ou k6 e relatório de recursos; CI com Testcontainers PostgreSQL e Redis, compose, README com a spec do protocolo e execução local e deploy multi-instância documentados."
+    ],
+    "stretchGoals": [
+      "Criptografia ponta a ponta com troca de chaves e verificação de que o servidor não lê o conteúdo.",
+      "Grupos com recibos de leitura, menções e contagem de não lidas consistente.",
+      "Anexos com URLs pré-assinadas no S3 ou MinIO, limite de tamanho e varredura antivírus.",
+      "Presença multi-região com replicação e resolução de partição de rede."
+    ],
+    "trackSlug": "java-avancado"
+  },
+  {
+    "slug": "streaming-video-cdn-transcodificacao",
+    "title": "Plataforma de Streaming de Vídeo com CDN Simulada",
+    "description": "Construa uma plataforma de vídeo sob demanda: upload multipart, transcodificação com FFmpeg para HLS, catálogo, player adaptativo e CDN simulada. O projeto integra pipeline assíncrono, autorização de mídia e métricas de qualidade de reprodução.",
+    "level": "especialista",
+    "estimatedHours": 60,
+    "stack": [
+      "Java 21",
+      "Quarkus 3",
+      "FFmpeg",
+      "MinIO",
+      "PostgreSQL",
+      "HLS",
+      "Nginx",
+      "Docker"
+    ],
+    "requirements": [
+      "Upload com URL pré-assinada no MinIO ou S3, multipart para arquivos acima de 100 MB, verificação de checksum e limite de tamanho; a API responde 202 com jobId e status consultável.",
+      "Worker de transcodificação com FFmpeg gera HLS em 360p, 720p e 1080p, playlist master e thumbnails; job idempotente com retry, backoff e DLQ.",
+      "Máquina de estados do vídeo (UPLOADED, TRANSCODING, READY, FAILED) com progresso via SSE; testes cobrem falha do FFmpeg, retry e vídeo corrompido.",
+      "Catálogo em PostgreSQL com metadados, busca por título e gênero e paginação; apenas vídeos READY aparecem na listagem e no player.",
+      "Playback com URLs assinadas de curta duração e token por sessão, servido por CDN simulada com Nginx ou Varnish e cache hit ratio acima de 90% no teste de carga.",
+      "Player web com hls.js, seleção de qualidade, retomada de posição, legendas WebVTT e controles acessíveis por teclado.",
+      "Ciclo de vida no storage: originais migrados para camada fria após 7 dias (simulado), limpeza de uploads multipart órfãos e política documentada.",
+      "Segurança: bucket sem acesso público, autorização por vídeo, rate limit de playback, URLs não reutilizáveis após expiração e testes de acesso indevido.",
+      "Observabilidade com duração de transcode, profundidade da fila, hit e miss de CDN, erros de player e SLO de início de reprodução < 2 s p95; dashboard Grafana.",
+      "CI com Testcontainers PostgreSQL e MinIO, compose com API, worker, banco, storage e CDN, README com arquitetura, custo estimado por 1.000 visualizações e deploy documentado."
+    ],
+    "stretchGoals": [
+      "Criptografia HLS com AES-128 ou DRM Widevine em ambiente de teste.",
+      "Transmissão ao vivo com LL-HLS e latência medida abaixo de 5 segundos.",
+      "Recomendações a partir do histórico de visualização com avaliação offline.",
+      "Failover multi-CDN simulado com injeção de latência e seleção por health check.",
+      "Benchmark de transcodificação com GPU versus CPU em custo por minuto."
+    ],
+    "trackSlug": "cloud-devops"
+  },
+  {
+    "slug": "pipeline-pedidos-reativo-mutiny",
+    "title": "Pipeline de Pedidos Reativo com Mutiny e Backpressure",
+    "description": "Construa um pipeline que recebe pedidos, enriquece com preço e estoque, publica eventos e persiste o resultado sem bloquear o event loop. O desafio é manter ordem, idempotência e latência previsível quando o consumidor fica mais lento que o produtor.",
+    "level": "avancado",
+    "estimatedHours": 35,
+    "stack": [
+      "Java 21",
+      "Quarkus 3",
+      "Mutiny",
+      "Kafka",
+      "PostgreSQL",
+      "Redis",
+      "Micrometer",
+      "Testcontainers",
+      "Docker"
+    ],
+    "requirements": [
+      "Endpoint POST /api/v1/pedidos recebe um lote, valida com Bean Validation e responde 202 com um id de correlação; o processamento segue em background sem bloquear o event loop.",
+      "Pipeline Mutiny com Uni para enriquecimento de preço e estoque, timeouts por dependência e fallback explícito; falha parcial vira status do pedido, não derruba o lote inteiro.",
+      "Consumo de Kafka com @Incoming e Multi, ack somente após o commit no PostgreSQL e chave de partição por pedido para preservar a ordem.",
+      "Backpressure com buffer limitado, política de descarte ou bloqueio justificada por tipo de evento e métrica de itens pendentes; teste de carga não pode crescer memória sem limite.",
+      "Idempotência por eventId e chave de negócio: reentrega duplicada não cria pedido nem lançamento novo; teste entrega o mesmo evento três vezes.",
+      "Resiliência com @Timeout, @Retry com backoff, @CircuitBreaker e @Bulkhead; erros 4xx não entram em retry e o fallback é observável.",
+      "Persistência com Hibernate Reactive/Panache reativo e transação delimitada corretamente; nenhuma chamada JDBC bloqueante dentro do event loop.",
+      "Testes com @QuarkusTest, UniAsserter, Awaitility e Testcontainers Kafka/PostgreSQL; suíte determinística com timeout, sem Thread.sleep.",
+      "Observabilidade com /q/health/ready, métricas de latência p95, fila, retries, circuitos abertos e lag do consumidor; dashboard Grafana e SLO documentados.",
+      "Docker compose com API, Kafka, PostgreSQL e Redis, README com diagrama do fluxo e análise de backpressure; CI roda ./mvnw verify e build da imagem."
+    ],
+    "stretchGoals": [
+      "Processamento em lote com buffer(n) e escrita em batch, comparando throughput e memória com o fluxo item a item.",
+      "Replay de DLQ idempotente com dry-run e relatório de eventos recuperados.",
+      "Teste de caos com Toxiproxy atrasando o consumidor e comprovando que o backpressure segura o produtor.",
+      "Versão com virtual threads para o enriquecimento bloqueante, comparada ao fluxo reativo em latência e complexidade."
+    ],
+    "trackSlug": "reatividade-async"
+  }
+]

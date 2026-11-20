@@ -1,0 +1,21 @@
+{
+  "track": "estruturas-dados",
+  "slug": "dsa-reverse-linked-list",
+  "title": "Reverter lista ligada simples in-place",
+  "difficulty": "facil",
+  "tags": [
+    "linked-list",
+    "ponteiros",
+    "iterativo"
+  ],
+  "estimatedMinutes": 35,
+  "statement": "## Contexto\n\nReverter uma lista ligada é o exercício canônico de manipulação de ponteiros. Faça iterativamente em O(n) e O(1) de espaço; depois compare com a versão recursiva.\n\n## Contrato\n\n```java\nstatic ListNode reverse(ListNode head);\n```\n\n`ListNode` tem `int val` e `ListNode next`. Devolva a nova cabeça. `head == null` deve devolver `null`.\n\n## Exemplos\n\n```text\n1 -> 2 -> 3 -> null   =>   3 -> 2 -> 1 -> null\n```\n\n## Restrições\n\n- Não copie os valores para um array.\n- Não use recursão na solução principal.\n- Não altere a assinatura do nó.",
+  "starterCode": "public class Solution {\n    static class ListNode {\n        int val;\n        ListNode next;\n        ListNode(int val) { this.val = val; }\n    }\n\n    static ListNode reverse(ListNode head) {\n        return head; // TODO\n    }\n}",
+  "solutionCode": "public class Solution {\n    static class ListNode {\n        int val;\n        ListNode next;\n        ListNode(int val) { this.val = val; }\n    }\n\n    static ListNode reverse(ListNode head) {\n        ListNode prev = null;\n        ListNode atual = head;\n        while (atual != null) {\n            ListNode proximo = atual.next;\n            atual.next = prev;\n            prev = atual;\n            atual = proximo;\n        }\n        return prev;\n    }\n}",
+  "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nclass SolutionTest {\n    private Solution.ListNode list(int... vals) {\n        Solution.ListNode head = null;\n        for (int i = vals.length - 1; i >= 0; i--) {\n            var n = new Solution.ListNode(vals[i]);\n            n.next = head;\n            head = n;\n        }\n        return head;\n    }\n\n    @Test void reverteTres() {\n        var r = Solution.reverse(list(1, 2, 3));\n        assertEquals(3, r.val);\n        assertEquals(2, r.next.val);\n        assertEquals(1, r.next.next.val);\n        assertNull(r.next.next.next);\n    }\n\n    @Test void listaVazia() {\n        assertNull(Solution.reverse(null));\n    }\n\n    @Test void umElemento() {\n        var r = Solution.reverse(list(7));\n        assertEquals(7, r.val);\n        assertNull(r.next);\n    }\n}",
+  "hints": [
+    "Guarde o próximo antes de inverter o ponteiro.",
+    "Use três referências: prev, atual e proximo.",
+    "Ao final, prev é a nova cabeça."
+  ]
+}

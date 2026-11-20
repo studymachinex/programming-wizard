@@ -1,0 +1,112 @@
+[
+  {
+    "slug": "cloud-docker-multistage",
+    "title": "Multi-stage builds — Docker Docs",
+    "platform": "Outro",
+    "url": "https://docs.docker.com/build/building/multi-stage/",
+    "difficulty": "facil",
+    "level": 1,
+    "topic": "Imagens",
+    "moduleSlug": "docker",
+    "description": "Converta um Dockerfile de uma API Quarkus em multi-stage com imagem final JRE slim, usuário non-root e healthcheck em /q/health/ready. Compare tamanho, tempo de build e superfície de ataque antes e depois. Rode um scan de vulnerabilidades e explique cada CVE relevante."
+  },
+  {
+    "slug": "cloud-k8s-probes",
+    "title": "Liveness, Readiness and Startup Probes — Kubernetes",
+    "platform": "Outro",
+    "url": "https://kubernetes.io/docs/concepts/configuration/liveness-readiness-startup-probes/",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "Kubernetes",
+    "moduleSlug": "kubernetes",
+    "description": "Configure os três probes em um Deployment Java com startup lento. Simule dependência indisponível e prove que readiness remove o pod do tráfego sem reiniciá-lo, enquanto liveness só reinicia em processo travado. Ajuste initialDelay, period e failureThreshold."
+  },
+  {
+    "slug": "cloud-k8s-configmap",
+    "title": "ConfigMaps — Kubernetes",
+    "platform": "Outro",
+    "url": "https://kubernetes.io/docs/concepts/configuration/configmap/",
+    "difficulty": "facil",
+    "level": 2,
+    "topic": "Configuração",
+    "moduleSlug": "kubernetes",
+    "description": "Externalize application.yml em ConfigMap e segredos em Secret. Monte como volume e como variáveis de ambiente e explique por que a segunda opção não atualiza o processo sem restart. Implemente um endpoint que prove qual configuração está ativa."
+  },
+  {
+    "slug": "cloud-gha-starter",
+    "title": "GitHub Actions — starter workflows",
+    "platform": "Outro",
+    "url": "https://github.com/actions/starter-workflows",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "CI/CD",
+    "moduleSlug": "cicd",
+    "description": "Crie um pipeline com matriz Java 21, cache de Maven/Gradle, testes, análise estática e build de imagem. Faça o deploy depender de todos os jobs e use concurrency para cancelar execuções antigas. Meça o tempo com e sem cache."
+  },
+  {
+    "slug": "cloud-terraform-aws",
+    "title": "Terraform — Get Started with AWS",
+    "platform": "Outro",
+    "url": "https://developer.hashicorp.com/terraform/tutorials/aws-get-started",
+    "difficulty": "dificil",
+    "level": 4,
+    "topic": "IaC",
+    "moduleSlug": "cicd",
+    "description": "Provisione VPC, subnets, security group e uma instância com Terraform. Separe state remoto, módulos e variáveis por ambiente. Depois faça uma mudança destrutiva, leia o plan e explique como o `terraform plan` teria evitado o incidente."
+  },
+  {
+    "slug": "cloud-aws-iam-best-practices",
+    "title": "IAM security best practices — AWS",
+    "platform": "Outro",
+    "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "IAM",
+    "moduleSlug": "cloud",
+    "description": "Audite um usuário/role com permissões amplas e reduza para least privilege usando Access Analyzer. Explique role vs user, trust policy vs permission policy e o risco de credenciais de longo prazo. Implemente credenciais temporárias no código Java."
+  },
+  {
+    "slug": "cloud-aws-vpc",
+    "title": "Amazon VPC — documentação oficial",
+    "platform": "Outro",
+    "url": "https://docs.aws.amazon.com/vpc/latest/userguide/what-is-amazon-vpc.html",
+    "difficulty": "dificil",
+    "level": 4,
+    "topic": "Rede",
+    "moduleSlug": "cloud",
+    "description": "Desenhe uma VPC com subnets públicas e privadas, NAT gateway, route tables e security groups. Explique por que o banco não fica na subnet pública e como uma aplicação em subnet privada alcança a internet sem receber conexões. Estime o custo mensal do desenho."
+  },
+  {
+    "slug": "cloud-aws-msk",
+    "title": "Amazon MSK — developer guide",
+    "platform": "Outro",
+    "url": "https://docs.aws.amazon.com/msk/latest/developerguide/what-is-msk.html",
+    "difficulty": "dificil",
+    "level": 4,
+    "topic": "Kafka gerenciado",
+    "moduleSlug": "cloud",
+    "description": "Compare MSK provisionado e Serverless para uma carga de 50 MB/s. Dimensione brokers, armazenamento e replication factor, e configure IAM auth em um produtor Java. Documente o que você ainda precisa operar mesmo sendo gerenciado."
+  },
+  {
+    "slug": "cloud-aws-sqs",
+    "title": "Amazon SQS — developer guide",
+    "platform": "Outro",
+    "url": "https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/welcome.html",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Filas",
+    "moduleSlug": "cloud",
+    "description": "Implemente produtor e consumidor SQS em Java com long polling, visibility timeout, DLQ e idempotência. Compare standard e FIFO com números de throughput e ordem. Simule mensagem envenenada e explique maxReceiveCount."
+  },
+  {
+    "slug": "cloud-otel-java",
+    "title": "OpenTelemetry — Java instrumentation",
+    "platform": "Outro",
+    "url": "https://opentelemetry.io/docs/languages/java/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Observabilidade",
+    "moduleSlug": "sre",
+    "description": "Instrumente um serviço Quarkus com OpenTelemetry, exporte traces para um collector local e conecte logs por trace_id. Crie um span manual para uma operação de negócio e explique a diferença entre auto-instrumentação e contexto propagado."
+  }
+]

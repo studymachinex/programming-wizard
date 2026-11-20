@@ -1,0 +1,17 @@
+# Normaliza os finais de linha no repositório e trata binários.
+* text=auto
+
+*.sh text eol=lf
+*.bash text eol=lf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.pdf binary
+*.ico binary
+*.woff binary
+*.woff2 binary

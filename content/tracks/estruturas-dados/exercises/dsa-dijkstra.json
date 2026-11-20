@@ -1,0 +1,21 @@
+{
+  "track": "estruturas-dados",
+  "slug": "dsa-dijkstra",
+  "title": "Dijkstra com fila de prioridade",
+  "difficulty": "dificil",
+  "tags": [
+    "grafos",
+    "dijkstra",
+    "priority-queue"
+  ],
+  "estimatedMinutes": 70,
+  "statement": "## Contexto\n\nCalcule a menor distância de uma origem a todos os nós de um grafo dirigido com pesos positivos. Implemente com lista de adjacência e `PriorityQueue`, descartando entradas obsoletas.\n\n## Contrato\n\n```java\nstatic int[] shortestPaths(int n, int[][] edges, int source);\n```\n\n- `edges[i] = {u, v, w}`, com `w > 0`.\n- Retorne `int[]` com distância mínima; use `Integer.MAX_VALUE` para inalcançável.\n- `source` inválido lança `IllegalArgumentException`.\n\n## Exemplos\n\n```text\nn=4, edges={{0,1,1},{1,2,2},{0,2,5},{2,3,1}}, source=0\n=> [0,1,3,4]\n```\n\n## Restrições\n\n- O((V+E) log V).\n- Não use Bellman-Ford.\n- Trate arestas duplicadas.",
+  "starterCode": "import java.util.*;\n\npublic class Solution {\n    record Aresta(int para, int peso) {}\n\n    static int[] shortestPaths(int n, int[][] edges, int source) {\n        return new int[n]; // TODO\n    }\n}",
+  "solutionCode": "import java.util.*;\n\npublic class Solution {\n    record Aresta(int para, int peso) {}\n\n    static int[] shortestPaths(int n, int[][] edges, int source) {\n        if (source < 0 || source >= n) throw new IllegalArgumentException(\"origem invalida\");\n        var adj = new ArrayList<List<Aresta>>(n);\n        for (int i = 0; i < n; i++) adj.add(new ArrayList<>());\n        for (var e : edges) adj.get(e[0]).add(new Aresta(e[1], e[2]));\n\n        int[] dist = new int[n];\n        Arrays.fill(dist, Integer.MAX_VALUE);\n        dist[source] = 0;\n\n        var fila = new PriorityQueue<int[]>(Comparator.comparingInt(a -> a[0]));\n        fila.add(new int[]{0, source});\n\n        while (!fila.isEmpty()) {\n            var atual = fila.poll();\n            int d = atual[0], u = atual[1];\n            if (d > dist[u]) continue;\n            for (var a : adj.get(u)) {\n                int nd = d + a.peso();\n                if (nd < dist[a.para()]) {\n                    dist[a.para()] = nd;\n                    fila.add(new int[]{nd, a.para()});\n                }\n            }\n        }\n        return dist;\n    }\n}",
+  "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nclass SolutionTest {\n    @Test void caminhosMinimos() {\n        int[] d = Solution.shortestPaths(4,\n            new int[][]{{0,1,1},{1,2,2},{0,2,5},{2,3,1}}, 0);\n        assertArrayEquals(new int[]{0,1,3,4}, d);\n    }\n\n    @Test void inalcancavel() {\n        int[] d = Solution.shortestPaths(3, new int[][]{{0,1,2}}, 0);\n        assertEquals(Integer.MAX_VALUE, d[2]);\n    }\n\n    @Test void escolheArestaMaisBarata() {\n        int[] d = Solution.shortestPaths(2,\n            new int[][]{{0,1,10},{0,1,3}}, 0);\n        assertEquals(3, d[1]);\n    }\n\n    @Test void origemInvalida() {\n        assertThrows(IllegalArgumentException.class,\n            () -> Solution.shortestPaths(2, new int[][]{}, 5));\n    }\n}",
+  "hints": [
+    "A fila guarda {distancia, no}; ignore se distancia > dist[no].",
+    "Relaxe todas as arestas de saída do nó retirado.",
+    "Inicialize com Integer.MAX_VALUE e cuidado com overflow ao somar."
+  ]
+}

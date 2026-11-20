@@ -1,0 +1,1414 @@
+{
+  "slug": "estruturas-dados",
+  "title": "Estruturas de Dados & Algoritmos",
+  "subtitle": "Do Big-O aos grafos: implemente, analise e reconheça padrões",
+  "description": "A trilha central para quem quer parar de decorar código e passar a escolher a estrutura certa com justificativa. Você implementa dynamic array, linked list, HashMap, heap, trie, ordenações e grafos do zero, mede custos reais com Java 21 e treina os padrões que aparecem em entrevistas e em sistemas de produção.",
+  "level": "intermediario",
+  "icon": "boxes",
+  "accent": "mana",
+  "estimatedHours": 56,
+  "isCore": true,
+  "outcomes": [
+    "Implementar do zero um HashMap com chaining, resize e tratamento de colisões em Java",
+    "Explicar com números quando um heap vence uma BST e quando o custo de manter ordem não compensa",
+    "Resolver two pointers, sliding window e prefix sums sem hesitar, reconhecendo o padrão pelo enunciado",
+    "Escolher a estrutura adequada para um requisito de produção justificando tempo, espaço e localidade de cache",
+    "Implementar e comparar merge sort, quick sort, counting sort e binary search nas variantes first/last/rotated",
+    "Modelar grafos com lista de adjacência e aplicar BFS, DFS, topological sort, Dijkstra e union-find"
+  ],
+  "modules": [
+    {
+      "slug": "complexidade",
+      "title": "Complexidade e o mapa da trilha",
+      "description": "Por que a escolha de estrutura decide entrevistas e incidentes, como ler Big-O/Theta/Omega em código Java real e como medir custo amortizado sem cair em benchmark ingênuo.",
+      "estimatedHours": 6,
+      "lessons": [
+        {
+          "slug": "por-que-dsa-decide",
+          "title": "Por que DSA decide entrevistas — e sistemas",
+          "summary": "O custo de escolher a estrutura errada, o que as entrevistas realmente avaliam e o mapa dos sete módulos da trilha.",
+          "minutes": 45,
+          "file": "lessons/por-que-dsa-decide.md",
+          "takeaways": [
+            "Identificar o gargalo de estrutura por trás de um loop lento",
+            "Diferenciar decorar soluções de reconhecer padrões",
+            "Saber o que cada módulo da trilha resolve"
+          ],
+          "quiz": [
+            {
+              "question": "Um endpoint faz `lista.contains(id)` para cada item de outra lista de mesmo tamanho. Qual é a complexidade dominante?",
+              "options": [
+                "O(n), porque há apenas um loop",
+                "O(n log n), porque contains usa busca binária",
+                "O(n²), porque cada contains percorre a lista inteira",
+                "O(1), porque ArrayList é indexado"
+              ],
+              "answer": 2,
+              "explanation": "O loop externo é O(n) e cada contains em ArrayList é O(n); o produto é O(n²). Trocar a lista por HashSet derruba para O(n) esperado."
+            },
+            {
+              "question": "Por que entrevistas insistem em implementar estruturas em vez de só usar Collections?",
+              "options": [
+                "Porque as Collections do Java são lentas",
+                "Porque implementar expõe se você entende custos, invariantes e casos de borda",
+                "Porque toda empresa proíbe bibliotecas padrão",
+                "Porque a implementação manual é sempre mais rápida"
+              ],
+              "answer": 1,
+              "explanation": "A implementação é um instrumento de avaliação: revela entendimento de invariantes, alocação, colisões e limites — não uma preferência por reinventar a roda."
+            },
+            {
+              "question": "Qual é a melhor primeira pergunta diante de um problema novo de DSA?",
+              "options": [
+                "Qual coleção do Java eu já sei usar?",
+                "Consigo ordenar e depois resolver?",
+                "Que operações o enunciado exige e com que frequência?",
+                "Qual é o menor código possível?"
+              ],
+              "answer": 2,
+              "explanation": "Operações e frequência definem a estrutura: busca, inserção, remoção, mínimo, ordenação. Ordenar é uma consequência possível, não o ponto de partida."
+            }
+          ]
+        },
+        {
+          "slug": "big-o-theta-omega",
+          "title": "Big-O, Theta e Omega com código Java de verdade",
+          "summary": "A diferença entre limite superior, inferior e justo, com análise de loops, métodos aninhados e o efeito de constantes que o Big-O esconde.",
+          "minutes": 50,
+          "file": "lessons/big-o-theta-omega.md",
+          "takeaways": [
+            "Classificar loops simples, aninhados e dependentes",
+            "Distinguir O, Θ e Ω sem confundir com pior/melhor caso",
+            "Explicar por que O(1) pode perder para O(log n) em n pequeno"
+          ],
+          "quiz": [
+            {
+              "question": "Dois loops consecutivos sobre o mesmo array de tamanho n custam:",
+              "options": [
+                "O(n²)",
+                "O(2n), que é Θ(n)",
+                "O(log n)",
+                "O(n/2)"
+              ],
+              "answer": 1,
+              "explanation": "Loops consecutivos somam: n + n = 2n. Constantes são descartadas na notação assintótica, então Θ(n)."
+            },
+            {
+              "question": "O que Big-O garante formalmente?",
+              "options": [
+                "O tempo exato de execução",
+                "Um limite superior assintótico, a menos de constantes",
+                "O pior caso de memória",
+                "A média de todas as entradas"
+              ],
+              "answer": 1,
+              "explanation": "O(f(n)) diz que o crescimento é limitado por f para n suficientemente grande, ignorando constantes. Não é tempo exato nem necessariamente pior caso."
+            },
+            {
+              "question": "Um loop percorre `n` elementos e, dentro, outro loop percorre `n - i`. O custo é:",
+              "options": [
+                "O(n)",
+                "O(n log n)",
+                "O(n²) no pior caso, Θ(n²)",
+                "O(2ⁿ)"
+              ],
+              "answer": 2,
+              "explanation": "A soma é n + (n-1) + ... + 1 = n(n+1)/2, que é Θ(n²). Metade da constante não muda a classe."
+            }
+          ]
+        },
+        {
+          "slug": "custo-amortizado-e-medicao",
+          "title": "Custo amortizado, custo escondido e como medir na prática",
+          "summary": "Por que `ArrayList.add` é O(1) amortizado, onde o custo realmente aparece e como medir sem ser enganado pelo JIT.",
+          "minutes": 55,
+          "file": "lessons/custo-amortizado-e-medicao.md",
+          "takeaways": [
+            "Provar o custo amortizado do crescimento por dobra",
+            "Reconhecer custos escondidos de boxing e localidade de cache",
+            "Medir com warmup, repetições e comparação justa"
+          ],
+          "quiz": [
+            {
+              "question": "Por que o crescimento por dobra garante O(1) amortizado no add?",
+              "options": [
+                "Porque cada add copia no máximo um elemento",
+                "Porque a soma das cópias é 1 + 2 + 4 + ... + n < 2n",
+                "Porque o garbage collector limpa as cópias",
+                "Porque o array nunca precisa crescer"
+              ],
+              "answer": 1,
+              "explanation": "As cópias somam uma série geométrica limitada por 2n; dividindo por n inserções, o custo médio é constante."
+            },
+            {
+              "question": "Qual medição é mais confiável para comparar duas implementações?",
+              "options": [
+                "Uma execução única com nanoTime",
+                "Comparar o tamanho do código-fonte",
+                "Várias execuções com warmup, entradas variadas e mediana",
+                "Contar linhas de código dentro dos loops"
+              ],
+              "answer": 2,
+              "explanation": "O JIT compila e otimiza durante a execução; uma única medida mede interpretação. Warmup, repetição e mediana reduzem ruído."
+            },
+            {
+              "question": "Por que somar `ArrayList<Integer>` pode ser bem mais lento que somar `int[]`?",
+              "options": [
+                "Porque Integer não pode ser somado",
+                "Porque cada elemento é um objeto separado, com indireção e boxing",
+                "Porque ArrayList não tem acesso indexado",
+                "Porque o array primitivo usa mais memória"
+              ],
+              "answer": 1,
+              "explanation": "Integer é objeto; a lista guarda referências para objetos espalhados no heap, custando desreferência e sacrificando localidade de cache."
+            }
+          ]
+        }
+      ],
+      "exercises": [
+        "exercises/dsa-dynamic-array.json"
+      ]
+    },
+    {
+      "slug": "arrays-e-listas",
+      "title": "Arrays e listas ligadas",
+      "description": "A base de tudo: array contíguo, dynamic array com crescimento amortizado, listas simples/duplas/circulares e os padrões two pointers e sliding window.",
+      "estimatedHours": 9,
+      "lessons": [
+        {
+          "slug": "arrays-e-dynamic-array",
+          "title": "Arrays estáticos e dynamic array do zero",
+          "summary": "Como o array contíguo funciona na memória e como implementar crescimento, remoção e redimensionamento sem bugs.",
+          "minutes": 55,
+          "file": "lessons/arrays-e-dynamic-array.md",
+          "takeaways": [
+            "Implementar add, get, set e remove com validação de índices",
+            "Explicar o custo real de inserir/remover no meio",
+            "Evitar o bug clássico de encolher cedo demais"
+          ],
+          "quiz": [
+            {
+              "question": "Inserir no início de um array com n elementos custa:",
+              "options": [
+                "O(1)",
+                "O(log n)",
+                "O(n), porque todos os elementos deslocam",
+                "O(n²)"
+              ],
+              "answer": 2,
+              "explanation": "É preciso abrir espaço deslocando n elementos uma posição para a direita. Acesso por índice é O(1), inserção no meio não."
+            },
+            {
+              "question": "Qual é a vantagem do array contíguo sobre a linked list?",
+              "options": [
+                "Inserção no início mais barata",
+                "Localidade de cache e acesso O(1) por índice",
+                "Não precisa de memória",
+                "Crescimento ilimitado sem cópia"
+              ],
+              "answer": 1,
+              "explanation": "Elementos contíguos cabem em menos linhas de cache e o endereço é calculado por índice, o que domina o desempenho real."
+            },
+            {
+              "question": "Ao remover o último elemento de um dynamic array, quando faz sentido encolher o buffer?",
+              "options": [
+                "Sempre, para liberar memória imediatamente",
+                "Quando o tamanho cai abaixo de 1/4 da capacidade, para evitar thrashing",
+                "Nunca, porque encolher é proibido",
+                "A cada remoção, para manter tamanho igual à capacidade"
+              ],
+              "answer": 1,
+              "explanation": "Encolher ao ficar abaixo de 1/4 evita alternância entre crescer e encolher quando o tamanho oscila perto da metade da capacidade."
+            }
+          ]
+        },
+        {
+          "slug": "linked-list-simples",
+          "title": "Linked list simples: ponteiros, sentinela e reverse",
+          "summary": "Como nós e referências funcionam, quando a lista ligada vence o array e como reverter uma lista sem perder o resto.",
+          "minutes": 50,
+          "file": "lessons/linked-list-simples.md",
+          "takeaways": [
+            "Implementar addFirst, addLast e reverse iterativo",
+            "Usar nó sentinela para eliminar casos especiais",
+            "Medir o custo de memória e de localidade"
+          ],
+          "quiz": [
+            {
+              "question": "No reverse iterativo, qual é a ordem correta de atualizações?",
+              "options": [
+                "prev = curr; curr = next; next = curr.next",
+                "next = curr.next; curr.next = prev; prev = curr; curr = next",
+                "curr.next = next; prev = curr; next = prev",
+                "curr = prev; prev = curr.next; next = curr"
+              ],
+              "answer": 1,
+              "explanation": "Salvar o próximo antes de sobrescrever o ponteiro é essencial. Depois, curr.next aponta para prev, prev avança para curr e curr avança para o next salvo."
+            },
+            {
+              "question": "Qual operação é O(1) em uma linked list simples sem tail?",
+              "options": [
+                "Inserir no fim",
+                "Acessar o k-ésimo elemento",
+                "Inserir no início",
+                "Buscar um valor"
+              ],
+              "answer": 2,
+              "explanation": "Inserir no início só cria um nó e ajusta head. Inserir no fim exige percorrer até o último; acesso e busca são O(n)."
+            },
+            {
+              "question": "Para que serve um nó sentinela (dummy) no início da lista?",
+              "options": [
+                "Aumentar a capacidade da lista",
+                "Eliminar NULL checks e casos especiais ao remover/inserir no início",
+                "Guardar o tamanho da lista",
+                "Ordenar automaticamente"
+              ],
+              "answer": 1,
+              "explanation": "Com dummy, todo nó real tem um antecessor, então a lógica de remoção e inserção fica uniforme."
+            }
+          ]
+        },
+        {
+          "slug": "doubly-e-circular",
+          "title": "Listas duplamente ligadas e circulares: quando valem",
+          "summary": "Ponteiros para frente e para trás, remoção O(1) com referência direta e os casos reais em que a lista circular simplifica o código.",
+          "minutes": 50,
+          "file": "lessons/doubly-e-circular.md",
+          "takeaways": [
+            "Implementar inserção e remoção O(1) com nó conhecido",
+            "Explicar o custo extra de dois ponteiros por nó",
+            "Reconhecer quando uma lista circular evita casos especiais"
+          ],
+          "quiz": [
+            {
+              "question": "Qual operação fica O(1) na lista dupla e não na simples, dado um nó?",
+              "options": [
+                "Buscar o valor",
+                "Remover o nó, porque existe o ponteiro prev",
+                "Percorrer até o fim",
+                "Inserir no início"
+              ],
+              "answer": 1,
+              "explanation": "Com prev, a remoção ajusta vizinhos sem procurar o antecessor. Na simples, remover um nó arbitrário exige O(n)."
+            },
+            {
+              "question": "Qual é o custo de memória extra de uma lista dupla em relação à simples?",
+              "options": [
+                "Nenhum",
+                "Um ponteiro adicional por nó, tipicamente 8 bytes comprimidos ou 16 sem compressão",
+                "O dobro de elementos",
+                "Um array auxiliar de tamanho n"
+              ],
+              "answer": 1,
+              "explanation": "Cada nó guarda prev e next; em JVM com compressed oops isso costuma custar 4 bytes extras por referência, mais alinhamento."
+            },
+            {
+              "question": "Em uma lista circular, qual é a condição de parada ao percorrer todos os nós?",
+              "options": [
+                "node == null",
+                "node.next == null",
+                "voltar a head",
+                "node.prev == null"
+              ],
+              "answer": 2,
+              "explanation": "Não existe null no ciclo; você para quando retorna ao nó inicial. Isso exige atenção em loops que podem não terminar."
+            }
+          ]
+        },
+        {
+          "slug": "two-pointers",
+          "title": "Two pointers: opostos, mesmo sentido e in-place",
+          "summary": "O padrão que transforma O(n²) em O(n) em arrays ordenados, remoção in-place e detecção de ciclos.",
+          "minutes": 50,
+          "file": "lessons/two-pointers.md",
+          "takeaways": [
+            "Escolher entre ponteiros opostos e mesma direção",
+            "Provar por que mover um ponteiro não perde a solução",
+            "Evitar duplicatas e off-by-one em 3Sum e remoções"
+          ],
+          "quiz": [
+            {
+              "question": "Em two sum com array ordenado, se a soma é menor que o alvo, qual ponteiro move?",
+              "options": [
+                "O da direita para a esquerda",
+                "O da esquerda para a direita",
+                "Os dois ao mesmo tempo",
+                "Nenhum"
+              ],
+              "answer": 1,
+              "explanation": "Aumentar o menor valor é a única forma de aumentar a soma sem descartar pares válidos. Mover o da direita diminuiria ainda mais."
+            },
+            {
+              "question": "Por que remover duplicatas in-place com dois ponteiros é O(n)?",
+              "options": [
+                "Porque usa ordenação",
+                "Porque cada elemento é lido uma vez e escrito no máximo uma vez",
+                "Porque o array encolhe",
+                "Porque o HashSet é O(1)"
+              ],
+              "answer": 1,
+              "explanation": "O ponteiro de leitura avança n vezes e o de escrita só acompanha; não há deslocamento em massa."
+            },
+            {
+              "question": "No 3Sum, qual cuidado evita resultados duplicados?",
+              "options": [
+                "Usar HashSet para tudo",
+                "Pular valores iguais ao anterior para i, left e right após encontrar um trio",
+                "Ordenar apenas no final",
+                "Usar três loops aninhados"
+              ],
+              "answer": 1,
+              "explanation": "Com o array ordenado, valores repetidos geram o mesmo trio; pular duplicatas em cada nível mantém a saída única."
+            }
+          ]
+        },
+        {
+          "slug": "sliding-window-e-prefix-sums",
+          "title": "Sliding window e prefix sums",
+          "summary": "Janelas fixas e variáveis, quando encolher, e como prefix sums respondem consultas de intervalo em O(1).",
+          "minutes": 55,
+          "file": "lessons/sliding-window-e-prefix-sums.md",
+          "takeaways": [
+            "Implementar janela variável com contagem de caracteres",
+            "Escolher entre janela e prefix sum pela pergunta",
+            "Usar HashMap para subarrays com soma k e lidar com negativos"
+          ],
+          "quiz": [
+            {
+              "question": "Quando a janela variável deve encolher?",
+              "options": [
+                "Sempre que o tamanho for par",
+                "Quando a condição de validade é violada e ainda há solução possível ao remover o left",
+                "Nunca, basta expandir",
+                "Somente no fim do array"
+              ],
+              "answer": 1,
+              "explanation": "A janela representa um intervalo válido; ao violar a restrição, você avança left até restaurar a validade, registrando o melhor tamanho."
+            },
+            {
+              "question": "Prefix sum permite responder soma de [l, r] em:",
+              "options": [
+                "O(1)",
+                "O(log n)",
+                "O(n)",
+                "O(n log n)"
+              ],
+              "answer": 0,
+              "explanation": "Com prefix[i] = soma dos i primeiros, a soma é prefix[r+1] - prefix[l]. Custo constante após O(n) de pré-processamento."
+            },
+            {
+              "question": "Para contar subarrays com soma k em array com negativos, o que funciona?",
+              "options": [
+                "Janela deslizante simples",
+                "Prefix sum + HashMap de frequências",
+                "Dois ponteiros opostos",
+                "Ordenar o array"
+              ],
+              "answer": 1,
+              "explanation": "Negativos quebram a monotonicidade da janela. O HashMap conta quantos prefixos anteriores valem prefixAtual - k."
+            }
+          ]
+        }
+      ],
+      "exercises": [
+        "exercises/dsa-reverse-linked-list.json"
+      ]
+    },
+    {
+      "slug": "pilhas-e-filas",
+      "title": "Pilhas, filas e monotonic stack",
+      "description": "LIFO e FIFO na prática: parsing, undo, BFS, deques e a técnica de monotonic stack que resolve next greater e histograma em O(n).",
+      "estimatedHours": 6,
+      "lessons": [
+        {
+          "slug": "stack-e-aplicacoes",
+          "title": "Stack: parênteses, undo e a call stack",
+          "summary": "A pilha como estrutura de reversão, validação de parênteses e base para undo — com implementação em array e uso de ArrayDeque.",
+          "minutes": 45,
+          "file": "lessons/stack-e-aplicacoes.md",
+          "takeaways": [
+            "Implementar push/pop/peek com array redimensionável",
+            "Validar parênteses e avaliar RPN",
+            "Saber por que Stack legado foi substituído por ArrayDeque"
+          ],
+          "quiz": [
+            {
+              "question": "Por que ArrayDeque é preferível a `java.util.Stack`?",
+              "options": [
+                "Porque Stack não funciona",
+                "Porque Stack sincroniza métodos e herda Vector, com custo desnecessário",
+                "Porque ArrayDeque aceita null",
+                "Porque Stack não tem push"
+              ],
+              "answer": 1,
+              "explanation": "Stack é uma classe legada que estende Vector e sincroniza operações. ArrayDeque é mais rápida e não permite null."
+            },
+            {
+              "question": "Ao validar parênteses, o que fazer ao encontrar um fechamento?",
+              "options": [
+                "Empilhar o fechamento",
+                "Verificar se a pilha está vazia ou se o topo não corresponde, e então desempilhar",
+                "Ignorar",
+                "Limpar a pilha"
+              ],
+              "answer": 1,
+              "explanation": "Cada fechamento precisa casar com o último aberto (topo). Pilha vazia ou topo diferente significa string inválida."
+            },
+            {
+              "question": "Qual operação NÃO é O(1) em uma pilha baseada em array dinâmico?",
+              "options": [
+                "push",
+                "pop",
+                "peek",
+                "buscar o menor elemento sem estrutura auxiliar"
+              ],
+              "answer": 3,
+              "explanation": "Pilha só garante acesso ao topo. Buscar um valor arbitrário é O(n); para mínimo O(1) é preciso uma pilha auxiliar de mínimos."
+            }
+          ]
+        },
+        {
+          "slug": "queue-deque-e-bfs",
+          "title": "Queue, deque e BFS sem mistério",
+          "summary": "FIFO com array circular, deque de duas pontas e o uso de BFS para distâncias mínimas em grafos não ponderados.",
+          "minutes": 50,
+          "file": "lessons/queue-deque-e-bfs.md",
+          "takeaways": [
+            "Implementar fila circular sem desperdiçar posições",
+            "Usar ArrayDeque como fila e deque",
+            "Aplicar BFS com marcação de visitado no enfileiramento"
+          ],
+          "quiz": [
+            {
+              "question": "Em uma fila circular com capacidade fixa, por que manter um slot vazio?",
+              "options": [
+                "Para guardar o tamanho",
+                "Para distinguir fila cheia de fila vazia quando head == tail",
+                "Para melhorar o cache",
+                "Porque o array precisa ser potência de dois"
+              ],
+              "answer": 1,
+              "explanation": "Sem contador, head == tail é ambíguo. Deixar um slot livre faz tail+1 == head significar cheia."
+            },
+            {
+              "question": "Em BFS, quando o nó deve ser marcado como visitado?",
+              "options": [
+                "Ao desenfileirar",
+                "Ao enfileirar, para evitar duplicatas na fila",
+                "Somente ao terminar",
+                "Nunca"
+              ],
+              "answer": 1,
+              "explanation": "Marcar no enfileiramento evita que o mesmo nó entre várias vezes e explode a memória; a distância registrada é a primeira, portanto mínima."
+            },
+            {
+              "question": "Qual estrutura BFS usa e por que ela garante caminho mínimo em grafo não ponderado?",
+              "options": [
+                "Pilha, porque explora fundo",
+                "Fila, porque explora em ordem crescente de distância",
+                "Heap, porque ordena pesos",
+                "HashSet, porque remove duplicatas"
+              ],
+              "answer": 1,
+              "explanation": "A fila processa todos os nós a distância d antes dos de d+1; por isso a primeira visita a um nó é o menor número de arestas."
+            }
+          ]
+        },
+        {
+          "slug": "monotonic-stack",
+          "title": "Monotonic stack: next greater e histograma",
+          "summary": "Como manter a pilha ordenada resolve next greater element, daily temperatures e maior retângulo de histograma em O(n).",
+          "minutes": 55,
+          "file": "lessons/monotonic-stack.md",
+          "takeaways": [
+            "Escolher entre pilha crescente e decrescente",
+            "Resolver next greater com índices e sentinela",
+            "Calcular maior retângulo com largura correta"
+          ],
+          "quiz": [
+            {
+              "question": "Para achar o próximo elemento maior à direita, a pilha deve manter:",
+              "options": [
+                "Valores crescentes do topo para a base",
+                "Valores decrescentes do topo para a base, descartando menores",
+                "Todos os elementos",
+                "Apenas o maior"
+              ],
+              "answer": 1,
+              "explanation": "Você remove da pilha quem já encontrou seu próximo maior; o que sobra fica em ordem decrescente, e o novo elemento resolve o topo."
+            },
+            {
+              "question": "No histograma, ao encontrar uma barra menor, a largura de uma barra desempilhada é:",
+              "options": [
+                "i - altura",
+                "i - índice da barra - 1, ou i se a pilha ficou vazia",
+                "sempre 1",
+                "n - i"
+              ],
+              "answer": 1,
+              "explanation": "A barra se estende até antes do índice atual e depois da barra anterior na pilha. Se a pilha esvazia, começa em 0, então a largura é i."
+            },
+            {
+              "question": "Por que monotonic stack é O(n) apesar do while interno?",
+              "options": [
+                "Porque o while nunca executa",
+                "Porque cada índice entra e sai da pilha no máximo uma vez",
+                "Porque a pilha tem tamanho fixo",
+                "Porque o array é ordenado"
+              ],
+              "answer": 1,
+              "explanation": "O número total de pushes é n e de pops é no máximo n; o trabalho amortizado por elemento é constante."
+            }
+          ]
+        }
+      ],
+      "exercises": [
+        "exercises/dsa-stack-min.json"
+      ]
+    },
+    {
+      "slug": "hash-maps-e-sets",
+      "title": "Hash maps, sets e caches",
+      "description": "Hashing, colisões, load factor e implementação de HashMap com chaining; depois frequency maps, set patterns e um LRU cache completo.",
+      "estimatedHours": 8,
+      "lessons": [
+        {
+          "slug": "hashing-colisoes-load-factor",
+          "title": "Hashing, colisões e load factor",
+          "summary": "Como uma chave vira índice, por que colisões são inevitáveis e o que o load factor realmente controla.",
+          "minutes": 50,
+          "file": "lessons/hashing-colisoes-load-factor.md",
+          "takeaways": [
+            "Explicar hashCode, equals e o contrato entre eles",
+            "Calcular colisões com capacidade e spread",
+            "Ajustar load factor sabendo o trade-off tempo/memória"
+          ],
+          "quiz": [
+            {
+              "question": "Se dois objetos são iguais por equals, o que deve valer para hashCode?",
+              "options": [
+                "Pode ser diferente",
+                "Deve ser igual",
+                "Deve ser único no universo",
+                "Deve ser o endereço de memória"
+              ],
+              "answer": 1,
+              "explanation": "O contrato exige hashCode igual para objetos iguais; caso contrário, o HashMap pode não encontrar a chave."
+            },
+            {
+              "question": "Load factor 0,75 significa:",
+              "options": [
+                "Que 75% das chaves colidem",
+                "Que o resize ocorre quando size > capacity * 0,75",
+                "Que só 75% dos buckets são usados",
+                "Que o hash é calculado 75% das vezes"
+              ],
+              "answer": 1,
+              "explanation": "É o gatilho de ocupação média. Menor load factor reduz colisões e acelera busca, ao custo de mais memória."
+            },
+            {
+              "question": "Uma função hash que retorna sempre 42 para todas as chaves produz:",
+              "options": [
+                "HashMap O(1) perfeito",
+                "Todas as chaves no mesmo bucket, degradando para O(n)",
+                "Erro de compilação",
+                "Resize automático infinito"
+              ],
+              "answer": 1,
+              "explanation": "O hash é válido, mas inútil para distribuição. Todas as operações caem na mesma cadeia e viram busca linear."
+            }
+          ]
+        },
+        {
+          "slug": "hashmap-com-chaining",
+          "title": "Implementando HashMap com chaining",
+          "summary": "Buckets, listas de colisão, resize e remoção: um HashMap funcional em Java, com as decisões que a JDK também toma.",
+          "minutes": 60,
+          "file": "lessons/hashmap-com-chaining.md",
+          "takeaways": [
+            "Implementar put/get/remove com chaining",
+            "Fazer resize preservando a distribuição",
+            "Entender treeificação e por que a JDK a adiciona"
+          ],
+          "quiz": [
+            {
+              "question": "No chaining, o que acontece quando duas chaves caem no mesmo bucket?",
+              "options": [
+                "A segunda sobrescreve a primeira",
+                "Elas são encadeadas e comparadas com equals na busca",
+                "O HashMap lança exceção",
+                "O bucket é descartado"
+              ],
+              "answer": 1,
+              "explanation": "Chaves diferentes no mesmo bucket coexistem na cadeia; equals decide qual é a chave procurada."
+            },
+            {
+              "question": "Por que o resize dobra a capacidade em vez de somar 1?",
+              "options": [
+                "Para gastar mais memória",
+                "Para garantir custo amortizado O(1) e permitir rehash eficiente",
+                "Porque a JVM exige potência de dois",
+                "Para evitar colisões completamente"
+              ],
+              "answer": 1,
+              "explanation": "Dobrar mantém a série geométrica de custos e, com capacidade potência de dois, parte dos buckets só se divide em dois."
+            },
+            {
+              "question": "Qual é o risco de usar um objeto mutável como chave?",
+              "options": [
+                "Nenhum, o HashMap copia a chave",
+                "Se o hashCode mudar após a inserção, a chave fica no bucket errado e some",
+                "O HashMap fica mais rápido",
+                "O equals deixa de existir"
+              ],
+              "answer": 1,
+              "explanation": "O bucket é escolhido no put. Mutar campos usados no hashCode quebra a localização da entrada."
+            }
+          ]
+        },
+        {
+          "slug": "frequency-maps-e-sets",
+          "title": "Frequency maps e set patterns",
+          "summary": "Contar ocorrências, detectar duplicatas, agrupar anagramas e resolver top-k com HashMap + heap sem cair em O(n²).",
+          "minutes": 50,
+          "file": "lessons/frequency-maps-e-sets.md",
+          "takeaways": [
+            "Usar merge/computeIfAbsent sem efeitos colaterais",
+            "Escolher entre array de contagem e HashMap",
+            "Agrupar anagramas com chave canônica"
+          ],
+          "quiz": [
+            {
+              "question": "Para contar frequências de letras ASCII minúsculas, a melhor estrutura é:",
+              "options": [
+                "HashMap<Character,Integer> sempre",
+                "int[26], por acesso O(1) e zero boxing",
+                "TreeMap",
+                "LinkedList"
+              ],
+              "answer": 1,
+              "explanation": "O alfabeto é pequeno e conhecido; um array de 26 posições evita hashing, objetos e é mais cache-friendly."
+            },
+            {
+              "question": "Qual é a complexidade de agrupar n strings de tamanho L por anagrama usando chave ordenada?",
+              "options": [
+                "O(nL)",
+                "O(n L log L)",
+                "O(n²)",
+                "O(L)"
+              ],
+              "answer": 1,
+              "explanation": "Cada string é ordenada em O(L log L) para gerar a chave; depois o HashMap faz o agrupamento esperado O(nL)."
+            },
+            {
+              "question": "Ao usar `map.getOrDefault(k, 0) + 1` em loop, qual cuidado importa?",
+              "options": [
+                "Nenhum",
+                "Fazer put de volta no mapa; getOrDefault não insere",
+                "Usar synchronized",
+                "Converter para long"
+              ],
+              "answer": 1,
+              "explanation": "getOrDefault só lê. Sem o put (ou merge/compute), a contagem nunca é atualizada."
+            }
+          ]
+        },
+        {
+          "slug": "lru-cache",
+          "title": "LRU cache: hash + lista duplamente ligada",
+          "summary": "A combinação clássica que entrega get e put O(1): HashMap para localizar, lista dupla para ordenar recência.",
+          "minutes": 60,
+          "file": "lessons/lru-cache.md",
+          "takeaways": [
+            "Combinar HashMap e lista dupla para O(1)",
+            "Mover nó para o topo e remover o menos usado",
+            "Evitar vazamento de referências e bugs de remoção"
+          ],
+          "quiz": [
+            {
+              "question": "Por que LRU precisa de HashMap e lista duplamente ligada?",
+              "options": [
+                "HashMap para ordem e lista para busca",
+                "HashMap para achar o nó em O(1) e lista para mover/remover em O(1)",
+                "As duas para contar frequência",
+                "Só a lista basta"
+              ],
+              "answer": 1,
+              "explanation": "O mapa dá acesso direto à chave; a lista mantém a ordem de recência com operações O(1) nos nós."
+            },
+            {
+              "question": "Em um get que encontra a chave, o que deve acontecer?",
+              "options": [
+                "Nada",
+                "O nó vira o mais recente",
+                "O nó é removido",
+                "O cache é limpo"
+              ],
+              "answer": 1,
+              "explanation": "LRU significa least recently used; um acesso conta como uso, então o nó vai para a frente."
+            },
+            {
+              "question": "Qual é o erro clássico ao remover o nó menos usado?",
+              "options": [
+                "Atualizar o map apenas, deixando a lista intacta",
+                "Remover da lista e esquecer de remover do HashMap, mantendo referência e vazando memória",
+                "Mover o nó para o topo",
+                "Usar get"
+              ],
+              "answer": 1,
+              "explanation": "As duas estruturas precisam ficar consistentes; remover só da lista deixa a chave apontando para um nó órfão."
+            }
+          ]
+        }
+      ],
+      "exercises": [
+        "exercises/dsa-hashmap-chaining.json",
+        "exercises/dsa-lru-cache.json"
+      ]
+    },
+    {
+      "slug": "arvores-e-heaps",
+      "title": "Árvores, heaps e tries",
+      "description": "BST e operações, traversals recursivos e iterativos, heaps com PriorityQueue, trie para prefixos e o papel real de AVL e red-black.",
+      "estimatedHours": 9,
+      "lessons": [
+        {
+          "slug": "bst-operacoes",
+          "title": "BST: busca, inserção e remoção",
+          "summary": "A invariante da árvore binária de busca, os três casos de remoção e por que ela pode degenerar em lista.",
+          "minutes": 55,
+          "file": "lessons/bst-operacoes.md",
+          "takeaways": [
+            "Implementar insert, search e delete recursivos",
+            "Tratar os três casos de remoção sem perder subárvores",
+            "Explicar o pior caso O(n) e a relação com ordenação"
+          ],
+          "quiz": [
+            {
+              "question": "Na remoção de um nó com dois filhos, qual estratégia preserva a invariante?",
+              "options": [
+                "Apagar a subárvore esquerda",
+                "Substituir pelo sucessor (mínimo da direita) ou antecessor (máximo da esquerda)",
+                "Transformar em folha",
+                "Reinserir todos os nós"
+              ],
+              "answer": 1,
+              "explanation": "O sucessor é o menor valor maior que o removido; colocá-lo no lugar mantém a ordem de todos os descendentes."
+            },
+            {
+              "question": "Inserir elementos já ordenados em uma BST simples produz:",
+              "options": [
+                "Árvore balanceada",
+                "Lista degenerada com altura n e busca O(n)",
+                "Heap",
+                "Árvore vazia"
+              ],
+              "answer": 1,
+              "explanation": "Cada novo valor é maior que todos, então vira filho direito do anterior. A altura cresce linearmente."
+            },
+            {
+              "question": "Para validar uma BST, passar apenas nos filhos imediatos é suficiente?",
+              "options": [
+                "Sim, a definição é local",
+                "Não; é preciso propagar limites min/max para toda a subárvore",
+                "Sim, se a árvore for cheia",
+                "Só se os valores forem positivos"
+              ],
+              "answer": 1,
+              "explanation": "Um nó profundo pode violar a ordem em relação a um ancestral distante. A validação precisa de intervalos abertos."
+            }
+          ]
+        },
+        {
+          "slug": "traversals-e-recursao",
+          "title": "Traversals DFS/BFS e recursão",
+          "summary": "Pré, in e pós-ordem, nível a nível com fila, versões iterativas com pilha e quando a recursão estoura a stack.",
+          "minutes": 50,
+          "file": "lessons/traversals-e-recursao.md",
+          "takeaways": [
+            "Escolher traversal pela pergunta do problema",
+            "Implementar inorder iterativo sem recursão",
+            "Reconhecer risco de StackOverflow em árvores degeneradas"
+          ],
+          "quiz": [
+            {
+              "question": "Qual traversal de BST produz valores em ordem crescente?",
+              "options": [
+                "Pré-ordem",
+                "Em ordem",
+                "Pós-ordem",
+                "Por nível"
+              ],
+              "answer": 1,
+              "explanation": "Em ordem visita esquerda, raiz e direita; na BST isso respeita a ordenação."
+            },
+            {
+              "question": "BFS em árvore normalmente usa:",
+              "options": [
+                "Pilha",
+                "Fila",
+                "Heap",
+                "HashMap"
+              ],
+              "answer": 1,
+              "explanation": "A fila garante que todos os nós de um nível sejam processados antes do próximo."
+            },
+            {
+              "question": "Qual é o risco de recursão em uma árvore degenerada de 1 milhão de nós?",
+              "options": [
+                "Nenhum, a JVM otimiza toda recursão de cauda",
+                "StackOverflowError, porque a profundidade é O(n)",
+                "Perda de precisão",
+                "O algoritmo fica O(1)"
+              ],
+              "answer": 1,
+              "explanation": "Java não elimina recursão de cauda de forma geral; cada frame consome stack. Em profundidade alta, prefira iteração."
+            }
+          ]
+        },
+        {
+          "slug": "heaps-e-priority-queue",
+          "title": "Heaps e PriorityQueue: k-largest e mediana",
+          "summary": "A invariante do heap, sift-up/sift-down, comparators e os dois heaps que mantêm a mediana de um stream.",
+          "minutes": 60,
+          "file": "lessons/heaps-e-priority-queue.md",
+          "takeaways": [
+            "Implementar min-heap com array e sift",
+            "Usar PriorityQueue com comparators seguros",
+            "Manter mediana com max-heap e min-heap balanceados"
+          ],
+          "quiz": [
+            {
+              "question": "Um heap binário garante qual ordenação?",
+              "options": [
+                "Array totalmente ordenado",
+                "Pai menor (ou maior) que os filhos, sem ordem entre irmãos",
+                "Apenas a raiz",
+                "Ordem de inserção"
+              ],
+              "answer": 1,
+              "explanation": "Heap é ordenação parcial: a raiz é o extremo, mas os irmãos não têm relação de ordem."
+            },
+            {
+              "question": "Para manter os k maiores elementos, qual heap é mais eficiente?",
+              "options": [
+                "Max-heap com todos os n",
+                "Min-heap de tamanho k, removendo o menor quando passa de k",
+                "Duas pilhas",
+                "HashMap"
+              ],
+              "answer": 1,
+              "explanation": "O min-heap de k guarda os k maiores; a raiz é o menor deles, candidato natural a sair. Custo O(n log k)."
+            },
+            {
+              "question": "Por que `(a, b) -> a - b` é um comparator perigoso?",
+              "options": [
+                "Porque não compila",
+                "Porque pode estourar Integer em valores extremos",
+                "Porque inverte a ordem",
+                "Porque é mais lento que compare"
+              ],
+              "answer": 1,
+              "explanation": "a - b pode ultrapassar o range de int. Use Integer.compare(a, b) ou Comparator.comparingInt."
+            }
+          ]
+        },
+        {
+          "slug": "trie",
+          "title": "Trie: prefixos, autocomplete e custo de memória",
+          "summary": "Como armazenar palavras por prefixo, implementar insert/search/startsWith e o trade-off de memória que derruba muitos usos.",
+          "minutes": 50,
+          "file": "lessons/trie.md",
+          "takeaways": [
+            "Implementar trie com array de 26 filhos",
+            "Coletar autocomplete com DFS e StringBuilder",
+            "Estimar memória e escolher entre array e HashMap de filhos"
+          ],
+          "quiz": [
+            {
+              "question": "Qual é a complexidade de buscar uma palavra de tamanho L em uma trie?",
+              "options": [
+                "O(1)",
+                "O(L)",
+                "O(n)",
+                "O(L²)"
+              ],
+              "answer": 1,
+              "explanation": "Você desce um nó por caractere, independentemente do número de palavras armazenadas."
+            },
+            {
+              "question": "Por que marcar o fim da palavra é necessário?",
+              "options": [
+                "Para economizar memória",
+                "Porque um prefixo de outra palavra também existe como caminho",
+                "Para ordenar",
+                "Para permitir maiúsculas"
+              ],
+              "answer": 1,
+              "explanation": "Sem a flag, `car` seria indistinguível de um prefixo de `carta`."
+            },
+            {
+              "question": "Qual é o principal custo da trie com array fixo de 26 filhos?",
+              "options": [
+                "Busca lenta",
+                "Memória: muitos arrays vazios/parcialmente usados",
+                "Não aceitar acentos",
+                "Não permitir prefixos"
+              ],
+              "answer": 1,
+              "explanation": "Cada nó aloca 26 referências mesmo usando uma; para alfabetos grandes ou esparsos, HashMap de filhos reduz memória."
+            }
+          ]
+        },
+        {
+          "slug": "balanceamento-avl-red-black",
+          "title": "AVL, red-black e quando balanceamento importa",
+          "summary": "Por que BST sem balanceamento degenera, como rotações mantêm altura logarítmica e quando usar TreeMap em vez de implementar.",
+          "minutes": 50,
+          "file": "lessons/balanceamento-avl-red-black.md",
+          "takeaways": [
+            "Explicar rotações e fator de balanceamento",
+            "Diferenciar AVL e red-black em altura e custo de update",
+            "Decidir quando TreeMap resolve e quando não é necessário"
+          ],
+          "quiz": [
+            {
+              "question": "Qual é a altura máxima de uma AVL com n nós?",
+              "options": [
+                "n",
+                "O(log n)",
+                "O(n log n)",
+                "O(1)"
+              ],
+              "answer": 1,
+              "explanation": "O balanceamento restringe a diferença de alturas a 1, mantendo a altura em ~1,44 log₂ n."
+            },
+            {
+              "question": "Comparado à AVL, uma red-black tende a:",
+              "options": [
+                "Ser mais balanceada e mais lenta para inserir",
+                "Ser menos rígida, com updates mais baratos e buscas ligeiramente mais profundas",
+                "Não permitir ordenação",
+                "Ser sempre O(1)"
+              ],
+              "answer": 1,
+              "explanation": "Red-black tolera desbalanceamento maior (altura até 2 log n), reduzindo rotações em escrita; AVL é mais rígida e favorece leitura."
+            },
+            {
+              "question": "Quando uma BST sem balanceamento é aceitável?",
+              "options": [
+                "Com dados adversariais",
+                "Com dados aleatórios e tamanho moderado, ou quando você controla a ordem de inserção",
+                "Sempre",
+                "Nunca"
+              ],
+              "answer": 1,
+              "explanation": "A altura esperada com inserções aleatórias é O(log n); o risco é dado ordenado ou adversarial."
+            }
+          ]
+        }
+      ],
+      "exercises": [
+        "exercises/dsa-trie-autocomplete.json",
+        "exercises/dsa-heap-k-largest.json"
+      ]
+    },
+    {
+      "slug": "ordenacao-e-busca",
+      "title": "Ordenação e busca",
+      "description": "Dos algoritmos quadráticos e sua estabilidade ao merge/quick sort, counting/radix e binary search com todas as variantes que entrevistas cobram.",
+      "estimatedHours": 8,
+      "lessons": [
+        {
+          "slug": "ordenacao-quadratica-e-estabilidade",
+          "title": "Bubble, insertion, selection e estabilidade",
+          "summary": "Por que insertion sort ainda vence em arrays quase ordenados, o que estabilidade garante e como medir comparações.",
+          "minutes": 45,
+          "file": "lessons/ordenacao-quadratica-e-estabilidade.md",
+          "takeaways": [
+            "Implementar os três algoritmos sem off-by-one",
+            "Explicar estabilidade com um exemplo concreto",
+            "Escolher insertion sort para dados quase ordenados"
+          ],
+          "quiz": [
+            {
+              "question": "Qual algoritmo é estável por padrão?",
+              "options": [
+                "Selection sort",
+                "Bubble sort com troca só quando estritamente maior",
+                "Quick sort com Hoare",
+                "Heap sort"
+              ],
+              "answer": 1,
+              "explanation": "Bubble e insertion preservam a ordem relativa de iguais. Selection troca elementos à distância e pode desestabilizar."
+            },
+            {
+              "question": "Por que insertion sort é O(n) no melhor caso?",
+              "options": [
+                "Porque não faz comparações",
+                "Porque cada elemento já está na posição e o while interno não executa",
+                "Porque usa recursão",
+                "Porque é estável"
+              ],
+              "answer": 1,
+              "explanation": "Com o array ordenado, cada novo elemento é comparado uma vez e não há deslocamentos."
+            },
+            {
+              "question": "O que estabilidade garante?",
+              "options": [
+                "Que o algoritmo nunca falha",
+                "Que elementos com a mesma chave mantêm a ordem relativa de entrada",
+                "Que o tempo é O(n)",
+                "Que não usa memória extra"
+              ],
+              "answer": 1,
+              "explanation": "Isso importa em ordenações compostas: ordenar por nome e depois por departamento mantém nomes ordenados dentro de cada departamento."
+            }
+          ]
+        },
+        {
+          "slug": "merge-sort-e-quick-sort",
+          "title": "Merge sort e quick sort do zero",
+          "summary": "Dividir para conquistar com merge estável e O(n log n) garantido, contra o quicksort in-place e seu pior caso.",
+          "minutes": 60,
+          "file": "lessons/merge-sort-e-quick-sort.md",
+          "takeaways": [
+            "Implementar merge sort com buffer auxiliar",
+            "Implementar quicksort com partição e pivô aleatório",
+            "Explicar por que Arrays.sort usa algoritmos diferentes"
+          ],
+          "quiz": [
+            {
+              "question": "Qual é o pior caso do quicksort com pivô fixo no primeiro elemento?",
+              "options": [
+                "O(n)",
+                "O(n log n)",
+                "O(n²), com array já ordenado",
+                "O(log n)"
+              ],
+              "answer": 2,
+              "explanation": "O pivô mínimo/máximo gera partições 0 e n-1, recursão de profundidade n e custo quadrático."
+            },
+            {
+              "question": "Por que merge sort é estável?",
+              "options": [
+                "Porque usa pivô",
+                "Porque no merge, empates são resolvidos pegando o elemento da metade esquerda",
+                "Porque ordena in-place",
+                "Porque usa heap"
+              ],
+              "answer": 1,
+              "explanation": "Ao comparar iguais, escolher sempre o da esquerda preserva a ordem original."
+            },
+            {
+              "question": "Qual é o custo de espaço do merge sort clássico?",
+              "options": [
+                "O(1)",
+                "O(log n)",
+                "O(n) para o buffer de merge",
+                "O(n²)"
+              ],
+              "answer": 2,
+              "explanation": "O merge precisa de um array auxiliar do tamanho da faixa. Existem variantes in-place, mas com mais complexidade e constantes."
+            }
+          ]
+        },
+        {
+          "slug": "counting-e-radix-sort",
+          "title": "Counting e radix: quando O(n) é possível",
+          "summary": "Ordenação sem comparações para inteiros com range limitado, a importância da estabilidade e por que isso não é mágica.",
+          "minutes": 50,
+          "file": "lessons/counting-e-radix-sort.md",
+          "takeaways": [
+            "Implementar counting sort com offset para negativos",
+            "Implementar radix LSD estável",
+            "Decidir quando O(n+k) compensa"
+          ],
+          "quiz": [
+            {
+              "question": "Counting sort é O(n + k). O que é k?",
+              "options": [
+                "O número de bits",
+                "O range de valores possíveis",
+                "O número de comparações",
+                "A altura da recursão"
+              ],
+              "answer": 1,
+              "explanation": "Você aloca um array de contagem do tamanho do range. Se k for enorme, memória e tempo explodem."
+            },
+            {
+              "question": "Por que radix sort precisa de um algoritmo estável em cada dígito?",
+              "options": [
+                "Para economizar memória",
+                "Porque a ordem dos dígitos anteriores deve ser preservada",
+                "Porque a JVM exige",
+                "Para lidar com negativos"
+              ],
+              "answer": 1,
+              "explanation": "LSD processa do menos significativo ao mais; sem estabilidade, a ordenação dos dígitos anteriores é destruída."
+            },
+            {
+              "question": "Quando counting sort é uma escolha ruim?",
+              "options": [
+                "Com notas de 0 a 100",
+                "Com idades de 0 a 120",
+                "Com inteiros de 32 bits espalhados por todo o range",
+                "Com booleanos"
+              ],
+              "answer": 2,
+              "explanation": "O range de 2³² inviabiliza o array de contagem; nesse caso, comparação O(n log n) é mais prática."
+            }
+          ]
+        },
+        {
+          "slug": "binary-search-e-variantes",
+          "title": "Binary search: first, last, rotacionado e answer space",
+          "summary": "O template que não erra, lower/upper bound, busca em array rotacionado e a técnica de buscar a resposta em vez do elemento.",
+          "minutes": 60,
+          "file": "lessons/binary-search-e-variantes.md",
+          "takeaways": [
+            "Escrever lowerBound e upperBound corretamente",
+            "Buscar em array rotacionado identificando o lado ordenado",
+            "Aplicar binary search sobre o espaço de respostas"
+          ],
+          "quiz": [
+            {
+              "question": "No template `lo <= hi` com `mid = lo + (hi-lo)/2`, o que fazer se nums[mid] < target?",
+              "options": [
+                "hi = mid",
+                "lo = mid + 1",
+                "hi = mid - 1",
+                "lo = mid"
+              ],
+              "answer": 1,
+              "explanation": "Se o meio é menor, o alvo só pode estar à direita; lo avança para mid+1. O template fecha os dois lados."
+            },
+            {
+              "question": "Por que `mid = (lo + hi) / 2` pode falhar?",
+              "options": [
+                "Porque é lento",
+                "Porque lo + hi pode estourar int para arrays muito grandes",
+                "Porque trunca",
+                "Porque não funciona com negativos"
+              ],
+              "answer": 1,
+              "explanation": "Em Java, int estoura em ~2,1 bilhões. Use lo + (hi - lo) / 2."
+            },
+            {
+              "question": "Binary search on answer é adequado quando:",
+              "options": [
+                "A função é arbitrária",
+                "Existe monotonicidade: se uma resposta é viável, todas as maiores (ou menores) também são",
+                "O array não está ordenado",
+                "Só há duas respostas possíveis"
+              ],
+              "answer": 1,
+              "explanation": "A busca binária exige predicado monotônico para descartar metade do espaço a cada passo."
+            }
+          ]
+        }
+      ],
+      "exercises": []
+    },
+    {
+      "slug": "grafos",
+      "title": "Grafos na prática",
+      "description": "Representações, BFS/DFS, ordenação topológica para dependências, Dijkstra para pesos não negativos e union-find para conectividade e MST.",
+      "estimatedHours": 10,
+      "lessons": [
+        {
+          "slug": "grafos-representacoes-bfs-dfs",
+          "title": "Grafos: representações, BFS e DFS",
+          "summary": "Lista versus matriz de adjacência, BFS para distância mínima e DFS para exploração, com custos e armadilhas de visitação.",
+          "minutes": 60,
+          "file": "lessons/grafos-representacoes-bfs-dfs.md",
+          "takeaways": [
+            "Escolher matriz ou lista de adjacência pelo grafo",
+            "Implementar BFS com distâncias e DFS com cores",
+            "Evitar contar o mesmo componente várias vezes"
+          ],
+          "quiz": [
+            {
+              "question": "Para um grafo esparso com 10⁵ vértices e 2×10⁵ arestas, qual representação é melhor?",
+              "options": [
+                "Matriz 10⁵ × 10⁵",
+                "Lista de adjacência",
+                "Mapa de bits completo",
+                "Array de arestas sem índice"
+              ],
+              "answer": 1,
+              "explanation": "A matriz usaria 10¹⁰ posições; a lista guarda apenas 2×10⁵ arestas (ou 4×10⁵ em não direcionado)."
+            },
+            {
+              "question": "Em BFS, qual estrutura garante a ordem por distância?",
+              "options": [
+                "Pilha",
+                "Fila",
+                "Heap",
+                "Set"
+              ],
+              "answer": 1,
+              "explanation": "FIFO processa os nós na ordem em que foram descobertos, o que corresponde a distâncias não decrescentes."
+            },
+            {
+              "question": "Por que DFS recursivo pode falhar em grafos grandes?",
+              "options": [
+                "Porque não visita todos os nós",
+                "Porque a profundidade pode chegar a V e estourar a stack",
+                "Porque precisa de heap",
+                "Porque não funciona com pesos"
+              ],
+              "answer": 1,
+              "explanation": "Em um caminho de 100 mil vértices, a recursão cria 100 mil frames; a versão iterativa usa uma pilha no heap."
+            }
+          ]
+        },
+        {
+          "slug": "topological-sort",
+          "title": "Topological sort: Kahn e DFS",
+          "summary": "Ordenar dependências de build, detecção de ciclos e a diferença entre gerar uma ordem válida e provar que ela existe.",
+          "minutes": 55,
+          "file": "lessons/topological-sort.md",
+          "takeaways": [
+            "Implementar Kahn com indegree e fila",
+            "Detectar ciclo quando o resultado tem menos que V nós",
+            "Implementar DFS com três cores"
+          ],
+          "quiz": [
+            {
+              "question": "Kahn termina com menos de V vértices na ordem. O que isso significa?",
+              "options": [
+                "Grafo desconexo, mas sem ciclo",
+                "Existe um ciclo, pois os nós do ciclo nunca chegam a indegree zero",
+                "O grafo é uma árvore",
+                "Falta memória"
+              ],
+              "answer": 1,
+              "explanation": "Se um conjunto nunca é liberado, há dependência circular entre eles. O tamanho menor que V é o teste de ciclo."
+            },
+            {
+              "question": "Por que topological sort só existe em DAG?",
+              "options": [
+                "Porque arestas com peso não podem ser ordenadas",
+                "Porque um ciclo cria dependência circular sem ordem válida",
+                "Porque a fila não aceita ciclos",
+                "Porque Java não permite"
+              ],
+              "answer": 1,
+              "explanation": "Se A depende de B e B depende de A, nenhum pode vir primeiro. A ordem topológica exige ausência de ciclos."
+            },
+            {
+              "question": "No DFS com cores, encontrar um vizinho cinza indica:",
+              "options": [
+                "Aresta para nó já finalizado",
+                "Ciclo, porque o vizinho ainda está na pilha de recursão",
+                "Componente desconexo",
+                "Ordem topológica pronta"
+              ],
+              "answer": 1,
+              "explanation": "Cinza significa em processamento; uma aresta de volta para um ancestral fecha o ciclo."
+            }
+          ]
+        },
+        {
+          "slug": "dijkstra-e-pesos",
+          "title": "Dijkstra e o custo dos pesos",
+          "summary": "Por que o algoritmo guloso funciona com pesos não negativos, como usar PriorityQueue e onde Bellman-Ford entra.",
+          "minutes": 60,
+          "file": "lessons/dijkstra-e-pesos.md",
+          "takeaways": [
+            "Implementar Dijkstra com lista de adjacência e heap",
+            "Explicar por que pesos negativos quebram o algoritmo",
+            "Reconstruir o caminho e evitar overflow no infinito"
+          ],
+          "quiz": [
+            {
+              "question": "Por que Dijkstra não funciona com arestas de peso negativo?",
+              "options": [
+                "Porque o heap não aceita negativos",
+                "Porque a distância finalizada pode ser melhorada depois por um caminho mais longo em arestas",
+                "Porque o grafo vira direcionado",
+                "Porque a fila fica vazia"
+              ],
+              "answer": 1,
+              "explanation": "A prova gulosa assume que qualquer caminho adicional só aumenta a distância. Com pesos negativos, um desvio posterior pode reduzir."
+            },
+            {
+              "question": "Qual é a complexidade de Dijkstra com heap binário?",
+              "options": [
+                "O(V²)",
+                "O((V+E) log V)",
+                "O(E)",
+                "O(V log E)"
+              ],
+              "answer": 1,
+              "explanation": "Cada aresta pode gerar uma atualização no heap e cada extração custa log V; logo O((V+E) log V)."
+            },
+            {
+              "question": "Por que ignorar entradas desatualizadas no heap é seguro?",
+              "options": [
+                "Porque o heap as remove sozinho",
+                "Porque se a distância registrada for menor que a do par, a entrada é obsoleta",
+                "Porque o destino nunca muda",
+                "Porque são duplicatas exatas"
+              ],
+              "answer": 1,
+              "explanation": "Dijkstra pode empurrar várias distâncias para o mesmo vértice; só a menor vale. Comparar com dist[u] descarta o resto."
+            }
+          ]
+        },
+        {
+          "slug": "union-find-e-mst",
+          "title": "Union-find, Kruskal e Prim",
+          "summary": "Conjuntos disjuntos com path compression, detecção de ciclos e as duas formas de construir uma árvore geradora mínima.",
+          "minutes": 55,
+          "file": "lessons/union-find-e-mst.md",
+          "takeaways": [
+            "Implementar DSU com path compression e union by size",
+            "Implementar Kruskal com ordenação de arestas",
+            "Diferenciar MST de caminho mínimo"
+          ],
+          "quiz": [
+            {
+              "question": "O que path compression faz no union-find?",
+              "options": [
+                "Ordena os elementos",
+                "Aponta nós do caminho diretamente para a raiz, reduzindo buscas futuras",
+                "Remove componentes",
+                "Guarda pesos"
+              ],
+              "answer": 1,
+              "explanation": "Ao encontrar a raiz, os nós visitados passam a apontar para ela; a altura efetiva cai e o custo amortizado fica quase constante."
+            },
+            {
+              "question": "Kruskal decide incluir uma aresta com base em:",
+              "options": [
+                "Ela ser a menor disponível e conectar componentes diferentes",
+                "Ela ser adjacente ao nó inicial",
+                "Ela ter peso negativo",
+                "Ela formar ciclo"
+              ],
+              "answer": 0,
+              "explanation": "Ordena arestas por peso e usa DSU para evitar ciclos. Se as pontas já estão no mesmo componente, descarta."
+            },
+            {
+              "question": "MST minimiza:",
+              "options": [
+                "A distância de um nó a todos os outros",
+                "A soma dos pesos das arestas que conectam todos os vértices",
+                "O número de arestas apenas",
+                "O maior peso isolado"
+              ],
+              "answer": 1,
+              "explanation": "MST é sobre conectividade total com custo mínimo, não sobre caminhos mínimos de uma origem."
+            }
+          ]
+        }
+      ],
+      "exercises": [
+        "exercises/dsa-dijkstra.json"
+      ]
+    }
+  ]
+}

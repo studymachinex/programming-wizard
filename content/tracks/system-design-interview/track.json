@@ -1,0 +1,1008 @@
+{
+  "slug": "system-design-interview",
+  "title": "System Design para FAANG",
+  "subtitle": "Do método de 45 minutos aos designs que Netflix, Uber e Google cobram",
+  "description": "Uma trilha de entrevista para quem já programa e quer passar no system design de big techs. Você aprende o método de 45 minutos, os building blocks que sustentam qualquer resposta e resolve os designs que mais aparecem — de URL shortener a Uber, Netflix e busca do Google. O foco é decidir com números, explicitar trade-offs e comunicar como sênior.",
+  "level": "especialista",
+  "icon": "compass",
+  "accent": "arcane",
+  "estimatedHours": 50,
+  "isCore": true,
+  "outcomes": [
+    "Conduzir um system design de 45 minutos com requisitos, capacity estimation, API, modelo de dados e trade-offs explícitos",
+    "Dimensionar QPS, storage, banda e latência para sistemas de 1 a 100 milhões de usuários e justificar cada número",
+    "Escolher entre SQL e NoSQL, cache, fila, sharding e consistência a partir de access patterns e orçamento de latência",
+    "Desenhar URL shortener, feed, chat, notificações, rate limiter e pagamentos idempotentes de ponta a ponta",
+    "Explicar as decisões arquiteturais por trás de Uber, Netflix e Google Search e o que elas custam",
+    "Responder perguntas comportamentais com STAR e negociar a oferta sem queimar o loop"
+  ],
+  "modules": [
+    {
+      "slug": "metodo",
+      "title": "O método de 45 minutos",
+      "description": "O framework que impede você de divagar: requisitos, escopo, capacity estimation, trade-offs e comunicação sob pressão.",
+      "estimatedHours": 8,
+      "lessons": [
+        {
+          "slug": "o-framework-de-45-minutos",
+          "title": "O framework de 45 minutos: as cinco fases da entrevista",
+          "summary": "Um roteiro com tempos, entregáveis e sinais avaliados em cada fase para nunca perder o controle da entrevista.",
+          "minutes": 35,
+          "file": "lessons/01-o-framework-de-45-minutos.md",
+          "takeaways": [
+            "O orçamento de tempo das cinco fases e o que entregar em cada uma",
+            "Como escolher dois ou três deep dives que o entrevistador realmente quer ver",
+            "A diferença entre desenhar componentes e demonstrar julgamento de engenharia"
+          ],
+          "quiz": [
+            {
+              "question": "Você tem 45 minutos. Depois de 12 minutos discutindo requisitos, qual é o risco mais concreto?",
+              "options": [
+                "Nenhum: requisitos são a parte mais importante e podem consumir 20 minutos",
+                "Sobra menos tempo para o desenho de alto nível, os deep dives e a discussão de falhas",
+                "O entrevistador é obrigado a encerrar a entrevista mais cedo",
+                "Você precisa pular a API e o modelo de dados para compensar"
+              ],
+              "answer": 1,
+              "explanation": "O tempo é um orçamento fechado. Requisitos rendem poucos sinais depois de 6 a 8 minutos; o que diferencia candidatos é a profundidade nos componentes e a discussão de escala e falha."
+            },
+            {
+              "question": "Qual é a melhor forma de começar o desenho de alto nível?",
+              "options": [
+                "Listando todas as tecnologias que você conhece, para mostrar repertório",
+                "Desenhando o fluxo ponta a ponta do cliente até o storage, com setas rotuladas",
+                "Começando pelo banco de dados, porque ele define todo o resto",
+                "Perguntando ao entrevistador qual arquitetura ele prefere"
+              ],
+              "answer": 1,
+              "explanation": "O fluxo ponta a ponta mostra que você entende o sistema como um todo. Tecnologias entram depois, cada uma amarrada a um requisito e a um número."
+            },
+            {
+              "question": "O entrevistador pergunta: 'e se esse cache cair?'. O que essa pergunta normalmente sinaliza?",
+              "options": [
+                "Que o desenho está errado e você deve recomeçar",
+                "Um convite para discutir degradação, carga no banco e proteção contra tempestade de requisições",
+                "Que ele quer trocar de assunto para comportamental",
+                "Que o cache é proibido na arquitetura dele"
+              ],
+              "answer": 1,
+              "explanation": "Perguntas de falha são deep dives disfarçados. Responder com plano de degradação, circuit breaker e capacidade do fallback é exatamente o sinal sênior que ele procura."
+            }
+          ]
+        },
+        {
+          "slug": "requisitos-e-scope",
+          "title": "Requisitos funcionais, não-funcionais e a arte de cortar escopo",
+          "summary": "Como transformar um enunciado vago em um contrato de escopo com prioridades, SLOs e exclusões explícitas.",
+          "minutes": 35,
+          "file": "lessons/02-requisitos-e-scope.md",
+          "takeaways": [
+            "Separar requisito funcional, não-funcional e restrição de negócio",
+            "Converter disponibilidade e latência em SLOs verificáveis e orçamento de erro",
+            "Declarar o que está fora de escopo sem parecer que está fugindo do problema"
+          ],
+          "quiz": [
+            {
+              "question": "Qual destes é um requisito não-funcional bem formulado?",
+              "options": [
+                "O usuário pode enviar uma mensagem para outro usuário",
+                "O sistema deve ter um banco de dados",
+                "p99 de envio de mensagem abaixo de 300 ms e 99,95% de disponibilidade mensal",
+                "O app deve ser bonito e fácil de usar"
+              ],
+              "answer": 2,
+              "explanation": "Requisito não-funcional precisa de métrica, alvo e janela. 'Rápido' e 'bonito' não são verificáveis; latência p99 e disponibilidade mensal são."
+            },
+            {
+              "question": "Por que declarar explicitamente o que está fora de escopo?",
+              "options": [
+                "Para reduzir o trabalho e entregar menos",
+                "Porque o entrevistador pune quem tenta cobrir tudo",
+                "Para delimitar o sistema, evitar suposições escondidas e mostrar priorização",
+                "Porque toda entrevista exige uma lista de exclusões"
+              ],
+              "answer": 2,
+              "explanation": "Escopo explícito é comunicação de engenharia: você mostra que entende o custo de cada requisito e que está priorizando o que gera valor."
+            },
+            {
+              "question": "99,9% de disponibilidade mensal permite aproximadamente quanto tempo de indisponibilidade?",
+              "options": [
+                "4,3 minutos",
+                "43 minutos",
+                "7,2 horas",
+                "30 segundos"
+              ],
+              "answer": 1,
+              "explanation": "Um mês de 30 dias tem 43.200 minutos. 0,1% disso são 43,2 minutos. 99,99% cai para 4,32 minutos; 99,9% é bem mais folgado do que parece."
+            }
+          ]
+        },
+        {
+          "slug": "capacity-estimation",
+          "title": "Capacity estimation: números que sustentam a arquitetura",
+          "summary": "Um método reprodutível para estimar QPS, storage, banda, cache e servidores sem calculadora e sem travar.",
+          "minutes": 40,
+          "file": "lessons/03-capacity-estimation.md",
+          "takeaways": [
+            "Converter DAU em QPS médio e de pico com fatores justificados",
+            "Estimar storage bruto, com replicação e índice, e banda de saída",
+            "Usar a Lei de Little para dimensionar concorrência e filas"
+          ],
+          "quiz": [
+            {
+              "question": "100 milhões de DAU fazem 20 requisições por dia. Qual é o QPS médio aproximado?",
+              "options": [
+                "2.300 QPS",
+                "23.000 QPS",
+                "230.000 QPS",
+                "2.300.000 QPS"
+              ],
+              "answer": 1,
+              "explanation": "100M × 20 = 2B requisições/dia. Dividindo por 86.400 s, dá cerca de 23.148 QPS. Na prática, arredonde 86.400 para 100.000 e obtenha 20.000 QPS para estimar rápido."
+            },
+            {
+              "question": "Por que multiplicar o storage estimado por um fator de 2 a 3?",
+              "options": [
+                "Porque todo banco ocupa o dobro em disco por padrão",
+                "Para cobrir réplicas, índices, overhead de formato e espaço de crescimento",
+                "Porque o entrevistador espera um número maior",
+                "Para compensar requisições que ainda não existem"
+              ],
+              "answer": 1,
+              "explanation": "O payload cru não é o custo real: réplicas, índices secundários, write-ahead log, fragmentação e crescimento mudam a conta. Declarar o fator e o motivo vale mais que o número exato."
+            },
+            {
+              "question": "Um serviço recebe 5.000 QPS e cada requisição fica 200 ms em média. Pela Lei de Little, quantas requisições estão em andamento em média?",
+              "options": [
+                "100",
+                "500",
+                "1.000",
+                "25.000"
+              ],
+              "answer": 2,
+              "explanation": "L = λ × W = 5.000 × 0,2 s = 1.000 requisições concorrentes. Esse número dimensiona threads, conexões e pods — não o QPS sozinho."
+            }
+          ]
+        },
+        {
+          "slug": "tradeoffs-e-quando-travar",
+          "title": "Trade-offs, comunicação e o que fazer quando você trava",
+          "summary": "Como narrar decisões, comparar opções com critérios e sair de um bloqueio sem entregar o comando da entrevista.",
+          "minutes": 35,
+          "file": "lessons/04-tradeoffs-e-quando-travar.md",
+          "takeaways": [
+            "Estruturar uma decisão em contexto, opções, critério e consequência",
+            "Usar uma matriz de trade-offs para defender uma escolha sem parecer indeciso",
+            "Aplicar uma escada de recuperação quando não souber a resposta"
+          ],
+          "quiz": [
+            {
+              "question": "Qual frase demonstra melhor julgamento de engenharia?",
+              "options": [
+                "Vou usar NoSQL porque é mais escalável",
+                "Depende de muitos fatores, então não dá para decidir agora",
+                "Vou usar Postgres com réplica de leitura porque o acesso é por chave e o volume cabe em um nó; abro mão de escrita multi-região para manter consistência simples",
+                "Vou usar os dois bancos e sincronizar depois"
+              ],
+              "answer": 2,
+              "explanation": "A frase escolhe, justifica com access pattern e volume e declara o custo. 'Depende' sem decisão e 'os dois' sem necessidade são sinais fracos."
+            },
+            {
+              "question": "Você não lembra como funciona o consenso Raft. Qual é a melhor reação?",
+              "options": [
+                "Inventar detalhes para não parecer inseguro",
+                "Mudar de assunto imediatamente",
+                "Admitir a lacuna, explicar o problema que precisa resolver e propor uma alternativa que você domina",
+                "Dizer que Raft não é usado em produção"
+              ],
+              "answer": 2,
+              "explanation": "Entrevistadores avaliam como você lida com limites. Reconhecer, isolar o problema e propor uma solução equivalente mostra maturidade técnica."
+            },
+            {
+              "question": "Quando um trade-off deve ser registrado no desenho?",
+              "options": [
+                "Só no final, se sobrar tempo",
+                "No momento da decisão, com a alternativa descartada e a condição que faria você mudar",
+                "Nunca: o diagrama já explica tudo",
+                "Apenas se o entrevistador perguntar"
+              ],
+              "answer": 1,
+              "explanation": "Decisão sem alternativa e sem gatilho de revisão é preferência, não engenharia. Registrar na hora também evita esquecer no fechamento."
+            }
+          ]
+        }
+      ],
+      "exercises": []
+    },
+    {
+      "slug": "building-blocks",
+      "title": "Building blocks que resolvem 80% dos designs",
+      "description": "Load balancer, CDN, cache, bancos, filas, rate limiting e consistent hashing com números e critérios de escolha.",
+      "estimatedHours": 14,
+      "lessons": [
+        {
+          "slug": "load-balancer-cdn-dns",
+          "title": "Load balancer, CDN e DNS: a borda que absorve o mundo",
+          "summary": "O caminho de uma requisição da resolução DNS até o servidor, com algoritmos de balanceamento e cache de borda.",
+          "minutes": 40,
+          "file": "lessons/05-load-balancer-cdn-dns.md",
+          "takeaways": [
+            "Diferenciar balanceamento L4 e L7 e escolher algoritmo por carga",
+            "Projetar CDN com cache key, TTL, invalidação e origin shield",
+            "Evitar usar DNS como mecanismo rápido de failover"
+          ],
+          "quiz": [
+            {
+              "question": "Qual é a principal diferença entre um load balancer L4 e um L7?",
+              "options": [
+                "L4 é sempre mais lento porque não olha o conteúdo",
+                "L4 decide por IP e porta; L7 entende HTTP e pode rotear por path, header ou cookie",
+                "L7 só funciona com HTTPS e L4 só com TCP",
+                "Não há diferença prática; os dois usam round robin"
+              ],
+              "answer": 1,
+              "explanation": "L4 opera em transporte, sem inspecionar HTTP. L7 termina a conexão e permite roteamento por conteúdo, mas custa mais CPU e memória por conexão."
+            },
+            {
+              "question": "Por que TTL de DNS não é um bom mecanismo de failover rápido?",
+              "options": [
+                "Porque DNS não suporta múltiplos IPs",
+                "Porque resolvers e clientes cacheiam a resposta pelo TTL, então a mudança pode levar minutos ou horas para propagar",
+                "Porque DNS só funciona com UDP",
+                "Porque o TTL máximo é de 5 segundos"
+              ],
+              "answer": 1,
+              "explanation": "O TTL é um contrato de cache. Baixá-lo aumenta o volume de consultas e ainda assim não garante propagação imediata; failover de segundos pertence ao load balancer."
+            },
+            {
+              "question": "Um CDN com 95% de hit ratio recebe 200.000 requisições/s. Quantas chegam à origem?",
+              "options": [
+                "5.000/s",
+                "10.000/s",
+                "20.000/s",
+                "100.000/s"
+              ],
+              "answer": 1,
+              "explanation": "5% de 200.000 é 10.000 requisições/s. Esse é o número que dimensiona a origem — e mostra por que hit ratio é uma métrica de arquitetura, não só de CDN."
+            }
+          ]
+        },
+        {
+          "slug": "caching-em-todas-as-camadas",
+          "title": "Caching em todas as camadas: do browser ao buffer pool",
+          "summary": "Padrões de cache, invalidação, hit ratio e as três falhas clássicas: stampede, penetração e avalanche.",
+          "minutes": 40,
+          "file": "lessons/06-caching-em-todas-as-camadas.md",
+          "takeaways": [
+            "Escolher entre cache-aside, write-through, write-behind e refresh-ahead",
+            "Dimensionar cache por working set e hit ratio, não por catálogo total",
+            "Prevenir stampede, penetração e avalanche com TTL jitter, single-flight e negative cache"
+          ],
+          "quiz": [
+            {
+              "question": "Qual padrão de cache mantém o banco como fonte da verdade e popula o cache sob demanda?",
+              "options": [
+                "Write-behind",
+                "Cache-aside",
+                "Write-through",
+                "Read-repair"
+              ],
+              "answer": 1,
+              "explanation": "No cache-aside a aplicação lê o cache, em caso de miss busca o banco e grava o resultado. É simples e resiliente, mas exige cuidado com invalidação e concorrência no miss."
+            },
+            {
+              "question": "O que é cache stampede?",
+              "options": [
+                "Quando o cache fica cheio e começa a rejeitar escritas",
+                "Quando muitas requisições simultâneas perdem a mesma chave e todas vão ao banco ao mesmo tempo",
+                "Quando o CDN serve conteúdo expirado",
+                "Quando o Redis é reiniciado e perde os dados"
+              ],
+              "answer": 1,
+              "explanation": "A expiração de uma chave quente faz milhares de requisições concorrentes irem à origem. Single-flight, lock por chave e TTL jitter são as defesas usuais."
+            },
+            {
+              "question": "Você tem 500 GB de dados, mas 80% dos acessos se concentram em 20 GB. Qual é o tamanho mínimo razoável do cache para capturar a maior parte do ganho?",
+              "options": [
+                "500 GB, para garantir 100% de hit",
+                "Cerca de 20 a 40 GB, cobrindo o working set quente com folga",
+                "5 GB, porque o cache só precisa de 1%",
+                "1 TB, porque cache nunca é demais"
+              ],
+              "answer": 1,
+              "explanation": "Cache se dimensiona pelo working set, não pelo catálogo. Cobrir os 20 GB quentes com folga para variação sazonal captura a maior parte dos hits por uma fração do custo."
+            }
+          ]
+        },
+        {
+          "slug": "escala-de-banco",
+          "title": "Escala de banco: replicação, sharding e a escolha SQL vs NoSQL",
+          "summary": "Como ler réplicas sem quebrar consistência, particionar dados sem criar hotspots e decidir o banco pelo access pattern.",
+          "minutes": 45,
+          "file": "lessons/07-escala-de-banco.md",
+          "takeaways": [
+            "Explicar replicação síncrona e assíncrona e o impacto no lag de leitura",
+            "Escolher chave de shard que distribua carga e preserve consultas frequentes",
+            "Comparar SQL, NoSQL e NewSQL com critérios de consistência, padrão de acesso e operação"
+          ],
+          "quiz": [
+            {
+              "question": "Um usuário atualiza o perfil e recarrega a página, mas vê o dado antigo. Qual é a causa mais provável?",
+              "options": [
+                "O cache do browser está sempre errado",
+                "A leitura foi para uma réplica com replication lag após a escrita no primário",
+                "O load balancer está sem health check",
+                "O banco está com o buffer pool desabilitado"
+              ],
+              "answer": 1,
+              "explanation": "É o clássico read-your-own-writes quebrado por replicação assíncrona. A correção é rotear a leitura do próprio usuário para o primário por uma janela ou usar session stickiness com token de versão."
+            },
+            {
+              "question": "Qual chave de shard tende a distribuir melhor a carga de um chat?",
+              "options": [
+                "País do usuário",
+                "Hash de conversation_id",
+                "Timestamp da mensagem",
+                "Status online do usuário"
+              ],
+              "answer": 1,
+              "explanation": "Conversation_id concentra as mensagens de uma conversa no mesmo shard e distribui conversas pelo hash. País cria shards desbalanceados; timestamp cria um shard quente para todas as escritas recentes."
+            },
+            {
+              "question": "Quando o sharding se paga?",
+              "options": [
+                "Sempre que a tabela passa de 1 milhão de linhas",
+                "Quando uma única instância já não cabe em CPU, disco ou conexões, e réplicas de leitura não resolvem a escrita",
+                "Quando você quer usar NoSQL",
+                "Antes de lançar, para evitar migração futura"
+              ],
+              "answer": 1,
+              "explanation": "Sharding troca simplicidade por complexidade operacional: transações cross-shard, rebalanceamento e consultas distribuídas. É a última alavanca, não a primeira."
+            }
+          ]
+        },
+        {
+          "slug": "filas-streams-e-async",
+          "title": "Filas, streams e async: desacoplar sem mentir sobre consistência",
+          "summary": "Queue vs log, garantias de entrega, idempotência, ordering e o outbox pattern para não perder eventos.",
+          "minutes": 40,
+          "file": "lessons/08-filas-streams-e-async.md",
+          "takeaways": [
+            "Escolher entre fila de trabalho e log particionado conforme ordering e replay",
+            "Projetar consumidores idempotentes para at-least-once sem duplicar efeitos",
+            "Evitar dual-write com transactional outbox e DLQ"
+          ],
+          "quiz": [
+            {
+              "question": "Kafka é normalmente descrito como log, não fila. Qual consequência prática disso?",
+              "options": [
+                "Mensagens são apagadas na leitura",
+                "Consumidores podem reler o passado dentro da retenção e cada grupo mantém seu próprio offset",
+                "Não suporta múltiplos consumidores",
+                "Garante exactly-once em qualquer integração externa"
+              ],
+              "answer": 1,
+              "explanation": "O log retém mensagens por tempo/tamanho e o offset é por consumer group. Isso permite replay e múltiplos consumidores independentes, mas não elimina efeitos externos duplicados."
+            },
+            {
+              "question": "Seu consumidor processa uma mensagem e cai antes de comitar o offset. O que acontece?",
+              "options": [
+                "A mensagem é perdida para sempre",
+                "A mensagem será reentregue e o efeito pode ser aplicado duas vezes se não houver idempotência",
+                "O Kafka bloqueia o tópico até o consumidor voltar",
+                "O offset é comitado automaticamente pelo broker"
+              ],
+              "answer": 1,
+              "explanation": "Esse é o at-least-once. A defesa é uma chave de idempotência persistida na mesma transação do efeito, ou um store de mensagens processadas com TTL maior que a retenção."
+            },
+            {
+              "question": "Qual problema o transactional outbox resolve?",
+              "options": [
+                "Latência de leitura do banco",
+                "A inconsistência de gravar no banco e publicar no broker em duas operações separadas",
+                "O custo de armazenamento do Kafka",
+                "A necessidade de load balancer"
+              ],
+              "answer": 1,
+              "explanation": "O evento é gravado na mesma transação local que o estado. Um relay lê a outbox e publica; se falhar, republica. Isso evita o dual-write em que o banco commita e o publish falha."
+            }
+          ]
+        },
+        {
+          "slug": "rate-limiting-e-consistent-hashing",
+          "title": "Rate limiting e consistent hashing: controlar fluxo e distribuir chaves",
+          "summary": "Token bucket, janelas deslizantes, coordenação distribuída e o anel de hash que evita remapear o mundo.",
+          "minutes": 40,
+          "file": "lessons/09-rate-limiting-e-consistent-hashing.md",
+          "takeaways": [
+            "Comparar token bucket, leaky bucket e janelas fixa e deslizante",
+            "Implementar limite global com Redis atômico e fallback local",
+            "Distribuir chaves com consistent hashing e virtual nodes sem hotspots"
+          ],
+          "quiz": [
+            {
+              "question": "Qual algoritmo permite rajadas curtas até o tamanho do bucket e depois limita à taxa de reposição?",
+              "options": [
+                "Janela fixa",
+                "Token bucket",
+                "Leaky bucket sem fila",
+                "Contador global"
+              ],
+              "answer": 1,
+              "explanation": "O token bucket acumula tokens até a capacidade e consome por requisição. Isso acomoda bursts legítimos e suaviza a taxa média, ao contrário da janela fixa."
+            },
+            {
+              "question": "Por que GET seguido de SET no Redis não é suficiente para um rate limiter distribuído?",
+              "options": [
+                "Porque o Redis não suporta GET",
+                "Porque duas instâncias podem ler o mesmo contador e ambas permitirem a requisição, estourando o limite",
+                "Porque SET é mais lento que GET",
+                "Porque o Redis só aceita comandos via HTTP"
+              ],
+              "answer": 1,
+              "explanation": "É uma race condition de read-modify-write. A solução é um script Lua ou comando atômico que lê, decide e incrementa em uma única operação no servidor."
+            },
+            {
+              "question": "Para que servem virtual nodes em consistent hashing?",
+              "options": [
+                "Para aumentar o número de servidores automaticamente",
+                "Para distribuir melhor as chaves entre nós com capacidades diferentes e reduzir hotspots",
+                "Para replicar dados em todas as máquinas",
+                "Para eliminar a necessidade de hash"
+              ],
+              "answer": 1,
+              "explanation": "Cada nó físico ocupa várias posições no anel. Isso suaviza a distribuição, permite ponderar capacidade e reduz o desequilíbrio quando um nó entra ou sai."
+            }
+          ]
+        }
+      ],
+      "exercises": [
+        "exercises/sd-rate-limiter-distribuido.json"
+      ]
+    },
+    {
+      "slug": "designs-classicos",
+      "title": "Designs clássicos de entrevista",
+      "description": "Seis designs que aparecem em quase todo loop: URL shortener, rate limiter, chat, feed, notificações e pagamentos.",
+      "estimatedHours": 16,
+      "lessons": [
+        {
+          "slug": "url-shortener",
+          "title": "URL shortener: gerar códigos únicos e redirecionar em 30 ms",
+          "summary": "Do requisito de 100 milhões de URLs por dia ao código base62, cache de redirecionamento e analytics assíncrono.",
+          "minutes": 40,
+          "file": "lessons/10-url-shortener.md",
+          "takeaways": [
+            "Dimensionar escritas, leituras, storage e cache de um encurtador em escala",
+            "Gerar códigos únicos sem colisão usando ranges de contador ou Snowflake",
+            "Decidir entre 301 e 302 e separar analytics do caminho crítico"
+          ],
+          "quiz": [
+            {
+              "question": "Com alfabeto base62, quantas combinações um código de 7 caracteres oferece?",
+              "options": [
+                "Cerca de 4,3 bilhões",
+                "Cerca de 3,5 trilhões",
+                "Cerca de 62 milhões",
+                "Cerca de 700 bilhões"
+              ],
+              "answer": 1,
+              "explanation": "62^7 ≈ 3,52 × 10^12. É espaço suficiente para décadas no volume de 100M/dia, mas finito: planeje expansão para 8 caracteres antes de esgotar."
+            },
+            {
+              "question": "Por que 301 pode ser uma má escolha para um encurtador com analytics?",
+              "options": [
+                "Porque 301 é mais lento que 302",
+                "Porque browsers e intermediários podem cachear o redirect e você perde cliques subsequentes",
+                "Porque 301 não funciona com HTTPS",
+                "Porque 301 não permite URL de destino"
+              ],
+              "answer": 1,
+              "explanation": "301 é permanente e cacheável. Se cada clique precisa ser contado ou o destino pode mudar, 302/307 dá controle; o custo é mais carga no servidor."
+            },
+            {
+              "question": "Qual é a vantagem de alocar ranges de IDs por instância em vez de consultar um contador global a cada URL?",
+              "options": [
+                "Garante códigos mais curtos",
+                "Elimina a latência e o ponto único de falha do contador, mantendo unicidade por partição de range",
+                "Impede colisões de hash",
+                "Permite usar apenas um servidor"
+              ],
+              "answer": 1,
+              "explanation": "Cada instância reserva um bloco (por exemplo, 1.000 IDs) e gera localmente. O contador global é chamado uma vez por bloco; se a instância morre, o bloco é desperdiçado, não duplicado."
+            }
+          ]
+        },
+        {
+          "slug": "rate-limiter-distribuido",
+          "title": "Rate limiter distribuído: 100 mil RPS sem estourar o limite",
+          "summary": "Algoritmos, atomicidade no Redis, coordenação entre regiões e a decisão entre falhar aberto ou fechado.",
+          "minutes": 40,
+          "file": "lessons/11-rate-limiter-distribuido.md",
+          "takeaways": [
+            "Implementar token bucket e janela deslizante com precisão e custo previsíveis",
+            "Coordenar limites globais com Redis atômico, sharding e fallback local",
+            "Escolher fail-open ou fail-closed por tipo de tráfego e comunicar o limite ao cliente"
+          ],
+          "quiz": [
+            {
+              "question": "Qual é o principal defeito da janela fixa de 1 minuto?",
+              "options": [
+                "Consome memória demais",
+                "Permite até 2x o limite na fronteira entre duas janelas",
+                "Não funciona com Redis",
+                "Não consegue contar requisições"
+              ],
+              "answer": 1,
+              "explanation": "Um cliente pode gastar o limite inteiro no fim de uma janela e outro tanto no início da próxima. Janela deslizante ou token bucket suavizam essa borda."
+            },
+            {
+              "question": "Como garantir atomicidade do contador no Redis?",
+              "options": [
+                "Usando MULTI/EXEC com GET e SET separados",
+                "Executando um script Lua que lê, decide e incrementa no servidor",
+                "Fazendo retry quando o valor divergir",
+                "Usando um lock no cliente"
+              ],
+              "answer": 1,
+              "explanation": "O script Lua roda atomicamente no Redis, sem janela entre leitura e escrita. MULTI/EXEC não permite decidir com base no valor lido sem WATCH, e retry no cliente piora a contenção."
+            },
+            {
+              "question": "Quando faz sentido falhar aberto se o Redis do rate limiter cair?",
+              "options": [
+                "Sempre, porque disponibilidade é mais importante que tudo",
+                "Em tráfego de leitura de baixo risco, aceitando proteger a origem com limites locais e load shedding",
+                "Nunca, em nenhuma hipótese",
+                "Somente quando o limite for por IP"
+              ],
+              "answer": 1,
+              "explanation": "Fail-open preserva a experiência, mas transfere o risco para a origem. A resposta madura combina fallback local, limites mais conservadores e proteção de capacidade."
+            }
+          ]
+        },
+        {
+          "slug": "chat-whatsapp",
+          "title": "Chat estilo WhatsApp: 100 bilhões de mensagens por dia",
+          "summary": "Conexões persistentes, entrega offline, ordering por conversa e armazenamento de mensagens em escala de petabytes.",
+          "minutes": 45,
+          "file": "lessons/12-chat-whatsapp.md",
+          "takeaways": [
+            "Projetar gateways WebSocket com presença e reconexão sem tempestade",
+            "Garantir at-least-once com deduplicação por client_message_id e ack em dois níveis",
+            "Escolher storage e particionamento por conversation_id para ordering e leitura"
+          ],
+          "quiz": [
+            {
+              "question": "Por que o chat normalmente particiona mensagens por conversation_id?",
+              "options": [
+                "Para economizar espaço em disco",
+                "Para manter ordering das mensagens da mesma conversa no mesmo log/partição",
+                "Porque usuários só conversam com uma pessoa",
+                "Para evitar criptografia"
+              ],
+              "answer": 1,
+              "explanation": "Ordering só é necessário dentro da conversa. A mesma chave mantém as mensagens no mesmo shard e permite ler o histórico em sequência sem merge global."
+            },
+            {
+              "question": "O que significa o segundo check no WhatsApp?",
+              "options": [
+                "Que a mensagem foi entregue ao dispositivo do destinatário",
+                "Que o destinatário leu a mensagem",
+                "Que a mensagem foi criptografada",
+                "Que o servidor recebeu a mensagem"
+              ],
+              "answer": 0,
+              "explanation": "Um check é servidor recebeu; dois checks é entregue ao dispositivo; azul é lido. São eventos distintos e exigem acks distintos no protocolo."
+            },
+            {
+              "question": "Qual é a defesa correta contra mensagens duplicadas em um cliente que reenvia após timeout?",
+              "options": [
+                "Confiar no exactly-once do WebSocket",
+                "Usar um client_message_id único e deduplicar no servidor antes de persistir/entregar",
+                "Aumentar o timeout para 60 segundos",
+                "Desligar retries"
+              ],
+              "answer": 1,
+              "explanation": "O cliente não sabe se o ack se perdeu ou se o servidor não recebeu. Reenviar com o mesmo id e deduplicar é o padrão; sem isso, você cria duplicatas visíveis."
+            }
+          ]
+        },
+        {
+          "slug": "news-feed",
+          "title": "News feed: fanout, ranking e o problema das celebridades",
+          "summary": "Como montar timelines de Twitter e Instagram com fanout híbrido, cursor pagination e cache por usuário.",
+          "minutes": 45,
+          "file": "lessons/13-news-feed.md",
+          "takeaways": [
+            "Comparar fanout on write, on read e híbrido com custo por publicação e leitura",
+            "Projetar timeline cache com IDs, hidratação e ranking fora do caminho crítico",
+            "Evitar o celebrity problem e paginar sem duplicar ou perder posts"
+          ],
+          "quiz": [
+            {
+              "question": "Por que fanout on write puro quebra com celebridades?",
+              "options": [
+                "Porque o cache fica pequeno demais",
+                "Porque uma publicação para 100 milhões de seguidores gera 100 milhões de escritas antes de qualquer leitura",
+                "Porque o ranking fica mais lento",
+                "Porque o banco não suporta textos longos"
+              ],
+              "answer": 1,
+              "explanation": "O custo de publicação explode com o número de seguidores. O híbrido empurra posts de usuários normais e deixa celebridades para pull na leitura."
+            },
+            {
+              "question": "Qual é a vantagem de guardar IDs na timeline em vez dos posts completos?",
+              "options": [
+                "Não há vantagem; é só uma convenção",
+                "Reduz o tamanho do cache e permite hidratar em lote com dados atualizados e controle de acesso",
+                "Impede que o post seja apagado",
+                "Elimina a necessidade de ranking"
+              ],
+              "answer": 1,
+              "explanation": "IDs ocupam poucos bytes, permitem hidratação em batch (multi-get) e evitam servir conteúdo desatualizado ou que o usuário perdeu permissão de ver."
+            },
+            {
+              "question": "Por que cursor pagination é preferível a offset em um feed?",
+              "options": [
+                "Porque offset não funciona em SQL",
+                "Porque novos posts inseridos no topo deslocam o offset e causam itens repetidos ou pulados",
+                "Porque cursor usa menos memória no cliente",
+                "Porque offset é mais lento em todos os casos"
+              ],
+              "answer": 1,
+              "explanation": "O feed muda enquanto você pagina. Um cursor estável (timestamp + id) marca a posição no conjunto ordenado, evitando duplicatas e buracos."
+            }
+          ]
+        },
+        {
+          "slug": "notificacoes",
+          "title": "Notificações: 1 bilhão por dia sem spam nem duplicata",
+          "summary": "Preferências, deduplicação, fanout multicanal e failover de provedores para push, e-mail e SMS.",
+          "minutes": 40,
+          "file": "lessons/14-notificacoes.md",
+          "takeaways": [
+            "Modelar preferências, supressão e quiet hours antes do envio",
+            "Deduplicar e priorizar notificações em um pipeline multicanal",
+            "Projetar retries, DLQ e failover entre provedores sem duplicar mensagens"
+          ],
+          "quiz": [
+            {
+              "question": "Onde a checagem de preferências deve acontecer?",
+              "options": [
+                "Somente no cliente, para economizar servidor",
+                "No serviço de notificações, antes de enfileirar o envio, com cache da preferência",
+                "No provedor de e-mail",
+                "Depois do envio, para registrar o resultado"
+              ],
+              "answer": 1,
+              "explanation": "O cliente pode estar desatualizado ou nem existir. A decisão de enviar precisa ser central e auditável, com cache curto para não consultar o banco a cada evento."
+            },
+            {
+              "question": "Qual é a melhor chave de deduplicação para 'lembrete de consulta amanhã'?",
+              "options": [
+                "O texto da notificação",
+                "Uma combinação de user_id, tipo e ocorrência (por exemplo, appointment_id)",
+                "O timestamp exato do envio",
+                "O endereço IP do usuário"
+              ],
+              "answer": 1,
+              "explanation": "A chave precisa representar o evento de negócio, não a tentativa de envio. user_id + tipo + appointment_id impede duplicata mesmo com retries e múltiplos workers."
+            },
+            {
+              "question": "Por que não se deve confiar que push será entregue?",
+              "options": [
+                "Porque APNs e FCM não têm SLA",
+                "Porque o token pode expirar, o app pode estar desinstalado e o usuário pode desativar notificações; push é best-effort",
+                "Porque push só funciona em Android",
+                "Porque o payload máximo é de 4 KB"
+              ],
+              "answer": 1,
+              "explanation": "Push é um canal probabilístico. Para eventos críticos, é preciso fallback (in-app, e-mail, SMS) e confirmação de leitura/entrega quando o negócio exigir."
+            }
+          ]
+        },
+        {
+          "slug": "pagamentos-e-idempotencia",
+          "title": "Pagamentos estilo Stripe: ledger, idempotência e exactly-once impossível",
+          "summary": "Máquina de estados, chave de idempotência, double-entry ledger, webhooks e reconciliação para dinheiro de verdade.",
+          "minutes": 50,
+          "file": "lessons/15-pagamentos-e-idempotencia.md",
+          "takeaways": [
+            "Projetar uma API de pagamentos com idempotency key e semântica de retry segura",
+            "Usar ledger append-only de dupla entrada em vez de saldo mutável",
+            "Lidar com webhooks fora de ordem, falhas parciais e reconciliação"
+          ],
+          "quiz": [
+            {
+              "question": "Por que exactly-once é considerado impossível em pagamentos distribuídos?",
+              "options": [
+                "Porque bancos não usam TCP",
+                "Porque a falha pode ocorrer entre o efeito e o reconhecimento, então o emissor não sabe se deve retentar; a solução é at-least-once com idempotência",
+                "Porque o HTTP não suporta POST",
+                "Porque o dinheiro é um número inteiro"
+              ],
+              "answer": 1,
+              "explanation": "O problema é o two generals: sem uma transação atômica entre sistemas independentes, o ack pode se perder. Idempotência transforma retries em efeito único."
+            },
+            {
+              "question": "Qual é a função da idempotency key?",
+              "options": [
+                "Autenticar o merchant",
+                "Identificar unicamente a intenção da requisição para que retries retornem o mesmo resultado sem cobrar duas vezes",
+                "Criptografar o número do cartão",
+                "Escolher o provedor de pagamento"
+              ],
+              "answer": 1,
+              "explanation": "A chave é gerada pelo cliente e persistida com a resposta. Se a mesma chave chegar de novo, o servidor devolve o resultado original em vez de criar uma nova cobrança."
+            },
+            {
+              "question": "Por que um ledger de dupla entrada é preferível a uma coluna 'saldo'?",
+              "options": [
+                "Porque ocupa menos espaço",
+                "Porque cada movimento é registrado como débito e crédito, permitindo auditoria, detecção de inconsistência e replay",
+                "Porque impede estornos",
+                "Porque é exigido por todos os bancos"
+              ],
+              "answer": 1,
+              "explanation": "O saldo é uma visão derivada. O ledger append-only preserva a história, prova a origem de cada centavo e permite reconstruir saldos e investigar divergências."
+            }
+          ]
+        }
+      ],
+      "exercises": []
+    },
+    {
+      "slug": "designs-em-escala",
+      "title": "Designs em escala de big tech",
+      "description": "Uber, Netflix e Google Search: geospatial, streaming e busca em escala planetária, com as decisões econômicas por trás.",
+      "estimatedHours": 8,
+      "lessons": [
+        {
+          "slug": "uber-matching-geospatial",
+          "title": "Uber: matching em tempo real e indexação geospatial",
+          "summary": "Como indexar milhões de motoristas, casar passageiro e motorista em segundos e evitar dupla alocação.",
+          "minutes": 45,
+          "file": "lessons/16-uber-matching-geospatial.md",
+          "takeaways": [
+            "Indexar localização com geohash, H3 ou S2 e consultar células vizinhas",
+            "Projetar matching com lease, idempotência e expiração para evitar dupla alocação",
+            "Dimensionar ingestão de localização e separar ETA de dispatch"
+          ],
+          "quiz": [
+            {
+              "question": "Por que não consultar motoristas com BETWEEN em latitude e longitude?",
+              "options": [
+                "Porque latitude e longitude são strings",
+                "Porque um range bidimensional não usa índice de forma eficiente e gera muitos candidatos falsos",
+                "Porque o banco não suporta decimais",
+                "Porque a Terra é plana"
+              ],
+              "answer": 1,
+              "explanation": "Um índice B-tree em latitude filtra uma faixa, mas longitude ainda exige scan. Índices espaciais em células hierárquicas resolvem a busca por vizinhança com poucos candidatos."
+            },
+            {
+              "question": "Qual é o papel de um lease na alocação de motorista?",
+              "options": [
+                "Aumentar o preço da corrida",
+                "Garantir que apenas um pedido use o motorista por um período, com expiração se o aceite não vier",
+                "Armazenar o histórico de corridas",
+                "Calcular a rota"
+              ],
+              "answer": 1,
+              "explanation": "O lease é um lock com TTL. O motorista fica reservado para um pedido; se o aceite não chega, o lease expira e ele volta ao pool, evitando dupla alocação."
+            },
+            {
+              "question": "Por que o ETA não deve bloquear o dispatch?",
+              "options": [
+                "Porque ETA é sempre impreciso",
+                "Porque o cálculo de rota é caro e pode ser feito em paralelo ou de forma aproximada; o dispatch precisa de baixa latência",
+                "Porque o ETA só existe depois da corrida",
+                "Porque o motorista não precisa saber o ETA"
+              ],
+              "answer": 1,
+              "explanation": "Dispatch é um caminho crítico de segundos. ETA pode usar distância em linha reta, cache por célula ou cálculo assíncrono; bloquear o match em roteamento completo derruba o throughput."
+            }
+          ]
+        },
+        {
+          "slug": "netflix-streaming",
+          "title": "Netflix: streaming, Open Connect e recomendação",
+          "summary": "Do encode adaptativo ao CDN na operadora: por que vídeo não se desenha como uma API JSON.",
+          "minutes": 45,
+          "file": "lessons/17-netflix-streaming.md",
+          "takeaways": [
+            "Explicar o pipeline de ingestão, encoding e distribuição via Open Connect",
+            "Dimensionar storage e banda de um catálogo com múltiplas resoluções",
+            "Separar playback crítico de recomendação e personalização"
+          ],
+          "quiz": [
+            {
+              "question": "Por que a Netflix coloca servidores dentro de provedores de internet (Open Connect)?",
+              "options": [
+                "Para reduzir o custo de encoding",
+                "Para servir o vídeo perto do usuário, reduzir tráfego de longa distância e melhorar a qualidade percebida",
+                "Para cumprir exigências de DRM",
+                "Para armazenar dados de recomendação"
+              ],
+              "answer": 1,
+              "explanation": "O tráfego de vídeo é enorme e sensível a latência/jitter. Ter o conteúdo dentro da rede do provedor reduz o custo de trânsito e melhora o throughput."
+            },
+            {
+              "question": "Qual é a função do encoding ladder?",
+              "options": [
+                "Escolher o título mais popular",
+                "Oferecer múltiplas resoluções e bitrates para que o player adapte ao dispositivo e à rede",
+                "Criptografar o vídeo",
+                "Fazer o upload mais rápido"
+              ],
+              "answer": 1,
+              "explanation": "O player troca de variante conforme banda e buffer. Uma escada bem desenhada evita rebuffering sem desperdiçar bits em telas pequenas."
+            },
+            {
+              "question": "Por que recomendações não devem bloquear o início do playback?",
+              "options": [
+                "Porque recomendações são sempre erradas",
+                "Porque o playback é o caminho crítico; a fileira de recomendações pode carregar depois e falhar de forma degradada",
+                "Porque o CDN não suporta recomendações",
+                "Porque o usuário nunca olha as recomendações"
+              ],
+              "answer": 1,
+              "explanation": "Misturar um serviço de ML síncrono no startup aumenta p99 e acopla a disponibilidade. A home pode carregar em paralelo ou com placeholder; o play não espera."
+            }
+          ]
+        },
+        {
+          "slug": "google-search",
+          "title": "Google Search: crawler, índice invertido e ranking em 200 ms",
+          "summary": "Como centenas de bilhões de páginas viram uma resposta em milissegundos e por que o índice é hierárquico.",
+          "minutes": 45,
+          "file": "lessons/18-google-search.md",
+          "takeaways": [
+            "Descrever crawl, URL frontier, deduplicação e atualização incremental",
+            "Projetar índice invertido particionado com posting lists comprimidas e tiers",
+            "Separar retrieval de ranking e dimensionar a latência de consulta"
+          ],
+          "quiz": [
+            {
+              "question": "O que é uma posting list em um índice invertido?",
+              "options": [
+                "A lista de páginas que contêm um termo, com posições e metadados",
+                "A lista de usuários que fizeram login",
+                "O cache de consultas populares",
+                "A fila de URLs a crawlear"
+              ],
+              "answer": 0,
+              "explanation": "O índice mapeia termo para as ocorrências (documentos, posições, frequência). A interseção de posting lists é a base do retrieval."
+            },
+            {
+              "question": "Por que o índice é particionado por termo e não apenas por documento?",
+              "options": [
+                "Porque documentos não podem ser particionados",
+                "Porque uma consulta precisa intersectar posting lists de termos específicos em paralelo e evitar varrer todos os documentos",
+                "Porque termos ocupam menos espaço",
+                "Porque o ranking exige todos os documentos em um único nó"
+              ],
+              "answer": 1,
+              "explanation": "Sharding por termo (term-partitioned) direciona cada termo a um shard, permitindo interseção distribuída. Sharding por documento exigiria consultar todos os shards para cada termo."
+            },
+            {
+              "question": "Qual é a ordem correta em uma consulta de busca?",
+              "options": [
+                "Ranking completo de todos os documentos, depois retrieval",
+                "Retrieval de candidatos, ranking leve, ranking pesado nos top-N e montagem da página",
+                "Crawl, depois resposta ao usuário",
+                "Cache, depois índice, sem ranking"
+              ],
+              "answer": 1,
+              "explanation": "Não dá para rankear bilhões de documentos por consulta. O pipeline recupera candidatos, aplica sinais baratos e só então modelos caros nos melhores."
+            }
+          ]
+        }
+      ],
+      "exercises": []
+    },
+    {
+      "slug": "carreira-e-comportamental",
+      "title": "Comportamental, loop e oferta",
+      "description": "STAR, leadership principles, o loop completo e a negociação que maximiza a oferta sem queimar relacionamento.",
+      "estimatedHours": 4,
+      "lessons": [
+        {
+          "slug": "star-e-leadership-principles",
+          "title": "STAR e leadership principles: histórias que sobrevivem ao interrogatório",
+          "summary": "Como construir um banco de histórias com métricas, conflito real e decisões suas, mapeado aos princípios da empresa.",
+          "minutes": 40,
+          "file": "lessons/19-star-e-leadership-principles.md",
+          "takeaways": [
+            "Montar seis a oito histórias STAR reutilizáveis e mapeadas por competência",
+            "Responder conflito, falha e ambiguidade sem culpar terceiros",
+            "Usar métricas e escopo pessoal para diferenciar sua contribuição"
+          ],
+          "quiz": [
+            {
+              "question": "Qual é o erro mais comum ao usar STAR?",
+              "options": [
+                "Falar demais do Result e pouco da Action",
+                "Gastar a maior parte do tempo em Situation/Task e não detalhar a Action e o Result com números",
+                "Usar primeira pessoa",
+                "Escolher uma história de falha"
+              ],
+              "answer": 1,
+              "explanation": "O entrevistador precisa avaliar o que você fez e o impacto. Contexto longo e ação vaga transformam a resposta em biografia da empresa."
+            },
+            {
+              "question": "Como responder 'conte sobre um conflito' sem parecer difícil de trabalhar?",
+              "options": [
+                "Dizer que nunca teve conflito",
+                "Descrever o desacordo técnico, ouvir o outro lado, decidir com dados e preservar a relação",
+                "Explicar que o colega estava errado",
+                "Mudar de assunto para uma entrega bem-sucedida"
+              ],
+              "answer": 1,
+              "explanation": "A pergunta avalia maturidade, não a existência de conflito. Mostre a posição oposta de forma justa, o critério de decisão e o que você aprendeu."
+            },
+            {
+              "question": "Uma história STAR forte precisa necessariamente ter um final feliz?",
+              "options": [
+                "Sim, senão você parece incompetente",
+                "Não: histórias de falha com aprendizado concreto e mudança de comportamento são sinais valiosos",
+                "Não, mas deve esconder o erro",
+                "Sim, e o entrevistador não pode saber que houve erro"
+              ],
+              "answer": 1,
+              "explanation": "Falha bem contada mostra autoconhecimento e melhoria. O que derruba é ausência de responsabilidade ou aprendizado genérico."
+            }
+          ]
+        },
+        {
+          "slug": "negociacao-e-loop-completo",
+          "title": "Negociação e o loop completo: coding, design e behavioral",
+          "summary": "Como o comitê decide, o que cada entrevista mede e como negociar nível, equity e prazo com informação assimétrica.",
+          "minutes": 40,
+          "file": "lessons/20-negociacao-e-loop-completo.md",
+          "takeaways": [
+            "Entender o loop, o debrief e o papel do hiring committee",
+            "Comparar ofertas por nível, equity e valor presente, não só por salário-base",
+            "Negociar com âncora, BATNA e prazo sem inventar oferta concorrente"
+          ],
+          "quiz": [
+            {
+              "question": "O que normalmente acontece depois das entrevistas em uma big tech?",
+              "options": [
+                "O recrutador decide sozinho na hora",
+                "Os entrevistadores registram evidências e um comitê calibra nível e decisão",
+                "O CEO aprova cada contratação",
+                "A oferta é enviada automaticamente pelo sistema"
+              ],
+              "answer": 1,
+              "explanation": "O debrief consolida evidências independentes e o hiring committee calibra contra o nível. Por isso respostas consistentes em todas as entrevistas importam mais que um desempenho isolado."
+            },
+            {
+              "question": "Qual é a melhor forma de comparar duas ofertas com equity?",
+              "options": [
+                "Comparar apenas o salário-base",
+                "Somar o valor nominal de todas as ações",
+                "Projetar o valor por ano considerando preço, vesting, refresh e risco, e comparar o pacote de quatro anos",
+                "Escolher a empresa com maior valor de mercado"
+              ],
+              "answer": 2,
+              "explanation": "Equity tem preço de grant, vesting, refreshers e liquidez diferentes. Valor nominal não é valor presente; projete cenários e pergunte sobre política de refresh."
+            },
+            {
+              "question": "Você não tem outra oferta. Qual é a abordagem mais ética na negociação?",
+              "options": [
+                "Inventar uma oferta concorrente para pressionar",
+                "Negociar com dados de mercado, escopo e impacto, sem alegar oferta que não existe",
+                "Aceitar a primeira proposta sem perguntar nada",
+                "Pedir o dobro para ancorar"
+              ],
+              "answer": 1,
+              "explanation": "Mentir sobre oferta pode ser descoberto e queima a relação. Você pode negociar com benchmark, escopo do cargo e alternativas reais (inclusive ficar onde está)."
+            }
+          ]
+        }
+      ],
+      "exercises": []
+    }
+  ]
+}

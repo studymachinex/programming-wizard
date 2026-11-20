@@ -1,0 +1,1149 @@
+{
+  "slug": "java-fundamentos",
+  "title": "Java do Zero ao Sólido",
+  "subtitle": "A linguagem, a JVM e o jeito profissional de escrever código",
+  "description": "Esta trilha constrói a base que separa quem sabe escrever um loop de quem consegue evoluir um sistema Java em produção. Você vai entender o que a JVM realmente executa, modelar domínio com orientação a objetos de verdade, escolher coleções com critério e usar os recursos modernos da linguagem sem transformar código em sopa de lambdas. O objetivo não é decorar sintaxe: é chegar ao nível em que decisões de design, custo de memória e falhas em produção passam a ser previsíveis para você.",
+  "level": "fundamento",
+  "icon": "coffee",
+  "accent": "arcane",
+  "estimatedHours": 44,
+  "isCore": true,
+  "outcomes": [
+    "Explicar o caminho de um arquivo .java até a execução JIT e diagnosticar problemas básicos de classpath e versão",
+    "Modelar um domínio pequeno com classes, interfaces, records e sealed types, justificando cada escolha de design",
+    "Escolher entre List, Set e Map com base em complexidade, contrato de igualdade e padrão de acesso real",
+    "Escrever pipelines de Stream legíveis e testar o comportamento com JUnit 5 em um projeto Maven ou Gradle",
+    "Projetar o tratamento de exceções de uma aplicação para que falhas sejam explícitas, rastreáveis e recuperáveis"
+  ],
+  "modules": [
+    {
+      "slug": "jvm-e-ambiente",
+      "title": "A JVM e o ambiente Java",
+      "description": "Entenda o que acontece entre o seu arquivo .java e o processador, prepare um ambiente que não te trave e domine os tipos e operadores que aparecem em toda linha de código.",
+      "estimatedHours": 7,
+      "lessons": [
+        {
+          "slug": "jdk-jvm-jre-bytecode",
+          "title": "JDK, JVM e JRE: o caminho do .java ao bytecode",
+          "summary": "Você vai separar compilador, runtime e biblioteca, entender bytecode e saber por que o mesmo JAR roda em sistemas diferentes.",
+          "minutes": 25,
+          "file": "lessons/jdk-jvm-jre-bytecode.md",
+          "takeaways": [
+            "Diferença prática entre JDK, JRE e JVM no dia a dia",
+            "O caminho .java -> .class -> verificação -> JIT -> execução",
+            "Como inspecionar bytecode com javap sem decorar instruções"
+          ],
+          "quiz": [
+            {
+              "question": "Qual componente você precisa instalar para compilar um arquivo .java?",
+              "options": [
+                "JRE",
+                "JDK",
+                "JVM",
+                "Apenas o bytecode"
+              ],
+              "answer": 1,
+              "explanation": "O JDK inclui o compilador javac, as ferramentas e a própria JVM. O JRE histórico continha apenas o runtime e as bibliotecas, sem javac."
+            },
+            {
+              "question": "O que o compilador JIT faz durante a execução?",
+              "options": [
+                "Converte o .java diretamente em código nativo antes de rodar",
+                "Traduz métodos e trechos 'quentes' de bytecode para código de máquina",
+                "Empacota classes em um arquivo JAR",
+                "Substitui o garbage collector em aplicações de baixa latência"
+              ],
+              "answer": 1,
+              "explanation": "A JVM começa interpretando bytecode e compila para código nativo os trechos executados com frequência. É por isso que o aquecimento importa em benchmarks."
+            },
+            {
+              "question": "Por que um .class compilado no Windows pode rodar no Linux sem recompilar?",
+              "options": [
+                "Porque o bytecode é independente de plataforma e a JVM local o executa",
+                "Porque o Java traduz o .class para C durante a instalação",
+                "Porque todo sistema operacional tem a mesma ABI de bibliotecas",
+                "Porque o JAR embute versões nativas para cada sistema"
+              ],
+              "answer": 0,
+              "explanation": "O bytecode é o contrato portátil. Quem conversa com o sistema operacional é a implementação da JVM instalada em cada máquina."
+            }
+          ]
+        },
+        {
+          "slug": "instalacao-intellij-primeiro-programa",
+          "title": "Instalação, IntelliJ e seu primeiro programa",
+          "summary": "Monte um ambiente reprodutível com JDK 21, crie um projeto no IntelliJ e entenda cada parte do primeiro programa Java.",
+          "minutes": 25,
+          "file": "lessons/instalacao-intellij-primeiro-programa.md",
+          "takeaways": [
+            "Configurar JDK 21 e SDK do projeto sem misturar versões",
+            "Compilar e executar pelo terminal e pela IDE",
+            "Ler um stack trace simples e localizar a linha que falhou"
+          ],
+          "quiz": [
+            {
+              "question": "Qual sequência compila e executa um arquivo Main.java pelo terminal?",
+              "options": [
+                "java Main.java && javac Main",
+                "javac Main.java && java Main",
+                "javac Main && java Main.java",
+                "java Main && javac Main.class"
+              ],
+              "answer": 1,
+              "explanation": "javac gera Main.class e java inicia a JVM apontando para a classe Main. A ordem inversa não funciona porque a classe ainda não existe."
+            },
+            {
+              "question": "Em Java, qual deve ser o nome do arquivo que contém a classe pública Main?",
+              "options": [
+                "main.java",
+                "Main.java",
+                "Main.class",
+                "Qualquer nome, desde que o pacote bata"
+              ],
+              "answer": 1,
+              "explanation": "Uma classe pública precisa estar em um arquivo com exatamente o mesmo nome, incluindo maiúsculas, e com a extensão .java."
+            },
+            {
+              "question": "O que a opção 'Project SDK' do IntelliJ controla?",
+              "options": [
+                "A versão do JDK usada para compilar e executar o projeto",
+                "O tema visual do editor",
+                "A versão do Git instalada",
+                "O diretório onde os JARs de teste são salvos"
+              ],
+              "answer": 0,
+              "explanation": "A SDK define o JDK do projeto. Se ela divergir do JDK do sistema, você pode compilar com uma versão e rodar com outra, gerando UnsupportedClassVersionError."
+            }
+          ]
+        },
+        {
+          "slug": "tipos-primitivos-casting-overflow",
+          "title": "Tipos primitivos, casting e overflow silencioso",
+          "summary": "Domine os oito primitivos, entenda representação binária, promoção numérica e por que contas aparentemente simples produzem resultados errados.",
+          "minutes": 30,
+          "file": "lessons/tipos-primitivos-casting-overflow.md",
+          "takeaways": [
+            "Escolher o primitivo correto para cada domínio",
+            "Prever o resultado de casting e promoção numérica",
+            "Reconhecer overflow em somas, multiplicações e timestamps"
+          ],
+          "quiz": [
+            {
+              "question": "O que acontece ao executar 'int x = Integer.MAX_VALUE; x++;'?",
+              "options": [
+                "x vira 2147483648",
+                "x vira Integer.MIN_VALUE sem exceção",
+                "O programa lança ArithmeticException",
+                "O compilador impede a compilação"
+              ],
+              "answer": 1,
+              "explanation": "A aritmética de int é módulo 2^32 e não lança exceção em overflow. MAX_VALUE + 1 dá a volta para MIN_VALUE, um bug silencioso clássico."
+            },
+            {
+              "question": "Qual é o resultado de '(int) 3.99'?",
+              "options": [
+                "4",
+                "3",
+                "3.99",
+                "ArithmeticException"
+              ],
+              "answer": 1,
+              "explanation": "O casting de ponto flutuante para inteiro trunca a parte fracionária; não arredonda. Para arredondar use Math.round."
+            },
+            {
+              "question": "Por que 'long total = 1_000_000 * 1_000_000;' pode produzir um valor negativo?",
+              "options": [
+                "Porque os dois operandos são int e a multiplicação estoura antes da atribuição",
+                "Porque long não aceita underscore",
+                "Porque o compilador converte tudo para double",
+                "Porque a JVM limita literais a seis dígitos"
+              ],
+              "answer": 0,
+              "explanation": "A expressão é avaliada como int; o overflow acontece antes de o resultado ser promovido para long. Escreva 1_000_000L para forçar a aritmética de 64 bits."
+            },
+            {
+              "question": "Qual tipo primitivo é mais adequado para armazenar um preço em centavos?",
+              "options": [
+                "double",
+                "float",
+                "long",
+                "boolean"
+              ],
+              "answer": 2,
+              "explanation": "Valores monetários não devem usar ponto flutuante binário. Centavos cabem em long; para cálculos com escala fixa, BigDecimal é a escolha profissional."
+            }
+          ]
+        },
+        {
+          "slug": "operadores-scanner-formatacao",
+          "title": "Operadores, Scanner e formatação de saída",
+          "summary": "Use operadores sem cair em precedência e curto-circuito, leia entradas com Scanner corretamente e formate saídas que humanos e juízes online aceitam.",
+          "minutes": 30,
+          "file": "lessons/operadores-scanner-formatacao.md",
+          "takeaways": [
+            "Precedência, curto-circuito e operadores de atribuição compostos",
+            "Ler tokens e linhas com Scanner sem o bug da quebra de linha",
+            "Formatar números e textos com printf e Locale explícito"
+          ],
+          "quiz": [
+            {
+              "question": "Qual é o resultado de 'System.out.println(\"5\" + 2 + 3);'?",
+              "options": [
+                "\"10\"",
+                "\"523\"",
+                "\"55\"",
+                "Erro de compilação"
+              ],
+              "answer": 1,
+              "explanation": "A avaliação é da esquerda para a direita. Como o primeiro operando é String, o + passa a concatenar: \"5\" + 2 vira \"52\", depois \"523\"."
+            },
+            {
+              "question": "Por que usar scanner.nextInt() seguido de scanner.nextLine() costuma retornar uma string vazia?",
+              "options": [
+                "Porque nextInt consome o número mas deixa o caractere de nova linha no buffer",
+                "Porque nextLine sempre retorna vazio em Java 21",
+                "Porque o Scanner precisa ser reiniciado a cada leitura",
+                "Porque nextInt lança exceção em entradas válidas"
+              ],
+              "answer": 0,
+              "explanation": "nextInt lê o token numérico e não consome o resto da linha. O nextLine seguinte encontra apenas o \\n e devolve string vazia."
+            },
+            {
+              "question": "O que 'System.out.printf(\"%.2f%n\", 3.14159);' imprime?",
+              "options": [
+                "3.14159",
+                "3.14",
+                "3,14",
+                "3.1"
+              ],
+              "answer": 1,
+              "explanation": "%.2f formata com duas casas decimais; %n é o separador de linha portátil. O separador decimal depende do Locale padrão da JVM."
+            },
+            {
+              "question": "Qual é o valor de '7 / 2' em Java quando ambos são int?",
+              "options": [
+                "3.5",
+                "3",
+                "4",
+                "ArithmeticException"
+              ],
+              "answer": 1,
+              "explanation": "A divisão entre inteiros descarta a parte fracionária. Para obter 3.5, pelo menos um operando precisa ser double ou float."
+            }
+          ]
+        }
+      ],
+      "exercises": [
+        "exercises/java-calculadora-validada.json"
+      ]
+    },
+    {
+      "slug": "controle-de-fluxo",
+      "title": "Controle de fluxo e primeiros algoritmos",
+      "description": "Decida com clareza, escolha o laço certo, manipule arrays com segurança e decomponha problemas em métodos pequenos e testáveis.",
+      "estimatedHours": 7,
+      "lessons": [
+        {
+          "slug": "if-else-switch-expressions",
+          "title": "if/else e switch expressions sem queda acidental",
+          "summary": "Escreva condições legíveis, evite aninhamento excessivo e use switch expressions com yield e exaustividade para modelar decisões.",
+          "minutes": 30,
+          "file": "lessons/if-else-switch-expressions.md",
+          "takeaways": [
+            "Reduzir aninhamento com cláusulas de guarda",
+            "Usar switch expression com arrow e yield",
+            "Reconhecer quando polimorfismo substitui um switch gigante"
+          ],
+          "quiz": [
+            {
+              "question": "Qual é a principal vantagem do switch com setas (->) sobre o switch clássico com dois-pontos?",
+              "options": [
+                "Executa mais rápido em todos os casos",
+                "Não sofre fall-through acidental entre os braços",
+                "Permite apenas tipos primitivos",
+                "Elimina a necessidade de valores default"
+              ],
+              "answer": 1,
+              "explanation": "Com ->, apenas o braço escolhido executa. No switch clássico, a ausência de break faz o fluxo cair no braço seguinte."
+            },
+            {
+              "question": "O que está errado em 'if (x = 1) { ... }'?",
+              "options": [
+                "Nada; é uma atribuição válida",
+                "A atribuição retorna int e o if exige boolean, então não compila",
+                "Deveria usar == sempre, mesmo para boolean",
+                "O bloco precisa de chaves simples"
+              ],
+              "answer": 1,
+              "explanation": "Em Java, a condição do if precisa ser boolean. x = 1 produz int, portanto o código não compila. Isso evita o bug clássico de C."
+            },
+            {
+              "question": "Em uma switch expression com bloco, qual palavra-chave devolve o valor do braço?",
+              "options": [
+                "return",
+                "break",
+                "yield",
+                "throw"
+              ],
+              "answer": 2,
+              "explanation": "yield encerra o bloco e produz o valor da switch expression. return sairia do método inteiro."
+            }
+          ]
+        },
+        {
+          "slug": "loops-for-while-do-while",
+          "title": "for, while e do-while: escolhendo o laço certo",
+          "summary": "Entenda a semântica de cada laço, escreva condições de parada corretas e evite loops infinitos, off-by-one e cálculos repetidos.",
+          "minutes": 30,
+          "file": "lessons/loops-for-while-do-while.md",
+          "takeaways": [
+            "Escolher for, while ou do-while pela intenção",
+            "Provar que a condição de parada sempre avança",
+            "Usar break e continue com responsabilidade"
+          ],
+          "quiz": [
+            {
+              "question": "Qual laço garante pelo menos uma execução do corpo?",
+              "options": [
+                "for",
+                "while",
+                "do-while",
+                "for-each"
+              ],
+              "answer": 2,
+              "explanation": "do-while testa a condição depois de executar o corpo, então a primeira iteração sempre acontece."
+            },
+            {
+              "question": "Para percorrer os índices 0 a 9 de um array de 10 posições, qual condição está correta?",
+              "options": [
+                "i <= 10",
+                "i < 10",
+                "i < 9",
+                "i != 10 && i > 0"
+              ],
+              "answer": 1,
+              "explanation": "O último índice é length - 1, ou seja, 9. Usar i <= 10 acessa duas posições inválidas e lança ArrayIndexOutOfBoundsException."
+            },
+            {
+              "question": "Quando um 'while' é preferível a um 'for' clássico?",
+              "options": [
+                "Quando o número de iterações é conhecido antes do laço",
+                "Quando a parada depende de uma condição que muda durante o processamento",
+                "Quando se percorre uma coleção inteira",
+                "Quando o corpo precisa rodar ao menos uma vez"
+              ],
+              "answer": 1,
+              "explanation": "for brilha quando inicialização, condição e avanço são claros. while comunica melhor 'continue enquanto esta condição valer', como ler até EOF."
+            }
+          ]
+        },
+        {
+          "slug": "arrays-e-for-each",
+          "title": "Arrays, índices e o for-each que esconde armadilhas",
+          "summary": "Domine arrays de uma e duas dimensões, valores padrão, cópia e o que o for-each realmente entrega em cada iteração.",
+          "minutes": 30,
+          "file": "lessons/arrays-e-for-each.md",
+          "takeaways": [
+            "Criar, inicializar e copiar arrays sem aliasing indesejado",
+            "Percorrer matrizes com índices e entender linhas irregulares",
+            "Saber quando for-each não serve para modificar ou remover"
+          ],
+          "quiz": [
+            {
+              "question": "Em 'int[] notas = new int[4];', qual é o valor inicial de notas[2]?",
+              "options": [
+                "null",
+                "0",
+                "Indefinido",
+                "ArrayIndexOutOfBoundsException"
+              ],
+              "answer": 1,
+              "explanation": "Arrays de tipos primitivos são inicializados com zero (false para boolean, '\\u0000' para char). Referências começam como null."
+            },
+            {
+              "question": "Por que este laço não altera o array? 'for (int n : numeros) { n = n * 2; }'",
+              "options": [
+                "Porque for-each só funciona com objetos",
+                "Porque n é uma cópia do valor da posição, não um alias para o elemento",
+                "Porque arrays são imutáveis",
+                "Porque falta a palavra var"
+              ],
+              "answer": 1,
+              "explanation": "O for-each atribui o valor do elemento à variável local. Alterar essa variável não escreve de volta no array."
+            },
+            {
+              "question": "Qual é o último índice válido de um array com length 5?",
+              "options": [
+                "5",
+                "4",
+                "6",
+                "length"
+              ],
+              "answer": 1,
+              "explanation": "Os índices vão de 0 a length - 1. Acessar length lança ArrayIndexOutOfBoundsException."
+            }
+          ]
+        },
+        {
+          "slug": "metodos-escopo-varargs",
+          "title": "Métodos, escopo, passagem por valor e varargs",
+          "summary": "Decomponha problemas em métodos coesos, entenda passagem por valor para primitivos e referências e use varargs sem ambiguidade.",
+          "minutes": 30,
+          "file": "lessons/metodos-escopo-varargs.md",
+          "takeaways": [
+            "Projetar métodos com contrato claro e um único nível de abstração",
+            "Explicar por que Java é sempre passagem por valor",
+            "Usar varargs e sobrecarga sem criar chamadas ambíguas"
+          ],
+          "quiz": [
+            {
+              "question": "O que acontece com o array original quando um método recebe 'int[] dados' e faz 'dados[0] = 99'?",
+              "options": [
+                "Nada; o array é copiado na chamada",
+                "A posição 0 do array original também vira 99",
+                "O método não compila",
+                "A alteração só vale dentro do método"
+              ],
+              "answer": 1,
+              "explanation": "A referência é passada por valor, mas aponta para o mesmo array. Alterar um elemento modifica o objeto compartilhado."
+            },
+            {
+              "question": "Qual regra vale para um parâmetro varargs?",
+              "options": [
+                "Pode aparecer em qualquer posição",
+                "Precisa ser o último parâmetro do método",
+                "Só aceita tipos primitivos",
+                "Obriga o método a ser static"
+              ],
+              "answer": 1,
+              "explanation": "O varargs é açúcar para um array no fim da assinatura. Colocá-lo antes de outro parâmetro tornaria a resolução ambígua."
+            },
+            {
+              "question": "Se um método recebe um objeto e faz 'obj = new Objeto()', o que o chamador vê?",
+              "options": [
+                "O novo objeto, porque referências são passadas por referência",
+                "O objeto original, porque a referência local foi reatribuída apenas dentro do método",
+                "null",
+                "Um erro de compilação"
+              ],
+              "answer": 1,
+              "explanation": "Java passa a referência por valor. Reatribuir o parâmetro muda apenas a variável local; o chamador continua com a referência original."
+            }
+          ]
+        }
+      ],
+      "exercises": []
+    },
+    {
+      "slug": "oo-fundamentos",
+      "title": "Orientação a objetos de verdade",
+      "description": "Modele invariantes, proteja estado, escolha entre herança e composição e use polimorfismo para eliminar condicionais que se multiplicam.",
+      "estimatedHours": 8,
+      "lessons": [
+        {
+          "slug": "classes-objetos-construtores",
+          "title": "Classes, objetos e construtores que protegem invariantes",
+          "summary": "Passe de structs anêmicas para objetos que nascem válidos, com construtores que expressam regras e fábricas quando o construtor não basta.",
+          "minutes": 35,
+          "file": "lessons/classes-objetos-construtores.md",
+          "takeaways": [
+            "Diferenciar classe, objeto, referência e estado",
+            "Escrever construtores que validam invariantes",
+            "Reconhecer quando usar factory method em vez de construtor"
+          ],
+          "quiz": [
+            {
+              "question": "Quando o compilador gera um construtor padrão sem argumentos?",
+              "options": [
+                "Sempre, em toda classe",
+                "Somente quando a classe não declara nenhum construtor",
+                "Somente em classes abstratas",
+                "Quando a classe tem apenas atributos final"
+              ],
+              "answer": 1,
+              "explanation": "Se você declara qualquer construtor, o padrão deixa de ser gerado. Por isso adicionar um construtor com argumentos pode quebrar chamadas existentes."
+            },
+            {
+              "question": "Qual é a regra para 'this(...)' dentro de um construtor?",
+              "options": [
+                "Pode aparecer em qualquer linha",
+                "Precisa ser a primeira instrução do construtor",
+                "Só pode ser usado em métodos estáticos",
+                "Não pode coexistir com super()"
+              ],
+              "answer": 1,
+              "explanation": "this(...) delega para outro construtor da mesma classe e precisa ser a primeira instrução, assim como super(...)."
+            },
+            {
+              "question": "Por que validar no construtor é melhor do que validar em cada setter?",
+              "options": [
+                "Porque setters são mais lentos",
+                "Porque garante que nenhum objeto inválido exista, mesmo que alguém esqueça de chamar o setter",
+                "Porque o compilador exige validação no construtor",
+                "Porque elimina a necessidade de testes"
+              ],
+              "answer": 1,
+              "explanation": "Se todo caminho de criação passa pelo construtor, a invariante vale desde o nascimento do objeto. Validação espalhada depende de disciplina de quem chama."
+            }
+          ]
+        },
+        {
+          "slug": "encapsulamento-de-verdade",
+          "title": "Encapsulamento de verdade: além de getters e setters",
+          "summary": "Pare de expor estado interno, devolva cópias defensivas e modele operações no próprio objeto em vez de espalhar lógica pelo chamador.",
+          "minutes": 35,
+          "file": "lessons/encapsulamento-de-verdade.md",
+          "takeaways": [
+            "Diferenciar encapsulamento de mero acesso a atributos",
+            "Aplicar cópia defensiva em coleções e datas",
+            "Preferir Tell, Don't Ask na modelagem de comportamento"
+          ],
+          "quiz": [
+            {
+              "question": "Qual getter respeita encapsulamento para uma lista interna mutável?",
+              "options": [
+                "return this.itens;",
+                "return new ArrayList<>(this.itens);",
+                "return Collections.emptyList();",
+                "return this.itens.toString();"
+              ],
+              "answer": 1,
+              "explanation": "Devolver a lista interna permite que o chamador a altere sem passar pelas regras do objeto. Uma cópia defensiva preserva a invariante."
+            },
+            {
+              "question": "O que há de errado em 'public Date getDataNascimento() { return dataNascimento; }'?",
+              "options": [
+                "Date não pode ser atributo",
+                "O chamador pode chamar setTime e modificar o estado interno do objeto",
+                "Falta a palavra final",
+                "Nada; Date é imutável"
+              ],
+              "answer": 1,
+              "explanation": "Date é mutável. Devolver a referência interna vaza a capacidade de alterar o estado. Hoje, java.time.LocalDate é uma escolha melhor."
+            },
+            {
+              "question": "O que significa Tell, Don't Ask?",
+              "options": [
+                "Perguntar ao usuário antes de executar qualquer método",
+                "Dizer ao objeto o que fazer em vez de extrair dados e decidir por ele",
+                "Nunca usar getters",
+                "Documentar todos os métodos públicos"
+              ],
+              "answer": 1,
+              "explanation": "Em vez de obter saldo e decidir fora se o saque cabe, você envia 'sacar(valor)' e deixa o objeto proteger sua própria regra."
+            }
+          ]
+        },
+        {
+          "slug": "heranca-composicao-super",
+          "title": "Herança, composição e o papel de super",
+          "summary": "Use herança apenas para relações 'é um' reais, entenda o custo do acoplamento e substitua hierarquias frágeis por composição.",
+          "minutes": 35,
+          "file": "lessons/heranca-composicao-super.md",
+          "takeaways": [
+            "Avaliar quando herança é a relação correta",
+            "Chamar super() com consciência da ordem de inicialização",
+            "Trocar herança por composição para ganhar flexibilidade"
+          ],
+          "quiz": [
+            {
+              "question": "Quantas classes uma classe Java pode estender diretamente?",
+              "options": [
+                "Nenhuma",
+                "Uma",
+                "Duas",
+                "Quantas quiser"
+              ],
+              "answer": 1,
+              "explanation": "Java permite herança simples de classe. A flexibilidade vem de implementar múltiplas interfaces."
+            },
+            {
+              "question": "Onde 'super(...)' precisa aparecer em um construtor?",
+              "options": [
+                "Em qualquer lugar",
+                "Como primeira instrução, se for usado explicitamente",
+                "Somente depois de inicializar os campos",
+                "Apenas no método main"
+              ],
+              "answer": 1,
+              "explanation": "O construtor da superclasse precisa rodar antes do corpo da subclasse. Se você não chama super(), o compilador insere super() sem argumentos."
+            },
+            {
+              "question": "Qual problema a composição evita em relação à herança?",
+              "options": [
+                "A necessidade de compilar",
+                "O acoplamento à implementação interna da classe base, que pode quebrar subclasses em atualizações",
+                "O uso de interfaces",
+                "A criação de objetos"
+              ],
+              "answer": 1,
+              "explanation": "Herança expõe detalhes de implementação e cria o problema do fragile base class. Composição permite trocar o colaborador sem herdar seu comportamento."
+            }
+          ]
+        },
+        {
+          "slug": "polimorfismo-e-sobrescrita",
+          "title": "Polimorfismo, sobrescrita e despacho dinâmico",
+          "summary": "Entenda como a JVM escolhe o método em tempo de execução, use @Override como rede de segurança e evite surpresas com equals, hashCode e toString.",
+          "minutes": 35,
+          "file": "lessons/polimorfismo-e-sobrescrita.md",
+          "takeaways": [
+            "Explicar despacho dinâmico versus resolução estática",
+            "Aplicar as regras de sobrescrita e covariância",
+            "Reconhecer os métodos especiais que todo objeto herda"
+          ],
+          "quiz": [
+            {
+              "question": "Como a JVM decide qual implementação de um método sobrescrito executar?",
+              "options": [
+                "Pelo tipo declarado da variável em tempo de compilação",
+                "Pelo tipo real do objeto em tempo de execução",
+                "Pela ordem alfabética das classes",
+                "Pelo modificador final do método"
+              ],
+              "answer": 1,
+              "explanation": "O método é resolvido dinamicamente com base na classe real do objeto. É o que permite tratar um Cartao como Pagamento e obter o comportamento específico."
+            },
+            {
+              "question": "Para que serve a anotação @Override?",
+              "options": [
+                "Tornar o método mais rápido",
+                "Fazer o compilador verificar que o método realmente sobrescreve um método da superclasse",
+                "Permitir acesso a métodos privados",
+                "Obrigar a chamada de super"
+              ],
+              "answer": 1,
+              "explanation": "@Override é uma checagem de contrato. Se você errar a assinatura, o compilador acusa em vez de criar silenciosamente um método novo."
+            },
+            {
+              "question": "Métodos static podem ser sobrescritos?",
+              "options": [
+                "Sim, com @Override",
+                "Não; eles são ocultados, não sobrescritos",
+                "Somente se forem final",
+                "Somente em interfaces"
+              ],
+              "answer": 1,
+              "explanation": "Métodos static pertencem à classe, não ao objeto. Uma subclasse pode declarar outro método static com a mesma assinatura, mas não há despacho dinâmico."
+            }
+          ]
+        },
+        {
+          "slug": "interfaces-vs-classes-abstratas",
+          "title": "Interfaces vs classes abstratas: contrato ou base",
+          "summary": "Escolha entre contrato e implementação parcial com critérios claros, use métodos default com moderação e projete interfaces que evoluem.",
+          "minutes": 35,
+          "file": "lessons/interfaces-vs-classes-abstratas.md",
+          "takeaways": [
+            "Diferenciar contrato, implementação parcial e estado",
+            "Usar default methods sem criar hierarquias frágeis",
+            "Decidir entre interface e classe abstrata com base no domínio"
+          ],
+          "quiz": [
+            {
+              "question": "O que uma interface pode declarar em Java 21?",
+              "options": [
+                "Apenas métodos abstratos",
+                "Métodos abstratos, default, static e private, além de constantes",
+                "Campos de instância e construtores",
+                "Herança múltipla de classes"
+              ],
+              "answer": 1,
+              "explanation": "Interfaces modernas têm métodos default, static e private (para auxiliar os default). Elas não têm estado de instância nem construtores."
+            },
+            {
+              "question": "Quando uma classe abstrata é melhor que uma interface?",
+              "options": [
+                "Quando você precisa de estado compartilhado, construtores ou implementação parcial protegida",
+                "Quando quer herança múltipla",
+                "Quando todos os métodos são públicos",
+                "Quando não há comportamento comum"
+              ],
+              "answer": 0,
+              "explanation": "Classe abstrata pode manter campos, construtores e métodos protegidos. Interface é melhor para contratos independentes de implementação."
+            },
+            {
+              "question": "Qual é o risco de adicionar muitos default methods a uma interface?",
+              "options": [
+                "A interface deixa de compilar",
+                "Ela acumula comportamento e vira uma classe abstrata disfarçada, com conflitos de herança",
+                "Todos os implementadores precisam reescrever os métodos",
+                "A JVM não carrega a interface"
+              ],
+              "answer": 1,
+              "explanation": "Default methods são úteis para evolução, mas excesso de lógica compartilhada cria acoplamento e ambiguidade quando uma classe implementa várias interfaces."
+            }
+          ]
+        }
+      ],
+      "exercises": [
+        "exercises/java-conta-bancaria-poo.json"
+      ]
+    },
+    {
+      "slug": "colecoes-e-generics",
+      "title": "Coleções e genéricos",
+      "description": "Escolha estruturas de dados com base em complexidade real, respeite o contrato de igualdade e escreva APIs genéricas que o compilador consegue verificar.",
+      "estimatedHours": 8,
+      "lessons": [
+        {
+          "slug": "list-arraylist-por-dentro",
+          "title": "List e ArrayList por dentro: capacidade, cópia e custo",
+          "summary": "Entenda o array redimensionável por trás do ArrayList, o custo de inserir no meio e as armadilhas de remove, subList e arrays fixos.",
+          "minutes": 35,
+          "file": "lessons/list-arraylist-por-dentro.md",
+          "takeaways": [
+            "Prever complexidade de get, add e remove em ArrayList",
+            "Evitar crescimento repetido e cópias inesperadas",
+            "Usar List.of, Arrays.asList e subList com consciência"
+          ],
+          "quiz": [
+            {
+              "question": "Qual é a complexidade de acessar um elemento por índice em um ArrayList?",
+              "options": [
+                "O(1)",
+                "O(log n)",
+                "O(n)",
+                "O(n log n)"
+              ],
+              "answer": 0,
+              "explanation": "ArrayList mantém um array interno; o acesso por índice é direto. Já inserir ou remover no início desloca os demais elementos."
+            },
+            {
+              "question": "O que 'lista.remove(2)' faz em uma List<Integer>?",
+              "options": [
+                "Remove o elemento de valor 2",
+                "Remove o elemento no índice 2",
+                "Lança exceção sempre",
+                "Remove os dois primeiros elementos"
+              ],
+              "answer": 1,
+              "explanation": "A sobrecarga remove(int index) é escolhida para int. Para remover o valor 2, use lista.remove(Integer.valueOf(2))."
+            },
+            {
+              "question": "Qual é a capacidade inicial efetiva de um ArrayList criado com 'new ArrayList<>()'?",
+              "options": [
+                "Um array de 10 é criado imediatamente",
+                "Nenhum array é criado até o primeiro add; a capacidade inicial é 10 no primeiro crescimento",
+                "Capacidade infinita",
+                "Sempre 16"
+              ],
+              "answer": 1,
+              "explanation": "A implementação moderna usa um array vazio compartilhado e só aloca a capacidade padrão (10) no primeiro add. É uma otimização de memória."
+            }
+          ]
+        },
+        {
+          "slug": "set-hashset-equals-hashcode",
+          "title": "Set, HashSet e o contrato equals/hashCode",
+          "summary": "Domine conjuntos, entenda buckets e colisões e implemente equals/hashCode corretamente para que objetos funcionem em HashSet e HashMap.",
+          "minutes": 35,
+          "file": "lessons/set-hashset-equals-hashcode.md",
+          "takeaways": [
+            "Escolher entre HashSet, LinkedHashSet e TreeSet",
+            "Implementar equals e hashCode coerentes",
+            "Evitar objetos mutáveis como chave de conjunto"
+          ],
+          "quiz": [
+            {
+              "question": "Se dois objetos são iguais segundo equals, o que hashCode deve garantir?",
+              "options": [
+                "Que os hashes sejam diferentes",
+                "Que os hashes sejam iguais",
+                "Que os objetos sejam a mesma referência",
+                "Que os objetos sejam imutáveis"
+              ],
+              "answer": 1,
+              "explanation": "O contrato exige hashCode igual para objetos iguais. Se você violar isso, HashSet e HashMap podem não encontrar o elemento."
+            },
+            {
+              "question": "O que acontece ao alterar um campo usado no hashCode depois de inserir o objeto em um HashSet?",
+              "options": [
+                "O set reorganiza o objeto automaticamente",
+                "O objeto pode ficar no bucket errado e o set passa a não encontrá-lo",
+                "O HashSet lança IllegalStateException",
+                "Nada; HashSet guarda cópias"
+              ],
+              "answer": 1,
+              "explanation": "HashSet não reindexa objetos quando o hash muda. O objeto continua no bucket antigo, mas a busca passa a procurar no novo. Use chaves imutáveis."
+            },
+            {
+              "question": "Qual Set mantém a ordem de inserção?",
+              "options": [
+                "HashSet",
+                "TreeSet",
+                "LinkedHashSet",
+                "EnumSet"
+              ],
+              "answer": 2,
+              "explanation": "LinkedHashSet mantém uma lista duplicada ligada para preservar a ordem de inserção, com custo de memória um pouco maior."
+            }
+          ]
+        },
+        {
+          "slug": "map-hashmap-iteracao",
+          "title": "Map, HashMap e iteração sem surpresas",
+          "summary": "Use Map para contagens, índices e agrupamentos, entenda null, computeIfAbsent e a diferença entre falhar rápido e corromper uma iteração.",
+          "minutes": 35,
+          "file": "lessons/map-hashmap-iteracao.md",
+          "takeaways": [
+            "Escolher entre HashMap, LinkedHashMap e TreeMap",
+            "Usar computeIfAbsent, merge e getOrDefault",
+            "Evitar ConcurrentModificationException e chaves mutáveis"
+          ],
+          "quiz": [
+            {
+              "question": "O que 'map.get(\"x\")' retorna quando a chave não existe em um HashMap?",
+              "options": [
+                "0",
+                "null",
+                "IllegalArgumentException",
+                "Uma entrada vazia"
+              ],
+              "answer": 1,
+              "explanation": "get retorna null para chave ausente. Se null for um valor válido, use containsKey ou getOrDefault para distinguir os casos."
+            },
+            {
+              "question": "Qual é a forma idiomática de contar ocorrências de palavras em um Map?",
+              "options": [
+                "map.put(palavra, map.get(palavra) + 1) sem tratar null",
+                "map.merge(palavra, 1, Integer::sum)",
+                "map.add(palavra)",
+                "map.compute(palavra, (k, v) -> null)"
+              ],
+              "answer": 1,
+              "explanation": "merge insere 1 se a chave não existe e soma com o valor atual se existe. Evita o NullPointerException do get sem verificação."
+            },
+            {
+              "question": "Por que remover entradas de um HashMap dentro de um for-each sobre entrySet lança ConcurrentModificationException?",
+              "options": [
+                "Porque HashMap é thread-safe e bloqueia a escrita",
+                "Porque o iterador detecta modificação estrutural fora dele (fail-fast)",
+                "Porque entrySet é imutável",
+                "Porque a remoção sempre precisa de synchronized"
+              ],
+              "answer": 1,
+              "explanation": "O iterador mantém um contador de modificações. Alterar o mapa diretamente invalida a iteração; use iterator.remove() ou removeIf."
+            }
+          ]
+        },
+        {
+          "slug": "generics-comparable-comparator",
+          "title": "Generics, Comparable e Comparator na prática",
+          "summary": "Escreva código genérico seguro, entenda type erasure e wildcards e ordene objetos com Comparable ou Comparator sem quebrar o contrato.",
+          "minutes": 35,
+          "file": "lessons/generics-comparable-comparator.md",
+          "takeaways": [
+            "Usar generics para eliminar casts e erros em runtime",
+            "Aplicar PECS para escolher extends ou super",
+            "Diferenciar ordenação natural de ordenação externa"
+          ],
+          "quiz": [
+            {
+              "question": "O que acontece com os parâmetros de tipo genéricos em tempo de execução?",
+              "options": [
+                "São preservados integralmente",
+                "Sofrem type erasure e viram Object ou seus limites",
+                "São convertidos em anotações",
+                "Viram classes separadas por tipo"
+              ],
+              "answer": 1,
+              "explanation": "A JVM não conhece List<String> em runtime; o compilador apaga o tipo e insere casts. Por isso não é possível fazer new T() diretamente."
+            },
+            {
+              "question": "Para um método que só lê números de uma lista, qual assinatura é mais flexível?",
+              "options": [
+                "List<Number>",
+                "List<? extends Number>",
+                "List<? super Number>",
+                "List<Object>"
+              ],
+              "answer": 1,
+              "explanation": "List<? extends Number> aceita List<Integer>, List<Double> e List<Number>. Você pode ler como Number, mas não adicionar com segurança."
+            },
+            {
+              "question": "Quando usar Comparator em vez de Comparable?",
+              "options": [
+                "Quando a classe não pode ser alterada ou você precisa de várias ordens",
+                "Quando há apenas uma ordem natural",
+                "Quando os objetos são imutáveis",
+                "Quando se usa HashSet"
+              ],
+              "answer": 0,
+              "explanation": "Comparable define uma ordem natural dentro da classe. Comparator permite ordens externas e múltiplas, sem tocar no domínio."
+            }
+          ]
+        }
+      ],
+      "exercises": [
+        "exercises/java-agenda-contatos-map.json"
+      ]
+    },
+    {
+      "slug": "java-moderno",
+      "title": "Java moderno sem moda",
+      "description": "Use records, sealed types, lambdas e Streams para deixar a intenção explícita, sabendo quando o código simples de sempre é a melhor escolha.",
+      "estimatedHours": 7,
+      "lessons": [
+        {
+          "slug": "records-enums-sealed",
+          "title": "Records, enums e sealed interfaces",
+          "summary": "Modele dados imutáveis com records, estados finitos com enums e hierarquias fechadas com sealed types que o compilador consegue verificar.",
+          "minutes": 35,
+          "file": "lessons/records-enums-sealed.md",
+          "takeaways": [
+            "Usar records para valores imutáveis sem boilerplate",
+            "Dar comportamento e validação a enums",
+            "Fechar hierarquias com sealed e pattern matching exaustivo"
+          ],
+          "quiz": [
+            {
+              "question": "O que um record gera automaticamente?",
+              "options": [
+                "Construtor canônico, acessores, equals, hashCode e toString",
+                "Setters para todos os campos",
+                "Um construtor sem argumentos sempre",
+                "Herança múltipla"
+              ],
+              "answer": 0,
+              "explanation": "O record é uma classe final com campos final, construtor canônico, acessores no estilo nome(), equals, hashCode e toString."
+            },
+            {
+              "question": "Qual é a vantagem de um enum sobre uma constante String?",
+              "options": [
+                "Ocupa menos memória em todos os casos",
+                "O compilador restringe os valores válidos e o enum pode ter campos e métodos",
+                "Permite valores dinâmicos em runtime",
+                "É serializado automaticamente para JSON"
+              ],
+              "answer": 1,
+              "explanation": "Enum fecha o conjunto de valores e evita strings mágicas. Além disso, cada constante pode ter comportamento próprio."
+            },
+            {
+              "question": "O que 'sealed interface Forma permits Circulo, Quadrado' garante?",
+              "options": [
+                "Que Forma é imutável",
+                "Que apenas Circulo e Quadrado podem implementar Forma diretamente",
+                "Que Forma não pode ter métodos",
+                "Que todas as implementações são records"
+              ],
+              "answer": 1,
+              "explanation": "Sealed fecha a hierarquia. O compilador sabe todos os subtipos permitidos e consegue checar exaustividade em switch expressions."
+            }
+          ]
+        },
+        {
+          "slug": "lambdas-stream-api",
+          "title": "Lambdas e Stream API: do loop ao pipeline",
+          "summary": "Passe de loops imperativos para pipelines declarativos, entenda lazy evaluation e use collect, filter, map e flatMap com critério.",
+          "minutes": 35,
+          "file": "lessons/lambdas-stream-api.md",
+          "takeaways": [
+            "Diferenciar operações intermediárias e terminais",
+            "Escolher entre map e flatMap",
+            "Evitar efeitos colaterais e streams reutilizadas"
+          ],
+          "quiz": [
+            {
+              "question": "Qual operação é terminal em uma Stream?",
+              "options": [
+                "filter",
+                "map",
+                "sorted",
+                "collect"
+              ],
+              "answer": 3,
+              "explanation": "collect dispara o processamento e produz um resultado. filter, map e sorted são intermediárias e retornam outra Stream."
+            },
+            {
+              "question": "Por que uma Stream não pode ser reutilizada depois de uma operação terminal?",
+              "options": [
+                "Porque o coletor a apaga do heap",
+                "Porque ela é consumida e lança IllegalStateException se reaberta",
+                "Porque streams são thread-safe",
+                "Porque o compilador remove a variável"
+              ],
+              "answer": 1,
+              "explanation": "Uma Stream representa um pipeline de uso único. Depois do terminal, o estado foi consumido; reutilizar lança IllegalStateException."
+            },
+            {
+              "question": "Qual é a diferença entre map e flatMap?",
+              "options": [
+                "map transforma cada elemento; flatMap achata os resultados em uma única stream",
+                "flatMap é mais rápido",
+                "map só funciona com números",
+                "flatMap é terminal"
+              ],
+              "answer": 0,
+              "explanation": "flatMap é usado quando a função de transformação devolve uma Stream (ou coleção convertida em stream) e você quer um único fluxo achatado."
+            }
+          ]
+        },
+        {
+          "slug": "optional-var-text-blocks-pattern-matching",
+          "title": "Optional, var, text blocks e pattern matching",
+          "summary": "Use Optional como contrato de ausência, var para legibilidade local, text blocks para textos multilinha e pattern matching para eliminar casts.",
+          "minutes": 30,
+          "file": "lessons/optional-var-text-blocks-pattern-matching.md",
+          "takeaways": [
+            "Usar Optional na saída de APIs, não como campo",
+            "Aplicar var sem esconder tipos importantes",
+            "Escrever switch com patterns e sealed types exaustivo"
+          ],
+          "quiz": [
+            {
+              "question": "Qual uso de Optional é considerado boa prática?",
+              "options": [
+                "Como tipo de campo de uma entidade",
+                "Como parâmetro obrigatório de método",
+                "Como retorno de um método que pode não encontrar um valor",
+                "Dentro de uma List para representar nulos"
+              ],
+              "answer": 2,
+              "explanation": "Optional comunica ausência na borda de uma API. Campos opcionais devem ser null ou usar outra modelagem; parâmetros Optional obrigam o chamador a embrulhar valores."
+            },
+            {
+              "question": "O que 'var' faz em Java?",
+              "options": [
+                "Cria uma variável dinamicamente tipada",
+                "Infere o tipo estático a partir do inicializador",
+                "Declara uma constante",
+                "Permite reatribuir tipos diferentes"
+              ],
+              "answer": 1,
+              "explanation": "var é inferência de tipo local em tempo de compilação. A variável continua estaticamente tipada e não pode ser usada sem inicializador."
+            },
+            {
+              "question": "Em um text block, o que a indentação determina?",
+              "options": [
+                "O nível de acesso",
+                "A remoção da indentação comum (incidental) do conteúdo",
+                "O encoding do arquivo",
+                "A ordem de interpolação"
+              ],
+              "answer": 1,
+              "explanation": "O compilador remove a indentação incidental comum, preservando a indentação relativa. As aspas triplas delimitam o bloco."
+            },
+            {
+              "question": "Por que pattern matching para switch combina com sealed interfaces?",
+              "options": [
+                "Porque sealed permite herança múltipla",
+                "Porque o compilador conhece todos os subtipos e consegue exigir exaustividade",
+                "Porque elimina a necessidade de testes",
+                "Porque sealed types são sempre records"
+              ],
+              "answer": 1,
+              "explanation": "Com uma hierarquia fechada, o compilador sabe quais casos existem e pode recusar um switch que não cobre todos eles."
+            }
+          ]
+        }
+      ],
+      "exercises": [
+        "exercises/java-relatorio-streams.json"
+      ]
+    },
+    {
+      "slug": "qualidade-e-ferramentas",
+      "title": "Qualidade, testes e ferramentas",
+      "description": "Projete falhas explícitas, teste comportamento com JUnit 5 e use Maven ou Gradle, depuração e princípios de clean code no fluxo diário.",
+      "estimatedHours": 7,
+      "lessons": [
+        {
+          "slug": "excecoes-checked-unchecked",
+          "title": "Exceções checked e unchecked: projetando falhas",
+          "summary": "Decida o que é falha recuperável e o que é bug, preserve a causa original e escreva blocos try-with-resources que não escondem erros.",
+          "minutes": 30,
+          "file": "lessons/excecoes-checked-unchecked.md",
+          "takeaways": [
+            "Diferenciar exceções checked, unchecked e Error",
+            "Preservar causa e contexto ao relançar",
+            "Fechar recursos com try-with-resources"
+          ],
+          "quiz": [
+            {
+              "question": "O que o compilador exige de uma exceção checked?",
+              "options": [
+                "Nada, ela pode propagar livremente",
+                "Que seja capturada ou declarada na cláusula throws",
+                "Que seja sempre relançada como RuntimeException",
+                "Que ocorra apenas no método main"
+              ],
+              "answer": 1,
+              "explanation": "Exceções checked fazem parte do contrato do método. Quem chama precisa tratar ou declarar a possibilidade de falha."
+            },
+            {
+              "question": "Por que capturar Exception antes de uma exceção específica é um erro?",
+              "options": [
+                "Porque Exception é final",
+                "Porque o bloco específico se torna inalcançável e o compilador rejeita",
+                "Porque Exception não pode ser capturada",
+                "Porque perde performance"
+              ],
+              "answer": 1,
+              "explanation": "Os blocos catch são avaliados em ordem. Um catch(Exception) anterior captura tudo e torna os seguintes inalcançáveis, o que é erro de compilação."
+            },
+            {
+              "question": "Qual é o benefício de try-with-resources?",
+              "options": [
+                "Executa o bloco em outra thread",
+                "Fecha automaticamente recursos que implementam AutoCloseable, mesmo com exceção",
+                "Impede qualquer exceção",
+                "Elimina a necessidade de catch"
+              ],
+              "answer": 1,
+              "explanation": "O compilador gera o fechamento em finally, com supressão adequada de exceções secundárias. É a forma segura de lidar com arquivos e conexões."
+            }
+          ]
+        },
+        {
+          "slug": "junit-maven-debug-clean-code",
+          "title": "JUnit 5, Maven/Gradle, debugging e clean code",
+          "summary": "Estruture um projeto real, escreva testes que documentam comportamento e use o depurador para investigar em vez de imprimir variáveis.",
+          "minutes": 35,
+          "file": "lessons/junit-maven-debug-clean-code.md",
+          "takeaways": [
+            "Organizar um projeto Maven/Gradle com testes separados",
+            "Escrever testes JUnit 5 com AAA e nomes de comportamento",
+            "Depurar com breakpoints e inspecionar estado sem alterar o código"
+          ],
+          "quiz": [
+            {
+              "question": "Qual é a ordem correta do padrão Arrange-Act-Assert?",
+              "options": [
+                "Executar, preparar, verificar",
+                "Preparar o cenário, executar a ação, verificar o resultado",
+                "Verificar, executar, preparar",
+                "Preparar, verificar, executar"
+              ],
+              "answer": 1,
+              "explanation": "AAA separa a preparação, a ação sob teste e a asserção. Isso deixa claro o que o teste está documentando."
+            },
+            {
+              "question": "Em 'assertEquals(esperado, atual)', o que acontece se os argumentos forem invertidos?",
+              "options": [
+                "O teste não compila",
+                "O teste pode passar, mas a mensagem de falha fica confusa",
+                "O JUnit lança exceção de configuração",
+                "Os tipos precisam ser diferentes"
+              ],
+              "answer": 1,
+              "explanation": "assertEquals aceita dois valores do mesmo tipo. Inverter a ordem não quebra a asserção, mas a mensagem 'expected' mostra o valor errado e atrasa o diagnóstico."
+            },
+            {
+              "question": "Qual fase do Maven executa os testes?",
+              "options": [
+                "compile",
+                "test",
+                "package",
+                "install"
+              ],
+              "answer": 1,
+              "explanation": "A fase test roda os testes após compile. package e install incluem test por encadeamento do ciclo de vida, mas a fase específica é test."
+            }
+          ]
+        }
+      ],
+      "exercises": []
+    }
+  ]
+}

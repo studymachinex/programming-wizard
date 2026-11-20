@@ -1,0 +1,156 @@
+[
+  {
+    "slug": "sql-combine-two-tables",
+    "title": "Combine Two Tables",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/combine-two-tables/",
+    "difficulty": "facil",
+    "level": 1,
+    "topic": "LEFT JOIN",
+    "moduleSlug": "fundamentos-sql",
+    "description": "O primeiro LEFT JOIN: mantenha pessoas mesmo sem endereço. Compare com INNER JOIN e explique por que a diferença aparece nos dados, não na sintaxe. Treine também NULL versus string vazia."
+  },
+  {
+    "slug": "sql-second-highest-salary",
+    "title": "Second Highest Salary",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/second-highest-salary/",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "Subquery / NULL",
+    "moduleSlug": "fundamentos-sql",
+    "description": "Encontre o segundo maior salário e retorne NULL quando não existir. Resolva com subquery, OFFSET e DENSE_RANK; compare legibilidade e desempenho. É a introdução perfeita ao problema de 'top N com empates'."
+  },
+  {
+    "slug": "sql-duplicate-emails",
+    "title": "Duplicate Emails",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/duplicate-emails/",
+    "difficulty": "facil",
+    "level": 1,
+    "topic": "GROUP BY / HAVING",
+    "moduleSlug": "fundamentos-sql",
+    "description": "Agrupe por email e filtre contagens maiores que 1. Treine a ordem lógica do SQL (FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY) e explique por que WHERE não vê o COUNT."
+  },
+  {
+    "slug": "sql-customers-never-order",
+    "title": "Customers Who Never Order",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/customers-who-never-order/",
+    "difficulty": "facil",
+    "level": 2,
+    "topic": "Anti-join",
+    "moduleSlug": "fundamentos-sql",
+    "description": "Resolva com LEFT JOIN + IS NULL, NOT IN e NOT EXISTS. Compare os três planos e discuta o comportamento de NOT IN com NULL — uma das armadilhas mais caras de produção."
+  },
+  {
+    "slug": "sql-employees-earning-more",
+    "title": "Employees Earning More Than Their Managers",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/employees-earning-more-than-their-managers/",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "Self JOIN",
+    "moduleSlug": "fundamentos-sql",
+    "description": "Faça self join entre funcionário e gerente. Treine aliases, cardinalidade e índices na coluna de gerente. É a base para hierarquias e consultas recursivas."
+  },
+  {
+    "slug": "sql-department-highest-salary",
+    "title": "Department Highest Salary",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/department-highest-salary/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Window Functions",
+    "moduleSlug": "consultas-avancadas",
+    "description": "Encontre o maior salário por departamento, incluindo empates. Resolva com subquery correlacionada e com RANK/DENSE_RANK. Explique por que a window function costuma ser mais legível e como o plano muda."
+  },
+  {
+    "slug": "sql-department-top-three-salaries",
+    "title": "Department Top Three Salaries",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/department-top-three-salaries/",
+    "difficulty": "dificil",
+    "level": 4,
+    "topic": "Window Functions",
+    "moduleSlug": "consultas-avancadas",
+    "description": "Top 3 salários por departamento com DENSE_RANK. Cuidado com a diferença entre RANK, DENSE_RANK e ROW_NUMBER quando há empates. Compare com a solução de subquery e meça com EXPLAIN."
+  },
+  {
+    "slug": "sql-consecutive-numbers",
+    "title": "Consecutive Numbers",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/consecutive-numbers/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Self JOIN / Window",
+    "moduleSlug": "consultas-avancadas",
+    "description": "Encontre números que aparecem pelo menos três vezes seguidas. Resolva com três self joins, com LAG/LEAD e com row_number - id. Compare clareza, custo e generalização para k ocorrências."
+  },
+  {
+    "slug": "sql-human-traffic-stadium",
+    "title": "Human Traffic of Stadium",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/human-traffic-of-stadium/",
+    "difficulty": "dificil",
+    "level": 4,
+    "topic": "Gaps and Islands",
+    "moduleSlug": "consultas-avancadas",
+    "description": "Encontre sequências de três ou mais dias com lotação alta. É o padrão gaps-and-islands com row_number e diferença de IDs. Resolva sem variáveis de sessão e explique a ordenação final."
+  },
+  {
+    "slug": "sql-monthly-transactions",
+    "title": "Monthly Transactions I",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/monthly-transactions-i/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Agregação por período",
+    "moduleSlug": "consultas-avancadas",
+    "description": "Agrupe transações por mês e país, contando aprovadas e somando valores. Treine DATE_TRUNC/date_format, CASE dentro de SUM e arredondamento. Cuidado com meses sem transações e com fuso horário."
+  },
+  {
+    "slug": "sql-managers-five-reports",
+    "title": "Managers with at Least 5 Direct Reports",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/managers-with-at-least-5-direct-reports/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "GROUP BY / JOIN",
+    "moduleSlug": "modelagem",
+    "description": "Conte subordinados por gerente e filtre >= 5. Discuta o índice necessário, a diferença entre COUNT(*) e COUNT(coluna) e por que a chave estrangeira auto-referente precisa de cuidado em deleções."
+  },
+  {
+    "slug": "sql-restaurant-growth",
+    "title": "Restaurant Growth",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/restaurant-growth/",
+    "difficulty": "medio",
+    "level": 4,
+    "topic": "Window / Rolling",
+    "moduleSlug": "performance",
+    "description": "Calcule receita e média móvel de 7 dias. Resolva com window frame e compare com self join por intervalo. Meça o custo de varrer a tabela várias vezes e discuta materialized views."
+  },
+  {
+    "slug": "sql-trips-and-users",
+    "title": "Trips and Users",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/trips-and-users/",
+    "difficulty": "dificil",
+    "level": 4,
+    "topic": "JOIN / Filtros",
+    "moduleSlug": "performance",
+    "description": "Calcule taxa de cancelamento por dia excluindo usuários banidos. O desafio é aplicar o filtro no lugar certo sem perder dias sem viagens. Treine EXISTS, JOIN e agregação condicional."
+  },
+  {
+    "slug": "sql-rising-temperature",
+    "title": "Rising Temperature",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/rising-temperature/",
+    "difficulty": "facil",
+    "level": 2,
+    "topic": "Self JOIN / Datas",
+    "moduleSlug": "performance",
+    "description": "Encontre dias com temperatura maior que a do dia anterior. Compare self join com DATEDIFF e LAG. Discuta índices em colunas de data e o custo de funções sobre a coluna no WHERE."
+  }
+]

@@ -1,0 +1,112 @@
+[
+  {
+    "slug": "oop-design-hashmap",
+    "title": "Design HashMap",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/design-hashmap/",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "Design / Hashing",
+    "moduleSlug": "solid-na-pratica",
+    "description": "Implemente put/get/remove sem usar HashMap. Escolha a função de hash, trate colisões e decida quando redimensionar. É o exercício perfeito para separar contrato de implementação e justificar encapsulamento."
+  },
+  {
+    "slug": "oop-design-parking-system",
+    "title": "Design Parking System",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/design-parking-system/",
+    "difficulty": "facil",
+    "level": 1,
+    "topic": "Design / Estado",
+    "moduleSlug": "solid-na-pratica",
+    "description": "Modele um estacionamento com três tamanhos e capacidade. Comece com três contadores e depois refatore para uma abstração extensível. O objetivo é sentir quando um design simples basta e quando polimorfismo passa a pagar."
+  },
+  {
+    "slug": "oop-design-circular-queue",
+    "title": "Design Circular Queue",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/design-circular-queue/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Design / Buffer",
+    "moduleSlug": "padroes-estruturais",
+    "description": "Buffer circular com head, tail e capacity. Implemente com array e sentinelas, trate cheio/vazio sem confundir estados e compare com ArrayDeque. É a base de ring buffers e filas de alta throughput."
+  },
+  {
+    "slug": "oop-design-twitter",
+    "title": "Design Twitter",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/design-twitter/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Design / Feed",
+    "moduleSlug": "padroes-comportamentais",
+    "description": "Implemente post, follow, unfollow e feed com os 10 tweets mais recentes. Escolha entre merge de listas e heap, discuta fan-out e relacione com o design de feed que você verá em system design."
+  },
+  {
+    "slug": "oop-design-add-search-words",
+    "title": "Design Add and Search Words Data Structure",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/design-add-and-search-words-data-structure/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Design / Trie",
+    "moduleSlug": "padroes-estruturais",
+    "description": "Trie com busca que aceita '.' como curinga. Treine composição, recursão e poda. O design precisa equilibrar memória e tempo de busca, exatamente como autocomplete e busca de rotas."
+  },
+  {
+    "slug": "oop-design-authentication-manager",
+    "title": "Design Authentication Manager",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/design-authentication-manager/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Design / TTL",
+    "moduleSlug": "padroes-comportamentais",
+    "description": "Tokens com expiração, renovação e revogação. Implemente com mapa e timestamps, discuta limpeza preguiçosa versus ativa e conecte com sessões, Redis e segurança. Cuidado com relógio e concorrência."
+  },
+  {
+    "slug": "oop-design-browser-history",
+    "title": "Design Browser History",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/design-browser-history/",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "Design / Navegação",
+    "moduleSlug": "padroes-comportamentais",
+    "description": "Histórico com visit, back e forward. Modele com duas pilhas ou lista + índice. Compare clareza, custo de memória e o que acontece ao visitar uma página depois de voltar."
+  },
+  {
+    "slug": "oop-design-underground-system",
+    "title": "Design Underground System",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/design-underground-system/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Design / Agregação",
+    "moduleSlug": "arquitetura-e-refatoracao",
+    "description": "Registre check-ins e calcule a média de viagens por par de estações. O desafio é escolher as chaves e manter agregados em vez de recalcular. Conecte com métricas e event sourcing."
+  },
+  {
+    "slug": "oop-design-stack-increment",
+    "title": "Design a Stack With Increment Operation",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/design-a-stack-with-increment-operation/",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "Design / Lazy",
+    "moduleSlug": "padroes-estruturais",
+    "description": "Pilha com incremento dos k primeiros elementos. A solução O(1) usa um array de lazy increments aplicado no pop. É um exemplo perfeito de trocar trabalho imediato por trabalho adiado."
+  },
+  {
+    "slug": "oop-refactoring-guru-catalog",
+    "title": "Catálogo de Design Patterns (leitura aplicada)",
+    "platform": "Outro",
+    "url": "https://refactoring.guru/design-patterns/catalog",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Design Patterns",
+    "moduleSlug": "padroes-comportamentais",
+    "description": "Escolha três padrões que você ainda não usou em produção, leia o problema, a solução e os trade-offs, e implemente cada um em Java com um teste que prove o benefício. Não copie o exemplo: adapte para um domínio seu."
+  }
+]

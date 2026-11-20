@@ -1,0 +1,178 @@
+{
+  "slug": "http-server",
+  "title": "Build your own HTTP server",
+  "tagline": "Entenda HTTP por dentro implementando um servidor TCP do zero.",
+  "description": "Você vai construir um servidor HTTP/1.1 em Java usando apenas sockets TCP: parsing de request, rotas, arquivos, compressão gzip e conexões persistentes. São 14 stages curtos, cada um com um teste de integração real.",
+  "language": "java",
+  "languageLabel": "Java 21",
+  "estimatedHours": 8,
+  "topics": [
+    "TCP sockets",
+    "HTTP/1.1",
+    "parsing de request",
+    "headers",
+    "roteamento",
+    "filesystem",
+    "gzip",
+    "keep-alive",
+    "concorrência"
+  ],
+  "prerequisites": [
+    "Java 21 instalado (java -version)",
+    "Maven instalado (mvn -version)"
+  ],
+  "runtime": {
+    "starter": "challenges/http-server/starter/java",
+    "reference": "challenges/http-server/java",
+    "runner": "challenges/http-server/tests/stages.mjs",
+    "compile": {
+      "command": "mvn",
+      "args": ["-q", "-B", "package"],
+      "timeoutMs": 240000
+    },
+    "port": 4221,
+    "runCommand": "./your_program.sh"
+  },
+  "stages": [
+    {
+      "order": 1,
+      "id": "introduction",
+      "slug": "bind-to-a-port",
+      "title": "Bind to a port",
+      "difficulty": "Very easy",
+      "section": "Core",
+      "summary": "Abra um ServerSocket na porta 4221 e mantenha o processo vivo.",
+      "file": "stages/01-bind-to-a-port.md"
+    },
+    {
+      "order": 2,
+      "id": "ia4",
+      "slug": "respond-with-200",
+      "title": "Respond with 200",
+      "difficulty": "Very easy",
+      "section": "Core",
+      "summary": "Responda qualquer request HTTP com status 200 e uma resposta válida.",
+      "file": "stages/02-respond-with-200.md"
+    },
+    {
+      "order": 3,
+      "id": "ih0",
+      "slug": "extract-url-path",
+      "title": "Extract URL path",
+      "difficulty": "Easy",
+      "section": "Core",
+      "summary": "Leia a request line e diferencie / de qualquer outro path com 404.",
+      "file": "stages/03-extract-url-path.md"
+    },
+    {
+      "order": 4,
+      "id": "cn2",
+      "slug": "respond-with-body",
+      "title": "Respond with body",
+      "difficulty": "Easy",
+      "section": "Core",
+      "summary": "Implemente GET /echo/{str} com Content-Type e Content-Length corretos.",
+      "file": "stages/04-respond-with-body.md"
+    },
+    {
+      "order": 5,
+      "id": "fs3",
+      "slug": "read-header",
+      "title": "Read header",
+      "difficulty": "Easy",
+      "section": "Core",
+      "summary": "Faça parsing dos headers e devolva o User-Agent em GET /user-agent.",
+      "file": "stages/05-read-header.md"
+    },
+    {
+      "order": 6,
+      "id": "ej5",
+      "slug": "concurrent-connections",
+      "title": "Concurrent connections",
+      "difficulty": "Easy",
+      "section": "Core",
+      "summary": "Atenda várias conexões ao mesmo tempo sem bloquear o accept loop.",
+      "file": "stages/06-concurrent-connections.md"
+    },
+    {
+      "order": 7,
+      "id": "ap6",
+      "slug": "return-a-file",
+      "title": "Return a file",
+      "difficulty": "Medium",
+      "section": "Core",
+      "summary": "Sirva arquivos de --directory em GET /files/{nome} com 404 para ausentes.",
+      "file": "stages/07-return-a-file.md"
+    },
+    {
+      "order": 8,
+      "id": "qv8",
+      "slug": "read-request-body",
+      "title": "Read request body",
+      "difficulty": "Medium",
+      "section": "Core",
+      "summary": "Leia Content-Length e grave o body de POST /files/{nome} em disco.",
+      "file": "stages/08-read-request-body.md"
+    },
+    {
+      "order": 9,
+      "id": "df4",
+      "slug": "compression-headers",
+      "title": "Compression headers",
+      "difficulty": "Easy",
+      "section": "HTTP Compression",
+      "summary": "Use Accept-Encoding para decidir se responde com Content-Encoding: gzip.",
+      "file": "stages/09-compression-headers.md"
+    },
+    {
+      "order": 10,
+      "id": "ij8",
+      "slug": "multiple-compression-schemes",
+      "title": "Multiple compression schemes",
+      "difficulty": "Medium",
+      "section": "HTTP Compression",
+      "summary": "Faça parsing de listas de encoding e respeite q=0.",
+      "file": "stages/10-multiple-compression-schemes.md"
+    },
+    {
+      "order": 11,
+      "id": "cr8",
+      "slug": "gzip-compression",
+      "title": "Gzip compression",
+      "difficulty": "Medium",
+      "section": "HTTP Compression",
+      "summary": "Comprima o body de verdade com GZIPOutputStream e ajuste Content-Length.",
+      "file": "stages/11-gzip-compression.md"
+    },
+    {
+      "order": 12,
+      "id": "ag9",
+      "slug": "persistent-connections",
+      "title": "Persistent connections",
+      "difficulty": "Medium",
+      "section": "Persistent Connections",
+      "summary": "Mantenha a conexão aberta e leia vários requests em sequência.",
+      "file": "stages/12-persistent-connections.md"
+    },
+    {
+      "order": 13,
+      "id": "ul1",
+      "slug": "concurrent-persistent-connections",
+      "title": "Concurrent persistent connections",
+      "difficulty": "Medium",
+      "section": "Persistent Connections",
+      "summary": "Cada conexão persistente precisa evoluir de forma independente.",
+      "file": "stages/13-concurrent-persistent-connections.md"
+    },
+    {
+      "order": 14,
+      "id": "kh7",
+      "slug": "connection-closure",
+      "title": "Connection closure",
+      "difficulty": "Medium",
+      "section": "Persistent Connections",
+      "summary": "Respeite Connection: close e encerre a conexão depois da resposta.",
+      "file": "stages/14-connection-closure.md"
+    }
+  ]
+}

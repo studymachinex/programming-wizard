@@ -1,0 +1,3527 @@
+{
+  "source": "https://app.codecrafters.io/catalog",
+  "syncedAt": "2026-11-20T15:18:47.206Z",
+  "challenges": [
+    {
+      "slug": "git",
+      "title": "Build your own Git",
+      "description": "Objetos Git, index, tree objects, commits e plumbing commands.",
+      "access": "members",
+      "catalogUrl": "https://app.codecrafters.io/courses/git/overview",
+      "stageCount": 7,
+      "stages": [
+        {
+          "order": 1,
+          "id": "introduction",
+          "title": "Initialize the .git directory",
+          "difficulty": "Very easy",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/git/introduction"
+        },
+        {
+          "order": 2,
+          "id": "ic4",
+          "title": "Read a blob object",
+          "difficulty": "Medium",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/git/stages/ic4"
+        },
+        {
+          "order": 3,
+          "id": "jt4",
+          "title": "Create a blob object",
+          "difficulty": "Medium",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/git/stages/jt4"
+        },
+        {
+          "order": 4,
+          "id": "kp1",
+          "title": "Read a tree object",
+          "difficulty": "Medium",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/git/stages/kp1"
+        },
+        {
+          "order": 5,
+          "id": "fe4",
+          "title": "Write a tree object",
+          "difficulty": "Medium",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/git/stages/fe4"
+        },
+        {
+          "order": 6,
+          "id": "jm9",
+          "title": "Create a commit",
+          "difficulty": "Medium",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/git/stages/jm9"
+        },
+        {
+          "order": 7,
+          "id": "mg6",
+          "title": "Clone a repository",
+          "difficulty": "Hard",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/git/stages/mg6"
+        }
+      ]
+    },
+    {
+      "slug": "dns-server",
+      "title": "Build your own DNS server",
+      "description": "Protocolo DNS, parsing de pacotes, records e forwarding.",
+      "access": "members",
+      "catalogUrl": "https://app.codecrafters.io/courses/dns-server/overview",
+      "stageCount": 8,
+      "stages": [
+        {
+          "order": 1,
+          "id": "introduction",
+          "title": "Setup UDP server",
+          "difficulty": "Very easy",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/dns-server/introduction"
+        },
+        {
+          "order": 2,
+          "id": "tz1",
+          "title": "Write header section",
+          "difficulty": "Medium",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/dns-server/stages/tz1"
+        },
+        {
+          "order": 3,
+          "id": "bf2",
+          "title": "Write question section",
+          "difficulty": "Medium",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/dns-server/stages/bf2"
+        },
+        {
+          "order": 4,
+          "id": "xm2",
+          "title": "Write answer section",
+          "difficulty": "Easy",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/dns-server/stages/xm2"
+        },
+        {
+          "order": 5,
+          "id": "uc8",
+          "title": "Parse header section",
+          "difficulty": "Hard",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/dns-server/stages/uc8"
+        },
+        {
+          "order": 6,
+          "id": "hd8",
+          "title": "Parse question section",
+          "difficulty": "Easy",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/dns-server/stages/hd8"
+        },
+        {
+          "order": 7,
+          "id": "yc9",
+          "title": "Parse compressed packet",
+          "difficulty": "Medium",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/dns-server/stages/yc9"
+        },
+        {
+          "order": 8,
+          "id": "gt1",
+          "title": "Forwarding Server",
+          "difficulty": "Medium",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/dns-server/stages/gt1"
+        }
+      ]
+    },
+    {
+      "slug": "tokenizer",
+      "title": "Build your own Tokenizer",
+      "description": "Byte-pair encoding, UTF-8 e vocabulário de tokenizer.",
+      "access": "early-access",
+      "catalogUrl": "https://app.codecrafters.io/courses/tokenizer/overview",
+      "stageCount": 8,
+      "stages": [
+        {
+          "order": 1,
+          "id": "introduction",
+          "title": "UTF-8 bytes",
+          "difficulty": "Very easy",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/tokenizer/introduction"
+        },
+        {
+          "order": 2,
+          "id": "gk8",
+          "title": "Most frequent pair",
+          "difficulty": "Easy",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/tokenizer/stages/gk8"
+        },
+        {
+          "order": 3,
+          "id": "fk3",
+          "title": "Merge a pair",
+          "difficulty": "Easy",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/tokenizer/stages/fk3"
+        },
+        {
+          "order": 4,
+          "id": "ur9",
+          "title": "Learn merges",
+          "difficulty": "Medium",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/tokenizer/stages/ur9"
+        },
+        {
+          "order": 5,
+          "id": "kz6",
+          "title": "Encode",
+          "difficulty": "Medium",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/tokenizer/stages/kz6"
+        },
+        {
+          "order": 6,
+          "id": "vg5",
+          "title": "Decode",
+          "difficulty": "Medium",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/tokenizer/stages/vg5"
+        },
+        {
+          "order": 7,
+          "id": "wl7",
+          "title": "Split like GPT-2",
+          "difficulty": "Medium",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/tokenizer/stages/wl7"
+        },
+        {
+          "order": 8,
+          "id": "as1",
+          "title": "Match GPT-2",
+          "difficulty": "Hard",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/tokenizer/stages/as1"
+        }
+      ]
+    },
+    {
+      "slug": "sqlite",
+      "title": "Build your own SQLite",
+      "description": "Formato de arquivo SQLite, B-trees, pages e executor SQL.",
+      "access": "members",
+      "catalogUrl": "https://app.codecrafters.io/courses/sqlite/overview",
+      "stageCount": 9,
+      "stages": [
+        {
+          "order": 1,
+          "id": "introduction",
+          "title": "Print page size",
+          "difficulty": "Very easy",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/sqlite/introduction"
+        },
+        {
+          "order": 2,
+          "id": "ce0",
+          "title": "Print number of tables",
+          "difficulty": "Hard",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/sqlite/stages/ce0"
+        },
+        {
+          "order": 3,
+          "id": "sz4",
+          "title": "Print table names",
+          "difficulty": "Hard",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/sqlite/stages/sz4"
+        },
+        {
+          "order": 4,
+          "id": "nd9",
+          "title": "Count rows in a table",
+          "difficulty": "Medium",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/sqlite/stages/nd9"
+        },
+        {
+          "order": 5,
+          "id": "az9",
+          "title": "Read data from a single column",
+          "difficulty": "Hard",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/sqlite/stages/az9"
+        },
+        {
+          "order": 6,
+          "id": "vc9",
+          "title": "Read data from multiple columns",
+          "difficulty": "Hard",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/sqlite/stages/vc9"
+        },
+        {
+          "order": 7,
+          "id": "rf3",
+          "title": "Filter data with a WHERE clause",
+          "difficulty": "Hard",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/sqlite/stages/rf3"
+        },
+        {
+          "order": 8,
+          "id": "ws9",
+          "title": "Retrieve data using a full-table scan",
+          "difficulty": "Hard",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/sqlite/stages/ws9"
+        },
+        {
+          "order": 9,
+          "id": "nz8",
+          "title": "Retrieve data using an index",
+          "difficulty": "Hard",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/sqlite/stages/nz8"
+        }
+      ]
+    },
+    {
+      "slug": "http-server",
+      "title": "Build your own HTTP server",
+      "description": "TCP servers, protocolo HTTP, headers, arquivos e conexões persistentes.",
+      "access": "members",
+      "catalogUrl": "https://app.codecrafters.io/courses/http-server/overview",
+      "stageCount": 14,
+      "stages": [
+        {
+          "order": 1,
+          "id": "introduction",
+          "title": "Bind to a port",
+          "difficulty": "Very easy",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/http-server/introduction"
+        },
+        {
+          "order": 2,
+          "id": "ia4",
+          "title": "Respond with 200",
+          "difficulty": "Very easy",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/http-server/stages/ia4"
+        },
+        {
+          "order": 3,
+          "id": "ih0",
+          "title": "Extract URL path",
+          "difficulty": "Easy",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/http-server/stages/ih0"
+        },
+        {
+          "order": 4,
+          "id": "cn2",
+          "title": "Respond with body",
+          "difficulty": "Easy",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/http-server/stages/cn2"
+        },
+        {
+          "order": 5,
+          "id": "fs3",
+          "title": "Read header",
+          "difficulty": "Easy",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/http-server/stages/fs3"
+        },
+        {
+          "order": 6,
+          "id": "ej5",
+          "title": "Concurrent connections",
+          "difficulty": "Easy",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/http-server/stages/ej5"
+        },
+        {
+          "order": 7,
+          "id": "ap6",
+          "title": "Return a file",
+          "difficulty": "Medium",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/http-server/stages/ap6"
+        },
+        {
+          "order": 8,
+          "id": "qv8",
+          "title": "Read request body",
+          "difficulty": "Medium",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/http-server/stages/qv8"
+        },
+        {
+          "order": 9,
+          "id": "df4",
+          "title": "Compression headers",
+          "difficulty": "Easy",
+          "section": "HTTP Compression",
+          "url": "https://app.codecrafters.io/courses/http-server/stages/df4"
+        },
+        {
+          "order": 10,
+          "id": "ij8",
+          "title": "Multiple compression schemes",
+          "difficulty": "Medium",
+          "section": "HTTP Compression",
+          "url": "https://app.codecrafters.io/courses/http-server/stages/ij8"
+        },
+        {
+          "order": 11,
+          "id": "cr8",
+          "title": "Gzip compression",
+          "difficulty": "Medium",
+          "section": "HTTP Compression",
+          "url": "https://app.codecrafters.io/courses/http-server/stages/cr8"
+        },
+        {
+          "order": 12,
+          "id": "ag9",
+          "title": "Persistent connections",
+          "difficulty": "Medium",
+          "section": "Persistent Connections",
+          "url": "https://app.codecrafters.io/courses/http-server/stages/ag9"
+        },
+        {
+          "order": 13,
+          "id": "ul1",
+          "title": "Concurrent persistent connections",
+          "difficulty": "Medium",
+          "section": "Persistent Connections",
+          "url": "https://app.codecrafters.io/courses/http-server/stages/ul1"
+        },
+        {
+          "order": 14,
+          "id": "kh7",
+          "title": "Connection closure",
+          "difficulty": "Medium",
+          "section": "Persistent Connections",
+          "url": "https://app.codecrafters.io/courses/http-server/stages/kh7"
+        }
+      ]
+    },
+    {
+      "slug": "claude-code",
+      "title": "Build your own Claude Code",
+      "description": "LLM APIs, tool calling, agent loop e edição de arquivos.",
+      "access": "beta",
+      "catalogUrl": "https://app.codecrafters.io/courses/claude-code/overview",
+      "stageCount": 18,
+      "stages": [
+        {
+          "order": 1,
+          "id": "introduction",
+          "title": "Communicate with the LLM",
+          "difficulty": "Very easy",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/claude-code/introduction"
+        },
+        {
+          "order": 2,
+          "id": "aq1",
+          "title": "Advertise the read tool",
+          "difficulty": "Easy",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/claude-code/stages/aq1"
+        },
+        {
+          "order": 3,
+          "id": "md6",
+          "title": "Execute the read tool",
+          "difficulty": "Easy",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/claude-code/stages/md6"
+        },
+        {
+          "order": 4,
+          "id": "ff2",
+          "title": "Implement the agent loop",
+          "difficulty": "Medium",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/claude-code/stages/ff2"
+        },
+        {
+          "order": 5,
+          "id": "oz7",
+          "title": "Implement the write tool",
+          "difficulty": "Easy",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/claude-code/stages/oz7"
+        },
+        {
+          "order": 6,
+          "id": "oq5",
+          "title": "Implement the bash tool",
+          "difficulty": "Easy",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/claude-code/stages/oq5"
+        },
+        {
+          "order": 7,
+          "id": "vh1",
+          "title": "Advertise skills to the LLM",
+          "difficulty": "Medium",
+          "section": "Skills",
+          "url": "https://app.codecrafters.io/courses/claude-code/stages/vh1"
+        },
+        {
+          "order": 8,
+          "id": "jd8",
+          "title": "Invoke a skill by name",
+          "difficulty": "Easy",
+          "section": "Skills",
+          "url": "https://app.codecrafters.io/courses/claude-code/stages/jd8"
+        },
+        {
+          "order": 9,
+          "id": "wd2",
+          "title": "Pass arguments to a skill",
+          "difficulty": "Easy",
+          "section": "Skills",
+          "url": "https://app.codecrafters.io/courses/claude-code/stages/wd2"
+        },
+        {
+          "order": 10,
+          "id": "sk5",
+          "title": "Stack multiple skills",
+          "difficulty": "Medium",
+          "section": "Skills",
+          "url": "https://app.codecrafters.io/courses/claude-code/stages/sk5"
+        },
+        {
+          "order": 11,
+          "id": "tq1",
+          "title": "Run a script bundled with a skill",
+          "difficulty": "Medium",
+          "section": "Skills",
+          "url": "https://app.codecrafters.io/courses/claude-code/stages/tq1"
+        },
+        {
+          "order": 12,
+          "id": "gq2",
+          "title": "Let the model choose a skill",
+          "difficulty": "Medium",
+          "section": "Skills",
+          "url": "https://app.codecrafters.io/courses/claude-code/stages/gq2"
+        },
+        {
+          "order": 13,
+          "id": "mj2",
+          "title": "Run a skill in a subagent",
+          "difficulty": "Hard",
+          "section": "Skills",
+          "url": "https://app.codecrafters.io/courses/claude-code/stages/mj2"
+        },
+        {
+          "order": 14,
+          "id": "iy3",
+          "title": "Add the LSP tool",
+          "difficulty": "Easy",
+          "section": "Language Server Protocol",
+          "url": "https://app.codecrafters.io/courses/claude-code/stages/iy3"
+        },
+        {
+          "order": 15,
+          "id": "gz6",
+          "title": "Find the implementation",
+          "difficulty": "Medium",
+          "section": "Language Server Protocol",
+          "url": "https://app.codecrafters.io/courses/claude-code/stages/gz6"
+        },
+        {
+          "order": 16,
+          "id": "rb6",
+          "title": "Find the affected callers",
+          "difficulty": "Easy",
+          "section": "Language Server Protocol",
+          "url": "https://app.codecrafters.io/courses/claude-code/stages/rb6"
+        },
+        {
+          "order": 17,
+          "id": "bn2",
+          "title": "Keep the analysis current",
+          "difficulty": "Medium",
+          "section": "Language Server Protocol",
+          "url": "https://app.codecrafters.io/courses/claude-code/stages/bn2"
+        },
+        {
+          "order": 18,
+          "id": "ql9",
+          "title": "Repair edits with diagnostics",
+          "difficulty": "Medium",
+          "section": "Language Server Protocol",
+          "url": "https://app.codecrafters.io/courses/claude-code/stages/ql9"
+        }
+      ]
+    },
+    {
+      "slug": "bittorrent",
+      "title": "Build your own BitTorrent",
+      "description": "Arquivos .torrent, bencode, tracker e peer wire protocol.",
+      "access": "members",
+      "catalogUrl": "https://app.codecrafters.io/courses/bittorrent/overview",
+      "stageCount": 19,
+      "stages": [
+        {
+          "order": 1,
+          "id": "introduction",
+          "title": "Decode bencoded strings",
+          "difficulty": "Very easy",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/bittorrent/introduction"
+        },
+        {
+          "order": 2,
+          "id": "eb4",
+          "title": "Decode bencoded integers",
+          "difficulty": "Easy",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/bittorrent/stages/eb4"
+        },
+        {
+          "order": 3,
+          "id": "ah1",
+          "title": "Decode bencoded lists",
+          "difficulty": "Easy",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/bittorrent/stages/ah1"
+        },
+        {
+          "order": 4,
+          "id": "mn6",
+          "title": "Decode bencoded dictionaries",
+          "difficulty": "Easy",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/bittorrent/stages/mn6"
+        },
+        {
+          "order": 5,
+          "id": "ow9",
+          "title": "Parse torrent file",
+          "difficulty": "Easy",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/bittorrent/stages/ow9"
+        },
+        {
+          "order": 6,
+          "id": "rb2",
+          "title": "Calculate info hash",
+          "difficulty": "Medium",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/bittorrent/stages/rb2"
+        },
+        {
+          "order": 7,
+          "id": "bf7",
+          "title": "Piece hashes",
+          "difficulty": "Easy",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/bittorrent/stages/bf7"
+        },
+        {
+          "order": 8,
+          "id": "fi9",
+          "title": "Discover peers",
+          "difficulty": "Medium",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/bittorrent/stages/fi9"
+        },
+        {
+          "order": 9,
+          "id": "ca4",
+          "title": "Peer handshake",
+          "difficulty": "Medium",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/bittorrent/stages/ca4"
+        },
+        {
+          "order": 10,
+          "id": "nd2",
+          "title": "Download a piece",
+          "difficulty": "Hard",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/bittorrent/stages/nd2"
+        },
+        {
+          "order": 11,
+          "id": "jv8",
+          "title": "Download the whole file",
+          "difficulty": "Hard",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/bittorrent/stages/jv8"
+        },
+        {
+          "order": 12,
+          "id": "hw0",
+          "title": "Parse magnet link",
+          "difficulty": "Easy",
+          "section": "Magnet Links",
+          "url": "https://app.codecrafters.io/courses/bittorrent/stages/hw0"
+        },
+        {
+          "order": 13,
+          "id": "pk2",
+          "title": "Announce extension support",
+          "difficulty": "Easy",
+          "section": "Magnet Links",
+          "url": "https://app.codecrafters.io/courses/bittorrent/stages/pk2"
+        },
+        {
+          "order": 14,
+          "id": "xi4",
+          "title": "Send extension handshake",
+          "difficulty": "Easy",
+          "section": "Magnet Links",
+          "url": "https://app.codecrafters.io/courses/bittorrent/stages/xi4"
+        },
+        {
+          "order": 15,
+          "id": "jk6",
+          "title": "Receive extension handshake",
+          "difficulty": "Easy",
+          "section": "Magnet Links",
+          "url": "https://app.codecrafters.io/courses/bittorrent/stages/jk6"
+        },
+        {
+          "order": 16,
+          "id": "ns5",
+          "title": "Request metadata",
+          "difficulty": "Easy",
+          "section": "Magnet Links",
+          "url": "https://app.codecrafters.io/courses/bittorrent/stages/ns5"
+        },
+        {
+          "order": 17,
+          "id": "zh1",
+          "title": "Receive metadata",
+          "difficulty": "Easy",
+          "section": "Magnet Links",
+          "url": "https://app.codecrafters.io/courses/bittorrent/stages/zh1"
+        },
+        {
+          "order": 18,
+          "id": "qv6",
+          "title": "Download a piece",
+          "difficulty": "Hard",
+          "section": "Magnet Links",
+          "url": "https://app.codecrafters.io/courses/bittorrent/stages/qv6"
+        },
+        {
+          "order": 19,
+          "id": "dv7",
+          "title": "Download the whole file",
+          "difficulty": "Hard",
+          "section": "Magnet Links",
+          "url": "https://app.codecrafters.io/courses/bittorrent/stages/dv7"
+        }
+      ]
+    },
+    {
+      "slug": "kafka",
+      "title": "Build your own Kafka",
+      "description": "TCP servers, wire protocol Kafka, partições e consumer groups.",
+      "access": "members",
+      "catalogUrl": "https://app.codecrafters.io/courses/kafka/overview",
+      "stageCount": 25,
+      "stages": [
+        {
+          "order": 1,
+          "id": "introduction",
+          "title": "Bind to a port",
+          "difficulty": "Easy",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/kafka/introduction"
+        },
+        {
+          "order": 2,
+          "id": "nv3",
+          "title": "Send Correlation ID",
+          "difficulty": "Easy",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/kafka/stages/nv3"
+        },
+        {
+          "order": 3,
+          "id": "wa6",
+          "title": "Parse Correlation ID",
+          "difficulty": "Medium",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/kafka/stages/wa6"
+        },
+        {
+          "order": 4,
+          "id": "nc5",
+          "title": "Parse API Version",
+          "difficulty": "Medium",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/kafka/stages/nc5"
+        },
+        {
+          "order": 5,
+          "id": "pv1",
+          "title": "Handle ApiVersions requests",
+          "difficulty": "Hard",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/kafka/stages/pv1"
+        },
+        {
+          "order": 6,
+          "id": "nh4",
+          "title": "Serial requests",
+          "difficulty": "Medium",
+          "section": "Concurrent Clients",
+          "url": "https://app.codecrafters.io/courses/kafka/stages/nh4"
+        },
+        {
+          "order": 7,
+          "id": "sk0",
+          "title": "Concurrent requests",
+          "difficulty": "Hard",
+          "section": "Concurrent Clients",
+          "url": "https://app.codecrafters.io/courses/kafka/stages/sk0"
+        },
+        {
+          "order": 8,
+          "id": "yk1",
+          "title": "Include DescribeTopicPartitions in ApiVersions",
+          "difficulty": "Medium",
+          "section": "Listing Partitions",
+          "url": "https://app.codecrafters.io/courses/kafka/stages/yk1"
+        },
+        {
+          "order": 9,
+          "id": "vt6",
+          "title": "List for an unknown topic",
+          "difficulty": "Medium",
+          "section": "Listing Partitions",
+          "url": "https://app.codecrafters.io/courses/kafka/stages/vt6"
+        },
+        {
+          "order": 10,
+          "id": "ea7",
+          "title": "List for a single partition",
+          "difficulty": "Hard",
+          "section": "Listing Partitions",
+          "url": "https://app.codecrafters.io/courses/kafka/stages/ea7"
+        },
+        {
+          "order": 11,
+          "id": "ku4",
+          "title": "List for multiple partitions",
+          "difficulty": "Hard",
+          "section": "Listing Partitions",
+          "url": "https://app.codecrafters.io/courses/kafka/stages/ku4"
+        },
+        {
+          "order": 12,
+          "id": "wq2",
+          "title": "List for multiple topics",
+          "difficulty": "Hard",
+          "section": "Listing Partitions",
+          "url": "https://app.codecrafters.io/courses/kafka/stages/wq2"
+        },
+        {
+          "order": 13,
+          "id": "gs0",
+          "title": "Include Fetch in ApiVersions",
+          "difficulty": "Medium",
+          "section": "Consuming Messages",
+          "url": "https://app.codecrafters.io/courses/kafka/stages/gs0"
+        },
+        {
+          "order": 14,
+          "id": "dh6",
+          "title": "Fetch with no topics",
+          "difficulty": "Medium",
+          "section": "Consuming Messages",
+          "url": "https://app.codecrafters.io/courses/kafka/stages/dh6"
+        },
+        {
+          "order": 15,
+          "id": "hn6",
+          "title": "Fetch with an unknown topic",
+          "difficulty": "Medium",
+          "section": "Consuming Messages",
+          "url": "https://app.codecrafters.io/courses/kafka/stages/hn6"
+        },
+        {
+          "order": 16,
+          "id": "cm4",
+          "title": "Fetch with an empty topic",
+          "difficulty": "Medium",
+          "section": "Consuming Messages",
+          "url": "https://app.codecrafters.io/courses/kafka/stages/cm4"
+        },
+        {
+          "order": 17,
+          "id": "eg2",
+          "title": "Fetch single message from disk",
+          "difficulty": "Hard",
+          "section": "Consuming Messages",
+          "url": "https://app.codecrafters.io/courses/kafka/stages/eg2"
+        },
+        {
+          "order": 18,
+          "id": "fd8",
+          "title": "Fetch multiple messages from disk",
+          "difficulty": "Hard",
+          "section": "Consuming Messages",
+          "url": "https://app.codecrafters.io/courses/kafka/stages/fd8"
+        },
+        {
+          "order": 19,
+          "id": "xz1",
+          "title": "Include Produce in ApiVersions",
+          "difficulty": "Easy",
+          "section": "Producing Messages",
+          "url": "https://app.codecrafters.io/courses/kafka/stages/xz1"
+        },
+        {
+          "order": 20,
+          "id": "zf2",
+          "title": "Respond for invalid topic or partition",
+          "difficulty": "Medium",
+          "section": "Producing Messages",
+          "url": "https://app.codecrafters.io/courses/kafka/stages/zf2"
+        },
+        {
+          "order": 21,
+          "id": "gg1",
+          "title": "Respond for valid topic and partition",
+          "difficulty": "Medium",
+          "section": "Producing Messages",
+          "url": "https://app.codecrafters.io/courses/kafka/stages/gg1"
+        },
+        {
+          "order": 22,
+          "id": "ls8",
+          "title": "Produce a single record",
+          "difficulty": "Hard",
+          "section": "Producing Messages",
+          "url": "https://app.codecrafters.io/courses/kafka/stages/ls8"
+        },
+        {
+          "order": 23,
+          "id": "yd8",
+          "title": "Produce multiple records",
+          "difficulty": "Hard",
+          "section": "Producing Messages",
+          "url": "https://app.codecrafters.io/courses/kafka/stages/yd8"
+        },
+        {
+          "order": 24,
+          "id": "ct4",
+          "title": "Produce to multiple partitions",
+          "difficulty": "Easy",
+          "section": "Producing Messages",
+          "url": "https://app.codecrafters.io/courses/kafka/stages/ct4"
+        },
+        {
+          "order": 25,
+          "id": "ov0",
+          "title": "Produce to multiple partitions of multiple topics",
+          "difficulty": "Easy",
+          "section": "Producing Messages",
+          "url": "https://app.codecrafters.io/courses/kafka/stages/ov0"
+        }
+      ]
+    },
+    {
+      "slug": "grep",
+      "title": "Build your own grep",
+      "description": "Regex, character classes, quantifiers e backtracking.",
+      "access": "members",
+      "catalogUrl": "https://app.codecrafters.io/courses/grep/overview",
+      "stageCount": 33,
+      "stages": [
+        {
+          "order": 1,
+          "id": "introduction",
+          "title": "Match a literal character",
+          "difficulty": "Very easy",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/grep/introduction"
+        },
+        {
+          "order": 2,
+          "id": "oq2",
+          "title": "Match digits",
+          "difficulty": "Very easy",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/grep/stages/oq2"
+        },
+        {
+          "order": 3,
+          "id": "mr9",
+          "title": "Match word characters",
+          "difficulty": "Very easy",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/grep/stages/mr9"
+        },
+        {
+          "order": 4,
+          "id": "tl6",
+          "title": "Positive Character Groups",
+          "difficulty": "Medium",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/grep/stages/tl6"
+        },
+        {
+          "order": 5,
+          "id": "rk3",
+          "title": "Negative Character Groups",
+          "difficulty": "Medium",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/grep/stages/rk3"
+        },
+        {
+          "order": 6,
+          "id": "sh9",
+          "title": "Combining Character Classes",
+          "difficulty": "Medium",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/grep/stages/sh9"
+        },
+        {
+          "order": 7,
+          "id": "rr8",
+          "title": "Start of string anchor",
+          "difficulty": "Medium",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/grep/stages/rr8"
+        },
+        {
+          "order": 8,
+          "id": "ao7",
+          "title": "End of string anchor",
+          "difficulty": "Medium",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/grep/stages/ao7"
+        },
+        {
+          "order": 9,
+          "id": "fz7",
+          "title": "Match one or more times",
+          "difficulty": "Hard",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/grep/stages/fz7"
+        },
+        {
+          "order": 10,
+          "id": "ny8",
+          "title": "Match zero or one times",
+          "difficulty": "Hard",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/grep/stages/ny8"
+        },
+        {
+          "order": 11,
+          "id": "zb3",
+          "title": "Wildcard",
+          "difficulty": "Medium",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/grep/stages/zb3"
+        },
+        {
+          "order": 12,
+          "id": "zm7",
+          "title": "Alternation",
+          "difficulty": "Hard",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/grep/stages/zm7"
+        },
+        {
+          "order": 13,
+          "id": "ku5",
+          "title": "Print a single matching line",
+          "difficulty": "Easy",
+          "section": "Printing Matches",
+          "url": "https://app.codecrafters.io/courses/grep/stages/ku5"
+        },
+        {
+          "order": 14,
+          "id": "pz6",
+          "title": "Print multiple matching lines",
+          "difficulty": "Easy",
+          "section": "Printing Matches",
+          "url": "https://app.codecrafters.io/courses/grep/stages/pz6"
+        },
+        {
+          "order": 15,
+          "id": "cj0",
+          "title": "Print single match",
+          "difficulty": "Medium",
+          "section": "Multiple Matches",
+          "url": "https://app.codecrafters.io/courses/grep/stages/cj0"
+        },
+        {
+          "order": 16,
+          "id": "ss2",
+          "title": "Print multiple matches",
+          "difficulty": "Medium",
+          "section": "Multiple Matches",
+          "url": "https://app.codecrafters.io/courses/grep/stages/ss2"
+        },
+        {
+          "order": 17,
+          "id": "bo4",
+          "title": "Process multiple input lines",
+          "difficulty": "Medium",
+          "section": "Multiple Matches",
+          "url": "https://app.codecrafters.io/courses/grep/stages/bo4"
+        },
+        {
+          "order": 18,
+          "id": "bm2",
+          "title": "Highlight a single match",
+          "difficulty": "Easy",
+          "section": "Highlighting",
+          "url": "https://app.codecrafters.io/courses/grep/stages/bm2"
+        },
+        {
+          "order": 19,
+          "id": "eq0",
+          "title": "Highlight multiple matches",
+          "difficulty": "Easy",
+          "section": "Highlighting",
+          "url": "https://app.codecrafters.io/courses/grep/stages/eq0"
+        },
+        {
+          "order": 20,
+          "id": "wg2",
+          "title": "Highlight matches in multiple lines",
+          "difficulty": "Easy",
+          "section": "Highlighting",
+          "url": "https://app.codecrafters.io/courses/grep/stages/wg2"
+        },
+        {
+          "order": 21,
+          "id": "jk4",
+          "title": "Disable highlighting",
+          "difficulty": "Easy",
+          "section": "Highlighting",
+          "url": "https://app.codecrafters.io/courses/grep/stages/jk4"
+        },
+        {
+          "order": 22,
+          "id": "na5",
+          "title": "Implement the auto color option",
+          "difficulty": "Medium",
+          "section": "Highlighting",
+          "url": "https://app.codecrafters.io/courses/grep/stages/na5"
+        },
+        {
+          "order": 23,
+          "id": "dr5",
+          "title": "Search a single-line file",
+          "difficulty": "Medium",
+          "section": "File Search",
+          "url": "https://app.codecrafters.io/courses/grep/stages/dr5"
+        },
+        {
+          "order": 24,
+          "id": "ol9",
+          "title": "Search a multi-line file",
+          "difficulty": "Medium",
+          "section": "File Search",
+          "url": "https://app.codecrafters.io/courses/grep/stages/ol9"
+        },
+        {
+          "order": 25,
+          "id": "is6",
+          "title": "Search multiple files",
+          "difficulty": "Medium",
+          "section": "File Search",
+          "url": "https://app.codecrafters.io/courses/grep/stages/is6"
+        },
+        {
+          "order": 26,
+          "id": "yx6",
+          "title": "Recursive search",
+          "difficulty": "Hard",
+          "section": "File Search",
+          "url": "https://app.codecrafters.io/courses/grep/stages/yx6"
+        },
+        {
+          "order": 27,
+          "id": "ai9",
+          "title": "Match zero or more times",
+          "difficulty": "Hard",
+          "section": "Quantifiers",
+          "url": "https://app.codecrafters.io/courses/grep/stages/ai9"
+        },
+        {
+          "order": 28,
+          "id": "wy9",
+          "title": "Match exactly n times",
+          "difficulty": "Hard",
+          "section": "Quantifiers",
+          "url": "https://app.codecrafters.io/courses/grep/stages/wy9"
+        },
+        {
+          "order": 29,
+          "id": "hk3",
+          "title": "Match at least n times",
+          "difficulty": "Hard",
+          "section": "Quantifiers",
+          "url": "https://app.codecrafters.io/courses/grep/stages/hk3"
+        },
+        {
+          "order": 30,
+          "id": "ug0",
+          "title": "Match between n and m times",
+          "difficulty": "Hard",
+          "section": "Quantifiers",
+          "url": "https://app.codecrafters.io/courses/grep/stages/ug0"
+        },
+        {
+          "order": 31,
+          "id": "sb5",
+          "title": "Single Backreference",
+          "difficulty": "Hard",
+          "section": "Backreferences",
+          "url": "https://app.codecrafters.io/courses/grep/stages/sb5"
+        },
+        {
+          "order": 32,
+          "id": "tg1",
+          "title": "Multiple Backreferences",
+          "difficulty": "Medium",
+          "section": "Backreferences",
+          "url": "https://app.codecrafters.io/courses/grep/stages/tg1"
+        },
+        {
+          "order": 33,
+          "id": "xe5",
+          "title": "Nested Backreferences",
+          "difficulty": "Hard",
+          "section": "Backreferences",
+          "url": "https://app.codecrafters.io/courses/grep/stages/xe5"
+        }
+      ]
+    },
+    {
+      "slug": "shell",
+      "title": "Build your own Shell",
+      "description": "Parsing de comandos, execução de programas, pipes e builtins.",
+      "access": "members",
+      "catalogUrl": "https://app.codecrafters.io/courses/shell/overview",
+      "stageCount": 76,
+      "stages": [
+        {
+          "order": 1,
+          "id": "introduction",
+          "title": "Print a prompt",
+          "difficulty": "Very easy",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/shell/introduction"
+        },
+        {
+          "order": 2,
+          "id": "cz2",
+          "title": "Handle invalid commands",
+          "difficulty": "Easy",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/shell/stages/cz2"
+        },
+        {
+          "order": 3,
+          "id": "ff0",
+          "title": "Implement a REPL",
+          "difficulty": "Easy",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/shell/stages/ff0"
+        },
+        {
+          "order": 4,
+          "id": "pn5",
+          "title": "Implement exit",
+          "difficulty": "Easy",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/shell/stages/pn5"
+        },
+        {
+          "order": 5,
+          "id": "iz3",
+          "title": "Implement echo",
+          "difficulty": "Easy",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/shell/stages/iz3"
+        },
+        {
+          "order": 6,
+          "id": "ez5",
+          "title": "Implement type",
+          "difficulty": "Easy",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/shell/stages/ez5"
+        },
+        {
+          "order": 7,
+          "id": "mg5",
+          "title": "Locate executable files",
+          "difficulty": "Medium",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/shell/stages/mg5"
+        },
+        {
+          "order": 8,
+          "id": "ip1",
+          "title": "Run a program",
+          "difficulty": "Medium",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/shell/stages/ip1"
+        },
+        {
+          "order": 9,
+          "id": "ei0",
+          "title": "The pwd builtin",
+          "difficulty": "Easy",
+          "section": "Navigation",
+          "url": "https://app.codecrafters.io/courses/shell/stages/ei0"
+        },
+        {
+          "order": 10,
+          "id": "ra6",
+          "title": "The cd builtin: Absolute paths",
+          "difficulty": "Medium",
+          "section": "Navigation",
+          "url": "https://app.codecrafters.io/courses/shell/stages/ra6"
+        },
+        {
+          "order": 11,
+          "id": "gq9",
+          "title": "The cd builtin: Relative paths",
+          "difficulty": "Medium",
+          "section": "Navigation",
+          "url": "https://app.codecrafters.io/courses/shell/stages/gq9"
+        },
+        {
+          "order": 12,
+          "id": "gp4",
+          "title": "The cd builtin: Home directory",
+          "difficulty": "Medium",
+          "section": "Navigation",
+          "url": "https://app.codecrafters.io/courses/shell/stages/gp4"
+        },
+        {
+          "order": 13,
+          "id": "ni6",
+          "title": "Single quotes",
+          "difficulty": "Medium",
+          "section": "Quoting",
+          "url": "https://app.codecrafters.io/courses/shell/stages/ni6"
+        },
+        {
+          "order": 14,
+          "id": "tg6",
+          "title": "Double quotes",
+          "difficulty": "Medium",
+          "section": "Quoting",
+          "url": "https://app.codecrafters.io/courses/shell/stages/tg6"
+        },
+        {
+          "order": 15,
+          "id": "yt5",
+          "title": "Backslash outside quotes",
+          "difficulty": "Medium",
+          "section": "Quoting",
+          "url": "https://app.codecrafters.io/courses/shell/stages/yt5"
+        },
+        {
+          "order": 16,
+          "id": "le5",
+          "title": "Backslash within single quotes",
+          "difficulty": "Medium",
+          "section": "Quoting",
+          "url": "https://app.codecrafters.io/courses/shell/stages/le5"
+        },
+        {
+          "order": 17,
+          "id": "gu3",
+          "title": "Backslash within double quotes",
+          "difficulty": "Medium",
+          "section": "Quoting",
+          "url": "https://app.codecrafters.io/courses/shell/stages/gu3"
+        },
+        {
+          "order": 18,
+          "id": "qj0",
+          "title": "Executing a quoted executable",
+          "difficulty": "Medium",
+          "section": "Quoting",
+          "url": "https://app.codecrafters.io/courses/shell/stages/qj0"
+        },
+        {
+          "order": 19,
+          "id": "jv1",
+          "title": "Redirect stdout",
+          "difficulty": "Medium",
+          "section": "Redirection",
+          "url": "https://app.codecrafters.io/courses/shell/stages/jv1"
+        },
+        {
+          "order": 20,
+          "id": "vz4",
+          "title": "Redirect stderr",
+          "difficulty": "Medium",
+          "section": "Redirection",
+          "url": "https://app.codecrafters.io/courses/shell/stages/vz4"
+        },
+        {
+          "order": 21,
+          "id": "el9",
+          "title": "Append stdout",
+          "difficulty": "Medium",
+          "section": "Redirection",
+          "url": "https://app.codecrafters.io/courses/shell/stages/el9"
+        },
+        {
+          "order": 22,
+          "id": "un3",
+          "title": "Append stderr",
+          "difficulty": "Medium",
+          "section": "Redirection",
+          "url": "https://app.codecrafters.io/courses/shell/stages/un3"
+        },
+        {
+          "order": 23,
+          "id": "qp2",
+          "title": "Builtin completion",
+          "difficulty": "Medium",
+          "section": "Command Completion",
+          "url": "https://app.codecrafters.io/courses/shell/stages/qp2"
+        },
+        {
+          "order": 24,
+          "id": "gm9",
+          "title": "Completion with arguments",
+          "difficulty": "Medium",
+          "section": "Command Completion",
+          "url": "https://app.codecrafters.io/courses/shell/stages/gm9"
+        },
+        {
+          "order": 25,
+          "id": "qm8",
+          "title": "Missing completions",
+          "difficulty": "Easy",
+          "section": "Command Completion",
+          "url": "https://app.codecrafters.io/courses/shell/stages/qm8"
+        },
+        {
+          "order": 26,
+          "id": "gy5",
+          "title": "Executable completion",
+          "difficulty": "Medium",
+          "section": "Command Completion",
+          "url": "https://app.codecrafters.io/courses/shell/stages/gy5"
+        },
+        {
+          "order": 27,
+          "id": "wh6",
+          "title": "Multiple completions",
+          "difficulty": "Hard",
+          "section": "Command Completion",
+          "url": "https://app.codecrafters.io/courses/shell/stages/wh6"
+        },
+        {
+          "order": 28,
+          "id": "wt6",
+          "title": "Partial completions",
+          "difficulty": "Hard",
+          "section": "Command Completion",
+          "url": "https://app.codecrafters.io/courses/shell/stages/wt6"
+        },
+        {
+          "order": 29,
+          "id": "zv2",
+          "title": "File completion",
+          "difficulty": "Medium",
+          "section": "Filename Completion",
+          "url": "https://app.codecrafters.io/courses/shell/stages/zv2"
+        },
+        {
+          "order": 30,
+          "id": "ue6",
+          "title": "Nested file completion",
+          "difficulty": "Medium",
+          "section": "Filename Completion",
+          "url": "https://app.codecrafters.io/courses/shell/stages/ue6"
+        },
+        {
+          "order": 31,
+          "id": "lc6",
+          "title": "Directory completion",
+          "difficulty": "Easy",
+          "section": "Filename Completion",
+          "url": "https://app.codecrafters.io/courses/shell/stages/lc6"
+        },
+        {
+          "order": 32,
+          "id": "vs5",
+          "title": "Missing completions",
+          "difficulty": "Easy",
+          "section": "Filename Completion",
+          "url": "https://app.codecrafters.io/courses/shell/stages/vs5"
+        },
+        {
+          "order": 33,
+          "id": "no5",
+          "title": "Multiple matches",
+          "difficulty": "Hard",
+          "section": "Filename Completion",
+          "url": "https://app.codecrafters.io/courses/shell/stages/no5"
+        },
+        {
+          "order": 34,
+          "id": "jp8",
+          "title": "Partial completions",
+          "difficulty": "Hard",
+          "section": "Filename Completion",
+          "url": "https://app.codecrafters.io/courses/shell/stages/jp8"
+        },
+        {
+          "order": 35,
+          "id": "bf8",
+          "title": "Multi-argument completions",
+          "difficulty": "Easy",
+          "section": "Filename Completion",
+          "url": "https://app.codecrafters.io/courses/shell/stages/bf8"
+        },
+        {
+          "order": 36,
+          "id": "ne7",
+          "title": "Register complete builtin",
+          "difficulty": "Easy",
+          "section": "Programmable Completion",
+          "url": "https://app.codecrafters.io/courses/shell/stages/ne7"
+        },
+        {
+          "order": 37,
+          "id": "oi7",
+          "title": "Printing missing specifications",
+          "difficulty": "Easy",
+          "section": "Programmable Completion",
+          "url": "https://app.codecrafters.io/courses/shell/stages/oi7"
+        },
+        {
+          "order": 38,
+          "id": "wl6",
+          "title": "Displaying registered specifications",
+          "difficulty": "Medium",
+          "section": "Programmable Completion",
+          "url": "https://app.codecrafters.io/courses/shell/stages/wl6"
+        },
+        {
+          "order": 39,
+          "id": "pm5",
+          "title": "Single completion",
+          "difficulty": "Medium",
+          "section": "Programmable Completion",
+          "url": "https://app.codecrafters.io/courses/shell/stages/pm5"
+        },
+        {
+          "order": 40,
+          "id": "qf1",
+          "title": "Handling no completions",
+          "difficulty": "Easy",
+          "section": "Programmable Completion",
+          "url": "https://app.codecrafters.io/courses/shell/stages/qf1"
+        },
+        {
+          "order": 41,
+          "id": "zi0",
+          "title": "Passing command-line arguments",
+          "difficulty": "Easy",
+          "section": "Programmable Completion",
+          "url": "https://app.codecrafters.io/courses/shell/stages/zi0"
+        },
+        {
+          "order": 42,
+          "id": "nr7",
+          "title": "Passing environment variables",
+          "difficulty": "Easy",
+          "section": "Programmable Completion",
+          "url": "https://app.codecrafters.io/courses/shell/stages/nr7"
+        },
+        {
+          "order": 43,
+          "id": "ep2",
+          "title": "Multiple completer candidates",
+          "difficulty": "Easy",
+          "section": "Programmable Completion",
+          "url": "https://app.codecrafters.io/courses/shell/stages/ep2"
+        },
+        {
+          "order": 44,
+          "id": "xz3",
+          "title": "Longest common prefix",
+          "difficulty": "Medium",
+          "section": "Programmable Completion",
+          "url": "https://app.codecrafters.io/courses/shell/stages/xz3"
+        },
+        {
+          "order": 45,
+          "id": "tz2",
+          "title": "Unregister a completion",
+          "difficulty": "Easy",
+          "section": "Programmable Completion",
+          "url": "https://app.codecrafters.io/courses/shell/stages/tz2"
+        },
+        {
+          "order": 46,
+          "id": "af3",
+          "title": "The jobs builtin",
+          "difficulty": "Easy",
+          "section": "Background Jobs",
+          "url": "https://app.codecrafters.io/courses/shell/stages/af3"
+        },
+        {
+          "order": 47,
+          "id": "at7",
+          "title": "Starting background jobs",
+          "difficulty": "Medium",
+          "section": "Background Jobs",
+          "url": "https://app.codecrafters.io/courses/shell/stages/at7"
+        },
+        {
+          "order": 48,
+          "id": "si2",
+          "title": "Printing background job output",
+          "difficulty": "Medium",
+          "section": "Background Jobs",
+          "url": "https://app.codecrafters.io/courses/shell/stages/si2"
+        },
+        {
+          "order": 49,
+          "id": "jd6",
+          "title": "List a single job",
+          "difficulty": "Medium",
+          "section": "Background Jobs",
+          "url": "https://app.codecrafters.io/courses/shell/stages/jd6"
+        },
+        {
+          "order": 50,
+          "id": "dk5",
+          "title": "List multiple jobs",
+          "difficulty": "Medium",
+          "section": "Background Jobs",
+          "url": "https://app.codecrafters.io/courses/shell/stages/dk5"
+        },
+        {
+          "order": 51,
+          "id": "ma9",
+          "title": "Reap one job",
+          "difficulty": "Medium",
+          "section": "Background Jobs",
+          "url": "https://app.codecrafters.io/courses/shell/stages/ma9"
+        },
+        {
+          "order": 52,
+          "id": "rq2",
+          "title": "Reap multiple jobs",
+          "difficulty": "Medium",
+          "section": "Background Jobs",
+          "url": "https://app.codecrafters.io/courses/shell/stages/rq2"
+        },
+        {
+          "order": 53,
+          "id": "bv8",
+          "title": "Reap before the next prompt",
+          "difficulty": "Medium",
+          "section": "Background Jobs",
+          "url": "https://app.codecrafters.io/courses/shell/stages/bv8"
+        },
+        {
+          "order": 54,
+          "id": "fy4",
+          "title": "Recycle job numbers",
+          "difficulty": "Easy",
+          "section": "Background Jobs",
+          "url": "https://app.codecrafters.io/courses/shell/stages/fy4"
+        },
+        {
+          "order": 55,
+          "id": "br6",
+          "title": "Dual-command pipeline",
+          "difficulty": "Hard",
+          "section": "Pipelines",
+          "url": "https://app.codecrafters.io/courses/shell/stages/br6"
+        },
+        {
+          "order": 56,
+          "id": "ny9",
+          "title": "Pipelines with built-ins",
+          "difficulty": "Hard",
+          "section": "Pipelines",
+          "url": "https://app.codecrafters.io/courses/shell/stages/ny9"
+        },
+        {
+          "order": 57,
+          "id": "xk3",
+          "title": "Multi-command pipelines",
+          "difficulty": "Hard",
+          "section": "Pipelines",
+          "url": "https://app.codecrafters.io/courses/shell/stages/xk3"
+        },
+        {
+          "order": 58,
+          "id": "bq4",
+          "title": "The history builtin",
+          "difficulty": "Easy",
+          "section": "History",
+          "url": "https://app.codecrafters.io/courses/shell/stages/bq4"
+        },
+        {
+          "order": 59,
+          "id": "yf5",
+          "title": "Listing history",
+          "difficulty": "Medium",
+          "section": "History",
+          "url": "https://app.codecrafters.io/courses/shell/stages/yf5"
+        },
+        {
+          "order": 60,
+          "id": "ag6",
+          "title": "Limiting history entries",
+          "difficulty": "Medium",
+          "section": "History",
+          "url": "https://app.codecrafters.io/courses/shell/stages/ag6"
+        },
+        {
+          "order": 61,
+          "id": "rh7",
+          "title": "Up-arrow navigation",
+          "difficulty": "Medium",
+          "section": "History",
+          "url": "https://app.codecrafters.io/courses/shell/stages/rh7"
+        },
+        {
+          "order": 62,
+          "id": "vq0",
+          "title": "Down-arrow navigation",
+          "difficulty": "Medium",
+          "section": "History",
+          "url": "https://app.codecrafters.io/courses/shell/stages/vq0"
+        },
+        {
+          "order": 63,
+          "id": "dm2",
+          "title": "Executing commands from history",
+          "difficulty": "Medium",
+          "section": "History",
+          "url": "https://app.codecrafters.io/courses/shell/stages/dm2"
+        },
+        {
+          "order": 64,
+          "id": "za2",
+          "title": "Read history from file",
+          "difficulty": "Medium",
+          "section": "History Persistence",
+          "url": "https://app.codecrafters.io/courses/shell/stages/za2"
+        },
+        {
+          "order": 65,
+          "id": "in3",
+          "title": "Write history to file",
+          "difficulty": "Medium",
+          "section": "History Persistence",
+          "url": "https://app.codecrafters.io/courses/shell/stages/in3"
+        },
+        {
+          "order": 66,
+          "id": "sx3",
+          "title": "Append history to file",
+          "difficulty": "Hard",
+          "section": "History Persistence",
+          "url": "https://app.codecrafters.io/courses/shell/stages/sx3"
+        },
+        {
+          "order": 67,
+          "id": "zp4",
+          "title": "Read history on startup",
+          "difficulty": "Easy",
+          "section": "History Persistence",
+          "url": "https://app.codecrafters.io/courses/shell/stages/zp4"
+        },
+        {
+          "order": 68,
+          "id": "kz7",
+          "title": "Write history on exit",
+          "difficulty": "Easy",
+          "section": "History Persistence",
+          "url": "https://app.codecrafters.io/courses/shell/stages/kz7"
+        },
+        {
+          "order": 69,
+          "id": "jv2",
+          "title": "Append history on exit",
+          "difficulty": "Medium",
+          "section": "History Persistence",
+          "url": "https://app.codecrafters.io/courses/shell/stages/jv2"
+        },
+        {
+          "order": 70,
+          "id": "ji0",
+          "title": "The declare builtin",
+          "difficulty": "Easy",
+          "section": "Parameter Expansion",
+          "url": "https://app.codecrafters.io/courses/shell/stages/ji0"
+        },
+        {
+          "order": 71,
+          "id": "oa2",
+          "title": "Printing missing variables",
+          "difficulty": "Easy",
+          "section": "Parameter Expansion",
+          "url": "https://app.codecrafters.io/courses/shell/stages/oa2"
+        },
+        {
+          "order": 72,
+          "id": "kv5",
+          "title": "Storing shell variables",
+          "difficulty": "Medium",
+          "section": "Parameter Expansion",
+          "url": "https://app.codecrafters.io/courses/shell/stages/kv5"
+        },
+        {
+          "order": 73,
+          "id": "db8",
+          "title": "Validating variable names",
+          "difficulty": "Easy",
+          "section": "Parameter Expansion",
+          "url": "https://app.codecrafters.io/courses/shell/stages/db8"
+        },
+        {
+          "order": 74,
+          "id": "ge9",
+          "title": "Expanding variables",
+          "difficulty": "Hard",
+          "section": "Parameter Expansion",
+          "url": "https://app.codecrafters.io/courses/shell/stages/ge9"
+        },
+        {
+          "order": 75,
+          "id": "br2",
+          "title": "Expansion with braces",
+          "difficulty": "Medium",
+          "section": "Parameter Expansion",
+          "url": "https://app.codecrafters.io/courses/shell/stages/br2"
+        },
+        {
+          "order": 76,
+          "id": "my0",
+          "title": "Expanding empty variables",
+          "difficulty": "Easy",
+          "section": "Parameter Expansion",
+          "url": "https://app.codecrafters.io/courses/shell/stages/my0"
+        }
+      ]
+    },
+    {
+      "slug": "interpreter",
+      "title": "Build your own Interpreter",
+      "description": "Tokenizer, AST, tree-walk interpreter e runtime de linguagem.",
+      "access": "members",
+      "catalogUrl": "https://app.codecrafters.io/courses/interpreter/overview",
+      "stageCount": 84,
+      "stages": [
+        {
+          "order": 1,
+          "id": "introduction",
+          "title": "Scanning: Empty file",
+          "difficulty": "Very easy",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/interpreter/introduction"
+        },
+        {
+          "order": 2,
+          "id": "ol4",
+          "title": "Scanning: Parentheses",
+          "difficulty": "Medium",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/ol4"
+        },
+        {
+          "order": 3,
+          "id": "oe8",
+          "title": "Scanning: Braces",
+          "difficulty": "Easy",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/oe8"
+        },
+        {
+          "order": 4,
+          "id": "xc5",
+          "title": "Scanning: Other single-character tokens",
+          "difficulty": "Medium",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/xc5"
+        },
+        {
+          "order": 5,
+          "id": "ea6",
+          "title": "Scanning: Lexical errors",
+          "difficulty": "Medium",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/ea6"
+        },
+        {
+          "order": 6,
+          "id": "mp7",
+          "title": "Scanning: Assignment & equality Operators",
+          "difficulty": "Medium",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/mp7"
+        },
+        {
+          "order": 7,
+          "id": "bu3",
+          "title": "Scanning: Negation & inequality operators",
+          "difficulty": "Medium",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/bu3"
+        },
+        {
+          "order": 8,
+          "id": "et2",
+          "title": "Scanning: Relational operators",
+          "difficulty": "Medium",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/et2"
+        },
+        {
+          "order": 9,
+          "id": "ml2",
+          "title": "Scanning: Division operator & comments",
+          "difficulty": "Medium",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/ml2"
+        },
+        {
+          "order": 10,
+          "id": "er2",
+          "title": "Scanning: Whitespace",
+          "difficulty": "Medium",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/er2"
+        },
+        {
+          "order": 11,
+          "id": "tz7",
+          "title": "Scanning: Multi-line errors",
+          "difficulty": "Medium",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/tz7"
+        },
+        {
+          "order": 12,
+          "id": "ue7",
+          "title": "Scanning: String literals",
+          "difficulty": "Hard",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/ue7"
+        },
+        {
+          "order": 13,
+          "id": "kj0",
+          "title": "Scanning: Number literals",
+          "difficulty": "Hard",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/kj0"
+        },
+        {
+          "order": 14,
+          "id": "ey7",
+          "title": "Scanning: Identifiers",
+          "difficulty": "Hard",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/ey7"
+        },
+        {
+          "order": 15,
+          "id": "pq5",
+          "title": "Scanning: Reserved words",
+          "difficulty": "Medium",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/pq5"
+        },
+        {
+          "order": 16,
+          "id": "sc2",
+          "title": "Booleans & Nil",
+          "difficulty": "Hard",
+          "section": "Parsing Expressions",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/sc2"
+        },
+        {
+          "order": 17,
+          "id": "ra8",
+          "title": "Number literals",
+          "difficulty": "Medium",
+          "section": "Parsing Expressions",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/ra8"
+        },
+        {
+          "order": 18,
+          "id": "th5",
+          "title": "String literals",
+          "difficulty": "Medium",
+          "section": "Parsing Expressions",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/th5"
+        },
+        {
+          "order": 19,
+          "id": "xe6",
+          "title": "Parentheses",
+          "difficulty": "Medium",
+          "section": "Parsing Expressions",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/xe6"
+        },
+        {
+          "order": 20,
+          "id": "mq1",
+          "title": "Unary Operators",
+          "difficulty": "Medium",
+          "section": "Parsing Expressions",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/mq1"
+        },
+        {
+          "order": 21,
+          "id": "wa9",
+          "title": "Arithmetic operators (1/2)",
+          "difficulty": "Medium",
+          "section": "Parsing Expressions",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/wa9"
+        },
+        {
+          "order": 22,
+          "id": "yf2",
+          "title": "Arithmetic operators (2/2)",
+          "difficulty": "Medium",
+          "section": "Parsing Expressions",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/yf2"
+        },
+        {
+          "order": 23,
+          "id": "uh4",
+          "title": "Comparison operators",
+          "difficulty": "Medium",
+          "section": "Parsing Expressions",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/uh4"
+        },
+        {
+          "order": 24,
+          "id": "ht8",
+          "title": "Equality operators",
+          "difficulty": "Medium",
+          "section": "Parsing Expressions",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/ht8"
+        },
+        {
+          "order": 25,
+          "id": "wz8",
+          "title": "Syntactic errors",
+          "difficulty": "Medium",
+          "section": "Parsing Expressions",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/wz8"
+        },
+        {
+          "order": 26,
+          "id": "iz6",
+          "title": "Literals: Booleans & Nil",
+          "difficulty": "Hard",
+          "section": "Evaluating Expressions",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/iz6"
+        },
+        {
+          "order": 27,
+          "id": "lv1",
+          "title": "Literals: Strings & Numbers",
+          "difficulty": "Medium",
+          "section": "Evaluating Expressions",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/lv1"
+        },
+        {
+          "order": 28,
+          "id": "oq9",
+          "title": "Parentheses",
+          "difficulty": "Medium",
+          "section": "Evaluating Expressions",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/oq9"
+        },
+        {
+          "order": 29,
+          "id": "dc1",
+          "title": "Unary Operators: Negation & Not",
+          "difficulty": "Medium",
+          "section": "Evaluating Expressions",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/dc1"
+        },
+        {
+          "order": 30,
+          "id": "bp3",
+          "title": "Arithmetic Operators (1/2)",
+          "difficulty": "Medium",
+          "section": "Evaluating Expressions",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/bp3"
+        },
+        {
+          "order": 31,
+          "id": "jy2",
+          "title": "Arithmetic Operators (2/2)",
+          "difficulty": "Medium",
+          "section": "Evaluating Expressions",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/jy2"
+        },
+        {
+          "order": 32,
+          "id": "jx8",
+          "title": "String Concatenation",
+          "difficulty": "Medium",
+          "section": "Evaluating Expressions",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/jx8"
+        },
+        {
+          "order": 33,
+          "id": "et4",
+          "title": "Relational Operators",
+          "difficulty": "Medium",
+          "section": "Evaluating Expressions",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/et4"
+        },
+        {
+          "order": 34,
+          "id": "hw7",
+          "title": "Equality Operators",
+          "difficulty": "Medium",
+          "section": "Evaluating Expressions",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/hw7"
+        },
+        {
+          "order": 35,
+          "id": "gj9",
+          "title": "Runtime Errors: Unary Operators",
+          "difficulty": "Medium",
+          "section": "Evaluating Expressions",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/gj9"
+        },
+        {
+          "order": 36,
+          "id": "yu6",
+          "title": "Runtime Errors: Binary Operators (1/2)",
+          "difficulty": "Medium",
+          "section": "Evaluating Expressions",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/yu6"
+        },
+        {
+          "order": 37,
+          "id": "cq1",
+          "title": "Runtime Errors: Binary Operators (2/2)",
+          "difficulty": "Medium",
+          "section": "Evaluating Expressions",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/cq1"
+        },
+        {
+          "order": 38,
+          "id": "ib5",
+          "title": "Runtime Errors: Relational Operators",
+          "difficulty": "Medium",
+          "section": "Evaluating Expressions",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/ib5"
+        },
+        {
+          "order": 39,
+          "id": "xy1",
+          "title": "Print: Generate output",
+          "difficulty": "Medium",
+          "section": "Statements & State",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/xy1"
+        },
+        {
+          "order": 40,
+          "id": "oe4",
+          "title": "Print: Multiple statements",
+          "difficulty": "Medium",
+          "section": "Statements & State",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/oe4"
+        },
+        {
+          "order": 41,
+          "id": "fi3",
+          "title": "Expression statements",
+          "difficulty": "Easy",
+          "section": "Statements & State",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/fi3"
+        },
+        {
+          "order": 42,
+          "id": "yg2",
+          "title": "Variables: Declare variables",
+          "difficulty": "Easy",
+          "section": "Statements & State",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/yg2"
+        },
+        {
+          "order": 43,
+          "id": "sv7",
+          "title": "Variables: Runtime Errors",
+          "difficulty": "Easy",
+          "section": "Statements & State",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/sv7"
+        },
+        {
+          "order": 44,
+          "id": "bc1",
+          "title": "Variables: Initialize variables",
+          "difficulty": "Easy",
+          "section": "Statements & State",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/bc1"
+        },
+        {
+          "order": 45,
+          "id": "dw9",
+          "title": "Variables: Redeclare variables",
+          "difficulty": "Easy",
+          "section": "Statements & State",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/dw9"
+        },
+        {
+          "order": 46,
+          "id": "pl3",
+          "title": "Assignment operation",
+          "difficulty": "Medium",
+          "section": "Statements & State",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/pl3"
+        },
+        {
+          "order": 47,
+          "id": "vr5",
+          "title": "Block syntax",
+          "difficulty": "Medium",
+          "section": "Statements & State",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/vr5"
+        },
+        {
+          "order": 48,
+          "id": "fb4",
+          "title": "Scopes",
+          "difficulty": "Medium",
+          "section": "Statements & State",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/fb4"
+        },
+        {
+          "order": 49,
+          "id": "ne3",
+          "title": "If statements",
+          "difficulty": "Medium",
+          "section": "Control Flow",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/ne3"
+        },
+        {
+          "order": 50,
+          "id": "st5",
+          "title": "Else statements",
+          "difficulty": "Medium",
+          "section": "Control Flow",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/st5"
+        },
+        {
+          "order": 51,
+          "id": "fh8",
+          "title": "Else-if statements",
+          "difficulty": "Medium",
+          "section": "Control Flow",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/fh8"
+        },
+        {
+          "order": 52,
+          "id": "xj4",
+          "title": "Nested if statements",
+          "difficulty": "Medium",
+          "section": "Control Flow",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/xj4"
+        },
+        {
+          "order": 53,
+          "id": "wk8",
+          "title": "Logical OR operator",
+          "difficulty": "Medium",
+          "section": "Control Flow",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/wk8"
+        },
+        {
+          "order": 54,
+          "id": "jx4",
+          "title": "Logical AND operator",
+          "difficulty": "Medium",
+          "section": "Control Flow",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/jx4"
+        },
+        {
+          "order": 55,
+          "id": "qy3",
+          "title": "While statements",
+          "difficulty": "Medium",
+          "section": "Control Flow",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/qy3"
+        },
+        {
+          "order": 56,
+          "id": "bw6",
+          "title": "For statements",
+          "difficulty": "Medium",
+          "section": "Control Flow",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/bw6"
+        },
+        {
+          "order": 57,
+          "id": "vt1",
+          "title": "Syntactic errors",
+          "difficulty": "Medium",
+          "section": "Control Flow",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/vt1"
+        },
+        {
+          "order": 58,
+          "id": "av4",
+          "title": "Native functions",
+          "difficulty": "Medium",
+          "section": "Functions",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/av4"
+        },
+        {
+          "order": 59,
+          "id": "pg8",
+          "title": "Functions without arguments",
+          "difficulty": "Medium",
+          "section": "Functions",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/pg8"
+        },
+        {
+          "order": 60,
+          "id": "lb6",
+          "title": "Functions with arguments",
+          "difficulty": "Medium",
+          "section": "Functions",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/lb6"
+        },
+        {
+          "order": 61,
+          "id": "px4",
+          "title": "Syntax errors",
+          "difficulty": "Medium",
+          "section": "Functions",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/px4"
+        },
+        {
+          "order": 62,
+          "id": "rd2",
+          "title": "Return statements",
+          "difficulty": "Medium",
+          "section": "Functions",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/rd2"
+        },
+        {
+          "order": 63,
+          "id": "ey3",
+          "title": "Higher order functions",
+          "difficulty": "Hard",
+          "section": "Functions",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/ey3"
+        },
+        {
+          "order": 64,
+          "id": "fj7",
+          "title": "Runtime errors",
+          "difficulty": "Medium",
+          "section": "Functions",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/fj7"
+        },
+        {
+          "order": 65,
+          "id": "bz4",
+          "title": "Function scope",
+          "difficulty": "Medium",
+          "section": "Functions",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/bz4"
+        },
+        {
+          "order": 66,
+          "id": "gg6",
+          "title": "Closures",
+          "difficulty": "Hard",
+          "section": "Functions",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/gg6"
+        },
+        {
+          "order": 67,
+          "id": "de8",
+          "title": "Identifier Resolution",
+          "difficulty": "Hard",
+          "section": "Resolving & Binding",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/de8"
+        },
+        {
+          "order": 68,
+          "id": "pt7",
+          "title": "Self Initialization",
+          "difficulty": "Medium",
+          "section": "Resolving & Binding",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/pt7"
+        },
+        {
+          "order": 69,
+          "id": "pz7",
+          "title": "Variable Redeclaration",
+          "difficulty": "Medium",
+          "section": "Resolving & Binding",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/pz7"
+        },
+        {
+          "order": 70,
+          "id": "eh3",
+          "title": "Invalid Return",
+          "difficulty": "Easy",
+          "section": "Resolving & Binding",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/eh3"
+        },
+        {
+          "order": 71,
+          "id": "vf4",
+          "title": "Class Declarations",
+          "difficulty": "Medium",
+          "section": "Classes",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/vf4"
+        },
+        {
+          "order": 72,
+          "id": "yk8",
+          "title": "Class Instances",
+          "difficulty": "Medium",
+          "section": "Classes",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/yk8"
+        },
+        {
+          "order": 73,
+          "id": "yf3",
+          "title": "Getters & Setters",
+          "difficulty": "Medium",
+          "section": "Classes",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/yf3"
+        },
+        {
+          "order": 74,
+          "id": "qr2",
+          "title": "Instance Methods",
+          "difficulty": "Medium",
+          "section": "Classes",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/qr2"
+        },
+        {
+          "order": 75,
+          "id": "yd7",
+          "title": "The 'this' keyword",
+          "difficulty": "Medium",
+          "section": "Classes",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/yd7"
+        },
+        {
+          "order": 76,
+          "id": "dg2",
+          "title": "Invalid usages of 'this'",
+          "difficulty": "Medium",
+          "section": "Classes",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/dg2"
+        },
+        {
+          "order": 77,
+          "id": "ou5",
+          "title": "Constructor calls",
+          "difficulty": "Medium",
+          "section": "Classes",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/ou5"
+        },
+        {
+          "order": 78,
+          "id": "eb9",
+          "title": "Return within constructors",
+          "difficulty": "Medium",
+          "section": "Classes",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/eb9"
+        },
+        {
+          "order": 79,
+          "id": "mf6",
+          "title": "Class Hierarchy",
+          "difficulty": "Medium",
+          "section": "Inheritance",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/mf6"
+        },
+        {
+          "order": 80,
+          "id": "ky1",
+          "title": "Inheriting Methods",
+          "difficulty": "Medium",
+          "section": "Inheritance",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/ky1"
+        },
+        {
+          "order": 81,
+          "id": "ka5",
+          "title": "Overriding Methods",
+          "difficulty": "Medium",
+          "section": "Inheritance",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/ka5"
+        },
+        {
+          "order": 82,
+          "id": "ab0",
+          "title": "Inheritance errors",
+          "difficulty": "Medium",
+          "section": "Inheritance",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/ab0"
+        },
+        {
+          "order": 83,
+          "id": "qi0",
+          "title": "The super keyword",
+          "difficulty": "Medium",
+          "section": "Inheritance",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/qi0"
+        },
+        {
+          "order": 84,
+          "id": "ib9",
+          "title": "Invalid Usages of the super Keyword",
+          "difficulty": "Medium",
+          "section": "Inheritance",
+          "url": "https://app.codecrafters.io/courses/interpreter/stages/ib9"
+        }
+      ]
+    },
+    {
+      "slug": "redis",
+      "title": "Build your own Redis",
+      "description": "TCP servers, protocolo RESP, estruturas de dados, replicação, RDB, AOF e pub/sub.",
+      "access": "free",
+      "freeUntil": "2026-12-31",
+      "catalogUrl": "https://app.codecrafters.io/courses/redis/overview",
+      "stageCount": 124,
+      "stages": [
+        {
+          "order": 1,
+          "id": "introduction",
+          "title": "Bind to a port",
+          "difficulty": "Very easy",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/redis/introduction"
+        },
+        {
+          "order": 2,
+          "id": "rg2",
+          "title": "Respond to PING",
+          "difficulty": "Easy",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/redis/stages/rg2"
+        },
+        {
+          "order": 3,
+          "id": "wy1",
+          "title": "Respond to multiple PINGs",
+          "difficulty": "Easy",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/redis/stages/wy1"
+        },
+        {
+          "order": 4,
+          "id": "zu2",
+          "title": "Handle concurrent clients",
+          "difficulty": "Medium",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/redis/stages/zu2"
+        },
+        {
+          "order": 5,
+          "id": "qq0",
+          "title": "Implement the ECHO command",
+          "difficulty": "Medium",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/redis/stages/qq0"
+        },
+        {
+          "order": 6,
+          "id": "la7",
+          "title": "Implement the SET & GET commands",
+          "difficulty": "Medium",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/redis/stages/la7"
+        },
+        {
+          "order": 7,
+          "id": "yz1",
+          "title": "Expiry",
+          "difficulty": "Medium",
+          "section": "Core",
+          "url": "https://app.codecrafters.io/courses/redis/stages/yz1"
+        },
+        {
+          "order": 8,
+          "id": "mh6",
+          "title": "Create a list",
+          "difficulty": "Easy",
+          "section": "Lists",
+          "url": "https://app.codecrafters.io/courses/redis/stages/mh6"
+        },
+        {
+          "order": 9,
+          "id": "tn7",
+          "title": "Append an element",
+          "difficulty": "Easy",
+          "section": "Lists",
+          "url": "https://app.codecrafters.io/courses/redis/stages/tn7"
+        },
+        {
+          "order": 10,
+          "id": "lx4",
+          "title": "Append multiple elements",
+          "difficulty": "Easy",
+          "section": "Lists",
+          "url": "https://app.codecrafters.io/courses/redis/stages/lx4"
+        },
+        {
+          "order": 11,
+          "id": "sf6",
+          "title": "List elements (positive indexes)",
+          "difficulty": "Easy",
+          "section": "Lists",
+          "url": "https://app.codecrafters.io/courses/redis/stages/sf6"
+        },
+        {
+          "order": 12,
+          "id": "ri1",
+          "title": "List elements (negative indexes)",
+          "difficulty": "Easy",
+          "section": "Lists",
+          "url": "https://app.codecrafters.io/courses/redis/stages/ri1"
+        },
+        {
+          "order": 13,
+          "id": "gu5",
+          "title": "Prepend elements",
+          "difficulty": "Easy",
+          "section": "Lists",
+          "url": "https://app.codecrafters.io/courses/redis/stages/gu5"
+        },
+        {
+          "order": 14,
+          "id": "fv6",
+          "title": "Query list length",
+          "difficulty": "Easy",
+          "section": "Lists",
+          "url": "https://app.codecrafters.io/courses/redis/stages/fv6"
+        },
+        {
+          "order": 15,
+          "id": "ef1",
+          "title": "Remove an element",
+          "difficulty": "Easy",
+          "section": "Lists",
+          "url": "https://app.codecrafters.io/courses/redis/stages/ef1"
+        },
+        {
+          "order": 16,
+          "id": "jp1",
+          "title": "Remove multiple elements",
+          "difficulty": "Easy",
+          "section": "Lists",
+          "url": "https://app.codecrafters.io/courses/redis/stages/jp1"
+        },
+        {
+          "order": 17,
+          "id": "ec3",
+          "title": "Blocking retrieval",
+          "difficulty": "Medium",
+          "section": "Lists",
+          "url": "https://app.codecrafters.io/courses/redis/stages/ec3"
+        },
+        {
+          "order": 18,
+          "id": "xj7",
+          "title": "Blocking retrieval with timeout",
+          "difficulty": "Medium",
+          "section": "Lists",
+          "url": "https://app.codecrafters.io/courses/redis/stages/xj7"
+        },
+        {
+          "order": 19,
+          "id": "cc3",
+          "title": "The TYPE command",
+          "difficulty": "Easy",
+          "section": "Streams",
+          "url": "https://app.codecrafters.io/courses/redis/stages/cc3"
+        },
+        {
+          "order": 20,
+          "id": "cf6",
+          "title": "Create a stream",
+          "difficulty": "Medium",
+          "section": "Streams",
+          "url": "https://app.codecrafters.io/courses/redis/stages/cf6"
+        },
+        {
+          "order": 21,
+          "id": "hq8",
+          "title": "Validating entry IDs",
+          "difficulty": "Easy",
+          "section": "Streams",
+          "url": "https://app.codecrafters.io/courses/redis/stages/hq8"
+        },
+        {
+          "order": 22,
+          "id": "yh3",
+          "title": "Partially auto-generated IDs",
+          "difficulty": "Medium",
+          "section": "Streams",
+          "url": "https://app.codecrafters.io/courses/redis/stages/yh3"
+        },
+        {
+          "order": 23,
+          "id": "xu6",
+          "title": "Fully auto-generated IDs",
+          "difficulty": "Medium",
+          "section": "Streams",
+          "url": "https://app.codecrafters.io/courses/redis/stages/xu6"
+        },
+        {
+          "order": 24,
+          "id": "zx1",
+          "title": "Query entries from stream",
+          "difficulty": "Medium",
+          "section": "Streams",
+          "url": "https://app.codecrafters.io/courses/redis/stages/zx1"
+        },
+        {
+          "order": 25,
+          "id": "yp1",
+          "title": "Query with -",
+          "difficulty": "Easy",
+          "section": "Streams",
+          "url": "https://app.codecrafters.io/courses/redis/stages/yp1"
+        },
+        {
+          "order": 26,
+          "id": "fs1",
+          "title": "Query with +",
+          "difficulty": "Easy",
+          "section": "Streams",
+          "url": "https://app.codecrafters.io/courses/redis/stages/fs1"
+        },
+        {
+          "order": 27,
+          "id": "um0",
+          "title": "Query single stream using XREAD",
+          "difficulty": "Medium",
+          "section": "Streams",
+          "url": "https://app.codecrafters.io/courses/redis/stages/um0"
+        },
+        {
+          "order": 28,
+          "id": "ru9",
+          "title": "Query multiple streams using XREAD",
+          "difficulty": "Medium",
+          "section": "Streams",
+          "url": "https://app.codecrafters.io/courses/redis/stages/ru9"
+        },
+        {
+          "order": 29,
+          "id": "bs1",
+          "title": "Blocking reads",
+          "difficulty": "Hard",
+          "section": "Streams",
+          "url": "https://app.codecrafters.io/courses/redis/stages/bs1"
+        },
+        {
+          "order": 30,
+          "id": "hw1",
+          "title": "Blocking reads without timeout",
+          "difficulty": "Medium",
+          "section": "Streams",
+          "url": "https://app.codecrafters.io/courses/redis/stages/hw1"
+        },
+        {
+          "order": 31,
+          "id": "xu1",
+          "title": "Blocking reads using $",
+          "difficulty": "Easy",
+          "section": "Streams",
+          "url": "https://app.codecrafters.io/courses/redis/stages/xu1"
+        },
+        {
+          "order": 32,
+          "id": "si4",
+          "title": "The INCR command (1/3)",
+          "difficulty": "Easy",
+          "section": "Transactions",
+          "url": "https://app.codecrafters.io/courses/redis/stages/si4"
+        },
+        {
+          "order": 33,
+          "id": "lz8",
+          "title": "The INCR command (2/3)",
+          "difficulty": "Easy",
+          "section": "Transactions",
+          "url": "https://app.codecrafters.io/courses/redis/stages/lz8"
+        },
+        {
+          "order": 34,
+          "id": "mk1",
+          "title": "The INCR command (3/3)",
+          "difficulty": "Easy",
+          "section": "Transactions",
+          "url": "https://app.codecrafters.io/courses/redis/stages/mk1"
+        },
+        {
+          "order": 35,
+          "id": "pn0",
+          "title": "The MULTI command",
+          "difficulty": "Easy",
+          "section": "Transactions",
+          "url": "https://app.codecrafters.io/courses/redis/stages/pn0"
+        },
+        {
+          "order": 36,
+          "id": "lo4",
+          "title": "The EXEC command",
+          "difficulty": "Easy",
+          "section": "Transactions",
+          "url": "https://app.codecrafters.io/courses/redis/stages/lo4"
+        },
+        {
+          "order": 37,
+          "id": "we1",
+          "title": "Empty transaction",
+          "difficulty": "Hard",
+          "section": "Transactions",
+          "url": "https://app.codecrafters.io/courses/redis/stages/we1"
+        },
+        {
+          "order": 38,
+          "id": "rs9",
+          "title": "Queueing commands",
+          "difficulty": "Medium",
+          "section": "Transactions",
+          "url": "https://app.codecrafters.io/courses/redis/stages/rs9"
+        },
+        {
+          "order": 39,
+          "id": "fy6",
+          "title": "Executing a transaction",
+          "difficulty": "Hard",
+          "section": "Transactions",
+          "url": "https://app.codecrafters.io/courses/redis/stages/fy6"
+        },
+        {
+          "order": 40,
+          "id": "rl9",
+          "title": "The DISCARD command",
+          "difficulty": "Easy",
+          "section": "Transactions",
+          "url": "https://app.codecrafters.io/courses/redis/stages/rl9"
+        },
+        {
+          "order": 41,
+          "id": "sg9",
+          "title": "Failures within transactions",
+          "difficulty": "Medium",
+          "section": "Transactions",
+          "url": "https://app.codecrafters.io/courses/redis/stages/sg9"
+        },
+        {
+          "order": 42,
+          "id": "jf8",
+          "title": "Multiple transactions",
+          "difficulty": "Medium",
+          "section": "Transactions",
+          "url": "https://app.codecrafters.io/courses/redis/stages/jf8"
+        },
+        {
+          "order": 43,
+          "id": "jb7",
+          "title": "The WATCH command",
+          "difficulty": "Easy",
+          "section": "Optimistic Locking",
+          "url": "https://app.codecrafters.io/courses/redis/stages/jb7"
+        },
+        {
+          "order": 44,
+          "id": "jq9",
+          "title": "WATCH inside transaction",
+          "difficulty": "Easy",
+          "section": "Optimistic Locking",
+          "url": "https://app.codecrafters.io/courses/redis/stages/jq9"
+        },
+        {
+          "order": 45,
+          "id": "mh8",
+          "title": "Tracking key modifications",
+          "difficulty": "Medium",
+          "section": "Optimistic Locking",
+          "url": "https://app.codecrafters.io/courses/redis/stages/mh8"
+        },
+        {
+          "order": 46,
+          "id": "fp0",
+          "title": "Watching multiple keys",
+          "difficulty": "Medium",
+          "section": "Optimistic Locking",
+          "url": "https://app.codecrafters.io/courses/redis/stages/fp0"
+        },
+        {
+          "order": 47,
+          "id": "uo9",
+          "title": "Watching missing keys",
+          "difficulty": "Easy",
+          "section": "Optimistic Locking",
+          "url": "https://app.codecrafters.io/courses/redis/stages/uo9"
+        },
+        {
+          "order": 48,
+          "id": "bn1",
+          "title": "The UNWATCH command",
+          "difficulty": "Easy",
+          "section": "Optimistic Locking",
+          "url": "https://app.codecrafters.io/courses/redis/stages/bn1"
+        },
+        {
+          "order": 49,
+          "id": "fn4",
+          "title": "Unwatch on EXEC",
+          "difficulty": "Easy",
+          "section": "Optimistic Locking",
+          "url": "https://app.codecrafters.io/courses/redis/stages/fn4"
+        },
+        {
+          "order": 50,
+          "id": "hq1",
+          "title": "Unwatch on DISCARD",
+          "difficulty": "Easy",
+          "section": "Optimistic Locking",
+          "url": "https://app.codecrafters.io/courses/redis/stages/hq1"
+        },
+        {
+          "order": 51,
+          "id": "bw1",
+          "title": "Configure listening port",
+          "difficulty": "Easy",
+          "section": "Replication",
+          "url": "https://app.codecrafters.io/courses/redis/stages/bw1"
+        },
+        {
+          "order": 52,
+          "id": "ye5",
+          "title": "The INFO command",
+          "difficulty": "Easy",
+          "section": "Replication",
+          "url": "https://app.codecrafters.io/courses/redis/stages/ye5"
+        },
+        {
+          "order": 53,
+          "id": "hc6",
+          "title": "The INFO command on a replica",
+          "difficulty": "Medium",
+          "section": "Replication",
+          "url": "https://app.codecrafters.io/courses/redis/stages/hc6"
+        },
+        {
+          "order": 54,
+          "id": "xc1",
+          "title": "Initial replication ID and offset",
+          "difficulty": "Easy",
+          "section": "Replication",
+          "url": "https://app.codecrafters.io/courses/redis/stages/xc1"
+        },
+        {
+          "order": 55,
+          "id": "gl7",
+          "title": "Send handshake (1/3)",
+          "difficulty": "Easy",
+          "section": "Replication",
+          "url": "https://app.codecrafters.io/courses/redis/stages/gl7"
+        },
+        {
+          "order": 56,
+          "id": "eh4",
+          "title": "Send handshake (2/3)",
+          "difficulty": "Easy",
+          "section": "Replication",
+          "url": "https://app.codecrafters.io/courses/redis/stages/eh4"
+        },
+        {
+          "order": 57,
+          "id": "ju6",
+          "title": "Send handshake (3/3)",
+          "difficulty": "Medium",
+          "section": "Replication",
+          "url": "https://app.codecrafters.io/courses/redis/stages/ju6"
+        },
+        {
+          "order": 58,
+          "id": "fj0",
+          "title": "Receive handshake (1/2)",
+          "difficulty": "Easy",
+          "section": "Replication",
+          "url": "https://app.codecrafters.io/courses/redis/stages/fj0"
+        },
+        {
+          "order": 59,
+          "id": "vm3",
+          "title": "Receive handshake (2/2)",
+          "difficulty": "Easy",
+          "section": "Replication",
+          "url": "https://app.codecrafters.io/courses/redis/stages/vm3"
+        },
+        {
+          "order": 60,
+          "id": "cf8",
+          "title": "Empty RDB transfer",
+          "difficulty": "Easy",
+          "section": "Replication",
+          "url": "https://app.codecrafters.io/courses/redis/stages/cf8"
+        },
+        {
+          "order": 61,
+          "id": "zn8",
+          "title": "Single-replica propagation",
+          "difficulty": "Medium",
+          "section": "Replication",
+          "url": "https://app.codecrafters.io/courses/redis/stages/zn8"
+        },
+        {
+          "order": 62,
+          "id": "hd5",
+          "title": "Multi-replica propagation",
+          "difficulty": "Hard",
+          "section": "Replication",
+          "url": "https://app.codecrafters.io/courses/redis/stages/hd5"
+        },
+        {
+          "order": 63,
+          "id": "yg4",
+          "title": "Command processing",
+          "difficulty": "Hard",
+          "section": "Replication",
+          "url": "https://app.codecrafters.io/courses/redis/stages/yg4"
+        },
+        {
+          "order": 64,
+          "id": "xv6",
+          "title": "ACKs with no commands",
+          "difficulty": "Easy",
+          "section": "Replication",
+          "url": "https://app.codecrafters.io/courses/redis/stages/xv6"
+        },
+        {
+          "order": 65,
+          "id": "yd3",
+          "title": "ACKs with commands",
+          "difficulty": "Medium",
+          "section": "Replication",
+          "url": "https://app.codecrafters.io/courses/redis/stages/yd3"
+        },
+        {
+          "order": 66,
+          "id": "my8",
+          "title": "WAIT with no replicas",
+          "difficulty": "Medium",
+          "section": "Replication",
+          "url": "https://app.codecrafters.io/courses/redis/stages/my8"
+        },
+        {
+          "order": 67,
+          "id": "tu8",
+          "title": "WAIT with no commands",
+          "difficulty": "Medium",
+          "section": "Replication",
+          "url": "https://app.codecrafters.io/courses/redis/stages/tu8"
+        },
+        {
+          "order": 68,
+          "id": "na2",
+          "title": "WAIT with multiple commands",
+          "difficulty": "Hard",
+          "section": "Replication",
+          "url": "https://app.codecrafters.io/courses/redis/stages/na2"
+        },
+        {
+          "order": 69,
+          "id": "zg5",
+          "title": "RDB file config",
+          "difficulty": "Easy",
+          "section": "RDB Persistence",
+          "url": "https://app.codecrafters.io/courses/redis/stages/zg5"
+        },
+        {
+          "order": 70,
+          "id": "jz6",
+          "title": "Read a key",
+          "difficulty": "Medium",
+          "section": "RDB Persistence",
+          "url": "https://app.codecrafters.io/courses/redis/stages/jz6"
+        },
+        {
+          "order": 71,
+          "id": "gc6",
+          "title": "Read a string value",
+          "difficulty": "Medium",
+          "section": "RDB Persistence",
+          "url": "https://app.codecrafters.io/courses/redis/stages/gc6"
+        },
+        {
+          "order": 72,
+          "id": "jw4",
+          "title": "Read multiple keys",
+          "difficulty": "Medium",
+          "section": "RDB Persistence",
+          "url": "https://app.codecrafters.io/courses/redis/stages/jw4"
+        },
+        {
+          "order": 73,
+          "id": "dq3",
+          "title": "Read multiple string values",
+          "difficulty": "Medium",
+          "section": "RDB Persistence",
+          "url": "https://app.codecrafters.io/courses/redis/stages/dq3"
+        },
+        {
+          "order": 74,
+          "id": "sm4",
+          "title": "Read value with expiry",
+          "difficulty": "Medium",
+          "section": "RDB Persistence",
+          "url": "https://app.codecrafters.io/courses/redis/stages/sm4"
+        },
+        {
+          "order": 75,
+          "id": "uj3",
+          "title": "Default AOF options",
+          "difficulty": "Easy",
+          "section": "AOF Persistence",
+          "url": "https://app.codecrafters.io/courses/redis/stages/uj3"
+        },
+        {
+          "order": 76,
+          "id": "vd9",
+          "title": "AOF options from flags",
+          "difficulty": "Easy",
+          "section": "AOF Persistence",
+          "url": "https://app.codecrafters.io/courses/redis/stages/vd9"
+        },
+        {
+          "order": 77,
+          "id": "fm0",
+          "title": "Create append-only directory",
+          "difficulty": "Easy",
+          "section": "AOF Persistence",
+          "url": "https://app.codecrafters.io/courses/redis/stages/fm0"
+        },
+        {
+          "order": 78,
+          "id": "dw4",
+          "title": "Create append-only file",
+          "difficulty": "Easy",
+          "section": "AOF Persistence",
+          "url": "https://app.codecrafters.io/courses/redis/stages/dw4"
+        },
+        {
+          "order": 79,
+          "id": "pb9",
+          "title": "Create manifest file",
+          "difficulty": "Easy",
+          "section": "AOF Persistence",
+          "url": "https://app.codecrafters.io/courses/redis/stages/pb9"
+        },
+        {
+          "order": 80,
+          "id": "dc8",
+          "title": "Write a single command",
+          "difficulty": "Hard",
+          "section": "AOF Persistence",
+          "url": "https://app.codecrafters.io/courses/redis/stages/dc8"
+        },
+        {
+          "order": 81,
+          "id": "fi1",
+          "title": "Write multiple commands",
+          "difficulty": "Medium",
+          "section": "AOF Persistence",
+          "url": "https://app.codecrafters.io/courses/redis/stages/fi1"
+        },
+        {
+          "order": 82,
+          "id": "ep6",
+          "title": "Filter write commands",
+          "difficulty": "Easy",
+          "section": "AOF Persistence",
+          "url": "https://app.codecrafters.io/courses/redis/stages/ep6"
+        },
+        {
+          "order": 83,
+          "id": "xz2",
+          "title": "Replay a single command",
+          "difficulty": "Hard",
+          "section": "AOF Persistence",
+          "url": "https://app.codecrafters.io/courses/redis/stages/xz2"
+        },
+        {
+          "order": 84,
+          "id": "kn2",
+          "title": "Replay multiple commands",
+          "difficulty": "Medium",
+          "section": "AOF Persistence",
+          "url": "https://app.codecrafters.io/courses/redis/stages/kn2"
+        },
+        {
+          "order": 85,
+          "id": "mx3",
+          "title": "Subscribe to a channel",
+          "difficulty": "Easy",
+          "section": "Pub/Sub",
+          "url": "https://app.codecrafters.io/courses/redis/stages/mx3"
+        },
+        {
+          "order": 86,
+          "id": "zc8",
+          "title": "Subscribe to multiple channels",
+          "difficulty": "Easy",
+          "section": "Pub/Sub",
+          "url": "https://app.codecrafters.io/courses/redis/stages/zc8"
+        },
+        {
+          "order": 87,
+          "id": "aw8",
+          "title": "Enter subscribed mode",
+          "difficulty": "Medium",
+          "section": "Pub/Sub",
+          "url": "https://app.codecrafters.io/courses/redis/stages/aw8"
+        },
+        {
+          "order": 88,
+          "id": "lf1",
+          "title": "PING in subscribed mode",
+          "difficulty": "Easy",
+          "section": "Pub/Sub",
+          "url": "https://app.codecrafters.io/courses/redis/stages/lf1"
+        },
+        {
+          "order": 89,
+          "id": "hf2",
+          "title": "Publish a message",
+          "difficulty": "Easy",
+          "section": "Pub/Sub",
+          "url": "https://app.codecrafters.io/courses/redis/stages/hf2"
+        },
+        {
+          "order": 90,
+          "id": "dn4",
+          "title": "Deliver messages",
+          "difficulty": "Hard",
+          "section": "Pub/Sub",
+          "url": "https://app.codecrafters.io/courses/redis/stages/dn4"
+        },
+        {
+          "order": 91,
+          "id": "ze9",
+          "title": "Unsubscribe",
+          "difficulty": "Medium",
+          "section": "Pub/Sub",
+          "url": "https://app.codecrafters.io/courses/redis/stages/ze9"
+        },
+        {
+          "order": 92,
+          "id": "ct1",
+          "title": "Create a sorted set",
+          "difficulty": "Easy",
+          "section": "Sorted Sets",
+          "url": "https://app.codecrafters.io/courses/redis/stages/ct1"
+        },
+        {
+          "order": 93,
+          "id": "hf1",
+          "title": "Add members",
+          "difficulty": "Medium",
+          "section": "Sorted Sets",
+          "url": "https://app.codecrafters.io/courses/redis/stages/hf1"
+        },
+        {
+          "order": 94,
+          "id": "lg6",
+          "title": "Retrieve member rank",
+          "difficulty": "Medium",
+          "section": "Sorted Sets",
+          "url": "https://app.codecrafters.io/courses/redis/stages/lg6"
+        },
+        {
+          "order": 95,
+          "id": "ic1",
+          "title": "List sorted set members",
+          "difficulty": "Easy",
+          "section": "Sorted Sets",
+          "url": "https://app.codecrafters.io/courses/redis/stages/ic1"
+        },
+        {
+          "order": 96,
+          "id": "bj4",
+          "title": "ZRANGE with negative indexes",
+          "difficulty": "Easy",
+          "section": "Sorted Sets",
+          "url": "https://app.codecrafters.io/courses/redis/stages/bj4"
+        },
+        {
+          "order": 97,
+          "id": "kn4",
+          "title": "Count sorted set members",
+          "difficulty": "Easy",
+          "section": "Sorted Sets",
+          "url": "https://app.codecrafters.io/courses/redis/stages/kn4"
+        },
+        {
+          "order": 98,
+          "id": "gd7",
+          "title": "Retrieve member score",
+          "difficulty": "Medium",
+          "section": "Sorted Sets",
+          "url": "https://app.codecrafters.io/courses/redis/stages/gd7"
+        },
+        {
+          "order": 99,
+          "id": "sq7",
+          "title": "Remove a member",
+          "difficulty": "Easy",
+          "section": "Sorted Sets",
+          "url": "https://app.codecrafters.io/courses/redis/stages/sq7"
+        },
+        {
+          "order": 100,
+          "id": "bq9",
+          "title": "Create a bitmap",
+          "difficulty": "Medium",
+          "section": "Bitmaps",
+          "url": "https://app.codecrafters.io/courses/redis/stages/bq9"
+        },
+        {
+          "order": 101,
+          "id": "qj1",
+          "title": "Retrieve a bit",
+          "difficulty": "Easy",
+          "section": "Bitmaps",
+          "url": "https://app.codecrafters.io/courses/redis/stages/qj1"
+        },
+        {
+          "order": 102,
+          "id": "yj2",
+          "title": "Read a string as bits",
+          "difficulty": "Medium",
+          "section": "Bitmaps",
+          "url": "https://app.codecrafters.io/courses/redis/stages/yj2"
+        },
+        {
+          "order": 103,
+          "id": "pk5",
+          "title": "Read bits as a string",
+          "difficulty": "Easy",
+          "section": "Bitmaps",
+          "url": "https://app.codecrafters.io/courses/redis/stages/pk5"
+        },
+        {
+          "order": 104,
+          "id": "yf6",
+          "title": "Grow a bitmap",
+          "difficulty": "Easy",
+          "section": "Bitmaps",
+          "url": "https://app.codecrafters.io/courses/redis/stages/yf6"
+        },
+        {
+          "order": 105,
+          "id": "nx3",
+          "title": "Count set bits",
+          "difficulty": "Medium",
+          "section": "Bitmaps",
+          "url": "https://app.codecrafters.io/courses/redis/stages/nx3"
+        },
+        {
+          "order": 106,
+          "id": "hv4",
+          "title": "AND two bitmaps",
+          "difficulty": "Medium",
+          "section": "Bitmaps",
+          "url": "https://app.codecrafters.io/courses/redis/stages/hv4"
+        },
+        {
+          "order": 107,
+          "id": "dk2",
+          "title": "AND bitmaps of different lengths",
+          "difficulty": "Medium",
+          "section": "Bitmaps",
+          "url": "https://app.codecrafters.io/courses/redis/stages/dk2"
+        },
+        {
+          "order": 108,
+          "id": "fr8",
+          "title": "OR two bitmaps",
+          "difficulty": "Easy",
+          "section": "Bitmaps",
+          "url": "https://app.codecrafters.io/courses/redis/stages/fr8"
+        },
+        {
+          "order": 109,
+          "id": "zt4",
+          "title": "Respond to GEOADD",
+          "difficulty": "Easy",
+          "section": "Geospatial Commands",
+          "url": "https://app.codecrafters.io/courses/redis/stages/zt4"
+        },
+        {
+          "order": 110,
+          "id": "ck3",
+          "title": "Validate coordinates",
+          "difficulty": "Easy",
+          "section": "Geospatial Commands",
+          "url": "https://app.codecrafters.io/courses/redis/stages/ck3"
+        },
+        {
+          "order": 111,
+          "id": "tn5",
+          "title": "Store a location",
+          "difficulty": "Medium",
+          "section": "Geospatial Commands",
+          "url": "https://app.codecrafters.io/courses/redis/stages/tn5"
+        },
+        {
+          "order": 112,
+          "id": "cr3",
+          "title": "Calculate location score",
+          "difficulty": "Hard",
+          "section": "Geospatial Commands",
+          "url": "https://app.codecrafters.io/courses/redis/stages/cr3"
+        },
+        {
+          "order": 113,
+          "id": "xg4",
+          "title": "Respond to GEOPOS",
+          "difficulty": "Easy",
+          "section": "Geospatial Commands",
+          "url": "https://app.codecrafters.io/courses/redis/stages/xg4"
+        },
+        {
+          "order": 114,
+          "id": "hb5",
+          "title": "Decode coordinates",
+          "difficulty": "Hard",
+          "section": "Geospatial Commands",
+          "url": "https://app.codecrafters.io/courses/redis/stages/hb5"
+        },
+        {
+          "order": 115,
+          "id": "ek6",
+          "title": "Calculate distance",
+          "difficulty": "Medium",
+          "section": "Geospatial Commands",
+          "url": "https://app.codecrafters.io/courses/redis/stages/ek6"
+        },
+        {
+          "order": 116,
+          "id": "rm9",
+          "title": "Search within radius",
+          "difficulty": "Easy",
+          "section": "Geospatial Commands",
+          "url": "https://app.codecrafters.io/courses/redis/stages/rm9"
+        },
+        {
+          "order": 117,
+          "id": "jn4",
+          "title": "Respond to ACL WHOAMI",
+          "difficulty": "Easy",
+          "section": "Authentication",
+          "url": "https://app.codecrafters.io/courses/redis/stages/jn4"
+        },
+        {
+          "order": 118,
+          "id": "gx8",
+          "title": "Respond to ACL GETUSER",
+          "difficulty": "Easy",
+          "section": "Authentication",
+          "url": "https://app.codecrafters.io/courses/redis/stages/gx8"
+        },
+        {
+          "order": 119,
+          "id": "ql6",
+          "title": "The nopass flag",
+          "difficulty": "Easy",
+          "section": "Authentication",
+          "url": "https://app.codecrafters.io/courses/redis/stages/ql6"
+        },
+        {
+          "order": 120,
+          "id": "pl7",
+          "title": "The passwords property",
+          "difficulty": "Easy",
+          "section": "Authentication",
+          "url": "https://app.codecrafters.io/courses/redis/stages/pl7"
+        },
+        {
+          "order": 121,
+          "id": "uv9",
+          "title": "Setting default user password",
+          "difficulty": "Medium",
+          "section": "Authentication",
+          "url": "https://app.codecrafters.io/courses/redis/stages/uv9"
+        },
+        {
+          "order": 122,
+          "id": "hz3",
+          "title": "The AUTH command",
+          "difficulty": "Medium",
+          "section": "Authentication",
+          "url": "https://app.codecrafters.io/courses/redis/stages/hz3"
+        },
+        {
+          "order": 123,
+          "id": "nm2",
+          "title": "Enforce authentication",
+          "difficulty": "Medium",
+          "section": "Authentication",
+          "url": "https://app.codecrafters.io/courses/redis/stages/nm2"
+        },
+        {
+          "order": 124,
+          "id": "ws7",
+          "title": "Authenticate using AUTH",
+          "difficulty": "Medium",
+          "section": "Authentication",
+          "url": "https://app.codecrafters.io/courses/redis/stages/ws7"
+        }
+      ]
+    }
+  ]
+}

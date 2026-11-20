@@ -1,0 +1,995 @@
+{
+  "slug": "quarkus-backend",
+  "title": "Backend Profissional com Quarkus",
+  "subtitle": "APIs, persistência, segurança e operação com build time e baixo consumo",
+  "description": "Uma trilha para quem já programa em Java e quer construir serviços Quarkus que aguentam tráfego real. Você vai do CDI em build time a observabilidade, passando por APIs REST bem desenhadas, Panache sem N+1, segurança com JWT e OIDC, testes com Dev Services e operação em produção. O foco é o que quebra fora do tutorial: proxies, transações, concorrência, CORS, custo de queries e o que o Quarkus decide em build time.",
+  "level": "avancado",
+  "icon": "server",
+  "accent": "rune",
+  "estimatedHours": 48,
+  "isCore": true,
+  "outcomes": [
+    "Construir APIs REST com Quarkus REST, validação, erros RFC 9457, paginação, idempotência e contrato OpenAPI",
+    "Modelar agregados com Panache e Hibernate ORM, eliminar N+1 e evoluir schema com Flyway sem downtime",
+    "Proteger APIs com Quarkus Security, JWT/OIDC, roles, permissions e políticas HTTP declarativas",
+    "Testar com @QuarkusTest, Dev Services e Testcontainers, mantendo a suíte rápida e confiável",
+    "Instrumentar com SmallRye Health, Micrometer, OpenTelemetry e Fault Tolerance, aplicando timeout, retry e circuit breaker com critério",
+    "Empacotar em fast-jar ou native, operar em contêiner e fazer graceful shutdown alinhado a probes"
+  ],
+  "modules": [
+    {
+      "slug": "quarkus-core",
+      "title": "O runtime e o ciclo de vida da aplicação",
+      "description": "Como o Quarkus monta seu objeto de trabalho em build time: CDI, escopos, configuração tipada e interceptores — e o que isso muda em relação a frameworks que decidem tudo em runtime.",
+      "estimatedHours": 8,
+      "lessons": [
+        {
+          "slug": "ioc-di-cdi",
+          "title": "IoC e CDI: o container ArC como arquiteto do seu código",
+          "summary": "Entenda o ArC por dentro, por que injeção por construtor vence e como o build time elimina reflection e surpresas de startup.",
+          "minutes": 45,
+          "file": "lessons/01-ioc-di-cdi.md",
+          "takeaways": [
+            "A diferença entre inversão de controle, injeção de dependência e o container CDI",
+            "Como o ArC resolve beans e gera bytecode em tempo de build",
+            "Quando usar @DefaultBean, @Alternative e qualificadores",
+            "Por que construtor único e campos final simplificam testes"
+          ],
+          "quiz": [
+            {
+              "question": "O que o ArC faz em tempo de build que muda a forma como os beans são criados?",
+              "options": [
+                "Gera bytecode para injeção e interceptação, eliminando reflection em runtime",
+                "Lê beans.xml e cria proxies dinâmicos a cada requisição",
+                "Delega a criação dos beans a um container que usa reflection em runtime",
+                "Usa apenas reflection em runtime para manter compatibilidade"
+              ],
+              "answer": 0,
+              "explanation": "O ArC processa as anotações CDI durante o build e gera as classes de injeção, proxies e interceptores. Em runtime há pouca ou nenhuma reflection, o que reduz startup e memória."
+            },
+            {
+              "question": "Você tem duas implementações de Gateway e injeta a interface sem qualificador. Qual é o comportamento padrão do CDI/ArC?",
+              "options": [
+                "Escolhe a primeira implementação em ordem alfabética",
+                "Falha na inicialização por ambiguidade, a menos que uma seja @DefaultBean ou qualificada",
+                "Cria um proxy que alterna entre as duas implementações",
+                "Injeta null e falha apenas no primeiro uso"
+              ],
+              "answer": 1,
+              "explanation": "O CDI não escolhe silenciosamente entre candidatos igualmente qualificados. A ambiguidade é um erro de deployment; você resolve com @DefaultBean, @Alternative + @Priority ou um qualificador."
+            }
+          ]
+        },
+        {
+          "slug": "beans-escopos-lifecycle",
+          "title": "Beans, escopos e ciclo de vida no CDI",
+          "summary": "@ApplicationScoped, @Singleton, @RequestScoped e @Dependent na prática; client proxies, callbacks e por que o escopo muda o custo e o comportamento.",
+          "minutes": 45,
+          "file": "lessons/02-beans-escopos-lifecycle.md",
+          "takeaways": [
+            "Como escolher escopo e o custo de cada um no ArC",
+            "Onde colocar @PostConstruct, @PreDestroy e @Startup",
+            "Por que @Dependent injetado em singleton vive até o shutdown",
+            "Como usar StartupEvent e ShutdownEvent sem cortar requisições"
+          ],
+          "quiz": [
+            {
+              "question": "Qual é a diferença prática entre @ApplicationScoped e @Singleton no ArC?",
+              "options": [
+                "@ApplicationScoped é um escopo normal com client proxy; @Singleton é pseudo-escopo sem proxy",
+                "@Singleton cria uma instância por thread; @ApplicationScoped cria uma por request",
+                "Os dois são idênticos e intercambiáveis em qualquer situação",
+                "@ApplicationScoped não pode ser injetado em beans @Singleton"
+              ],
+              "answer": 0,
+              "explanation": "O escopo normal permite que o proxy injetado resolva a instância real de forma lazy. @Singleton é pseudo-escopo: o objeto é injetado diretamente, sem proxy, e o ciclo de vida é mais simples, mas menos flexível."
+            },
+            {
+              "question": "Um bean @Dependent é injetado em um bean @ApplicationScoped. Quando ele é destruído?",
+              "options": [
+                "A cada requisição HTTP",
+                "Junto com o bean que o injetou, no shutdown da aplicação",
+                "Imediatamente após a injeção",
+                "Nunca, pois @Dependent não tem ciclo de vida"
+              ],
+              "answer": 1,
+              "explanation": "O ciclo de vida de um bean @Dependent está ligado ao ponto de injeção. Se ele é injetado em um singleton/app-scoped, a instância acompanha esse bean e só é destruída quando ele é destruído."
+            }
+          ]
+        },
+        {
+          "slug": "configuracao-profiles",
+          "title": "Configuração tipada, profiles e segredos",
+          "summary": "@ConfigMapping, precedência de fontes, profiles %dev/%prod, configuração build-time versus runtime e segredos fora do repositório.",
+          "minutes": 45,
+          "file": "lessons/03-configuracao-profiles.md",
+          "takeaways": [
+            "A ordem real de precedência entre application.properties, variáveis e argumentos",
+            "Por que @ConfigMapping é melhor que vários @ConfigProperty",
+            "Como separar propriedades de build time e runtime",
+            "Estratégia para segredos e profiles em contêiner"
+          ],
+          "quiz": [
+            {
+              "question": "Uma propriedade app.timeout aparece em application.properties e também como variável de ambiente APP_TIMEOUT. Qual vence?",
+              "options": [
+                "O application.properties, por ser carregado primeiro",
+                "A variável de ambiente, que tem precedência maior",
+                "A que foi declarada por último no arquivo",
+                "Depende do profile ativo"
+              ],
+              "answer": 1,
+              "explanation": "Variáveis de ambiente têm ordinal maior que o arquivo application.properties no SmallRye Config. A conversão de APP_TIMEOUT para app.timeout segue as regras de mapeamento de nomes."
+            },
+            {
+              "question": "Qual é a principal vantagem de @ConfigMapping(prefix = \"app.pagamento\") em relação a vários @ConfigProperty?",
+              "options": [
+                "Agrupa, tipa, valida e permite falhar cedo na inicialização",
+                "Tem precedência maior que variáveis de ambiente",
+                "Recarrega as propriedades a cada requisição",
+                "Dispensa o uso de profiles"
+              ],
+              "answer": 0,
+              "explanation": "A interface mapeada documenta o grupo de configuração, permite @WithDefault, conversores e validação com Bean Validation. A falha de binding acontece no startup, não no meio de uma requisição."
+            }
+          ]
+        },
+        {
+          "slug": "interceptors-transacoes",
+          "title": "Interceptors, proxies e transações sem surpresa",
+          "summary": "Como o ArC implementa @Transactional e bindings de interceptor em build time, por que autoinvocação não abre transação e como usar QuarkusTransaction quando o proxy não serve.",
+          "minutes": 50,
+          "file": "lessons/04-interceptors-transacoes.md",
+          "takeaways": [
+            "Como criar um interceptor binding e controlar a ordem com @Priority",
+            "Por que chamar um método @Transactional de dentro da mesma classe não abre transação",
+            "O efeito de exceções checadas e como configurar rollbackOn",
+            "Quando usar QuarkusTransaction em vez da anotação"
+          ],
+          "quiz": [
+            {
+              "question": "Um método público @Transactional é chamado por outro método da mesma classe. O que acontece?",
+              "options": [
+                "A transação é aberta normalmente",
+                "A chamada não passa pelo proxy gerado, então a anotação é ignorada",
+                "A transação é aberta com propagação REQUIRES_NEW",
+                "O Quarkus lança um erro de compilação"
+              ],
+              "answer": 1,
+              "explanation": "A interceptação acontece na borda do bean, não no objeto real. A autoinvocação usa a referência interna e não atravessa o proxy, portanto nenhuma transação é iniciada."
+            },
+            {
+              "question": "Uma exceção checada escapa de um método @Transactional padrão. Qual é o comportamento de rollback?",
+              "options": [
+                "Rollback sempre, independentemente do tipo",
+                "Commit, a menos que rollbackOn esteja configurado",
+                "Rollback apenas se a exceção for IOException",
+                "A transação fica em estado indefinido"
+              ],
+              "answer": 1,
+              "explanation": "O JTA/Quarkus marca rollback por padrão para RuntimeException e Error. Exceções checadas precisam de rollbackOn explícito, ou o commit acontece com dados parciais."
+            },
+            {
+              "question": "Quando QuarkusTransaction.requiringNew().run(...) é útil?",
+              "options": [
+                "Quando a chamada é interna e o limite transacional precisa ser explícito, sem depender do proxy",
+                "Para substituir o pool de conexões",
+                "Para abrir transação apenas em métodos private",
+                "Para desativar o rollback de exceções"
+              ],
+              "answer": 0,
+              "explanation": "A API programática permite delimitar a transação dentro do próprio método, inclusive em chamadas que não passam por um proxy. É uma ferramenta consciente, não uma forma de ignorar o desenho."
+            }
+          ]
+        }
+      ],
+      "exercises": [
+        "exercises/quarkus-crud-problemdetail.json"
+      ]
+    },
+    {
+      "slug": "rest-api",
+      "title": "APIs REST que sobrevivem ao cliente real",
+      "description": "Contratos previsíveis, validação consistente, erros padronizados, paginação, versionamento, idempotência e streaming — o que separa uma API de tutorial de uma API pública.",
+      "estimatedHours": 8,
+      "lessons": [
+        {
+          "slug": "design-rest-recursos",
+          "title": "Design REST e modelagem de recursos",
+          "summary": "Recursos, verbos, status codes e representações; como evitar APIs anêmicas e quando REST não é a melhor resposta.",
+          "minutes": 40,
+          "file": "lessons/05-design-rest-recursos.md",
+          "takeaways": [
+            "Modelar recursos e sub-recursos sem transformar o banco em URL",
+            "Escolher status codes que o cliente consegue tratar",
+            "Separar DTO de entidade sem vazar detalhes de persistência",
+            "Reconhecer operações que pedem action endpoint em vez de PUT"
+          ],
+          "quiz": [
+            {
+              "question": "Qual é a diferença prática entre PUT e PATCH?",
+              "options": [
+                "PUT é sempre assíncrono e PATCH é síncrono",
+                "PUT substitui a representação completa do recurso; PATCH aplica uma modificação parcial",
+                "PATCH só pode ser usado em coleções",
+                "Não há diferença; ambos são idempotentes por definição"
+              ],
+              "answer": 1,
+              "explanation": "PUT envia o estado completo e é idempotente; PATCH envia um diff ou instruções parciais e pode não ser idempotente dependendo da semântica escolhida."
+            },
+            {
+              "question": "Um cliente tenta criar um recurso com sintaxe válida, mas viola uma regra de negócio. Qual status comunica melhor o problema?",
+              "options": [
+                "400 Bad Request",
+                "422 Unprocessable Content",
+                "409 Conflict",
+                "500 Internal Server Error"
+              ],
+              "answer": 1,
+              "explanation": "Sintaxe válida com semântica inválida é o caso clássico de 422. O importante é ser consistente e documentar no contrato; algumas APIs preferem 400 e isso também é defensável."
+            },
+            {
+              "question": "Por que devolver a entidade JPA diretamente no resource é arriscado?",
+              "options": [
+                "Porque o Jackson não serializa classes anotadas com @Entity",
+                "Porque expõe o modelo interno, pode disparar lazy loading e acopla o contrato ao schema",
+                "Porque o Quarkus bloqueia essa prática por padrão",
+                "Porque impede o uso de paginação"
+              ],
+              "answer": 1,
+              "explanation": "A entidade carrega detalhes de persistência, relacionamentos lazy e campos sensíveis. O DTO é a fronteira explícita do contrato público."
+            }
+          ]
+        },
+        {
+          "slug": "validacao-problemdetail",
+          "title": "Validação e erros com ProblemDetail",
+          "summary": "Bean Validation em DTOs, validação cruzada, ExceptionMapper e o formato RFC 9457 para que o cliente trate erro por código, não por texto.",
+          "minutes": 45,
+          "file": "lessons/06-validacao-problemdetail.md",
+          "takeaways": [
+            "Validar entrada na borda sem espalhar ifs pelo serviço",
+            "Construir ProblemDetail com campos, código de erro e rastreabilidade",
+            "Mapear exceções de domínio para HTTP sem vazar stack trace",
+            "Diferenciar erro de validação, conflito e falha interna"
+          ],
+          "quiz": [
+            {
+              "question": "O que é necessário para o Quarkus validar um DTO recebido no corpo de um resource?",
+              "options": [
+                "Apenas anotar o DTO com @NotNull",
+                "A extensão quarkus-hibernate-validator no classpath e @Valid no parâmetro",
+                "Um @EnableValidation no resource",
+                "Configurar quarkus.http.validation=true"
+              ],
+              "answer": 1,
+              "explanation": "A extensão de Bean Validation precisa estar presente e o parâmetro deve ser marcado com @Valid (ou validado programaticamente). Sem isso, as anotações do DTO não são aplicadas."
+            },
+            {
+              "question": "Qual é a vantagem de ProblemDetail sobre um JSON com { \"message\": \"...\" }?",
+              "options": [
+                "É menor em bytes",
+                "Padroniza type, title, status, detail e properties, permitindo tratamento por tipo e documentação",
+                "Dispensa o uso de HTTP status",
+                "Só funciona com Quarkus Security"
+              ],
+              "answer": 1,
+              "explanation": "RFC 9457 define campos estáveis e extensíveis. O cliente pode reagir ao type e ler erros de campo sem depender de texto livre."
+            },
+            {
+              "question": "Onde um erro de regra de negócio (saldo insuficiente) deve ser convertido em resposta HTTP?",
+              "options": [
+                "No repositório, lançando SQLException",
+                "No serviço, lançando exceção de domínio, e em um ExceptionMapper/@ServerExceptionMapper",
+                "No cliente, interpretando a mensagem",
+                "No filtro de CORS"
+              ],
+              "answer": 1,
+              "explanation": "O serviço expressa a regra na linguagem do domínio; o mapper traduz para HTTP. Isso mantém o domínio independente da camada web e testável."
+            }
+          ]
+        },
+        {
+          "slug": "versionamento-paginacao-openapi",
+          "title": "Versionamento, paginação, filtros e OpenAPI",
+          "summary": "Estratégias de versão que não quebram clientes, offset versus cursor, paginação com Panache e contrato OpenAPI gerado do código.",
+          "minutes": 45,
+          "file": "lessons/07-versionamento-paginacao-openapi.md",
+          "takeaways": [
+            "Escolher entre versão na URL, header ou media type com critério",
+            "Implementar paginação estável e explicar o custo do offset profundo",
+            "Filtrar sem explodir a combinação de parâmetros",
+            "Gerar e versionar OpenAPI como parte do build"
+          ],
+          "quiz": [
+            {
+              "question": "Por que offset alto é caro em paginação SQL?",
+              "options": [
+                "Porque o banco precisa ler e descartar as linhas anteriores",
+                "Porque o índice B-tree não funciona com LIMIT",
+                "Porque o Quarkus carrega todas as páginas em memória",
+                "Porque OFFSET desabilita o cache do Hibernate"
+              ],
+              "answer": 0,
+              "explanation": "OFFSET 100000 faz o banco varrer e descartar 100 mil linhas. Cursor/keyset pagination usa a última chave como âncora e mantém o custo estável."
+            },
+            {
+              "question": "Você adiciona um campo novo opcional na resposta. Qual estratégia de versionamento é menos disruptiva?",
+              "options": [
+                "Criar /v2 para todo o recurso",
+                "Manter a versão e adicionar o campo, pois clientes devem ignorar campos desconhecidos",
+                "Remover o campo antigo e anunciar no changelog",
+                "Mudar o media type para application/xml"
+              ],
+              "answer": 1,
+              "explanation": "Adições compatíveis não exigem nova versão. Versionar é para quebras reais; excesso de versões multiplica manutenção."
+            },
+            {
+              "question": "Qual é o risco de expor PanacheQuery ou Page interno diretamente no resource?",
+              "options": [
+                "O Quarkus não serializa Page",
+                "O formato interno do Page vaza no contrato e a entidade expõe o modelo de dados",
+                "Page não suporta ordenação",
+                "Page sempre faz N+1"
+              ],
+              "answer": 1,
+              "explanation": "Page tem campos como pageable, sort e numberOfElements que amarram o cliente ao framework. Um PageResponse próprio dá controle do contrato."
+            }
+          ]
+        },
+        {
+          "slug": "idempotencia-uploads-streaming",
+          "title": "Idempotência, uploads e streaming",
+          "summary": "Como tornar POST seguro para retry, receber arquivos grandes sem estourar memória e transmitir respostas com backpressure.",
+          "minutes": 45,
+          "file": "lessons/08-idempotencia-uploads-streaming.md",
+          "takeaways": [
+            "Implementar Idempotency-Key com tabela de deduplicação e resposta armazenada",
+            "Evitar carregar upload inteiro na heap",
+            "Transmitir respostas grandes com StreamingOutput ou Multi e timeouts",
+            "Reconhecer quando um retry do cliente duplica cobrança"
+          ],
+          "quiz": [
+            {
+              "question": "Duas requisições com a mesma Idempotency-Key chegam simultaneamente. Qual desenho evita cobrança dupla?",
+              "options": [
+                "Consultar a chave e, se não existir, cobrar; inserir depois",
+                "Inserir a chave com restrição única antes de executar, tratando conflito e recuperando o resultado",
+                "Usar synchronized no resource",
+                "Confiar no retry do cliente"
+              ],
+              "answer": 1,
+              "explanation": "Check-then-act tem corrida. A unique constraint na chave é o ponto de serialização; a segunda requisição espera ou recebe o resultado já gravado."
+            },
+            {
+              "question": "Por que receber um upload de 2 GB como FileUpload pode ser problemático?",
+              "options": [
+                "Porque o Quarkus não suporta multipart acima de 1 GB",
+                "Porque o arquivo pode ser bufferizado em memória ou disco e os limites precisam ser explícitos",
+                "Porque multipart não passa por HTTPS",
+                "Porque FileUpload é sempre carregado em memória"
+              ],
+              "answer": 1,
+              "explanation": "O comportamento depende da configuração de uploads e limites. Para volumes grandes, prefira URL pré-assinada em object storage ou uma API de streaming, em vez de multipart tradicional."
+            },
+            {
+              "question": "Qual é o cuidado essencial ao transmitir uma resposta grande com StreamingOutput?",
+              "options": [
+                "Não pode ser usado com GET",
+                "A escrita ocorre depois do commit; erros no meio do stream não mudam o status e o cliente pode receber corpo truncado",
+                "Ele carrega tudo em memória antes de enviar",
+                "Ele desabilita compressão"
+              ],
+              "answer": 1,
+              "explanation": "Depois que o primeiro byte sai, o status já foi enviado. É preciso tratar falhas no stream, definir timeouts e garantir que o cliente detecte truncamento."
+            }
+          ]
+        }
+      ],
+      "exercises": [
+        "exercises/quarkus-pagamentos-idempotentes.json"
+      ]
+    },
+    {
+      "slug": "persistencia",
+      "title": "Panache, transações e evolução de schema",
+      "description": "Mapeamento consciente, relacionamentos sem sustos, consultas que não explodem em N+1, concorrência e migrações versionadas. O banco é onde o bug fica caro.",
+      "estimatedHours": 10,
+      "lessons": [
+        {
+          "slug": "panache-mapeamentos",
+          "title": "Panache e Hibernate ORM: mapeamentos que não envelhecem mal",
+          "summary": "Entidade ativa versus repositório, identidade, equals/hashCode, tipos de ID, enums, embeddables e versionamento otimista.",
+          "minutes": 50,
+          "file": "lessons/09-panache-mapeamentos.md",
+          "takeaways": [
+            "Escolher entre PanacheEntity, PanacheEntityBase e repositório",
+            "Escolher geração de ID e entender o custo de UUID aleatório",
+            "Implementar equals/hashCode correto para entidades",
+            "Usar @Version para detectar atualização concorrente"
+          ],
+          "quiz": [
+            {
+              "question": "Por que usar o id gerado no equals/hashCode de uma entidade é problemático?",
+              "options": [
+                "Porque o id é sempre nulo",
+                "Porque antes da persistência o id não existe e o hashCode muda depois, quebrando coleções",
+                "Porque o Hibernate sobrescreve equals",
+                "Porque ids são sempre UUID"
+              ],
+              "answer": 1,
+              "explanation": "Se o objeto entra em um HashSet antes de persistir e o id é gerado depois, o hashCode muda e o objeto some do set. Uma solução é usar UUID atribuído ou uma chave natural imutável."
+            },
+            {
+              "question": "Qual é o custo de usar UUID v4 como chave primária clusterizada?",
+              "options": [
+                "Nenhum, o banco ordena UUIDs por timestamp",
+                "Inserções aleatórias fragmentam o índice e pioram a localidade de escrita",
+                "UUID não pode ser usado como PK",
+                "O Hibernate não suporta UUID"
+              ],
+              "answer": 1,
+              "explanation": "UUID v4 é aleatório; cada insert cai numa página diferente do índice. UUID v7/ULID ou uma sequência preservam ordenação temporal e reduzem a fragmentação."
+            },
+            {
+              "question": "Para que serve @Version em uma entidade JPA?",
+              "options": [
+                "Para versionar a API automaticamente",
+                "Para detectar atualizações concorrentes e lançar OptimisticLockException",
+                "Para criar histórico de auditoria",
+                "Para escolher o dialeto do banco"
+              ],
+              "answer": 1,
+              "explanation": "O Hibernate compara a versão no UPDATE. Se outra transação alterou a linha, zero linhas são afetadas e uma OptimisticLockException sinaliza o conflito."
+            }
+          ]
+        },
+        {
+          "slug": "relacionamentos-cascatas",
+          "title": "Relacionamentos, dono da FK e cascatas",
+          "summary": "Quem é dono do relacionamento, quando cascade ajuda e quando apaga dados que você não queria, e por que orphanRemoval não substitui regra de negócio.",
+          "minutes": 50,
+          "file": "lessons/10-relacionamentos-cascatas.md",
+          "takeaways": [
+            "Identificar o lado owning e por que mappedBy não cria coluna",
+            "Escolher CascadeType com intenção, não por conveniência",
+            "Manter os dois lados do relacionamento consistentes em memória",
+            "Evitar serialização infinita e exclusões acidentais"
+          ],
+          "quiz": [
+            {
+              "question": "Em um relacionamento bidirecional @OneToMany/@ManyToOne, qual lado possui a foreign key?",
+              "options": [
+                "O lado @OneToMany, sempre",
+                "O lado @ManyToOne, que é o owning side por padrão",
+                "Os dois lados",
+                "Depende do banco"
+              ],
+              "answer": 1,
+              "explanation": "A FK fica na tabela do lado many. O @OneToMany com mappedBy é o lado inverso e apenas espelha o mapeamento."
+            },
+            {
+              "question": "Qual combinação remove uma linha filha quando ela sai da coleção do pai?",
+              "options": [
+                "cascade = REMOVE apenas",
+                "orphanRemoval = true",
+                "fetch = LAZY",
+                "mappedBy = \"pai\""
+              ],
+              "answer": 1,
+              "explanation": "orphanRemoval remove a filha que deixou de pertencer ao pai. Cascade REMOVE só propaga a remoção quando o pai é removido."
+            },
+            {
+              "question": "Por que CascadeType.REMOVE em @ManyToOne é perigoso?",
+              "options": [
+                "Porque não é suportado pelo JPA",
+                "Porque remover um filho pode remover o pai compartilhado por outros filhos",
+                "Porque impede o uso de JOIN FETCH",
+                "Porque desativa o transaction manager"
+              ],
+              "answer": 1,
+              "explanation": "Cascata no lado many propaga a remoção para uma entidade que pode ser referenciada por vários agregados. Cascade deve seguir a direção de propriedade do agregado."
+            }
+          ]
+        },
+        {
+          "slug": "n-mais-1-projections",
+          "title": "N+1, fetch joins e projections",
+          "summary": "Como detectar N+1 no log e no APM, resolver com JOIN FETCH ou @EntityGraph sem quebrar paginação, e devolver apenas o que o cliente precisa.",
+          "minutes": 50,
+          "file": "lessons/11-n-mais-1-projections.md",
+          "takeaways": [
+            "Reconhecer N+1 pelo padrão de queries repetidas",
+            "Aplicar fetch join e @EntityGraph com consciência do custo",
+            "Usar projections e DTOs para listagens e relatórios",
+            "Evitar o conflito entre fetch join de coleção e paginação no banco"
+          ],
+          "quiz": [
+            {
+              "question": "Uma listagem de 50 pedidos dispara 1 query para os pedidos e 50 para os clientes. O que aconteceu?",
+              "options": [
+                "Um problema de N+1 por acesso lazy dentro do loop de serialização",
+                "Um deadlock no banco",
+                "Um erro de índice primário",
+                "Uma falha de connection pool"
+              ],
+              "answer": 0,
+              "explanation": "Cada pedido acessa o cliente lazy, gerando uma query. A correção é buscar os clientes junto na consulta original, via join fetch ou EntityGraph."
+            },
+            {
+              "question": "Por que JOIN FETCH de uma coleção com paginação pode ser problemático?",
+              "options": [
+                "Porque o JPA proíbe JOIN FETCH",
+                "Porque o Hibernate precisa paginar em memória ou aplicar limites ambíguos, podendo truncar a coleção",
+                "Porque o banco não suporta ORDER BY",
+                "Porque paginação só funciona com DTO"
+              ],
+              "answer": 1,
+              "explanation": "Com coleção, o conjunto de linhas se multiplica. O Hibernate emite HHH000104 e faz paginação em memória, o que degrada com volume. Alternativas: duas queries ou @BatchSize."
+            },
+            {
+              "question": "Quando uma projection é preferível a carregar a entidade?",
+              "options": [
+                "Quando você precisa alterar a entidade",
+                "Quando a leitura precisa de poucos campos e não haverá mudança de estado",
+                "Quando há relacionamentos lazy",
+                "Quando o banco é PostgreSQL"
+              ],
+              "answer": 1,
+              "explanation": "Projection reduz colunas trafegadas e evita materializar entidades gerenciadas. Para escrita ou regra que depende do agregado inteiro, a entidade ainda é o caminho."
+            }
+          ]
+        },
+        {
+          "slug": "transacoes-locking-flyway",
+          "title": "Transações, locking e migrations com Flyway",
+          "summary": "Isolamento, lost update, lock otimista versus pessimista, deadlocks previsíveis e migrações que rodam em produção sem janela de manutenção.",
+          "minutes": 55,
+          "file": "lessons/12-transacoes-locking-flyway.md",
+          "takeaways": [
+            "Escolher nível de isolamento sabendo o que cada um custa",
+            "Resolver lost update com @Version ou SELECT FOR UPDATE",
+            "Prever deadlocks pela ordem de aquisição de locks",
+            "Versionar schema com Flyway em estratégia compatível com deploy gradual"
+          ],
+          "quiz": [
+            {
+              "question": "Duas transações leem o mesmo saldo 100, cada uma subtrai 10 e grava 90. Qual anomalia ocorreu?",
+              "options": [
+                "Dirty read",
+                "Lost update",
+                "Phantom read",
+                "Deadlock"
+              ],
+              "answer": 1,
+              "explanation": "A segunda escrita sobrescreve a primeira; o valor final deveria ser 80. Lock otimista com @Version ou UPDATE atômico evita o problema."
+            },
+            {
+              "question": "Quando o lock pessimista é uma escolha razoável?",
+              "options": [
+                "Sempre, pois é mais seguro",
+                "Em trechos curtos com alta disputa e necessidade de serialização, como debitar saldo",
+                "Para relatórios analíticos longos",
+                "Para leitura de catálogo cacheado"
+              ],
+              "answer": 1,
+              "explanation": "Lock pessimista segura a linha e reduz throughput; faz sentido quando o conflito é provável e o trecho é curto. Para o resto, otimista escala melhor."
+            },
+            {
+              "question": "Qual prática de Flyway permite deploy sem downtime em uma mudança de coluna?",
+              "options": [
+                "Renomear a coluna diretamente na mesma migration",
+                "Expandir: adicionar nova coluna, escrever nos dois formatos, migrar dados e só depois remover a antiga",
+                "Desligar a aplicação durante a migration",
+                "Usar geração automática de schema em produção"
+              ],
+              "answer": 1,
+              "explanation": "O padrão expand/contract mantém compatibilidade entre versões antigas e novas durante o rollout. Geração automática de schema não é ferramenta de migração confiável."
+            }
+          ]
+        }
+      ],
+      "exercises": []
+    },
+    {
+      "slug": "seguranca",
+      "title": "Segurança de API sem confiar no cliente",
+      "description": "Políticas HTTP, JWT, OIDC, autorização por método e as falhas que aparecem em pentest: CORS mal configurado, segredo no repositório e endpoint sem limite.",
+      "estimatedHours": 10,
+      "lessons": [
+        {
+          "slug": "seguranca-quarkus",
+          "title": "Quarkus Security: identidade, policies e RBAC",
+          "summary": "Como o Quarkus aplica segurança sem filter chain: HttpSecurityPolicy, SecurityIdentity, @RolesAllowed, @Authenticated e políticas declarativas.",
+          "minutes": 45,
+          "file": "lessons/13-seguranca-quarkus.md",
+          "takeaways": [
+            "Diferenciar autenticação, autorização e identidade propagada",
+            "Configurar políticas HTTP declarativas por path e método",
+            "Aplicar @RolesAllowed, @Authenticated e @PermitAll com intenção",
+            "Hashear senhas com Argon2id ou bcrypt e migrar hashes antigos"
+          ],
+          "quiz": [
+            {
+              "question": "No Quarkus, onde a decisão de permitir ou negar uma requisição HTTP é aplicada por padrão?",
+              "options": [
+                "Em uma SecurityFilterChain criada pelo desenvolvedor",
+                "Em políticas HttpSecurityPolicy e anotações de segurança avaliadas pelo runtime",
+                "Apenas no resource, com um if no início do método",
+                "No proxy reverso, que sempre decide a autorização"
+              ],
+              "answer": 1,
+              "explanation": "O Quarkus Security combina HttpSecurityPolicy, configuração quarkus.http.auth.permission.* e anotações como @RolesAllowed. Não existe uma filter chain explícita como em frameworks baseados em servlet."
+            },
+            {
+              "question": "Qual anotação exige autenticação, mas não exige uma role específica?",
+              "options": [
+                "@PermitAll",
+                "@Authenticated",
+                "@RolesAllowed(\"user\")",
+                "@DenyAll"
+              ],
+              "answer": 1,
+              "explanation": "@Authenticated exige uma identidade válida. @PermitAll libera o acesso, @RolesAllowed exige uma ou mais roles e @DenyAll bloqueia tudo."
+            }
+          ]
+        },
+        {
+          "slug": "jwt-sessao",
+          "title": "JWT, refresh tokens e revogação",
+          "summary": "Anatomia e validação de JWT, escolha de chave, refresh token rotativo, logout real e por que stateless não significa sem estado.",
+          "minutes": 50,
+          "file": "lessons/14-jwt-sessao.md",
+          "takeaways": [
+            "Validar assinatura, issuer, audience e expiração corretamente",
+            "Separar access token curto de refresh token rotativo",
+            "Implementar revogação com denylist ou versão de sessão",
+            "Evitar armazenar JWT em localStorage sem entender o risco"
+          ],
+          "quiz": [
+            {
+              "question": "Qual validação NÃO pode ser esquecida ao aceitar um JWT de terceiro?",
+              "options": [
+                "Apenas a assinatura",
+                "Assinatura, issuer, audience e expiração, com algoritmo fixado",
+                "Somente a data de expiração",
+                "O tamanho do token"
+              ],
+              "answer": 1,
+              "explanation": "Aceitar qualquer issuer ou algoritmo abre espaço para token forjado ou replay entre serviços. Fixe o algoritmo e valide as claims de contexto."
+            },
+            {
+              "question": "Por que access tokens costumam ser curtos e refresh tokens longos?",
+              "options": [
+                "Porque tokens curtos são mais fáceis de assinar",
+                "Porque o access token vaza com mais frequência e sua janela de abuso deve ser pequena; o refresh permite renovar com controle",
+                "Porque o refresh token não expira",
+                "Porque o navegador limita o tamanho do header"
+              ],
+              "answer": 1,
+              "explanation": "Sem revogação central, o access token vale até expirar. Janela curta limita dano; o refresh token rotativo permite detectar reuso e encerrar a sessão."
+            },
+            {
+              "question": "Qual é o principal risco de guardar JWT em localStorage?",
+              "options": [
+                "O token expira mais rápido",
+                "Qualquer XSS consegue ler o token e usá-lo fora do navegador",
+                "O token não funciona em requisições same-origin",
+                "O servidor não consegue validar a assinatura"
+              ],
+              "answer": 1,
+              "explanation": "localStorage é acessível a JavaScript de qualquer origem injetada. Cookies HttpOnly, SameSite e Secure reduzem a exposição, mas exigem proteção CSRF."
+            }
+          ]
+        },
+        {
+          "slug": "oauth2-oidc-autorizacao",
+          "title": "OAuth2, OIDC e autorização fina",
+          "summary": "Fluxos que ainda fazem sentido, resource server com JWT, scopes versus roles e decisões de autorização que não viram if espalhado.",
+          "minutes": 45,
+          "file": "lessons/15-oauth2-oidc-autorizacao.md",
+          "takeaways": [
+            "Escolher authorization code + PKCE e evitar implicit flow",
+            "Configurar resource server validando JWT do provedor",
+            "Diferenciar scope, role e permission na prática",
+            "Aplicar @PermissionsAllowed com permission checkers testáveis"
+          ],
+          "quiz": [
+            {
+              "question": "Qual fluxo OAuth2 é recomendado para uma SPA pública hoje?",
+              "options": [
+                "Implicit flow",
+                "Resource owner password credentials",
+                "Authorization code com PKCE",
+                "Client credentials no navegador"
+              ],
+              "answer": 2,
+              "explanation": "PKCE protege o code exchange sem client secret no navegador. Implicit expõe tokens na URL e password grant ensina o cliente a lidar com senha."
+            },
+            {
+              "question": "Em um resource server, o que o scope representa?",
+              "options": [
+                "O papel do usuário no sistema",
+                "A permissão delegada pelo usuário ao cliente sobre um recurso",
+                "O identificador do tenant",
+                "A versão da API"
+              ],
+              "answer": 1,
+              "explanation": "Scope é delegação de acesso do usuário ao cliente (ex.: read:orders). Role descreve o papel do usuário. Misturar os dois gera autorização imprecisa."
+            },
+            {
+              "question": "Como expressar autorização por permissão no Quarkus Security?",
+              "options": [
+                "@PreAuthorize(\"hasRole('ADMIN')\")",
+                "@PermissionsAllowed(\"orders:read\") com um permission checker",
+                "@Secured(\"ADMIN\")",
+                "Um if dentro do controller comparando strings"
+              ],
+              "answer": 1,
+              "explanation": "@PermissionsAllowed integra permissões e um PermissionChecker CDI, permitindo regras mais finas que roles e testáveis isoladamente."
+            }
+          ]
+        },
+        {
+          "slug": "owasp-cors-secrets",
+          "title": "OWASP, CORS, segredos e rate limiting",
+          "summary": "As falhas que aparecem em relatório de pentest: mass assignment, CORS com wildcard, segredo em imagem e endpoint quente sem limite.",
+          "minutes": 45,
+          "file": "lessons/16-owasp-cors-secrets.md",
+          "takeaways": [
+            "Mapear BOLA, mass assignment e exposição de dados no seu domínio",
+            "Configurar CORS com origens explícitas, métodos e headers",
+            "Tratar segredos como configuração de runtime e rotacionável",
+            "Aplicar rate limit por identidade e por IP sem criar negação de serviço"
+          ],
+          "quiz": [
+            {
+              "question": "Qual configuração de CORS NÃO deve ir para produção?",
+              "options": [
+                "Origem explícita do front-end",
+                "quarkus.http.cors.origins=* com allow-credentials=true",
+                "Métodos restritos a GET e POST",
+                "max-age configurado"
+              ],
+              "answer": 1,
+              "explanation": "Wildcard com credenciais é inválido e inseguro: qualquer site poderia fazer requisições autenticadas. Origens devem ser explícitas e revisadas."
+            },
+            {
+              "question": "O que é mass assignment?",
+              "options": [
+                "Enviar muitos arquivos em um multipart",
+                "Aceitar campos não previstos do JSON e deixar o binding alterar atributos sensíveis como role ou saldo",
+                "Atribuir várias roles a um usuário",
+                "Usar PUT em vez de PATCH"
+              ],
+              "answer": 1,
+              "explanation": "Se o DTO tem apenas o que o cliente pode alterar, campos extras são ignorados ou rejeitados. Bind direto na entidade permite escalada de privilégio."
+            },
+            {
+              "question": "Qual chave é mais justa para rate limiting de uma API autenticada?",
+              "options": [
+                "Apenas o IP, pois é sempre estável",
+                "A identidade do token (subject) combinada com a rota, com fallback para IP",
+                "O User-Agent",
+                "O tamanho do corpo da requisição"
+              ],
+              "answer": 1,
+              "explanation": "IP sozinho pune NAT compartilhado e é contornável. Limitar por subject + rota reflete o consumo real; IP serve como proteção adicional para tráfego anônimo."
+            }
+          ]
+        }
+      ],
+      "exercises": []
+    },
+    {
+      "slug": "testes-e-qualidade",
+      "title": "Testes que dão confiança para mudar",
+      "description": "Pirâmide aplicada a Quarkus: testes de unidade rápidos, testes de aplicação enxutos e integração real com Dev Services e Testcontainers, sem suíte de 20 minutos.",
+      "estimatedHours": 6,
+      "lessons": [
+        {
+          "slug": "testes-quarkus",
+          "title": "Testes com @QuarkusTest e Dev Services",
+          "summary": "Testes de unidade, @QuarkusTest, @TestProfile, @InjectMock, REST Assured e Dev Services subindo banco sem configuração manual.",
+          "minutes": 50,
+          "file": "lessons/17-testes-quarkus.md",
+          "takeaways": [
+            "Escolher entre teste puro, @QuarkusTest e @QuarkusIntegrationTest",
+            "Testar resources com REST Assured sem subir infraestrutura manual",
+            "Usar Dev Services e @TestProfile sem duplicar configuração",
+            "Evitar contexto duplicado e suíte lenta por configuração divergente"
+          ],
+          "quiz": [
+            {
+              "question": "O que os Dev Services fazem ao rodar @QuarkusTest sem URL de datasource configurada?",
+              "options": [
+                "Usam H2 em memória automaticamente",
+                "Sobem um container do banco e injetam a configuração",
+                "Bloqueiam o teste até alguém configurar um banco",
+                "Exigem Testcontainers escrito à mão"
+              ],
+              "answer": 1,
+              "explanation": "Os Dev Services detectam a extensão e a ausência de configuração, sobem o serviço em container e injetam as propriedades no perfil de teste/dev."
+            },
+            {
+              "question": "Por que @QuarkusTest não é adequado para toda regra de negócio?",
+              "options": [
+                "Porque não suporta JUnit 5",
+                "Porque sobe a aplicação e custa mais que um teste puro",
+                "Porque não permite mocks",
+                "Porque só roda em native"
+              ],
+              "answer": 1,
+              "explanation": "O teste de aplicação valida integração e fiação. Regras puras rodam em milissegundos com new; usar o container para tudo encarece e desacelera o feedback."
+            },
+            {
+              "question": "Para que serve @TestProfile?",
+              "options": [
+                "Para trocar a JVM do teste",
+                "Para ativar um conjunto específico de configuração e recursos de teste",
+                "Para executar o teste em paralelo",
+                "Para substituir o JUnit"
+              ],
+              "answer": 1,
+              "explanation": "Um TestProfile implementa QuarkusTestProfile e retorna propriedades/configurações extras. Perfis diferentes criam contextos diferentes e devem ser usados com moderação."
+            }
+          ]
+        },
+        {
+          "slug": "testcontainers-contratos",
+          "title": "Testcontainers e testes de contrato",
+          "summary": "Banco real efêmero no CI, Dev Services versus Testcontainers, reuso de containers e contract tests para não quebrar consumidores.",
+          "minutes": 50,
+          "file": "lessons/18-testcontainers-contratos.md",
+          "takeaways": [
+            "Subir PostgreSQL real com Testcontainers e conectar ao Quarkus",
+            "Controlar ciclo de vida e custo de containers no CI",
+            "Escrever contract tests que validam o contrato, não a implementação",
+            "Diagnosticar flakiness por tempo, porta e estado compartilhado"
+          ],
+          "quiz": [
+            {
+              "question": "Qual é a principal vantagem de Testcontainers sobre H2 em testes de repositório?",
+              "options": [
+                "Roda mais rápido em todos os casos",
+                "Exercita o mesmo banco e dialeto de produção, pegando diferenças de SQL e constraints",
+                "Dispensa migrations",
+                "Não precisa de Docker"
+              ],
+              "answer": 1,
+              "explanation": "H2 mente sobre tipos, funções e locking do PostgreSQL. O container usa o banco real; o custo é segundos de startup, mitigável com reuso."
+            },
+            {
+              "question": "Quando usar Testcontainers em vez de Dev Services?",
+              "options": [
+                "Sempre, pois Dev Services é apenas para produção",
+                "Quando precisa de imagem, versão ou configuração específica, ou de um serviço que o Dev Services não cobre",
+                "Quando não há Docker disponível",
+                "Quando quer evitar testes de integração"
+              ],
+              "answer": 1,
+              "explanation": "Dev Services é o caminho padrão para dependências suportadas. Testcontainers dá controle explícito de imagem, rede e inicialização, útil em cenários específicos e no CI."
+            },
+            {
+              "question": "O que um contract test garante?",
+              "options": [
+                "Que a implementação interna está correta",
+                "Que o provedor respeita o contrato esperado pelo consumidor, sem acoplar ao código interno",
+                "Que o banco tem índices",
+                "Que o deploy é azul/verde"
+              ],
+              "answer": 1,
+              "explanation": "O contrato descreve request/response e comportamento observável. O teste falha quando o provedor quebra o que o consumidor depende, mesmo que os testes internos passem."
+            }
+          ]
+        }
+      ],
+      "exercises": []
+    },
+    {
+      "slug": "producao",
+      "title": "Produção: observar, resistir e desligar bem",
+      "description": "O que medir, o que proteger e como sair de cena sem derrubar requisições. Health checks, tracing, resiliência, cache, virtual threads e graceful shutdown.",
+      "estimatedHours": 6,
+      "lessons": [
+        {
+          "slug": "observabilidade-resiliencia",
+          "title": "Observabilidade e resiliência",
+          "summary": "SmallRye Health com probes, métricas com cardinalidade controlada, tracing distribuído e resiliência com timeout antes de retry.",
+          "minutes": 50,
+          "file": "lessons/19-observabilidade-resiliencia.md",
+          "takeaways": [
+            "Expor health, readiness e liveness corretamente no Kubernetes",
+            "Criar métricas de negócio sem explodir a cardinalidade",
+            "Propagar trace e correlacionar logs entre serviços",
+            "Aplicar timeout, retry com backoff e circuit breaker nessa ordem"
+          ],
+          "quiz": [
+            {
+              "question": "Qual é a diferença entre liveness e readiness?",
+              "options": [
+                "Liveness verifica dependências externas; readiness verifica a JVM",
+                "Liveness decide reiniciar o processo; readiness decide enviar tráfego",
+                "São equivalentes no Quarkus",
+                "Readiness só existe em banco"
+              ],
+              "answer": 1,
+              "explanation": "Liveness responde se o processo deve ser reiniciado. Readiness responde se pode receber tráfego. Colocar dependência externa em liveness causa reinícios em cascata quando o banco oscila."
+            },
+            {
+              "question": "Por que usar o ID do pedido como tag de métrica é uma má ideia?",
+              "options": [
+                "Porque IDs são strings",
+                "Porque cardinalidade alta multiplica séries temporais e derruba o Prometheus",
+                "Porque o Micrometer não suporta tags",
+                "Porque o SmallRye Health bloqueia números"
+              ],
+              "answer": 1,
+              "explanation": "Cada combinação de tags vira uma série. IDs únicos criam milhões de séries. Use dimensões limitadas (status, rota, região) e deixe IDs para logs/traces."
+            },
+            {
+              "question": "Qual é a ordem correta ao proteger uma chamada remota?",
+              "options": [
+                "Retry, timeout, circuit breaker",
+                "Timeout, retry com backoff e limite, circuit breaker",
+                "Circuit breaker, cache, retry infinito",
+                "Apenas retry"
+              ],
+              "answer": 1,
+              "explanation": "Sem timeout, o retry empilha chamadas presas. Timeout limita a espera; retry precisa de limite e backoff; o breaker interrompe a cascata quando a dependência está degradada."
+            }
+          ]
+        },
+        {
+          "slug": "packaging-deploy-shutdown",
+          "title": "Fast-jar, native image e graceful shutdown",
+          "summary": "Como o build time do Quarkus vira startup rápido, quando o native compensa e como drenar requisições sem 502 no rollout.",
+          "minutes": 50,
+          "file": "lessons/20-packaging-deploy-shutdown.md",
+          "takeaways": [
+            "Entender o que o modo fast-jar produz e por que ele acelera o boot",
+            "Comparar JVM, native e o custo real de cada um",
+            "Empacotar com Jib ou Dockerfile multi-stage sem inflar a imagem",
+            "Alinhar quarkus.shutdown.timeout, preStop e terminationGracePeriodSeconds"
+          ],
+          "quiz": [
+            {
+              "question": "O que o modo fast-jar produz?",
+              "options": [
+                "Um jar único com todas as dependências",
+                "Um diretório quarkus-app com quarkus-run.jar e camadas de dependências",
+                "Uma imagem nativa GraalVM",
+                "Um WAR para implantar em Tomcat"
+              ],
+              "answer": 1,
+              "explanation": "O fast-jar separa o jar da aplicação, as dependências e o loader em uma estrutura que melhora o startup e o cache de camadas de container. O entrypoint é quarkus-run.jar."
+            },
+            {
+              "question": "Qual é o papel de quarkus.shutdown.timeout?",
+              "options": [
+                "Definir o timeout de conexão do datasource",
+                "Dar uma janela para requisições em voo terminarem antes de encerrar",
+                "Aumentar o tempo de build",
+                "Limitar o heap da JVM"
+              ],
+              "answer": 1,
+              "explanation": "No desligamento, o Quarkus para de aceitar novas requisições e espera as em andamento até o timeout configurado. O terminationGracePeriodSeconds do Kubernetes precisa ser maior que essa janela."
+            },
+            {
+              "question": "Quando a imagem nativa costuma valer a pena?",
+              "options": [
+                "Sempre, pois reduz custo em qualquer carga",
+                "Quando startup e memória são críticos e o custo de build/compatibilidade é aceitável",
+                "Quando a aplicação usa reflection sem registro",
+                "Quando não há CI"
+              ],
+              "answer": 1,
+              "explanation": "Native entrega boot e RSS menores, mas exige build mais lento, tratamento de reflection/recursos e validação de bibliotecas. Para cargas constantes e altas, a conta pode compensar; para outras, a JVM é mais simples."
+            }
+          ]
+        }
+      ],
+      "exercises": []
+    }
+  ]
+}

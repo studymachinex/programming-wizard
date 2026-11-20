@@ -1,0 +1,21 @@
+{
+  "track": "estruturas-dados",
+  "slug": "dsa-stack-min",
+  "title": "Pilha com mínimo em O(1)",
+  "difficulty": "medio",
+  "tags": [
+    "stack",
+    "design",
+    "o-1"
+  ],
+  "estimatedMinutes": 40,
+  "statement": "## Contexto\n\nImplemente uma pilha que suporta `push`, `pop`, `top` e `getMin` em O(1). A solução ingênua varre a pilha a cada consulta; você precisa guardar informação extra sem estourar memória.\n\n## Contrato\n\n```java\nclass MinStack {\n    void push(int x);\n    void pop();\n    int top();\n    int getMin();\n}\n```\n\n- `pop`, `top` e `getMin` em pilha vazia lançam `IllegalStateException`.\n- Valores podem se repetir; o mínimo deve continuar correto após remoções.\n\n## Exemplos\n\n```text\npush(5), push(3), push(7) -> getMin() = 3\npop() -> getMin() = 3\npop() -> getMin() = 5\n```\n\n## Restrições\n\n- Todas as operações O(1).\n- Não use coleções que ordenem automaticamente.",
+  "starterCode": "import java.util.ArrayDeque;\nimport java.util.Deque;\n\npublic class Solution {\n    static class MinStack {\n        private final Deque<Integer> dados = new ArrayDeque<>();\n        private final Deque<Integer> minimos = new ArrayDeque<>();\n\n        void push(int x) { /* TODO */ }\n        void pop() { /* TODO */ }\n        int top() { return 0; }\n        int getMin() { return 0; }\n    }\n}",
+  "solutionCode": "import java.util.ArrayDeque;\nimport java.util.Deque;\n\npublic class Solution {\n    static class MinStack {\n        private final Deque<Integer> dados = new ArrayDeque<>();\n        private final Deque<Integer> minimos = new ArrayDeque<>();\n\n        void push(int x) {\n            dados.push(x);\n            minimos.push(minimos.isEmpty() ? x : Math.min(x, minimos.peek()));\n        }\n\n        void pop() {\n            if (dados.isEmpty()) throw new IllegalStateException(\"pilha vazia\");\n            dados.pop();\n            minimos.pop();\n        }\n\n        int top() {\n            if (dados.isEmpty()) throw new IllegalStateException(\"pilha vazia\");\n            return dados.peek();\n        }\n\n        int getMin() {\n            if (minimos.isEmpty()) throw new IllegalStateException(\"pilha vazia\");\n            return minimos.peek();\n        }\n    }\n}",
+  "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nclass SolutionTest {\n    @Test void minimoAcompanhaPop() {\n        var s = new Solution.MinStack();\n        s.push(5); s.push(3); s.push(7);\n        assertEquals(3, s.getMin());\n        s.pop();\n        assertEquals(3, s.getMin());\n        s.pop();\n        assertEquals(5, s.getMin());\n    }\n\n    @Test void duplicadosNaoQuebram() {\n        var s = new Solution.MinStack();\n        s.push(2); s.push(2); s.push(1);\n        s.pop();\n        assertEquals(2, s.getMin());\n    }\n\n    @Test void vaziaFalha() {\n        assertThrows(IllegalStateException.class, () -> new Solution.MinStack().getMin());\n    }\n}",
+  "hints": [
+    "Mantenha uma segunda pilha com o mínimo até cada nível.",
+    "No push, o novo mínimo é min(x, minimoAtual).",
+    "No pop, remova das duas pilhas juntas."
+  ]
+}

@@ -1,0 +1,274 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Profile {
+  id               String   @id @default("local")
+  name             String   @default("Mago")
+  dailyGoalMinutes Int      @default(60)
+  targetRole       String   @default("Senior Software Engineer")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  lessonProgress   LessonProgress[]
+  exerciseProgress ExerciseProgress[]
+  problemProgress  ProblemProgress[]
+  sessions         StudySession[]
+  reviews          ReviewItem[]
+  activity         ActivityLog[]
+  projectProgress  ProjectProgress[]
+}
+
+model Track {
+  id             String   @id
+  slug           String   @unique
+  title          String
+  subtitle       String
+  description    String   @db.Text
+  level          String
+  icon           String   @default("sparkles")
+  accent         String   @default("arcane")
+  order          Int      @default(0)
+  estimatedHours Int      @default(20)
+  outcomes       String[]
+  isCore         Boolean  @default(false)
+  createdAt      DateTime @default(now())
+
+  modules    Module[]
+  lessons    Lesson[]
+  exercises  Exercise[]
+  problems   ExternalProblem[]
+  projects   Project[]
+}
+
+model Project {
+  id             String   @id
+  slug           String   @unique
+  title          String
+  description    String   @db.Text
+  level          String
+  estimatedHours Int      @default(20)
+  stack          String[]
+  requirements   String[]
+  stretchGoals   String[]
+  trackSlug      String?
+  trackId        String?
+  order          Int      @default(0)
+  createdAt      DateTime @default(now())
+
+  track    Track?          @relation(fields: [trackId], references: [id], onDelete: SetNull)
+  progress ProjectProgress[]
+}
+
+model ProjectProgress {
+  id          String    @id @default(cuid())
+  profileId   String
+  projectId   String
+  status      String    @default("todo")
+  repoUrl     String    @default("")
+  notes       String    @db.Text @default("")
+  completedAt DateTime?
+  updatedAt   DateTime  @updatedAt
+
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, projectId])
+}
+
+model Module {
+  id             String  @id
+  trackId        String
+  slug           String
+  title          String
+  description    String  @db.Text
+  order          Int
+  estimatedHours Int     @default(4)
+
+  track     Track      @relation(fields: [trackId], references: [id], onDelete: Cascade)
+  lessons   Lesson[]
+  exercises Exercise[]
+
+  @@unique([trackId, slug])
+  @@index([trackId])
+}
+
+model Lesson {
+  id               String   @id
+  trackId          String
+  moduleId         String
+  slug             String
+  title            String
+  summary          String   @db.Text
+  order            Int
+  estimatedMinutes Int      @default(20)
+  content          String   @db.Text
+  takeaways        String[]
+  quiz             Json?
+  createdAt        DateTime @default(now())
+
+  track    Track    @relation(fields: [trackId], references: [id], onDelete: Cascade)
+  module   Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  progress LessonProgress[]
+
+  @@unique([moduleId, slug])
+  @@index([trackId])
+  @@index([moduleId])
+}
+
+model Exercise {
+  id               String   @id
+  trackId          String
+  moduleId         String
+  slug             String   @unique
+  title            String
+  difficulty       String
+  statement        String   @db.Text
+  starterCode      String   @db.Text
+  solutionCode     String   @db.Text
+  tests            String   @db.Text
+  hints            String[]
+  tags             String[]
+  estimatedMinutes Int      @default(30)
+  externalUrl      String?
+  order            Int
+  createdAt        DateTime @default(now())
+
+  track    Track    @relation(fields: [trackId], references: [id], onDelete: Cascade)
+  module   Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  progress ExerciseProgress[]
+
+  @@index([trackId])
+  @@index([moduleId])
+}
+
+model ExternalProblem {
+  id          String  @id
+  slug        String  @unique
+  title       String
+  platform    String
+  url         String
+  difficulty  String
+  level       Int     @default(1)
+  topic       String
+  trackId     String?
+  moduleSlug  String?
+  order       Int     @default(0)
+  description String? @db.Text
+
+  track    Track? @relation(fields: [trackId], references: [id], onDelete: SetNull)
+  progress ProblemProgress[]
+
+  @@index([trackId])
+  @@index([platform])
+  @@index([level])
+}
+
+model LessonProgress {
+  id           String    @id @default(cuid())
+  profileId    String
+  lessonId     String
+  status       String    @default("not_started")
+  notes        String    @db.Text @default("")
+  bookmarked   Boolean   @default(false)
+  completedAt  DateTime?
+  lastOpenedAt DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  lesson  Lesson  @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, lessonId])
+  @@index([status])
+}
+
+model ExerciseProgress {
+  id          String    @id @default(cuid())
+  profileId   String
+  exerciseId  String
+  status      String    @default("todo")
+  code        String    @db.Text @default("")
+  attempts    Int       @default(0)
+  notes       String    @db.Text @default("")
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  exercise  Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, exerciseId])
+  @@index([status])
+}
+
+model ProblemProgress {
+  id          String    @id @default(cuid())
+  profileId   String
+  problemId   String
+  status      String    @default("todo")
+  notes       String    @db.Text @default("")
+  completedAt DateTime?
+  updatedAt   DateTime  @updatedAt
+
+  profile Profile        @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  problem ExternalProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, problemId])
+  @@index([status])
+}
+
+model StudySession {
+  id             String @id @default(cuid())
+  profileId      String
+  day            String
+  minutes        Int    @default(0)
+  lessonsDone    Int    @default(0)
+  exercisesDone  Int    @default(0)
+  problemsDone   Int    @default(0)
+  updatedAt      DateTime @updatedAt
+
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, day])
+  @@index([day])
+}
+
+model ReviewItem {
+  id             String    @id @default(cuid())
+  profileId      String
+  kind           String
+  refId          String
+  title          String
+  href           String
+  dueAt          DateTime
+  intervalDays   Int       @default(1)
+  ease           Float     @default(2.5)
+  repetitions    Int       @default(0)
+  lastReviewedAt DateTime?
+  createdAt      DateTime  @default(now())
+
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, kind, refId])
+  @@index([dueAt])
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  profileId String
+  kind      String
+  title     String
+  href      String?
+  detail    String?
+  createdAt DateTime @default(now())
+
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([createdAt])
+}

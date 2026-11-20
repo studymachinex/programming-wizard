@@ -1,0 +1,817 @@
+{
+  "slug": "cloud-devops",
+  "title": "Docker, Kubernetes & Cloud",
+  "subtitle": "Empacote, deploye e opere aplicações Java com confiança",
+  "description": "Uma trilha de operação real para quem já programa em Java e precisa levar serviços até produção. Você constrói imagens enxutas, escreve manifests Kubernetes que aguentam rollout, monta pipelines com quality gates e escolhe serviços de nuvem com base em custo e operação. No fim, opera com SLO, error budget e runbooks em vez de apagar incêndio no escuro.",
+  "level": "avancado",
+  "icon": "cloud",
+  "accent": "mana",
+  "estimatedHours": 38,
+  "isCore": false,
+  "outcomes": [
+    "Empacotar uma API Java 21 em imagens reprodutíveis, pequenas e sem privilégios, com compose para o ambiente local",
+    "Escrever manifests Kubernetes com probes, resources, HPA e ingress que sobrevivem a rollout e pico de tráfego",
+    "Construir pipelines no GitHub Actions com quality gates, cache, OIDC e deploy com rollback",
+    "Escolher serviços AWS (EC2, ECS, EKS, Lambda, RDS, MSK, SQS) comparando custo e operação",
+    "Operar com SLO, error budget, alertas baseados em burn rate e runbooks de incidente"
+  ],
+  "modules": [
+    {
+      "slug": "docker",
+      "title": "Docker sem mitos",
+      "description": "Do processo isolado por namespaces à imagem assinada em produção: o modelo mental e as decisões que evitam OOMKilled, imagens de 1 GB e dados perdidos.",
+      "estimatedHours": 10,
+      "lessons": [
+        {
+          "slug": "containers-vs-vms",
+          "title": "Containers, VMs e o que o kernel realmente isola",
+          "summary": "Namespaces, cgroups e o processo que virou container — inclusive como a JVM enxerga memória e CPUs dentro dele.",
+          "minutes": 25,
+          "file": "lessons/containers-vs-vms.md",
+          "takeaways": [
+            "Container é processo com namespaces e cgroups, não uma VM pequena",
+            "Como a JVM descobre limites de memória e CPU no cgroup",
+            "Por que OOMKilled (137) não é a mesma coisa que OutOfMemoryError"
+          ],
+          "quiz": [
+            {
+              "question": "Um container com limite de 512 MiB tenta alocar mais memória do que o cgroup permite. O que acontece?",
+              "options": [
+                "A JVM lança OutOfMemoryError e o processo continua",
+                "O kernel mata o processo e o container termina com código 137",
+                "O Docker aumenta o limite automaticamente",
+                "O processo é movido para swap e nunca falha"
+              ],
+              "answer": 1,
+              "explanation": "O cgroup v2 aplica memory.max; ao estourar, o OOM killer do kernel escolhe um processo do grupo e o encerra. O container aparece como OOMKilled e o exit code 137 (128 + SIGKILL)."
+            },
+            {
+              "question": "Por que uma aplicação Java antiga em container podia dimensionar pools pelo número de CPUs do host?",
+              "options": [
+                "Porque o Docker sempre repassa todos os cores para o container",
+                "Porque versões da JVM anteriores ao suporte a cgroups liam /proc/cpuinfo do host",
+                "Porque o cgroups v2 não expõe limite de CPU",
+                "Porque o Kubernetes desativa UseContainerSupport por padrão"
+              ],
+              "answer": 1,
+              "explanation": "Antes do UseContainerSupport (JDK 10+), a JVM usava a contagem de processadores do host. Em uma máquina de 64 cores com container de 2, pools e GC threads superdimensionavam."
+            },
+            {
+              "question": "Qual flag é mais segura para dimensionar o heap quando o limite de memória do container pode mudar?",
+              "options": [
+                "-Xmx4g fixo no Dockerfile",
+                "-XX:MaxRAMPercentage=75",
+                "-Xms4g e -Xmx4g iguais",
+                "-XX:+UseSerialGC"
+              ],
+              "answer": 1,
+              "explanation": "MaxRAMPercentage deriva o heap do limite do cgroup. Um -Xmx fixo maior que o limite produz OOMKilled; igual ao limite não deixa espaço para metaspace, code cache, threads e buffers."
+            }
+          ]
+        },
+        {
+          "slug": "imagens-layers-dockerfile",
+          "title": "Imagens, layers e um Dockerfile eficiente para Java",
+          "summary": "Como o cache de layers funciona e um Dockerfile multi-stage com fast-jar do Quarkus, usuário sem privilégio e runtime enxuto.",
+          "minutes": 30,
+          "file": "lessons/imagens-layers-dockerfile.md",
+          "takeaways": [
+            "O que é uma layer e por que a ordem das instruções muda o tempo de build",
+            "Multi-stage com camadas de dependências, loader e aplicação",
+            "Como medir e reduzir o tamanho real da imagem Java"
+          ],
+          "quiz": [
+            {
+              "question": "Qual é o efeito de copiar o código-fonte antes de rodar o download de dependências Maven?",
+              "options": [
+                "O build fica mais rápido porque o cache de layers é invalidado a cada mudança de código",
+                "O cache de dependências é descartado sempre que qualquer arquivo muda, forçando novo download",
+                "O Docker compacta o código automaticamente",
+                "O Maven passa a usar menos memória"
+              ],
+              "answer": 1,
+              "explanation": "COPY invalida a layer e todas as seguintes. Se o código vem antes do go-offline, cada alteração de uma linha refaz o download das dependências."
+            },
+            {
+              "question": "Para que serve o layout fast-jar do Quarkus no build da imagem?",
+              "options": [
+                "Para assinar o jar automaticamente",
+                "Para separar dependências, aplicação e loader em camadas com estabilidade diferente e aproveitar cache entre builds",
+                "Para converter o jar em um executável nativo",
+                "Para substituir o JRE por uma imagem native"
+              ],
+              "answer": 1,
+              "explanation": "O fast-jar separa quarkus-run.jar, lib, app e quarkus. Dependências mudam pouco e ficam em camadas reutilizadas; só a aplicação é recopiada."
+            },
+            {
+              "question": "Por que uma imagem base alpine pode não ser a melhor escolha para qualquer aplicação Java?",
+              "options": [
+                "Porque alpine não suporta Java 21",
+                "Porque usa musl libc e bibliotecas nativas/JNI podem não ter build compatível",
+                "Porque o Docker não aceita alpine em produção",
+                "Porque alpine sempre aumenta a imagem"
+              ],
+              "answer": 1,
+              "explanation": "Alpine usa musl; bibliotecas nativas compiladas para glibc podem falhar ou exigir pacotes extras. Para JVM pura costuma funcionar, mas valide JNI, DNS e certificados."
+            }
+          ]
+        },
+        {
+          "slug": "redes-volumes-persistencia",
+          "title": "Redes, volumes e persistência de dados",
+          "summary": "Bridge, host e overlay; volume nomeado, bind mount e tmpfs; como o Postgres sobrevive ao container e como fazer backup de verdade.",
+          "minutes": 25,
+          "file": "lessons/redes-volumes-persistencia.md",
+          "takeaways": [
+            "Diferença prática entre bridge padrão, bridge definida pelo usuário e overlay",
+            "Quando usar volume nomeado, bind mount ou tmpfs",
+            "Backup e restore de um Postgres em container sem perder o arquivo de dados"
+          ],
+          "quiz": [
+            {
+              "question": "Por que dois containers na bridge padrão não se resolvem pelo nome, mas na rede definida pelo usuário sim?",
+              "options": [
+                "Porque a bridge padrão não tem DNS embutido; a rede definida pelo usuário tem",
+                "Porque a bridge padrão usa IPv6",
+                "Porque containers na bridge padrão não têm IP",
+                "Porque o Docker Compose desliga o DNS"
+              ],
+              "answer": 0,
+              "explanation": "A bridge default não oferece resolução por nome. Redes definidas pelo usuário embutem um DNS interno que resolve o nome do container e os aliases da rede."
+            },
+            {
+              "question": "Onde ficam os dados de um Postgres se o container usa apenas o filesystem gravável?",
+              "options": [
+                "Em um volume nomeado criado automaticamente",
+                "Na layer do container, que é descartada com docker rm",
+                "No host, em /var/lib/docker/volumes sempre",
+                "Em um bind mount para o diretório atual"
+              ],
+              "answer": 1,
+              "explanation": "Sem volume ou bind mount, os arquivos ficam na camada gravável do container. Ao remover o container, os dados vão junto; recriar a imagem não traz nada de volta."
+            },
+            {
+              "question": "Qual é a forma correta de expor o Postgres apenas para a máquina host durante o desenvolvimento?",
+              "options": [
+                "-p 5432:5432",
+                "-p 127.0.0.1:5432:5432",
+                "--network host",
+                "-p 0.0.0.0:5432:5432"
+              ],
+              "answer": 1,
+              "explanation": "Publicar em 127.0.0.1 limita o acesso à interface loopback do host. -p 5432:5432 e 0.0.0.0 escutam em todas as interfaces e podem expor o banco na rede local."
+            }
+          ]
+        },
+        {
+          "slug": "compose-multistage-seguranca",
+          "title": "Compose, multi-stage e segurança de imagem",
+          "summary": "Um compose.yaml com healthchecks, segredos em arquivo e limites, mais o hardening da imagem: non-root, read-only, cap_drop e scan.",
+          "minutes": 30,
+          "file": "lessons/compose-multistage-seguranca.md",
+          "takeaways": [
+            "Compose com depends_on baseado em healthcheck e segredos fora do Git",
+            "Hardening de container: usuário, filesystem read-only, capabilities e no-new-privileges",
+            "Como integrar scan de CVE e SBOM no fluxo de build"
+          ],
+          "quiz": [
+            {
+              "question": "Qual a diferença entre depends_on simples e depends_on com condition: service_healthy?",
+              "options": [
+                "Nenhuma; ambos esperam o processo terminar",
+                "O simples espera o container iniciar; o condicional espera o healthcheck passar",
+                "O condicional só funciona com Docker Swarm",
+                "O simples reinicia o banco automaticamente"
+              ],
+              "answer": 1,
+              "explanation": "O depends_on simples ordena a criação, mas não garante que o serviço esteja pronto. Com condition: service_healthy, o Compose espera o healthcheck declarado ficar healthy."
+            },
+            {
+              "question": "Por que montar segredo como arquivo é melhor do que passar em variável de ambiente?",
+              "options": [
+                "Porque variáveis de ambiente são mais lentas",
+                "Porque env aparece em docker inspect, /proc/<pid>/environ e logs de crash; arquivo reduz a exposição",
+                "Porque o Docker não suporta segredos em env",
+                "Porque arquivos são criptografados automaticamente"
+              ],
+              "answer": 1,
+              "explanation": "Variáveis de ambiente vazam em inspect, processos filhos, dumps e relatórios de erro. O arquivo em /run/secrets ainda precisa de controle de acesso, mas tem superfície menor."
+            },
+            {
+              "question": "O que read_only: true no container impede?",
+              "options": [
+                "Que a imagem seja baixada",
+                "Escritas no filesystem raiz do container, exigindo tmpfs ou volumes para diretórios que precisam de escrita",
+                "Que o container use rede",
+                "Que variáveis de ambiente sejam lidas"
+              ],
+              "answer": 1,
+              "explanation": "O rootfs fica somente leitura. Aplicações que escrevem em /tmp ou no diretório de trabalho precisam de tmpfs/volume; é uma barreira útil contra persistência de malware e alteração de binários."
+            }
+          ]
+        }
+      ],
+      "exercises": []
+    },
+    {
+      "slug": "kubernetes",
+      "title": "Kubernetes em produção",
+      "description": "O control loop na prática: pods, Deployments, probes, Services, Ingress e o trio que mais causa incidente — requests, limits e HPA.",
+      "estimatedHours": 10,
+      "lessons": [
+        {
+          "slug": "arquitetura-cluster-kubectl",
+          "title": "Arquitetura do cluster e kubectl sem decoreba",
+          "summary": "API server, etcd, scheduler e kubelet; o que cada comando do kubectl consulta e como diagnosticar um pod que não sobe.",
+          "minutes": 25,
+          "file": "lessons/arquitetura-cluster-kubectl.md",
+          "takeaways": [
+            "O caminho de um Deployment até o container rodando em um nó",
+            "Quais comandos usar em ordem para diagnosticar ImagePullBackOff e CrashLoopBackOff",
+            "Contextos, namespaces e o risco de aplicar no cluster errado"
+          ],
+          "quiz": [
+            {
+              "question": "Qual componente decide em qual nó um Pod novo vai rodar?",
+              "options": [
+                "kubelet",
+                "kube-apiserver",
+                "kube-scheduler",
+                "kube-proxy"
+              ],
+              "answer": 2,
+              "explanation": "O scheduler filtra e pontua nós com base em requests, affinity, taints e tolerations, e grava a decisão no API server. O kubelet do nó escolhido cria os containers."
+            },
+            {
+              "question": "Um Pod está em ImagePullBackOff. Qual comando mostra o motivo exato e os eventos?",
+              "options": [
+                "kubectl logs pod",
+                "kubectl describe pod",
+                "kubectl exec -it pod -- sh",
+                "kubectl rollout restart deployment"
+              ],
+              "answer": 1,
+              "explanation": "describe exibe os eventos, incluindo falha de autenticação no registry, tag inexistente ou limite de pull. logs não funciona porque o container nem iniciou."
+            },
+            {
+              "question": "Por que kubectl apply -f manifest.yaml pode ser perigoso sem conferir o contexto?",
+              "options": [
+                "Porque apply só funciona em minikube",
+                "Porque o contexto ativo pode apontar para o cluster de produção",
+                "Porque apply apaga todos os recursos do namespace",
+                "Porque apply ignora o namespace do manifest"
+              ],
+              "answer": 1,
+              "explanation": "O kubectl usa o contexto atual. Um apply no cluster errado cria ou altera recursos em produção. Confira com kubectl config current-context e use namespaces/contextos explícitos."
+            }
+          ]
+        },
+        {
+          "slug": "pods-deployments-probes",
+          "title": "Pods, Deployments, probes e rollout seguro",
+          "summary": "Como o Deployment substitui pods sem derrubar tráfego, a diferença entre startup, readiness e liveness, e o que fazer com SIGTERM.",
+          "minutes": 35,
+          "file": "lessons/pods-deployments-probes.md",
+          "takeaways": [
+            "RollingUpdate, maxSurge e maxUnavailable na prática",
+            "Probe certa para cada fase do ciclo de vida do pod",
+            "Shutdown gracioso com preStop, terminationGracePeriodSeconds e Quarkus"
+          ],
+          "quiz": [
+            {
+              "question": "Qual probe tira o pod do balanceamento sem reiniciá-lo?",
+              "options": [
+                "livenessProbe",
+                "readinessProbe",
+                "startupProbe",
+                "Nenhuma"
+              ],
+              "answer": 1,
+              "explanation": "A readiness falhando remove o pod dos endpoints do Service. A liveness falhando reinicia o container. A startup apenas segura as outras duas durante o boot."
+            },
+            {
+              "question": "Por que usar o mesmo endpoint /health para liveness e readiness é arriscado?",
+              "options": [
+                "Porque o Kubernetes só aceita /healthz",
+                "Porque uma dependência lenta (banco) derruba a liveness e reinicia um pod que só estava sem tráfego",
+                "Porque readiness não aceita HTTP",
+                "Porque o endpoint precisa retornar texto puro"
+              ],
+              "answer": 1,
+              "explanation": "Liveness deve indicar se o processo está travado, não se uma dependência externa está fora. Se o banco cai, a liveness falha, o pod reinicia em loop e piora o incidente."
+            },
+            {
+              "question": "Para que serve terminationGracePeriodSeconds em uma API Java?",
+              "options": [
+                "Para o pod ficar mais tempo no ar após ser removido do Service",
+                "Para dar tempo de o SIGTERM ser tratado, requests em andamento terminarem e o processo sair",
+                "Para aumentar o timeout do ingress",
+                "Para o HPA não reduzir réplicas"
+              ],
+              "answer": 1,
+              "explanation": "No delete, o pod sai dos endpoints e recebe SIGTERM. A janela de graça permite shutdown gracioso. Se o processo não sair, o kubelet envia SIGKILL ao fim do prazo."
+            }
+          ]
+        },
+        {
+          "slug": "services-ingress-dns",
+          "title": "Services, Ingress e DNS interno",
+          "summary": "ClusterIP, NodePort e LoadBalancer; como endpoints são populados; Ingress com TLS e o DNS que resolve pedidos-api.pedidos.svc.cluster.local.",
+          "minutes": 30,
+          "file": "lessons/services-ingress-dns.md",
+          "takeaways": [
+            "Como um Service seleciona pods e por que endpoints vazios acontecem",
+            "Ingress, IngressClass e controller: quem realmente faz o roteamento",
+            "Nomes DNS internos, ndots e quando usar headless Service"
+          ],
+          "quiz": [
+            {
+              "question": "Um Service existe, mas kubectl get endpoints mostra <none>. Qual é a causa mais provável?",
+              "options": [
+                "O Service é do tipo LoadBalancer",
+                "O selector do Service não casa com as labels dos pods prontos",
+                "O Ingress não foi criado",
+                "O cluster está sem DNS"
+              ],
+              "answer": 1,
+              "explanation": "O controlador de endpoints só adiciona pods cujo selector casa e que estão Ready. Labels erradas, namespace diferente ou readiness falhando deixam a lista vazia."
+            },
+            {
+              "question": "O que um Ingress faz sozinho, sem um ingress controller?",
+              "options": [
+                "Cria um load balancer na nuvem",
+                "Nada; é apenas um recurso declarativo que precisa de um controller para virar configuração de proxy",
+                "Abre portas NodePort",
+                "Configura certificados TLS automaticamente"
+              ],
+              "answer": 1,
+              "explanation": "O Ingress descreve regras. O controller (nginx, ALB, Traefik) observa esses objetos e configura o proxy. Sem controller, o recurso fica sem efeito prático."
+            },
+            {
+              "question": "Para que serve um headless Service (clusterIP: None)?",
+              "options": [
+                "Para expor o serviço na internet",
+                "Para retornar os IPs dos pods no DNS, útil para clientes que precisam falar com cada instância",
+                "Para desativar o balanceamento do Ingress",
+                "Para criar um IP fixo"
+              ],
+              "answer": 1,
+              "explanation": "Sem ClusterIP, o DNS retorna registros A/AAAA dos pods selecionados. É usado por StatefulSets, bancos e clientes que fazem descoberta própria; não é um load balancer."
+            }
+          ]
+        },
+        {
+          "slug": "configmaps-secrets-hpa",
+          "title": "ConfigMaps, Secrets, requests/limits e HPA",
+          "summary": "Configuração sem rebuild, o que Secret realmente protege, QoS classes e por que HPA sem requests fica em unknown.",
+          "minutes": 35,
+          "file": "lessons/configmaps-secrets-hpa.md",
+          "takeaways": [
+            "ConfigMap e Secret: montagem, atualização e limites de segurança",
+            "Requests, limits, QoS e o efeito no agendamento e no OOM",
+            "HPA com métricas de CPU, comportamento de escala e armadilhas de memória"
+          ],
+          "quiz": [
+            {
+              "question": "O que o base64 de um Secret do Kubernetes oferece?",
+              "options": [
+                "Criptografia forte com chave do cluster",
+                "Apenas codificação; qualquer pessoa com permissão de leitura decodifica",
+                "Assinatura digital",
+                "Rotação automática"
+              ],
+              "answer": 1,
+              "explanation": "base64 não é criptografia. Secret evita segredo em texto no YAML e permite RBAC/encryption at rest, mas quem tem get secret recebe o valor. Use external secrets e encryption at rest."
+            },
+            {
+              "question": "Por que um HPA baseado em CPU fica com target unknown?",
+              "options": [
+                "Porque falta o metrics-server apenas",
+                "Porque os containers não declaram requests de CPU, então o uso percentual não pode ser calculado",
+                "Porque o HPA só funciona com memória",
+                "Porque o Deployment tem réplicas demais"
+              ],
+              "answer": 1,
+              "explanation": "O HPA calcula usage/request. Sem requests, o denominador não existe e a métrica fica unknown. metrics-server ausente também causa unknown, mas requests é o erro de configuração mais comum."
+            },
+            {
+              "question": "Qual é o risco de usar memória como métrica principal de HPA em uma JVM?",
+              "options": [
+                "A JVM sempre reduz o heap após o GC, então a escala pode oscilar ou nunca acontecer",
+                "O Kubernetes não coleta memória",
+                "Memória não pode ser limitada",
+                "O HPA não aceita porcentagem"
+              ],
+              "answer": 0,
+              "explanation": "O heap cresce e só cai após GC; uso de memória não acompanha bem a carga e pode manter réplicas extras ou escalar tarde. CPU, RPS ou fila são métricas melhores para a maioria das APIs."
+            }
+          ]
+        }
+      ],
+      "exercises": []
+    },
+    {
+      "slug": "cicd",
+      "title": "Entrega contínua",
+      "description": "Pipeline como contrato de qualidade: build imutável, testes, scan, deploy com OIDC e estratégias de liberação que permitem voltar atrás.",
+      "estimatedHours": 7,
+      "lessons": [
+        {
+          "slug": "pipeline-build-test-scan-deploy",
+          "title": "Pipeline: build, teste, scan e deploy",
+          "summary": "As etapas que realmente protegem produção, artefato imutável, quality gates e por que buildar uma vez muda tudo.",
+          "minutes": 30,
+          "file": "lessons/pipeline-build-test-scan-deploy.md",
+          "takeaways": [
+            "Anatomia de um pipeline com fail fast e artefato promovido entre ambientes",
+            "Quais gates são bloqueantes e quais viram dívida se mal calibrados",
+            "Assinatura, SBOM e rastreabilidade do commit ao pod"
+          ],
+          "quiz": [
+            {
+              "question": "Por que o mesmo artefato deve ser promovido de staging para produção?",
+              "options": [
+                "Para economizar espaço no registry",
+                "Porque rebuildar por ambiente introduz diferenças não testadas e quebra a rastreabilidade",
+                "Porque o Kubernetes exige imagens iguais",
+                "Para evitar scan de segurança em produção"
+              ],
+              "answer": 1,
+              "explanation": "Buildar de novo no deploy muda dependências, base image e até o compilador. A imagem testada deve ser a promovida; configuração varia por ambiente, binário não."
+            },
+            {
+              "question": "Qual tag de imagem oferece rastreabilidade e imutabilidade?",
+              "options": [
+                "latest",
+                "stable",
+                "O SHA do commit ou um digest",
+                "v1"
+              ],
+              "answer": 2,
+              "explanation": "SHA do commit ou digest identifica exatamente o artefato. Tags móveis como latest e stable podem ser sobrescritas e o pod de amanhã não é o mesmo de hoje."
+            },
+            {
+              "question": "O que um quality gate de cobertura mal calibrado pode causar?",
+              "options": [
+                "Aumento automático de performance",
+                "Testes vazios para bater a meta, criando confiança falsa",
+                "Remoção de vulnerabilidades",
+                "Builds mais rápidos"
+              ],
+              "answer": 1,
+              "explanation": "Meta de cobertura isolada incentiva testes sem asserção. Combine cobertura de linhas com testes de comportamento, mutação ou revisão para medir o que importa."
+            }
+          ]
+        },
+        {
+          "slug": "github-actions-matriz-cache",
+          "title": "GitHub Actions: matriz, cache e OIDC",
+          "summary": "Workflow com permissões mínimas, matriz de versões do Postgres, cache Maven, services e credenciais temporárias via OIDC.",
+          "minutes": 35,
+          "file": "lessons/github-actions-matriz-cache.md",
+          "takeaways": [
+            "Estrutura de workflow com jobs, needs, matrix e services",
+            "Cache de dependências sem envenenar builds de outras branches",
+            "OIDC para AWS sem access key estática e environments com aprovação"
+          ],
+          "quiz": [
+            {
+              "question": "Qual permissão um workflow precisa para assumir uma role na AWS via OIDC?",
+              "options": [
+                "contents: write",
+                "id-token: write",
+                "packages: write",
+                "actions: read"
+              ],
+              "answer": 1,
+              "explanation": "O GitHub emite um token OIDC para o job que tem id-token: write. A AWS valida esse token e devolve credenciais temporárias; não é preciso guardar access key."
+            },
+            {
+              "question": "Por que pull_request_target é perigoso?",
+              "options": [
+                "Porque roda apenas em forks",
+                "Porque roda com permissões e segredos do repositório base enquanto o código do PR pode ser controlado por terceiros",
+                "Porque não aceita cache",
+                "Porque desativa a matriz"
+              ],
+              "answer": 1,
+              "explanation": "O evento roda no contexto do repositório base, com secrets. Se o workflow fizer checkout do código do PR e executá-lo, um contribuidor malicioso pode exfiltrar credenciais."
+            },
+            {
+              "question": "Qual é o benefício de uma matriz com duas versões do Postgres?",
+              "options": [
+                "Baixar menos imagens",
+                "Detectar incompatibilidades de SQL/driver antes de produção, mantendo o mesmo código testado em versões suportadas",
+                "Eliminar a necessidade de testes",
+                "Aumentar o cache Maven"
+              ],
+              "answer": 1,
+              "explanation": "A matriz roda o mesmo conjunto em ambientes diferentes. O custo é tempo de CI; o benefício é descobrir diferenças de comportamento e sintaxe antes do upgrade em produção."
+            }
+          ]
+        },
+        {
+          "slug": "blue-green-canary-terraform",
+          "title": "Blue/green, canary, rollback e Terraform",
+          "summary": "Estratégias de liberação comparadas, canary com análise automática, rollback que funciona e infraestrutura como código com state remoto.",
+          "minutes": 35,
+          "file": "lessons/blue-green-canary-terraform.md",
+          "takeaways": [
+            "Quando blue/green é melhor que canary e vice-versa",
+            "Rollback de aplicação versus rollback de schema",
+            "Terraform com state remoto, lock e plan revisado"
+          ],
+          "quiz": [
+            {
+              "question": "Por que um rollback de imagem pode falhar depois de uma migração de banco destrutiva?",
+              "options": [
+                "Porque o Kubernetes não guarda imagens antigas",
+                "Porque o código antigo pode não entender o schema novo, e dados removidos não voltam",
+                "Porque o Ingress bloqueia versões antigas",
+                "Porque o Terraform impede o rollback"
+              ],
+              "answer": 1,
+              "explanation": "Imagem é só uma parte do estado. Migrações devem ser compatíveis para frente e para trás (expand/contract); remover coluna antes de todo o código antigo sair inviabiliza o rollback."
+            },
+            {
+              "question": "Qual é a vantagem central do canary sobre blue/green?",
+              "options": [
+                "Não precisa de métricas",
+                "Expõe uma fração pequena do tráfego à versão nova antes de promover, limitando o raio de impacto",
+                "Dobra o custo de infraestrutura",
+                "Elimina a necessidade de testes"
+              ],
+              "answer": 1,
+              "explanation": "Canary libera 1–5% do tráfego e compara métricas. Blue/green troca 100% de uma vez, mas permite rollback instantâneo; as duas estratégias resolvem riscos diferentes."
+            },
+            {
+              "question": "Por que o state do Terraform não deve ficar no Git?",
+              "options": [
+                "Porque é binário e ilegível",
+                "Porque contém dados sensíveis e precisa de lock para evitar applies concorrentes",
+                "Porque o Git não aceita arquivos grandes",
+                "Porque o Terraform só funciona com S3"
+              ],
+              "answer": 1,
+              "explanation": "O state mapeia recursos reais e pode conter segredos. O backend remoto com lock (S3 + DynamoDB, por exemplo) evita corrupção por execuções simultâneas e permite trabalho em equipe."
+            }
+          ]
+        }
+      ],
+      "exercises": []
+    },
+    {
+      "slug": "cloud",
+      "title": "Nuvem sem fatura surpresa",
+      "description": "Os serviços AWS que aparecem em arquitetura Java, o critério de escolha entre eles e os custos que não estão na calculadora.",
+      "estimatedHours": 6,
+      "lessons": [
+        {
+          "slug": "aws-core-iam-vpc",
+          "title": "AWS core: IAM, VPC, EC2, S3 e RDS",
+          "summary": "Role em vez de access key, subnets privadas, Security Groups e um S3 privado — com o custo escondido do NAT e do Multi-AZ.",
+          "minutes": 30,
+          "file": "lessons/aws-core-iam-vpc.md",
+          "takeaways": [
+            "Diferença entre usuário, role, policy e STS na prática",
+            "Desenho de VPC com subnets públicas/privadas e Security Groups",
+            "Custos de NAT Gateway, RDS Multi-AZ e transferência de dados"
+          ],
+          "quiz": [
+            {
+              "question": "Qual é a forma recomendada de dar a uma aplicação na AWS acesso ao S3?",
+              "options": [
+                "Access key e secret em variável de ambiente",
+                "Role anexada à instância/tarefa, com credenciais temporárias via STS",
+                "Usuário root com MFA",
+                "Chave SSH no container"
+              ],
+              "answer": 1,
+              "explanation": "Roles entregam credenciais temporárias rotacionadas pelo STS e podem ser restringidas por policy. Access keys estáticas vazam em logs, imagens e repositórios e não expiram."
+            },
+            {
+              "question": "Por que subnets privadas com NAT Gateway podem dominar a conta?",
+              "options": [
+                "Porque o NAT é gratuito mas limitado",
+                "Porque há custo por hora do NAT e por GB processado, além de transferência entre AZs",
+                "Porque NAT não funciona com containers",
+                "Porque subnets privadas não acessam a internet"
+              ],
+              "answer": 1,
+              "explanation": "O NAT Gateway cobra por hora e por GB. Tráfego de saída de várias AZs, logs e pulls de imagem podem somar mais que as instâncias. VPC endpoints para S3/ECR reduzem esse custo."
+            },
+            {
+              "question": "Qual configuração deixa um bucket S3 novo privado por padrão?",
+              "options": [
+                "ACL public-read",
+                "Block Public Access ativado e bucket policy sem Principal *",
+                "Static website hosting",
+                "Criptografia SSE-S3 apenas"
+              ],
+              "answer": 1,
+              "explanation": "Block Public Access bloqueia ACLs e policies públicas. Criptografia protege em repouso, mas não controla quem lê. Combine os dois com policies de menor privilégio."
+            }
+          ]
+        },
+        {
+          "slug": "dados-gerenciados-msk-sqs",
+          "title": "MSK, ElastiCache e SQS: escolher sem chutar",
+          "summary": "Kafka gerenciado versus fila e cache; semântica de entrega, retenção, custo e os erros de configuração que só aparecem sob carga.",
+          "minutes": 30,
+          "file": "lessons/dados-gerenciados-msk-sqs.md",
+          "takeaways": [
+            "Critérios para escolher MSK, SQS, SNS, Kinesis e ElastiCache",
+            "Produtor Kafka idempotente e consumidor SQS com DLQ",
+            "Custos de retenção, réplicas e transferência entre AZs"
+          ],
+          "quiz": [
+            {
+              "question": "Qual serviço é mais adequado para desacoplar um produtor de um consumidor que pode processar cada mensagem uma vez, com retry e DLQ, sem reter histórico?",
+              "options": [
+                "MSK",
+                "SQS",
+                "ElastiCache",
+                "S3"
+              ],
+              "answer": 1,
+              "explanation": "SQS oferece fila gerenciada com visibility timeout, redrive e DLQ. MSK faz sentido quando múltiplos consumidores precisam reler o mesmo stream ou há retenção por tópico."
+            },
+            {
+              "question": "SQS garante exactly-once por padrão?",
+              "options": [
+                "Sim, sempre",
+                "Não; a entrega é at-least-once em fila padrão, então o consumidor precisa ser idempotente",
+                "Só com criptografia",
+                "Só em filas FIFO"
+              ],
+              "answer": 1,
+              "explanation": "Filas padrão podem entregar duplicatas. FIFO reduz duplicação com deduplication ID, mas ainda exige idempotência no efeito de negócio. Projete para reprocessar sem cobrar duas vezes."
+            },
+            {
+              "question": "O que acontece se o visibility timeout do SQS for menor que o tempo de processamento?",
+              "options": [
+                "A mensagem é apagada",
+                "Outro consumidor pode receber a mesma mensagem enquanto o primeiro ainda processa",
+                "O SQS aumenta o timeout automaticamente",
+                "A fila entra em modo somente leitura"
+              ],
+              "answer": 1,
+              "explanation": "A mensagem volta a ficar visível após o timeout. Sem idempotência, o trabalho é duplicado; se isso se repetir, a mensagem pode ir para a DLQ. Ajuste o timeout ao p99 e renove com heartbeat."
+            }
+          ]
+        },
+        {
+          "slug": "serverless-containers-custos",
+          "title": "Serverless, containers e o custo real",
+          "summary": "Lambda, ECS Fargate e EKS comparados por carga e por fatura; cold start de Java, rightsizing e as linhas que ninguém olha no bill.",
+          "minutes": 30,
+          "file": "lessons/serverless-containers-custos.md",
+          "takeaways": [
+            "Quando Lambda é barato e quando provisioned concurrency inverte a conta",
+            "Fargate versus EKS: custo fixo, operação e densidade",
+            "Como ler custo de logs, NAT, cross-AZ e storage esquecido"
+          ],
+          "quiz": [
+            {
+              "question": "Em uma função Lambda Java com tráfego constante e latência sensível, qual combinação costuma reduzir cold start?",
+              "options": [
+                "Aumentar o timeout",
+                "SnapStart ou provisioned concurrency, aceitando o custo correspondente",
+                "Diminuir a memória ao mínimo",
+                "Usar uma VPC sem NAT"
+              ],
+              "answer": 1,
+              "explanation": "SnapStart restaura o snapshot da JVM inicializada; provisioned concurrency mantém ambientes aquecidos. Ambos têm custo/limitações e devem ser comparados com o custo de latência do negócio."
+            },
+            {
+              "question": "Por que EKS pode sair caro para um time pequeno com poucos serviços?",
+              "options": [
+                "Porque não suporta Java",
+                "Porque há custo fixo do control plane e custo de nós/operação; para pouca carga, Fargate ou Lambda podem ser mais baratos",
+                "Porque EKS não tem autoescaler",
+                "Porque o Kubernetes é sempre mais caro por vCPU"
+              ],
+              "answer": 1,
+              "explanation": "O control plane do EKS tem custo por hora e você ainda paga nós e o tempo de operar o cluster. A diferença compensa com muitos serviços e densidade; com dois serviços, a conta e a complexidade pesam."
+            },
+            {
+              "question": "Qual item costuma crescer silenciosamente na fatura de uma aplicação containerizada?",
+              "options": [
+                "A quantidade de commits",
+                "Logs ingeridos no CloudWatch e tráfego de saída/NAT",
+                "O número de namespaces",
+                "O tamanho do Dockerfile"
+              ],
+              "answer": 1,
+              "explanation": "Logs são cobrados por GB ingerido e retido; NAT e transferência entre AZs também. Um DEBUG esquecido ou log de request body pode custar mais que a computação."
+            }
+          ]
+        }
+      ],
+      "exercises": []
+    },
+    {
+      "slug": "sre",
+      "title": "Operação e confiabilidade",
+      "description": "Observar o que importa, transformar sintoma em alerta acionável e conduzir incidentes com SLO, error budget e runbook.",
+      "estimatedHours": 5,
+      "lessons": [
+        {
+          "slug": "observabilidade-prometheus-otel",
+          "title": "Observabilidade com Prometheus, Grafana e OpenTelemetry",
+          "summary": "Métricas, logs e traces sem coletar tudo; Micrometer em Java, PromQL útil e alertas que apontam para um sintoma.",
+          "minutes": 35,
+          "file": "lessons/observabilidade-prometheus-otel.md",
+          "takeaways": [
+            "Modelo pull do Prometheus, exporters e cardinalidade",
+            "Métricas de aplicação com Micrometer e traces com OpenTelemetry",
+            "PromQL para taxa de erro, latência p95 e saturação"
+          ],
+          "quiz": [
+            {
+              "question": "Por que um label com o ID do usuário em uma métrica Prometheus é problemático?",
+              "options": [
+                "Porque o Prometheus não aceita números",
+                "Porque multiplica séries temporais e estoura memória/custo do Prometheus",
+                "Porque impede o uso de Grafana",
+                "Porque desativa o OpenTelemetry"
+              ],
+              "answer": 1,
+              "explanation": "Cada combinação de labels é uma série. ID de usuário, request ID ou URL completa criam cardinalidade explosiva. Use labels de baixa cardinalidade e deixe o detalhe para logs/traces."
+            },
+            {
+              "question": "Qual consulta calcula a taxa de requisições 5xx nos últimos 5 minutos?",
+              "options": [
+                "sum(rate(http_requests_total{status=~\"5..\"}[5m]))",
+                "avg(http_requests_total)",
+                "histogram_quantile(0.95, http_requests_total)",
+                "count(http_requests_total)"
+              ],
+              "answer": 0,
+              "explanation": "rate calcula a variação por segundo de um counter na janela. Filtrar status 5xx e somar produz a taxa de erros; a taxa relativa divide pelo total."
+            },
+            {
+              "question": "Latência p95 de um serviço deve ser calculada a partir de qual métrica?",
+              "options": [
+                "Um gauge com a média",
+                "O histograma _bucket com a label le e histogram_quantile",
+                "O contador _total diretamente",
+                "Um summary sem quantis"
+              ],
+              "answer": 1,
+              "explanation": "histogram_quantile usa os buckets acumulados. A média esconde a cauda; um gauge de média não permite reconstruir percentis."
+            }
+          ]
+        },
+        {
+          "slug": "slo-oncall-runbooks",
+          "title": "SLO, error budget, on-call e incidentes",
+          "summary": "Como definir um SLO que muda decisões, alertar por burn rate, montar runbook e conduzir um postmortem sem culpados.",
+          "minutes": 35,
+          "file": "lessons/slo-oncall-runbooks.md",
+          "takeaways": [
+            "SLI, SLO, SLA e error budget sem confundir os termos",
+            "Alerta multiwindow de burn rate com pouco ruído",
+            "Papéis de incidente, runbook acionável e postmortem blameless"
+          ],
+          "quiz": [
+            {
+              "question": "Um SLO de 99,9% em 30 dias permite quanto tempo de indisponibilidade?",
+              "options": [
+                "Aproximadamente 43 minutos",
+                "Aproximadamente 7 horas",
+                "Aproximadamente 5 minutos",
+                "Zero"
+              ],
+              "answer": 0,
+              "explanation": "30 dias têm 43.200 minutos; 0,1% é 43,2 minutos. Esse é o error budget. 99,99% cairia para ~4,3 minutos."
+            },
+            {
+              "question": "Por que alertar com burn rate é melhor do que alertar em qualquer 5xx isolado?",
+              "options": [
+                "Porque 5xx nunca importam",
+                "Porque mede a velocidade de consumo do error budget e reduz alertas que não exigem ação",
+                "Porque o Prometheus não coleta 5xx",
+                "Porque burn rate substitui o SLO"
+              ],
+              "answer": 1,
+              "explanation": "Um 5xx isolado pode ser ruído. Burn rate alto indica que o orçamento está sendo consumido rápido e justifica acordar alguém; janelas curtas e longas juntas evitam flapping."
+            },
+            {
+              "question": "Qual é o papel do incident commander?",
+              "options": [
+                "Corrigir o bug sozinho",
+                "Coordenar resposta, comunicação e prioridades, sem necessariamente mexer no código",
+                "Escrever o postmortem antes do incidente",
+                "Aprovar o deploy"
+              ],
+              "answer": 1,
+              "explanation": "O IC mantém o quadro geral, delega investigação, controla comunicação e decide quando escalar. Separar coordenação de execução evita que todos fiquem no mesmo terminal."
+            }
+          ]
+        }
+      ],
+      "exercises": []
+    }
+  ]
+}

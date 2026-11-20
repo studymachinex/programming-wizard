@@ -1,0 +1,167 @@
+[
+  {
+    "slug": "dsa-two-sum",
+    "title": "Two Sum",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/two-sum/",
+    "difficulty": "facil",
+    "level": 1,
+    "topic": "Hash Map",
+    "moduleSlug": "hash-maps-e-sets",
+    "description": "O primeiro contato com a ideia central de DSA: trocar busca O(n) por lookup O(1). Resolva em uma passada, guardando o complemento no mapa, e explique por que ordenar + two pointers também funciona mas perde o índice original."
+  },
+  {
+    "slug": "dsa-valid-parentheses",
+    "title": "Valid Parentheses",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/valid-parentheses/",
+    "difficulty": "facil",
+    "level": 1,
+    "topic": "Stack",
+    "moduleSlug": "pilhas-e-filas",
+    "description": "O problema canônico de pilha: o último aberto precisa ser o primeiro fechado. Implemente com ArrayDeque, trate fechamento sem abertura e string ímpar. Depois conecte com parsing de expressões e validação de JSON."
+  },
+  {
+    "slug": "dsa-contains-duplicate",
+    "title": "Contains Duplicate",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/contains-duplicate/",
+    "difficulty": "facil",
+    "level": 1,
+    "topic": "Hash Set",
+    "moduleSlug": "hash-maps-e-sets",
+    "description": "Aquecimento de HashSet e da pergunta 'qual é o custo de espaço que você aceita?'. Compare três soluções: ordenar O(n log n), HashSet O(n) e Bloom filter aproximado para volumes que não cabem em memória."
+  },
+  {
+    "slug": "dsa-valid-anagram",
+    "title": "Valid Anagram",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/valid-anagram/",
+    "difficulty": "facil",
+    "level": 1,
+    "topic": "Frequency Map",
+    "moduleSlug": "hash-maps-e-sets",
+    "description": "Contagem de frequência com array de 26 posições versus HashMap. Meça a diferença de alocação e explique quando o array fixo é a escolha de produção — e quando Unicode quebra a premissa."
+  },
+  {
+    "slug": "dsa-best-time-buy-sell-stock",
+    "title": "Best Time to Buy and Sell Stock",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/best-time-to-buy-and-sell-stock/",
+    "difficulty": "facil",
+    "level": 2,
+    "topic": "Arrays / Greedy",
+    "moduleSlug": "arrays-e-listas",
+    "description": "Uma passada mantendo o mínimo visto até agora. É o padrão de 'estado acumulado' que reaparece em problemas de lucro, drawdown e séries temporais. Prove por que não precisa olhar para trás."
+  },
+  {
+    "slug": "dsa-longest-substring-no-repeat",
+    "title": "Longest Substring Without Repeating Characters",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/longest-substring-without-repeating-characters/",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "Sliding Window",
+    "moduleSlug": "arrays-e-listas",
+    "description": "A janela deslizante clássica com mapa de última posição. Cuidado com o erro de mover o left para trás ao encontrar um caractere repetido fora da janela. Resolva em O(n) e depois generalize para 'no máximo k repetições'."
+  },
+  {
+    "slug": "dsa-product-array-except-self",
+    "title": "Product of Array Except Self",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/product-of-array-except-self/",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "Prefix Products",
+    "moduleSlug": "arrays-e-listas",
+    "description": "Prefixos e sufixos sem divisão, em O(n) e O(1) extra. O exercício força você a pensar em duas passadas e no estado que precisa sobreviver entre elas — base de prefix sums e diferenças de arrays."
+  },
+  {
+    "slug": "dsa-merge-intervals",
+    "title": "Merge Intervals",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/merge-intervals/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Sorting / Intervals",
+    "moduleSlug": "ordenacao-e-busca",
+    "description": "Ordenar por início e mesclar em uma passada. Treine Comparator, imutabilidade e o padrão de intervalos que aparece em calendários, agendas, reservas e janelas de manutenção."
+  },
+  {
+    "slug": "dsa-kth-largest-element",
+    "title": "Kth Largest Element in an Array",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/kth-largest-element-in-an-array/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Heap / Quickselect",
+    "moduleSlug": "arvores-e-heaps",
+    "description": "Resolva com min-heap de tamanho k e depois com quickselect. Compare O(n log k) garantido contra O(n) médio com pior caso quadrático. Explique qual você usaria em um stream e por quê."
+  },
+  {
+    "slug": "dsa-course-schedule",
+    "title": "Course Schedule",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/course-schedule/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Topological Sort",
+    "moduleSlug": "grafos",
+    "description": "Detecção de ciclo em grafo dirigido com Kahn ou DFS de três cores. É o mesmo problema de ordenar dependências de build, migrations e pipelines. Implemente as duas abordagens e explique o custo de memória."
+  },
+  {
+    "slug": "dsa-number-of-islands",
+    "title": "Number of Islands",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/number-of-islands/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "BFS / DFS",
+    "moduleSlug": "grafos",
+    "description": "Flood fill em grid com BFS ou DFS. Treine visitados, limites e o custo de recursão em grids grandes. Depois resolva com union-find e compare quando cada abordagem é mais natural."
+  },
+  {
+    "slug": "dsa-lru-cache",
+    "title": "LRU Cache",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/lru-cache/",
+    "difficulty": "medio",
+    "level": 4,
+    "topic": "Design / HashMap + LinkedList",
+    "moduleSlug": "hash-maps-e-sets",
+    "description": "O exercício de design mais recorrente em entrevistas: HashMap + lista duplamente ligada com sentinelas. Implemente sem LinkedHashMap primeiro, depois compare com a solução do JDK e discuta thread-safety e TTL."
+  },
+  {
+    "slug": "dsa-trapping-rain-water",
+    "title": "Trapping Rain Water",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/trapping-rain-water/",
+    "difficulty": "dificil",
+    "level": 4,
+    "topic": "Two Pointers / Stack",
+    "moduleSlug": "arrays-e-listas",
+    "description": "Três soluções com trade-offs reais: DP com prefix/suffix max, stack monotônica e two pointers O(1) espaço. Saber derivar as três é mais valioso do que decorar a mais curta."
+  },
+  {
+    "slug": "dsa-merge-k-sorted-lists",
+    "title": "Merge k Sorted Lists",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/merge-k-sorted-lists/",
+    "difficulty": "dificil",
+    "level": 4,
+    "topic": "Heap / Divide and Conquer",
+    "moduleSlug": "arvores-e-heaps",
+    "description": "Min-heap de k ponteiros versus merge divide-and-conquer. Compare O(N log k) e o custo de manter k referências. É o mesmo padrão de merge de arquivos ordenados e de resultados de shards em bancos distribuídos."
+  },
+  {
+    "slug": "dsa-serialize-deserialize-tree",
+    "title": "Serialize and Deserialize Binary Tree",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/serialize-and-deserialize-binary-tree/",
+    "difficulty": "dificil",
+    "level": 4,
+    "topic": "Trees / Design",
+    "moduleSlug": "arvores-e-heaps",
+    "description": "Escolha um formato (pré-ordem com nulls, BFS por níveis ou length-prefix) e prove que ele reconstrói a árvore. O foco é contrato, versionamento e o custo de strings — não só passar no teste."
+  }
+]

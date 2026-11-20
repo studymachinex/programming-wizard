@@ -1,0 +1,112 @@
+[
+  {
+    "slug": "quarkus-rest-getting-started",
+    "title": "Quarkus REST: do hello world ao contrato",
+    "platform": "Outro",
+    "url": "https://quarkus.io/guides/rest",
+    "difficulty": "facil",
+    "level": 1,
+    "topic": "REST",
+    "moduleSlug": "rest-api",
+    "description": "Siga o guia e evolua: DTOs, validação, ProblemDetail, paginação e versionamento. Não pare no hello world — o objetivo é um endpoint que você defenderia em code review."
+  },
+  {
+    "slug": "quarkus-hibernate-panache-guide",
+    "title": "Hibernate ORM com Panache",
+    "platform": "Outro",
+    "url": "https://quarkus.io/guides/hibernate-orm-panache",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "Persistência",
+    "moduleSlug": "persistencia",
+    "description": "Modele duas entidades com relacionamento, use active record e repository, escreva projections. Depois ligue o SQL logging, encontre um N+1 e corrija com fetch join ou EntityGraph. Meça as queries antes e depois."
+  },
+  {
+    "slug": "quarkus-testing-guide",
+    "title": "Testing with Quarkus",
+    "platform": "Outro",
+    "url": "https://quarkus.io/guides/getting-started-testing",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Testes",
+    "moduleSlug": "testes-e-qualidade",
+    "description": "Escreva testes de resource com @QuarkusTest e REST Assured. Adicione um teste de integração com Testcontainers e compare tempo, isolamento e confiança de cada camada. Explique quando Dev Services resolve e quando ele esconde configuração."
+  },
+  {
+    "slug": "quarkus-jwt-guide",
+    "title": "SmallRye JWT: validando tokens",
+    "platform": "Outro",
+    "url": "https://quarkus.io/guides/security-jwt",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Segurança",
+    "moduleSlug": "seguranca",
+    "description": "Configure validação de assinatura, issuer, audience e expiração. Proteja resources com roles e leia claims com JsonWebToken. Depois explique 401 versus 403 e o que não pode aparecer na resposta."
+  },
+  {
+    "slug": "quarkus-oidc-bearer-guide",
+    "title": "OIDC bearer token authentication",
+    "platform": "Outro",
+    "url": "https://quarkus.io/guides/security-oidc-bearer-token-authentication",
+    "difficulty": "dificil",
+    "level": 4,
+    "topic": "Segurança",
+    "moduleSlug": "seguranca",
+    "description": "Configure um resource server com um provedor OIDC real, valide tokens e mapeie scopes para roles/permissions. Teste token expirado, audience errada e ausência de permissão. Documente a rotação de chaves do provedor."
+  },
+  {
+    "slug": "quarkus-flyway-guide",
+    "title": "Flyway com Quarkus",
+    "platform": "Outro",
+    "url": "https://quarkus.io/guides/flyway",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Migrações",
+    "moduleSlug": "persistencia",
+    "description": "Versiono o schema com migrations, configure migrate-at-start e valide o schema no startup. Depois faça uma mudança expand/contract e explique como o deploy gradual continua funcionando."
+  },
+  {
+    "slug": "quarkus-smallrye-health-guide",
+    "title": "SmallRye Health e probes",
+    "platform": "Outro",
+    "url": "https://quarkus.io/guides/smallrye-health",
+    "difficulty": "facil",
+    "level": 2,
+    "topic": "Observabilidade",
+    "moduleSlug": "producao",
+    "description": "Exponha /q/health/live e /q/health/ready, crie um health check para uma dependência externa e explique por que ela não deve entrar na liveness. Ajuste os probes do Kubernetes e teste o comportamento durante o shutdown."
+  },
+  {
+    "slug": "quarkus-micrometer-guide",
+    "title": "Micrometer e Prometheus no Quarkus",
+    "platform": "Outro",
+    "url": "https://quarkus.io/guides/micrometer",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Métricas",
+    "moduleSlug": "producao",
+    "description": "Crie métricas de negócio com tags de baixa cardinalidade, exponha /q/metrics e conecte o Prometheus. Depois responda: por que usar o ID do pedido como tag derruba o Prometheus?"
+  },
+  {
+    "slug": "quarkus-opentelemetry-guide",
+    "title": "OpenTelemetry no Quarkus",
+    "platform": "Outro",
+    "url": "https://quarkus.io/guides/opentelemetry",
+    "difficulty": "dificil",
+    "level": 4,
+    "topic": "Tracing",
+    "moduleSlug": "producao",
+    "description": "Instrumente um serviço, exporte traces para um collector local e conecte logs por trace_id. Crie um span manual para uma operação de negócio e explique a diferença entre auto-instrumentação e contexto propagado."
+  },
+  {
+    "slug": "quarkus-rest-client-guide",
+    "title": "Quarkus REST Client e resiliência",
+    "platform": "Outro",
+    "url": "https://quarkus.io/guides/rest-client",
+    "difficulty": "dificil",
+    "level": 4,
+    "topic": "Integração",
+    "moduleSlug": "producao",
+    "description": "Crie um cliente REST tipado com timeouts, retry e circuit breaker. Simule latência e falha com WireMock e prove que o serviço degrada em vez de cascatear. Registre métricas e estados do circuito."
+  }
+]
