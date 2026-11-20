@@ -71,8 +71,8 @@ aplicação não envia seus dados para nenhum serviço externo.
 - **Capstones** — 13 projetos de portfólio com requisitos, stack e critérios de conclusão.
 - **CodeCrafters local** — catálogo de 12 desafios (425 stages), starter repo, instruções,
   runner real, remote git local e hook de submissão. **HTTP Server**, **Git**,
-  **DNS Server**, **Tokenizer**, **SQLite**, **Claude Code** e **BitTorrent** estão
-  jogáveis de ponta a ponta.
+  **DNS Server**, **Tokenizer**, **SQLite**, **Claude Code**, **BitTorrent** e **Kafka**
+  estão jogáveis de ponta a ponta.
 - **Busca global** — `Ctrl+K` / `⌘K` para aulas, exercícios, problemas e projetos.
 - **Backup** — exportação do progresso em JSON em **Configurações → Exportar backup**.
 
@@ -256,6 +256,7 @@ cache.
 | `npm run challenge:sqlite` | Compila e valida a referência dos 9 stages do SQLite |
 | `npm run challenge:claude-code` | Compila e valida a referência dos 18 stages do Claude Code |
 | `npm run challenge:bittorrent` | Compila e valida a referência dos 19 stages do BitTorrent |
+| `npm run challenge:kafka` | Compila e valida a referência dos 25 stages do Kafka |
 | `npm run cc -- <cmd>` | CLI dos desafios: `start`, `task`, `test`, `submit`, `status`, `list`, `reset` |
 
 ## Como usar a plataforma
@@ -283,10 +284,10 @@ starter repo, instruções por stage, runner de testes, remote git local e um ho
 confirma a conclusão no push.
 
 **Jogáveis de ponta a ponta:** HTTP Server (14 stages), Git (7), DNS Server (8),
-Tokenizer (8), SQLite (9), Claude Code (18) e BitTorrent (19). As páginas ficam em
-`http://localhost:3000/projetos/codecrafters/<desafio>` (`http-server`, `git`,
-`dns-server`, `tokenizer`, `sqlite`, `claude-code`, `bittorrent`) e também pela aba
-Projetos. Os
+Tokenizer (8), SQLite (9), Claude Code (18), BitTorrent (19) e Kafka (25). As páginas
+ficam em `http://localhost:3000/projetos/codecrafters/<desafio>` (`http-server`, `git`,
+`dns-server`, `tokenizer`, `sqlite`, `claude-code`, `bittorrent`, `kafka`) e também pela
+aba Projetos. Os
 próximos são integrados do desafio com menos stages para o com mais.
 
 ![Página do desafio HTTP Server](docs/screenshots/challenge.png)
@@ -318,7 +319,7 @@ npm run cc -- start http-server
 ### Comandos
 
 ```bash
-npm run cc -- start http-server   # cria o workspace (ou: git, dns-server, tokenizer, sqlite, claude-code, bittorrent)
+npm run cc -- start http-server   # cria o workspace (ou: git, dns-server, tokenizer, sqlite, claude-code, bittorrent, kafka)
 npm run cc -- task               # instruções do stage atual
 npm run cc -- task --stage 4     # instruções de um stage específico
 npm run cc -- test               # compila e testa, sem commitar
@@ -422,6 +423,19 @@ tracker e peers locais que validam o protocolo — nada sai da máquina. Código
 ```bash
 npm run cc -- start bittorrent
 npm run challenge:bittorrent   # valida a referência
+```
+
+### Desafio Kafka
+
+Um broker que fala o protocolo binário do Kafka: ApiVersions, DescribeTopicPartitions
+(lendo o log de metadados KRaft), Fetch e Produce com record batches em disco. O broker
+recebe um `server.properties` (`listeners`, `log.dirs`); o tester gera os logs e age como
+cliente. Código em [`challenges/kafka`](challenges/kafka) e instruções em
+[`content/codecrafters/kafka`](content/codecrafters/kafka).
+
+```bash
+npm run cc -- start kafka
+npm run challenge:kafka   # valida a referência
 ```
 
 ### Estrutura do desafio HTTP Server
@@ -563,7 +577,7 @@ recriar workspace, progresso e remote local do zero, ou faça um `git pull` no w
 - Perfil único local (`Profile.id = "local"`), sem autenticação e sem multiusuário.
 - Os testes dos desafios CodeCrafters rodam no seu host (Java/Maven), não em um sandbox
   de container.
-- HTTP Server, Git, DNS Server, Tokenizer, SQLite, Claude Code e BitTorrent estão jogáveis; os outros 5 desafios estão no catálogo e no roadmap.
+- HTTP Server, Git, DNS Server, Tokenizer, SQLite, Claude Code, BitTorrent e Kafka estão jogáveis; os outros 4 desafios estão no catálogo e no roadmap.
 - O progresso dos desafios fica em JSON local (`challenges/.workspaces/.state/`), não no
   PostgreSQL.
 - Os links de problemas externos exigem internet.

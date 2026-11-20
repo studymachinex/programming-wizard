@@ -3,11 +3,11 @@
 > Roadmap vivo dos desafios "Build your own X" do [CodeCrafters](https://app.codecrafters.io/catalog).
 > Atualize os checkboxes conforme cada stage for concluído.
 
-**Status geral:** **86/425 stages (20%)** · 7 desafios concluídos · 1 em andamento · HTTP Server, Git, DNS Server, Tokenizer, SQLite, Claude Code e BitTorrent jogáveis na plataforma.
+**Status geral:** **111/425 stages (26%)** · 8 desafios concluídos · 1 em andamento · HTTP Server, Git, DNS Server, Tokenizer, SQLite, Claude Code, BitTorrent e Kafka jogáveis na plataforma.
 
 **Integração na plataforma:** do desafio com menos stages para o com mais —
 Git (7) ✅ → DNS Server (8) ✅ → Tokenizer (8) ✅ → SQLite (9) ✅ → Claude Code (18) ✅ → BitTorrent (19) ✅
-→ Kafka (25) → grep (33) → Shell (76) → Interpreter (84) → Redis (124).
+→ Kafka (25) ✅ → grep (33) → Shell (76) → Interpreter (84) → Redis (124).
 
 | # | Desafio | Stages | Progresso | Status | Acesso | Onde está |
 |---:|---|---:|---:|---|---|---|
@@ -18,7 +18,7 @@ Git (7) ✅ → DNS Server (8) ✅ → Tokenizer (8) ✅ → SQLite (9) ✅ → 
 | 5 | [SQLite](https://app.codecrafters.io/courses/sqlite/overview) | 9 | 9/9 | ✅ concluído | membros | [`challenges/sqlite`](../../challenges/sqlite) |
 | 6 | [Tokenizer](https://app.codecrafters.io/courses/tokenizer/overview) | 8 | 8/8 | ✅ concluído | early access | [`challenges/tokenizer`](../../challenges/tokenizer) |
 | 7 | [BitTorrent](https://app.codecrafters.io/courses/bittorrent/overview) | 19 | 19/19 | ✅ concluído | membros | [`challenges/bittorrent`](../../challenges/bittorrent) |
-| 8 | [Kafka](https://app.codecrafters.io/courses/kafka/overview) | 25 | 0/25 | ⬜ não iniciado | membros | — |
+| 8 | [Kafka](https://app.codecrafters.io/courses/kafka/overview) | 25 | 25/25 | ✅ concluído | membros | [`challenges/kafka`](../../challenges/kafka) |
 | 9 | [grep](https://app.codecrafters.io/courses/grep/overview) | 33 | 0/33 | ⬜ não iniciado | membros | — |
 | 10 | [Shell](https://app.codecrafters.io/courses/shell/overview) | 76 | 0/76 | ⬜ não iniciado | membros | — |
 | 11 | [Interpreter](https://app.codecrafters.io/courses/interpreter/overview) | 84 | 0/84 | ⬜ não iniciado | membros | — |
@@ -45,7 +45,7 @@ O que vamos replicar na plataforma:
 - progresso por stage (JSON local nesta versão; PostgreSQL no roadmap);
 - comando/hook de submissão (`wizard submit` ou git hook).
 
-**Já implementado para HTTP Server, Git, DNS Server, Tokenizer, SQLite, Claude Code e BitTorrent:** catálogo, página, instruções, starter Java,
+**Já implementado para HTTP Server, Git, DNS Server, Tokenizer, SQLite, Claude Code, BitTorrent e Kafka:** catálogo, página, instruções, starter Java,
 runner, CLI `npm run cc -- ...`, remote local `wizard` e hook `post-receive`.
 
 ## Ordem recomendada
@@ -290,50 +290,62 @@ arquivos e starters para outras linguagens.
 
 ---
 
-### ⬜ Kafka — 0/25
+### ✅ Kafka — 25/25
 
-**Foco:** protocolo binário Kafka, correlação de requests, ApiVersions,
-partições, Fetch, Produce e record batches.
+**Foco:** protocolo binário do Kafka (framing, cabeçalhos v0/v1/v2, tipos compactos e
+tagged fields), concorrência, ApiVersions, DescribeTopicPartitions a partir do log de
+metadados KRaft, Fetch de record batches do disco e Produce com atribuição de offsets.
 
-**Core + clientes:**
+**Implementação:** [`challenges/kafka/java`](../../challenges/kafka/java) ·
+**Tester:** [`challenges/kafka/tests/run-stages.mjs`](../../challenges/kafka/tests/run-stages.mjs)
 
-- [ ] 1. Bind to a port
-- [ ] 2. Send Correlation ID
-- [ ] 3. Parse Correlation ID
-- [ ] 4. Parse API Version
-- [ ] 5. Handle ApiVersions requests
-- [ ] 6. Serial requests
-- [ ] 7. Concurrent requests
+**Core:**
+
+- [x] 1. Bind to a port
+- [x] 2. Send Correlation ID
+- [x] 3. Parse Correlation ID
+- [x] 4. Parse API Version
+- [x] 5. Handle ApiVersions requests
+
+**Concurrent Clients:**
+
+- [x] 6. Serial requests
+- [x] 7. Concurrent requests
 
 **Listing Partitions:**
 
-- [ ] 8. Include DescribeTopicPartitions in ApiVersions
-- [ ] 9. List for an unknown topic
-- [ ] 10. List for a single partition
-- [ ] 11. List for multiple partitions
-- [ ] 12. List for multiple topics
+- [x] 8. Include DescribeTopicPartitions in ApiVersions
+- [x] 9. List for an unknown topic
+- [x] 10. List for a single partition
+- [x] 11. List for multiple partitions
+- [x] 12. List for multiple topics
 
 **Consuming Messages:**
 
-- [ ] 13. Include Fetch in ApiVersions
-- [ ] 14. Fetch with no topics
-- [ ] 15. Fetch with an unknown topic
-- [ ] 16. Fetch with an empty topic
-- [ ] 17. Fetch single message from disk
-- [ ] 18. Fetch multiple messages from disk
+- [x] 13. Include Fetch in ApiVersions
+- [x] 14. Fetch with no topics
+- [x] 15. Fetch with an unknown topic
+- [x] 16. Fetch with an empty topic
+- [x] 17. Fetch single message from disk
+- [x] 18. Fetch multiple messages from disk
 
 **Producing Messages:**
 
-- [ ] 19. Include Produce in ApiVersions
-- [ ] 20. Respond for invalid topic or partition
-- [ ] 21. Respond for valid topic and partition
-- [ ] 22. Produce a single record
-- [ ] 23. Produce multiple records
-- [ ] 24. Produce to multiple partitions
-- [ ] 25. Produce to multiple partitions of multiple topics
+- [x] 19. Include Produce in ApiVersions
+- [x] 20. Respond for invalid topic or partition
+- [x] 21. Respond for valid topic and partition
+- [x] 22. Produce a single record
+- [x] 23. Produce multiple records
+- [x] 24. Produce to multiple partitions
+- [x] 25. Produce to multiple partitions of multiple topics
 
-**O que falta:** framing binário, CRC32C, record batch format, leitura/escrita
-dos arquivos de log e cluster metadata.
+**Como o tester funciona:** para cada stage cria um `log.dirs` com o log de metadados
+KRaft (FeatureLevel, TopicRecord e PartitionRecord em record batches com CRC-32C) e os
+logs das partições, escreve um `server.properties` e inicia o broker. Depois age como
+cliente Kafka e confere cada resposta campo a campo, inclusive se sobram bytes.
+
+**O que falta:** Metadata/ListOffsets, `acks`, retenção de log e starters para outras
+linguagens.
 
 ---
 
@@ -475,7 +487,7 @@ local `wizard`, hook `post-receive` e progresso por stage em JSON.
 2. **Runner isolado**: container com limite de CPU/memória/tempo, diretório temporário
    e porta isolada; devolver JSON por stage.
 3. **Outros starters**: Go, Python, Rust etc. para o HTTP Server.
-4. **Próximos desafios**: Kafka, grep, Shell (ordem por número de stages).
+4. **Próximos desafios**: grep, Shell, Interpreter (ordem por número de stages).
 5. **Conteúdo**: instruções em português para cada stage dos novos desafios.
 
 ## Convenções

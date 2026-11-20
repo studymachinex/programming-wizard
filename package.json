@@ -22,6 +22,7 @@
     "challenge:sqlite": "node challenges/sqlite/tests/run-stages.mjs",
     "challenge:claude-code": "node challenges/claude-code/tests/run-stages.mjs",
     "challenge:bittorrent": "node challenges/bittorrent/tests/run-stages.mjs",
+    "challenge:kafka": "node challenges/kafka/tests/run-stages.mjs",
     "cc": "node challenges/engine/cc.mjs"
   },
   "dependencies": {

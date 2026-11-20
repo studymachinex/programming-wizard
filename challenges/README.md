@@ -15,7 +15,7 @@ Implementações de referência e engine dos desafios do
 | SQLite | 9 | ✅ jogável | ✅ 9/9 |
 | Tokenizer | 8 | ✅ jogável | ✅ 8/8 |
 | BitTorrent | 19 | ✅ jogável | ✅ 19/19 |
-| Kafka | 25 | ⬜ em breve | ⬜ |
+| Kafka | 25 | ✅ jogável | ✅ 25/25 |
 | grep | 33 | ⬜ em breve | ⬜ |
 | Shell | 76 | ⬜ em breve | ⬜ |
 | Interpreter | 84 | ⬜ em breve | ⬜ |
@@ -213,10 +213,26 @@ npm run challenge:bittorrent                                         # contra a 
 node challenges/bittorrent/tests/run-stages.mjs --dir <pasta> --no-build
 ```
 
+## Kafka
+
+- Curso e instruções: [`content/codecrafters/kafka`](../content/codecrafters/kafka).
+- Starter: [`kafka/starter/java`](kafka/starter/java).
+- Referência: [`kafka/java`](kafka/java).
+- Tester: [`kafka/tests/run-stages.mjs`](kafka/tests/run-stages.mjs).
+
+Broker Kafka (`your_program.sh <server.properties>`) com ApiVersions v4,
+DescribeTopicPartitions v0, Fetch v16 e Produce v11. O tester gera o log de metadados
+KRaft e os logs das partições e age como cliente, validando cada resposta byte a byte.
+
+```bash
+npm run challenge:kafka                                         # contra a referência
+node challenges/kafka/tests/run-stages.mjs --dir <pasta> --no-build
+```
+
 ## Próximos desafios
 
-A integração segue do desafio com menos stages para o com mais: Kafka (25), grep (33),
-Shell (76) e assim por diante.
+A integração segue do desafio com menos stages para o com mais: grep (33), Shell (76),
+Interpreter (84) e Redis (124).
 
 
 Para adicionar um desafio, o contrato é:

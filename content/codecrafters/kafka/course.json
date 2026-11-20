@@ -1,0 +1,292 @@
+{
+  "slug": "kafka",
+  "title": "Build your own Kafka",
+  "tagline": "Entenda o protocolo do Kafka implementando um broker do zero.",
+  "description": "Você vai construir um broker Kafka em Java que fala o protocolo binário real: framing com message_size, cabeçalhos de request e resposta, tipos compactos das versões flexíveis, ApiVersions, DescribeTopicPartitions lendo o log de metadados KRaft, Fetch entregando record batches do disco e Produce gravando e atribuindo offsets. São 25 stages testados por um cliente Kafka local.",
+  "language": "java",
+  "languageLabel": "Java 21",
+  "estimatedHours": 16,
+  "topics": [
+    "TCP",
+    "protocolo binário",
+    "big-endian",
+    "varints",
+    "versionamento de APIs",
+    "concorrência",
+    "KRaft",
+    "record batches",
+    "offsets"
+  ],
+  "prerequisites": [
+    "Java 21 instalado (java -version)",
+    "Maven instalado (mvn -version)"
+  ],
+  "runtime": {
+    "starter": "challenges/kafka/starter/java",
+    "reference": "challenges/kafka/java",
+    "runner": "challenges/kafka/tests/stages.mjs",
+    "compile": {
+      "command": "mvn",
+      "args": [
+        "-q",
+        "-B",
+        "package"
+      ],
+      "timeoutMs": 240000
+    },
+    "port": 9092,
+    "runCommand": "./your_program.sh <server.properties>"
+  },
+  "stages": [
+    {
+      "order": 1,
+      "id": "introduction",
+      "slug": "bind-to-a-port",
+      "title": "Bind to a port",
+      "difficulty": "Easy",
+      "section": "Core",
+      "summary": "Leia a porta do server.properties e aceite conexões TCP.",
+      "file": "stages/01-bind-to-a-port.md"
+    },
+    {
+      "order": 2,
+      "id": "nv3",
+      "slug": "send-correlation-id",
+      "title": "Send Correlation ID",
+      "difficulty": "Easy",
+      "section": "Core",
+      "summary": "Responda com message_size e o correlation_id 7.",
+      "file": "stages/02-send-correlation-id.md"
+    },
+    {
+      "order": 3,
+      "id": "wa6",
+      "slug": "parse-correlation-id",
+      "title": "Parse Correlation ID",
+      "difficulty": "Medium",
+      "section": "Core",
+      "summary": "Leia o cabeçalho do request e devolva o correlation_id recebido.",
+      "file": "stages/03-parse-correlation-id.md"
+    },
+    {
+      "order": 4,
+      "id": "nc5",
+      "slug": "parse-api-version",
+      "title": "Parse API Version",
+      "difficulty": "Medium",
+      "section": "Core",
+      "summary": "Responda UNSUPPORTED_VERSION (35) para versões de ApiVersions acima de 4.",
+      "file": "stages/04-parse-api-version.md"
+    },
+    {
+      "order": 5,
+      "id": "pv1",
+      "slug": "handle-apiversions",
+      "title": "Handle ApiVersions requests",
+      "difficulty": "Hard",
+      "section": "Core",
+      "summary": "Monte a resposta completa de ApiVersions v4.",
+      "file": "stages/05-handle-apiversions.md"
+    },
+    {
+      "order": 6,
+      "id": "nh4",
+      "slug": "serial-requests",
+      "title": "Serial requests",
+      "difficulty": "Medium",
+      "section": "Concurrent Clients",
+      "summary": "Atenda vários requests na mesma conexão.",
+      "file": "stages/06-serial-requests.md"
+    },
+    {
+      "order": 7,
+      "id": "sk0",
+      "slug": "concurrent-requests",
+      "title": "Concurrent requests",
+      "difficulty": "Hard",
+      "section": "Concurrent Clients",
+      "summary": "Atenda vários clientes ao mesmo tempo.",
+      "file": "stages/07-concurrent-requests.md"
+    },
+    {
+      "order": 8,
+      "id": "yk1",
+      "slug": "describe-in-apiversions",
+      "title": "Include DescribeTopicPartitions in ApiVersions",
+      "difficulty": "Medium",
+      "section": "Listing Partitions",
+      "summary": "Anuncie DescribeTopicPartitions (75) no ApiVersions.",
+      "file": "stages/08-describe-in-apiversions.md"
+    },
+    {
+      "order": 9,
+      "id": "vt6",
+      "slug": "unknown-topic",
+      "title": "List for an unknown topic",
+      "difficulty": "Medium",
+      "section": "Listing Partitions",
+      "summary": "Responda DescribeTopicPartitions v0 para um tópico inexistente.",
+      "file": "stages/09-unknown-topic.md"
+    },
+    {
+      "order": 10,
+      "id": "ea7",
+      "slug": "single-partition",
+      "title": "List for a single partition",
+      "difficulty": "Hard",
+      "section": "Listing Partitions",
+      "summary": "Leia o log de metadados KRaft e descreva um tópico com uma partição.",
+      "file": "stages/10-single-partition.md"
+    },
+    {
+      "order": 11,
+      "id": "ku4",
+      "slug": "multiple-partitions",
+      "title": "List for multiple partitions",
+      "difficulty": "Hard",
+      "section": "Listing Partitions",
+      "summary": "Descreva todas as partições de um tópico.",
+      "file": "stages/11-multiple-partitions.md"
+    },
+    {
+      "order": 12,
+      "id": "wq2",
+      "slug": "multiple-topics",
+      "title": "List for multiple topics",
+      "difficulty": "Hard",
+      "section": "Listing Partitions",
+      "summary": "Descreva vários tópicos, em ordem alfabética.",
+      "file": "stages/12-multiple-topics.md"
+    },
+    {
+      "order": 13,
+      "id": "gs0",
+      "slug": "fetch-in-apiversions",
+      "title": "Include Fetch in ApiVersions",
+      "difficulty": "Medium",
+      "section": "Consuming Messages",
+      "summary": "Anuncie Fetch (1) v16 no ApiVersions.",
+      "file": "stages/13-fetch-in-apiversions.md"
+    },
+    {
+      "order": 14,
+      "id": "dh6",
+      "slug": "fetch-no-topics",
+      "title": "Fetch with no topics",
+      "difficulty": "Medium",
+      "section": "Consuming Messages",
+      "summary": "Responda um Fetch v16 vazio.",
+      "file": "stages/14-fetch-no-topics.md"
+    },
+    {
+      "order": 15,
+      "id": "hn6",
+      "slug": "fetch-unknown-topic",
+      "title": "Fetch with an unknown topic",
+      "difficulty": "Medium",
+      "section": "Consuming Messages",
+      "summary": "Responda UNKNOWN_TOPIC_ID (100) para um topic_id desconhecido.",
+      "file": "stages/15-fetch-unknown-topic.md"
+    },
+    {
+      "order": 16,
+      "id": "cm4",
+      "slug": "fetch-empty-topic",
+      "title": "Fetch with an empty topic",
+      "difficulty": "Medium",
+      "section": "Consuming Messages",
+      "summary": "Responda um tópico existente sem mensagens.",
+      "file": "stages/16-fetch-empty-topic.md"
+    },
+    {
+      "order": 17,
+      "id": "eg2",
+      "slug": "fetch-single-message",
+      "title": "Fetch single message from disk",
+      "difficulty": "Hard",
+      "section": "Consuming Messages",
+      "summary": "Devolva o record batch gravado no log da partição.",
+      "file": "stages/17-fetch-single-message.md"
+    },
+    {
+      "order": 18,
+      "id": "fd8",
+      "slug": "fetch-multiple-messages",
+      "title": "Fetch multiple messages from disk",
+      "difficulty": "Hard",
+      "section": "Consuming Messages",
+      "summary": "Devolva vários record batches do log.",
+      "file": "stages/18-fetch-multiple-messages.md"
+    },
+    {
+      "order": 19,
+      "id": "xz1",
+      "slug": "produce-in-apiversions",
+      "title": "Include Produce in ApiVersions",
+      "difficulty": "Easy",
+      "section": "Producing Messages",
+      "summary": "Anuncie Produce (0) v11 no ApiVersions.",
+      "file": "stages/19-produce-in-apiversions.md"
+    },
+    {
+      "order": 20,
+      "id": "zf2",
+      "slug": "produce-invalid",
+      "title": "Respond for invalid topic or partition",
+      "difficulty": "Medium",
+      "section": "Producing Messages",
+      "summary": "Responda UNKNOWN_TOPIC_OR_PARTITION para tópicos ou partições inválidos.",
+      "file": "stages/20-produce-invalid.md"
+    },
+    {
+      "order": 21,
+      "id": "gg1",
+      "slug": "produce-valid",
+      "title": "Respond for valid topic and partition",
+      "difficulty": "Medium",
+      "section": "Producing Messages",
+      "summary": "Responda sucesso para um tópico e partição válidos.",
+      "file": "stages/21-produce-valid.md"
+    },
+    {
+      "order": 22,
+      "id": "ls8",
+      "slug": "produce-single-record",
+      "title": "Produce a single record",
+      "difficulty": "Hard",
+      "section": "Producing Messages",
+      "summary": "Grave o record batch recebido no log da partição.",
+      "file": "stages/22-produce-single-record.md"
+    },
+    {
+      "order": 23,
+      "id": "yd8",
+      "slug": "produce-multiple-records",
+      "title": "Produce multiple records",
+      "difficulty": "Hard",
+      "section": "Producing Messages",
+      "summary": "Atribua offsets e reescreva o baseOffset de cada batch.",
+      "file": "stages/23-produce-multiple-records.md"
+    },
+    {
+      "order": 24,
+      "id": "ct4",
+      "slug": "produce-multiple-partitions",
+      "title": "Produce to multiple partitions",
+      "difficulty": "Easy",
+      "section": "Producing Messages",
+      "summary": "Grave em várias partições de um tópico no mesmo request.",
+      "file": "stages/24-produce-multiple-partitions.md"
+    },
+    {
+      "order": 25,
+      "id": "ov0",
+      "slug": "produce-multiple-topics",
+      "title": "Produce to multiple partitions of multiple topics",
+      "difficulty": "Easy",
+      "section": "Producing Messages",
+      "summary": "Grave em várias partições de vários tópicos no mesmo request.",
+      "file": "stages/25-produce-multiple-topics.md"
+    }
+  ]
+}
