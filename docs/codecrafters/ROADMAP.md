@@ -3,10 +3,10 @@
 > Roadmap vivo dos desafios "Build your own X" do [CodeCrafters](https://app.codecrafters.io/catalog).
 > Atualize os checkboxes conforme cada stage for concluído.
 
-**Status geral:** **32/425 stages (8%)** · 3 desafios concluídos · 1 em andamento · HTTP Server, Git e DNS Server jogáveis na plataforma.
+**Status geral:** **40/425 stages (9%)** · 4 desafios concluídos · 1 em andamento · HTTP Server, Git, DNS Server e Tokenizer jogáveis na plataforma.
 
 **Integração na plataforma:** do desafio com menos stages para o com mais —
-Git (7) ✅ → DNS Server (8) ✅ → Tokenizer (8) → SQLite (9) → Claude Code (18) → BitTorrent (19)
+Git (7) ✅ → DNS Server (8) ✅ → Tokenizer (8) ✅ → SQLite (9) → Claude Code (18) → BitTorrent (19)
 → Kafka (25) → grep (33) → Shell (76) → Interpreter (84) → Redis (124).
 
 | # | Desafio | Stages | Progresso | Status | Acesso | Onde está |
@@ -16,7 +16,7 @@ Git (7) ✅ → DNS Server (8) ✅ → Tokenizer (8) → SQLite (9) → Claude C
 | 3 | [Git](https://app.codecrafters.io/courses/git/overview) | 7 | 7/7 | ✅ concluído | membros | [`challenges/git`](../../challenges/git) |
 | 4 | [DNS Server](https://app.codecrafters.io/courses/dns-server/overview) | 8 | 8/8 | ✅ concluído | membros | [`challenges/dns-server`](../../challenges/dns-server) |
 | 5 | [SQLite](https://app.codecrafters.io/courses/sqlite/overview) | 9 | 0/9 | ⬜ não iniciado | membros | — |
-| 6 | [Tokenizer](https://app.codecrafters.io/courses/tokenizer/overview) | 8 | 0/8 | ⬜ não iniciado | early access | — |
+| 6 | [Tokenizer](https://app.codecrafters.io/courses/tokenizer/overview) | 8 | 8/8 | ✅ concluído | early access | [`challenges/tokenizer`](../../challenges/tokenizer) |
 | 7 | [BitTorrent](https://app.codecrafters.io/courses/bittorrent/overview) | 19 | 0/19 | ⬜ não iniciado | membros | — |
 | 8 | [Kafka](https://app.codecrafters.io/courses/kafka/overview) | 25 | 0/25 | ⬜ não iniciado | membros | — |
 | 9 | [grep](https://app.codecrafters.io/courses/grep/overview) | 33 | 0/33 | ⬜ não iniciado | membros | — |
@@ -45,7 +45,7 @@ O que vamos replicar na plataforma:
 - progresso por stage (JSON local nesta versão; PostgreSQL no roadmap);
 - comando/hook de submissão (`wizard submit` ou git hook).
 
-**Já implementado para HTTP Server, Git e DNS Server:** catálogo, página, instruções, starter Java,
+**Já implementado para HTTP Server, Git, DNS Server e Tokenizer:** catálogo, página, instruções, starter Java,
 runner, CLI `npm run cc -- ...`, remote local `wizard` e hook `post-receive`.
 
 ## Ordem recomendada
@@ -209,21 +209,31 @@ varints/serial types, leitura de registros e uso de índices.
 
 ---
 
-### ⬜ Tokenizer — 0/8
+### ✅ Tokenizer — 8/8
 
-**Foco:** UTF-8, byte-pair encoding, merges, encode/decode e vocabulário GPT-2.
+**Foco:** UTF-8, byte pair encoding (contagem de pares, merges, treino), encode/decode,
+pré-tokenização com regex Unicode e compatibilidade com o GPT-2.
 
-- [ ] 1. UTF-8 bytes
-- [ ] 2. Most frequent pair
-- [ ] 3. Merge a pair
-- [ ] 4. Learn merges
-- [ ] 5. Encode
-- [ ] 6. Decode
-- [ ] 7. Split like GPT-2
-- [ ] 8. Match GPT-2
+**Implementação:** [`challenges/tokenizer/java`](../../challenges/tokenizer/java) ·
+**Tester:** [`challenges/tokenizer/tests/run-stages.mjs`](../../challenges/tokenizer/tests/run-stages.mjs)
 
-**O que falta:** treinar merges, implementar o loop de BPE, vocabulário e
-tokenização compatível com GPT-2.
+- [x] 1. UTF-8 bytes
+- [x] 2. Most frequent pair
+- [x] 3. Merge a pair
+- [x] 4. Learn merges
+- [x] 5. Encode
+- [x] 6. Decode
+- [x] 7. Split like GPT-2
+- [x] 8. Match GPT-2
+
+**Como o tester funciona:** cada comando recebe a entrada pelo stdin e a saída é
+comparada com uma implementação de referência em JavaScript dentro do tester. O stage 8
+usa o `vocab.bpe` original do GPT-2, versionado em
+[`challenges/tokenizer/data/gpt2`](../../challenges/tokenizer/data/gpt2) (licença MIT da
+OpenAI), e confere a âncora conhecida `Hello world` → `15496 995`.
+
+**O que falta:** tokens especiais (`<|endoftext|>`), o padrão de split do GPT-4
+(`cl100k_base`) e starters para outras linguagens.
 
 ---
 
@@ -436,7 +446,7 @@ local `wizard`, hook `post-receive` e progresso por stage em JSON.
 2. **Runner isolado**: container com limite de CPU/memória/tempo, diretório temporário
    e porta isolada; devolver JSON por stage.
 3. **Outros starters**: Go, Python, Rust etc. para o HTTP Server.
-4. **Próximos desafios**: Tokenizer, SQLite, Claude Code (ordem por número de stages).
+4. **Próximos desafios**: SQLite, Claude Code, BitTorrent (ordem por número de stages).
 5. **Conteúdo**: instruções em português para cada stage dos novos desafios.
 
 ## Convenções

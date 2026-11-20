@@ -13,7 +13,7 @@ Implementações de referência e engine dos desafios do
 | Git | 7 | ✅ jogável | ✅ 7/7 |
 | DNS Server | 8 | ✅ jogável | ✅ 8/8 |
 | SQLite | 9 | ⬜ em breve | ⬜ |
-| Tokenizer | 8 | ⬜ em breve | ⬜ |
+| Tokenizer | 8 | ✅ jogável | ✅ 8/8 |
 | BitTorrent | 19 | ⬜ em breve | ⬜ |
 | Kafka | 25 | ⬜ em breve | ⬜ |
 | grep | 33 | ⬜ em breve | ⬜ |
@@ -146,9 +146,26 @@ npm run challenge:dns                                               # contra a r
 node challenges/dns-server/tests/run-stages.mjs --dir <pasta> --no-build
 ```
 
+## Tokenizer
+
+- Curso e instruções: [`content/codecrafters/tokenizer`](../content/codecrafters/tokenizer).
+- Starter: [`tokenizer/starter/java`](tokenizer/starter/java).
+- Referência: [`tokenizer/java`](tokenizer/java).
+- Tester: [`tokenizer/tests/run-stages.mjs`](tokenizer/tests/run-stages.mjs).
+- Vocabulário do GPT-2: [`tokenizer/data/gpt2`](tokenizer/data/gpt2) (licença MIT da OpenAI).
+
+Desafio de CLI sem rede: cada comando (`bytes`, `pair`, `merge`, `train`, `encode`,
+`decode`, `split`, `gpt2`) recebe a entrada pelo stdin, e a saída é comparada com uma
+implementação de referência em JavaScript.
+
+```bash
+npm run challenge:tokenizer                                         # contra a referência
+node challenges/tokenizer/tests/run-stages.mjs --dir <pasta> --no-build
+```
+
 ## Próximos desafios
 
-A integração segue do desafio com menos stages para o com mais: Tokenizer (8), SQLite (9), Claude Code (18), BitTorrent (19) e assim por diante.
+A integração segue do desafio com menos stages para o com mais: SQLite (9), Claude Code (18), BitTorrent (19) e assim por diante.
 
 
 Para adicionar um desafio, o contrato é:

@@ -1,0 +1,115 @@
+{
+  "slug": "tokenizer",
+  "title": "Build your own Tokenizer",
+  "tagline": "Entenda como modelos de linguagem leem texto implementando um tokenizer BPE.",
+  "description": "Você vai construir um tokenizer BPE (byte pair encoding) em Java: bytes UTF-8, contagem de pares, merges, treino, encode e decode, a pré-tokenização com regex do GPT-2 e, no fim, os mesmos token IDs do GPT-2 a partir do vocabulário original. São 8 stages, conferidos contra uma implementação de referência.",
+  "language": "java",
+  "languageLabel": "Java 21",
+  "estimatedHours": 6,
+  "topics": [
+    "UTF-8",
+    "byte pair encoding",
+    "tokenização",
+    "treino de vocabulário",
+    "encode/decode",
+    "regex Unicode",
+    "GPT-2"
+  ],
+  "prerequisites": [
+    "Java 21 instalado (java -version)",
+    "Maven instalado (mvn -version)"
+  ],
+  "runtime": {
+    "starter": "challenges/tokenizer/starter/java",
+    "reference": "challenges/tokenizer/java",
+    "runner": "challenges/tokenizer/tests/stages.mjs",
+    "compile": {
+      "command": "mvn",
+      "args": ["-q", "-B", "package"],
+      "timeoutMs": 240000
+    },
+    "runCommand": "./your_program.sh <comando> < entrada"
+  },
+  "stages": [
+    {
+      "order": 1,
+      "id": "introduction",
+      "slug": "utf8-bytes",
+      "title": "UTF-8 bytes",
+      "difficulty": "Very easy",
+      "section": "Core",
+      "summary": "Converta texto em bytes UTF-8, os 256 tokens iniciais de todo BPE.",
+      "file": "stages/01-utf8-bytes.md"
+    },
+    {
+      "order": 2,
+      "id": "gk8",
+      "slug": "most-frequent-pair",
+      "title": "Most frequent pair",
+      "difficulty": "Easy",
+      "section": "Core",
+      "summary": "Conte os pares adjacentes e encontre o mais frequente.",
+      "file": "stages/02-most-frequent-pair.md"
+    },
+    {
+      "order": 3,
+      "id": "fk3",
+      "slug": "merge-a-pair",
+      "title": "Merge a pair",
+      "difficulty": "Easy",
+      "section": "Core",
+      "summary": "Substitua cada ocorrência de um par por um novo token.",
+      "file": "stages/03-merge-a-pair.md"
+    },
+    {
+      "order": 4,
+      "id": "ur9",
+      "slug": "learn-merges",
+      "title": "Learn merges",
+      "difficulty": "Medium",
+      "section": "Core",
+      "summary": "Treine o vocabulário: repita contar e juntar até o tamanho pedido.",
+      "file": "stages/04-learn-merges.md"
+    },
+    {
+      "order": 5,
+      "id": "kz6",
+      "slug": "encode",
+      "title": "Encode",
+      "difficulty": "Medium",
+      "section": "Core",
+      "summary": "Transforme texto em tokens aplicando os merges na ordem em que foram aprendidos.",
+      "file": "stages/05-encode.md"
+    },
+    {
+      "order": 6,
+      "id": "vg5",
+      "slug": "decode",
+      "title": "Decode",
+      "difficulty": "Medium",
+      "section": "Core",
+      "summary": "Transforme tokens de volta em texto reconstruindo os bytes de cada um.",
+      "file": "stages/06-decode.md"
+    },
+    {
+      "order": 7,
+      "id": "wl7",
+      "slug": "split-like-gpt2",
+      "title": "Split like GPT-2",
+      "difficulty": "Medium",
+      "section": "Core",
+      "summary": "Implemente a pré-tokenização com a regex do GPT-2.",
+      "file": "stages/07-split-like-gpt2.md"
+    },
+    {
+      "order": 8,
+      "id": "as1",
+      "slug": "match-gpt2",
+      "title": "Match GPT-2",
+      "difficulty": "Hard",
+      "section": "Core",
+      "summary": "Carregue o vocab.bpe original e produza os mesmos token IDs do GPT-2.",
+      "file": "stages/08-match-gpt2.md"
+    }
+  ]
+}

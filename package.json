@@ -18,6 +18,7 @@
     "challenge:http": "node challenges/http-server/tests/run-stages.mjs",
     "challenge:git": "node challenges/git/tests/run-stages.mjs",
     "challenge:dns": "node challenges/dns-server/tests/run-stages.mjs",
+    "challenge:tokenizer": "node challenges/tokenizer/tests/run-stages.mjs",
     "cc": "node challenges/engine/cc.mjs"
   },
   "dependencies": {

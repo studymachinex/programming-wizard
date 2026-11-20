@@ -15,3 +15,6 @@
 *.ico binary
 *.woff binary
 *.woff2 binary
+
+# Dados versionados byte a byte (ex.: vocabulário do GPT-2).
+challenges/tokenizer/data/** -text
