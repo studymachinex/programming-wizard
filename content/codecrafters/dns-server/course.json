@@ -1,0 +1,116 @@
+{
+  "slug": "dns-server",
+  "title": "Build your own DNS server",
+  "tagline": "Entenda o protocolo binário do DNS implementando um servidor UDP do zero.",
+  "description": "Você vai construir um servidor DNS em Java usando apenas UDP: header com flags em bits, seções question e answer, nomes em labels, compressão por ponteiros e, no fim, um forwarder que consulta outro resolver. São 8 stages, cada um validado com pacotes DNS reais.",
+  "language": "java",
+  "languageLabel": "Java 21",
+  "estimatedHours": 6,
+  "topics": [
+    "UDP",
+    "protocolo DNS",
+    "formatos binários",
+    "bit flags",
+    "big-endian",
+    "compressão de nomes",
+    "forwarding"
+  ],
+  "prerequisites": [
+    "Java 21 instalado (java -version)",
+    "Maven instalado (mvn -version)"
+  ],
+  "runtime": {
+    "starter": "challenges/dns-server/starter/java",
+    "reference": "challenges/dns-server/java",
+    "runner": "challenges/dns-server/tests/stages.mjs",
+    "compile": {
+      "command": "mvn",
+      "args": ["-q", "-B", "package"],
+      "timeoutMs": 240000
+    },
+    "port": 2053,
+    "runCommand": "./your_program.sh --resolver <ip:porta>"
+  },
+  "stages": [
+    {
+      "order": 1,
+      "id": "introduction",
+      "slug": "setup-udp-server",
+      "title": "Setup UDP server",
+      "difficulty": "Very easy",
+      "section": "Core",
+      "summary": "Abra um socket UDP na porta 2053 e responda a cada pacote recebido.",
+      "file": "stages/01-setup-udp-server.md"
+    },
+    {
+      "order": 2,
+      "id": "tz1",
+      "slug": "write-header",
+      "title": "Write header section",
+      "difficulty": "Medium",
+      "section": "Core",
+      "summary": "Monte o header DNS de 12 bytes: ID, flags em bits e contadores.",
+      "file": "stages/02-write-header.md"
+    },
+    {
+      "order": 3,
+      "id": "bf2",
+      "slug": "write-question",
+      "title": "Write question section",
+      "difficulty": "Medium",
+      "section": "Core",
+      "summary": "Codifique o nome em labels e escreva a question com TYPE e CLASS.",
+      "file": "stages/03-write-question.md"
+    },
+    {
+      "order": 4,
+      "id": "xm2",
+      "slug": "write-answer",
+      "title": "Write answer section",
+      "difficulty": "Easy",
+      "section": "Core",
+      "summary": "Responda com um registro A: nome, TTL, RDLENGTH e o IPv4.",
+      "file": "stages/04-write-answer.md"
+    },
+    {
+      "order": 5,
+      "id": "uc8",
+      "slug": "parse-header",
+      "title": "Parse header section",
+      "difficulty": "Hard",
+      "section": "Core",
+      "summary": "Leia o header do request e copie ID, OPCODE e RD; RCODE 4 se OPCODE ≠ 0.",
+      "file": "stages/05-parse-header.md"
+    },
+    {
+      "order": 6,
+      "id": "hd8",
+      "slug": "parse-question",
+      "title": "Parse question section",
+      "difficulty": "Easy",
+      "section": "Core",
+      "summary": "Leia o nome perguntado e responda para ele, não para um nome fixo.",
+      "file": "stages/06-parse-question.md"
+    },
+    {
+      "order": 7,
+      "id": "yc9",
+      "slug": "parse-compressed-packet",
+      "title": "Parse compressed packet",
+      "difficulty": "Medium",
+      "section": "Core",
+      "summary": "Suporte várias perguntas e nomes comprimidos com ponteiros.",
+      "file": "stages/07-parse-compressed-packet.md"
+    },
+    {
+      "order": 8,
+      "id": "gt1",
+      "slug": "forwarding-server",
+      "title": "Forwarding Server",
+      "difficulty": "Medium",
+      "section": "Core",
+      "summary": "Encaminhe cada pergunta para o resolver de --resolver e junte as respostas.",
+      "file": "stages/08-forwarding-server.md"
+    }
+  ]
+}

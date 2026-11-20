@@ -11,7 +11,7 @@ Implementações de referência e engine dos desafios do
 | HTTP Server | 14 | ✅ jogável | ✅ 14/14 |
 | Redis | 124 | ⬜ em breve | 🟡 3/124 (clone externo) |
 | Git | 7 | ✅ jogável | ✅ 7/7 |
-| DNS Server | 8 | ⬜ em breve | ⬜ |
+| DNS Server | 8 | ✅ jogável | ✅ 8/8 |
 | SQLite | 9 | ⬜ em breve | ⬜ |
 | Tokenizer | 8 | ⬜ em breve | ⬜ |
 | BitTorrent | 19 | ⬜ em breve | ⬜ |
@@ -131,10 +131,24 @@ npm run challenge:git                                         # contra a referê
 node challenges/git/tests/run-stages.mjs --dir <pasta> --no-build
 ```
 
+## DNS Server
+
+- Curso e instruções: [`content/codecrafters/dns-server`](../content/codecrafters/dns-server).
+- Starter: [`dns-server/starter/java`](dns-server/starter/java).
+- Referência: [`dns-server/java`](dns-server/java).
+- Tester: [`dns-server/tests/run-stages.mjs`](dns-server/tests/run-stages.mjs).
+
+Servidor UDP na porta 2053. O tester sobe um resolver DNS falso e inicia o servidor com
+`--resolver 127.0.0.1:<porta>`; o stage 8 exige que cada pergunta seja encaminhada a ele.
+
+```bash
+npm run challenge:dns                                               # contra a referência
+node challenges/dns-server/tests/run-stages.mjs --dir <pasta> --no-build
+```
+
 ## Próximos desafios
 
-A integração segue do desafio com menos stages para o com mais: DNS Server (8),
-Tokenizer (8), SQLite (9), Claude Code (18), BitTorrent (19) e assim por diante.
+A integração segue do desafio com menos stages para o com mais: Tokenizer (8), SQLite (9), Claude Code (18), BitTorrent (19) e assim por diante.
 
 
 Para adicionar um desafio, o contrato é:

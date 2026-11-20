@@ -3,10 +3,10 @@
 > Roadmap vivo dos desafios "Build your own X" do [CodeCrafters](https://app.codecrafters.io/catalog).
 > Atualize os checkboxes conforme cada stage for concluído.
 
-**Status geral:** **24/425 stages (6%)** · 2 desafios concluídos · 1 em andamento · HTTP Server e Git jogáveis na plataforma.
+**Status geral:** **32/425 stages (8%)** · 3 desafios concluídos · 1 em andamento · HTTP Server, Git e DNS Server jogáveis na plataforma.
 
 **Integração na plataforma:** do desafio com menos stages para o com mais —
-Git (7) ✅ → DNS Server (8) → Tokenizer (8) → SQLite (9) → Claude Code (18) → BitTorrent (19)
+Git (7) ✅ → DNS Server (8) ✅ → Tokenizer (8) → SQLite (9) → Claude Code (18) → BitTorrent (19)
 → Kafka (25) → grep (33) → Shell (76) → Interpreter (84) → Redis (124).
 
 | # | Desafio | Stages | Progresso | Status | Acesso | Onde está |
@@ -14,7 +14,7 @@ Git (7) ✅ → DNS Server (8) → Tokenizer (8) → SQLite (9) → Claude Code 
 | 1 | [HTTP Server](https://app.codecrafters.io/courses/http-server/overview) | 14 | 14/14 | ✅ concluído | membros | [`challenges/http-server`](../../challenges/http-server) |
 | 2 | [Redis](https://app.codecrafters.io/courses/redis/overview) | 124 | 3/124 | 🟡 em andamento | grátis até 31/12/2026 | clone local `codecrafters-redis-java` |
 | 3 | [Git](https://app.codecrafters.io/courses/git/overview) | 7 | 7/7 | ✅ concluído | membros | [`challenges/git`](../../challenges/git) |
-| 4 | [DNS Server](https://app.codecrafters.io/courses/dns-server/overview) | 8 | 0/8 | ⬜ não iniciado | membros | — |
+| 4 | [DNS Server](https://app.codecrafters.io/courses/dns-server/overview) | 8 | 8/8 | ✅ concluído | membros | [`challenges/dns-server`](../../challenges/dns-server) |
 | 5 | [SQLite](https://app.codecrafters.io/courses/sqlite/overview) | 9 | 0/9 | ⬜ não iniciado | membros | — |
 | 6 | [Tokenizer](https://app.codecrafters.io/courses/tokenizer/overview) | 8 | 0/8 | ⬜ não iniciado | early access | — |
 | 7 | [BitTorrent](https://app.codecrafters.io/courses/bittorrent/overview) | 19 | 0/19 | ⬜ não iniciado | membros | — |
@@ -45,7 +45,7 @@ O que vamos replicar na plataforma:
 - progresso por stage (JSON local nesta versão; PostgreSQL no roadmap);
 - comando/hook de submissão (`wizard submit` ou git hook).
 
-**Já implementado para HTTP Server e Git:** catálogo, página, instruções, starter Java,
+**Já implementado para HTTP Server, Git e DNS Server:** catálogo, página, instruções, starter Java,
 runner, CLI `npm run cc -- ...`, remote local `wizard` e hook `post-receive`.
 
 ## Ordem recomendada
@@ -164,21 +164,29 @@ compactado com deltas — não precisa de internet.
 
 ---
 
-### ⬜ DNS Server — 0/8
+### ✅ DNS Server — 8/8
 
-**Foco:** UDP, header DNS, flags, QNAME, answer records, compressão de nomes e forwarding.
+**Foco:** UDP, header DNS, flags em bits, QNAME, answer records, compressão de nomes e
+forwarding.
 
-- [ ] 1. Setup UDP server
-- [ ] 2. Write header section
-- [ ] 3. Write question section
-- [ ] 4. Write answer section
-- [ ] 5. Parse header section
-- [ ] 6. Parse question section
-- [ ] 7. Parse compressed packet
-- [ ] 8. Forwarding Server
+**Implementação:** [`challenges/dns-server/java`](../../challenges/dns-server/java) ·
+**Tester:** [`challenges/dns-server/tests/run-stages.mjs`](../../challenges/dns-server/tests/run-stages.mjs)
 
-**O que falta:** servidor UDP em `127.0.0.1:2053`, encoder/decoder de pacotes,
-respostas A/AAAA e proxy para um resolver upstream.
+- [x] 1. Setup UDP server
+- [x] 2. Write header section
+- [x] 3. Write question section
+- [x] 4. Write answer section
+- [x] 5. Parse header section
+- [x] 6. Parse question section
+- [x] 7. Parse compressed packet
+- [x] 8. Forwarding Server
+
+**Como o tester funciona:** sobe um resolver DNS falso em UDP e inicia o servidor com
+`--resolver 127.0.0.1:<porta>`. Os stages 2–7 conferem só a estrutura (IP fixo ou
+encaminhado passam igual); o stage 8 exige o IP do resolver, que só aceita uma pergunta
+por pacote.
+
+**O que falta:** tipos além de A (AAAA, CNAME, MX) e starters para outras linguagens.
 
 ---
 
@@ -428,7 +436,7 @@ local `wizard`, hook `post-receive` e progresso por stage em JSON.
 2. **Runner isolado**: container com limite de CPU/memória/tempo, diretório temporário
    e porta isolada; devolver JSON por stage.
 3. **Outros starters**: Go, Python, Rust etc. para o HTTP Server.
-4. **Próximos desafios**: DNS Server, Tokenizer, SQLite (ordem por número de stages).
+4. **Próximos desafios**: Tokenizer, SQLite, Claude Code (ordem por número de stages).
 5. **Conteúdo**: instruções em português para cada stage dos novos desafios.
 
 ## Convenções
