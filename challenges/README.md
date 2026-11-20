@@ -16,7 +16,7 @@ Implementações de referência e engine dos desafios do
 | Tokenizer | 8 | ✅ jogável | ✅ 8/8 |
 | BitTorrent | 19 | ✅ jogável | ✅ 19/19 |
 | Kafka | 25 | ✅ jogável | ✅ 25/25 |
-| grep | 33 | ⬜ em breve | ⬜ |
+| grep | 33 | ✅ jogável | ✅ 33/33 |
 | Shell | 76 | ⬜ em breve | ⬜ |
 | Interpreter | 84 | ⬜ em breve | ⬜ |
 | Claude Code | 18 | ✅ jogável | ✅ 18/18 |
@@ -229,9 +229,24 @@ npm run challenge:kafka                                         # contra a refer
 node challenges/kafka/tests/run-stages.mjs --dir <pasta> --no-build
 ```
 
+## grep
+
+- Curso e instruções: [`content/codecrafters/grep`](../content/codecrafters/grep).
+- Starter: [`grep/starter/java`](grep/starter/java).
+- Referência: [`grep/java`](grep/java).
+- Tester: [`grep/tests/run-stages.mjs`](grep/tests/run-stages.mjs).
+
+Um `grep -E` com motor de regex próprio, `-o`, `--color`, arquivos e `-r`. O tester
+compara com um oráculo em JavaScript e recusa código que use `java.util.regex`.
+
+```bash
+npm run challenge:grep                                         # contra a referência
+node challenges/grep/tests/run-stages.mjs --dir <pasta> --no-build
+```
+
 ## Próximos desafios
 
-A integração segue do desafio com menos stages para o com mais: grep (33), Shell (76),
+A integração segue do desafio com menos stages para o com mais: Shell (76),
 Interpreter (84) e Redis (124).
 
 

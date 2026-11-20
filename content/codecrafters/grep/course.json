@@ -1,0 +1,369 @@
+{
+  "slug": "grep",
+  "title": "Build your own grep",
+  "tagline": "Entenda expressões regulares por dentro escrevendo o seu próprio motor.",
+  "description": "Você vai construir um grep -E em Java com o seu próprio motor de expressões regulares — sem java.util.regex: classes de caracteres, âncoras, quantificadores gulosos com backtracking, alternação, grupos e backreferences, além de -o, destaque com cores ANSI, busca em arquivos e busca recursiva. São 33 stages comparados com um oráculo.",
+  "language": "java",
+  "languageLabel": "Java 21",
+  "estimatedHours": 14,
+  "topics": [
+    "expressões regulares",
+    "parsing",
+    "backtracking",
+    "quantificadores",
+    "backreferences",
+    "códigos ANSI",
+    "sistema de arquivos"
+  ],
+  "prerequisites": [
+    "Java 21 instalado (java -version)",
+    "Maven instalado (mvn -version)"
+  ],
+  "runtime": {
+    "starter": "challenges/grep/starter/java",
+    "reference": "challenges/grep/java",
+    "runner": "challenges/grep/tests/stages.mjs",
+    "compile": {
+      "command": "mvn",
+      "args": [
+        "-q",
+        "-B",
+        "package"
+      ],
+      "timeoutMs": 240000
+    },
+    "runCommand": "./your_program.sh -E <padrão> [arquivos...]"
+  },
+  "stages": [
+    {
+      "order": 1,
+      "id": "introduction",
+      "slug": "literal-character",
+      "title": "Match a literal character",
+      "difficulty": "Very easy",
+      "section": "Core",
+      "summary": "Verifique se a entrada contém um caractere literal.",
+      "file": "stages/01-literal-character.md"
+    },
+    {
+      "order": 2,
+      "id": "oq2",
+      "slug": "digits",
+      "title": "Match digits",
+      "difficulty": "Very easy",
+      "section": "Core",
+      "summary": "Implemente a classe \\d.",
+      "file": "stages/02-digits.md"
+    },
+    {
+      "order": 3,
+      "id": "mr9",
+      "slug": "word-characters",
+      "title": "Match word characters",
+      "difficulty": "Very easy",
+      "section": "Core",
+      "summary": "Implemente a classe \\w.",
+      "file": "stages/03-word-characters.md"
+    },
+    {
+      "order": 4,
+      "id": "tl6",
+      "slug": "positive-groups",
+      "title": "Positive Character Groups",
+      "difficulty": "Medium",
+      "section": "Core",
+      "summary": "Implemente [abc]: qualquer um dos caracteres listados.",
+      "file": "stages/04-positive-groups.md"
+    },
+    {
+      "order": 5,
+      "id": "rk3",
+      "slug": "negative-groups",
+      "title": "Negative Character Groups",
+      "difficulty": "Medium",
+      "section": "Core",
+      "summary": "Implemente [^abc]: qualquer caractere fora da lista.",
+      "file": "stages/05-negative-groups.md"
+    },
+    {
+      "order": 6,
+      "id": "sh9",
+      "slug": "combining-classes",
+      "title": "Combining Character Classes",
+      "difficulty": "Medium",
+      "section": "Core",
+      "summary": "Case padrões com vários itens em sequência, como \\d apple.",
+      "file": "stages/06-combining-classes.md"
+    },
+    {
+      "order": 7,
+      "id": "rr8",
+      "slug": "start-anchor",
+      "title": "Start of string anchor",
+      "difficulty": "Medium",
+      "section": "Core",
+      "summary": "Implemente ^: o match precisa começar no início da linha.",
+      "file": "stages/07-start-anchor.md"
+    },
+    {
+      "order": 8,
+      "id": "ao7",
+      "slug": "end-anchor",
+      "title": "End of string anchor",
+      "difficulty": "Medium",
+      "section": "Core",
+      "summary": "Implemente $: o match precisa terminar no fim da linha.",
+      "file": "stages/08-end-anchor.md"
+    },
+    {
+      "order": 9,
+      "id": "fz7",
+      "slug": "one-or-more",
+      "title": "Match one or more times",
+      "difficulty": "Hard",
+      "section": "Core",
+      "summary": "Implemente o quantificador +.",
+      "file": "stages/09-one-or-more.md"
+    },
+    {
+      "order": 10,
+      "id": "ny8",
+      "slug": "zero-or-one",
+      "title": "Match zero or one times",
+      "difficulty": "Hard",
+      "section": "Core",
+      "summary": "Implemente o quantificador ?.",
+      "file": "stages/10-zero-or-one.md"
+    },
+    {
+      "order": 11,
+      "id": "zb3",
+      "slug": "wildcard",
+      "title": "Wildcard",
+      "difficulty": "Medium",
+      "section": "Core",
+      "summary": "Implemente o curinga . (qualquer caractere).",
+      "file": "stages/11-wildcard.md"
+    },
+    {
+      "order": 12,
+      "id": "zm7",
+      "slug": "alternation",
+      "title": "Alternation",
+      "difficulty": "Hard",
+      "section": "Core",
+      "summary": "Implemente grupos ( ) com alternação |.",
+      "file": "stages/12-alternation.md"
+    },
+    {
+      "order": 13,
+      "id": "ku5",
+      "slug": "print-single-line",
+      "title": "Print a single matching line",
+      "difficulty": "Easy",
+      "section": "Printing Matches",
+      "summary": "Imprima a linha que casou.",
+      "file": "stages/13-print-single-line.md"
+    },
+    {
+      "order": 14,
+      "id": "pz6",
+      "slug": "print-multiple-lines",
+      "title": "Print multiple matching lines",
+      "difficulty": "Easy",
+      "section": "Printing Matches",
+      "summary": "Processe a entrada linha a linha e imprima todas as que casarem.",
+      "file": "stages/14-print-multiple-lines.md"
+    },
+    {
+      "order": 15,
+      "id": "cj0",
+      "slug": "only-matching-single",
+      "title": "Print single match",
+      "difficulty": "Medium",
+      "section": "Multiple Matches",
+      "summary": "Implemente -o: imprima só o trecho que casou.",
+      "file": "stages/15-only-matching-single.md"
+    },
+    {
+      "order": 16,
+      "id": "ss2",
+      "slug": "only-matching-multiple",
+      "title": "Print multiple matches",
+      "difficulty": "Medium",
+      "section": "Multiple Matches",
+      "summary": "Com -o, imprima todas as ocorrências da linha.",
+      "file": "stages/16-only-matching-multiple.md"
+    },
+    {
+      "order": 17,
+      "id": "bo4",
+      "slug": "only-matching-lines",
+      "title": "Process multiple input lines",
+      "difficulty": "Medium",
+      "section": "Multiple Matches",
+      "summary": "Combine -o com entradas de várias linhas.",
+      "file": "stages/17-only-matching-lines.md"
+    },
+    {
+      "order": 18,
+      "id": "bm2",
+      "slug": "highlight-single",
+      "title": "Highlight a single match",
+      "difficulty": "Easy",
+      "section": "Highlighting",
+      "summary": "Implemente --color=always destacando o match.",
+      "file": "stages/18-highlight-single.md"
+    },
+    {
+      "order": 19,
+      "id": "eq0",
+      "slug": "highlight-multiple",
+      "title": "Highlight multiple matches",
+      "difficulty": "Easy",
+      "section": "Highlighting",
+      "summary": "Destaque todas as ocorrências da linha.",
+      "file": "stages/19-highlight-multiple.md"
+    },
+    {
+      "order": 20,
+      "id": "wg2",
+      "slug": "highlight-lines",
+      "title": "Highlight matches in multiple lines",
+      "difficulty": "Easy",
+      "section": "Highlighting",
+      "summary": "Destaque em várias linhas, também junto com -o.",
+      "file": "stages/20-highlight-lines.md"
+    },
+    {
+      "order": 21,
+      "id": "jk4",
+      "slug": "color-never",
+      "title": "Disable highlighting",
+      "difficulty": "Easy",
+      "section": "Highlighting",
+      "summary": "Implemente --color=never.",
+      "file": "stages/21-color-never.md"
+    },
+    {
+      "order": 22,
+      "id": "na5",
+      "slug": "color-auto",
+      "title": "Implement the auto color option",
+      "difficulty": "Medium",
+      "section": "Highlighting",
+      "summary": "Implemente --color=auto: destaque só quando a saída é um terminal.",
+      "file": "stages/22-color-auto.md"
+    },
+    {
+      "order": 23,
+      "id": "dr5",
+      "slug": "file-single-line",
+      "title": "Search a single-line file",
+      "difficulty": "Medium",
+      "section": "File Search",
+      "summary": "Leia de um arquivo em vez do stdin.",
+      "file": "stages/23-file-single-line.md"
+    },
+    {
+      "order": 24,
+      "id": "ol9",
+      "slug": "file-multi-line",
+      "title": "Search a multi-line file",
+      "difficulty": "Medium",
+      "section": "File Search",
+      "summary": "Busque em arquivos de várias linhas.",
+      "file": "stages/24-file-multi-line.md"
+    },
+    {
+      "order": 25,
+      "id": "is6",
+      "slug": "multiple-files",
+      "title": "Search multiple files",
+      "difficulty": "Medium",
+      "section": "File Search",
+      "summary": "Com vários arquivos, prefixe cada linha com o nome do arquivo.",
+      "file": "stages/25-multiple-files.md"
+    },
+    {
+      "order": 26,
+      "id": "yx6",
+      "slug": "recursive",
+      "title": "Recursive search",
+      "difficulty": "Hard",
+      "section": "File Search",
+      "summary": "Implemente -r: busque em todos os arquivos de um diretório.",
+      "file": "stages/26-recursive.md"
+    },
+    {
+      "order": 27,
+      "id": "ai9",
+      "slug": "zero-or-more",
+      "title": "Match zero or more times",
+      "difficulty": "Hard",
+      "section": "Quantifiers",
+      "summary": "Implemente o quantificador *.",
+      "file": "stages/27-zero-or-more.md"
+    },
+    {
+      "order": 28,
+      "id": "wy9",
+      "slug": "exactly-n",
+      "title": "Match exactly n times",
+      "difficulty": "Hard",
+      "section": "Quantifiers",
+      "summary": "Implemente {n}.",
+      "file": "stages/28-exactly-n.md"
+    },
+    {
+      "order": 29,
+      "id": "hk3",
+      "slug": "at-least-n",
+      "title": "Match at least n times",
+      "difficulty": "Hard",
+      "section": "Quantifiers",
+      "summary": "Implemente {n,}.",
+      "file": "stages/29-at-least-n.md"
+    },
+    {
+      "order": 30,
+      "id": "ug0",
+      "slug": "between-n-m",
+      "title": "Match between n and m times",
+      "difficulty": "Hard",
+      "section": "Quantifiers",
+      "summary": "Implemente {n,m}.",
+      "file": "stages/30-between-n-m.md"
+    },
+    {
+      "order": 31,
+      "id": "sb5",
+      "slug": "single-backreference",
+      "title": "Single Backreference",
+      "difficulty": "Hard",
+      "section": "Backreferences",
+      "summary": "Implemente \\1: o mesmo texto que o grupo 1 casou.",
+      "file": "stages/31-single-backreference.md"
+    },
+    {
+      "order": 32,
+      "id": "tg1",
+      "slug": "multiple-backreferences",
+      "title": "Multiple Backreferences",
+      "difficulty": "Medium",
+      "section": "Backreferences",
+      "summary": "Suporte \\1, \\2, ... com vários grupos.",
+      "file": "stages/32-multiple-backreferences.md"
+    },
+    {
+      "order": 33,
+      "id": "xe5",
+      "slug": "nested-backreferences",
+      "title": "Nested Backreferences",
+      "difficulty": "Hard",
+      "section": "Backreferences",
+      "summary": "Suporte grupos aninhados e backreferences para eles.",
+      "file": "stages/33-nested-backreferences.md"
+    }
+  ]
+}

@@ -3,11 +3,11 @@
 > Roadmap vivo dos desafios "Build your own X" do [CodeCrafters](https://app.codecrafters.io/catalog).
 > Atualize os checkboxes conforme cada stage for concluído.
 
-**Status geral:** **111/425 stages (26%)** · 8 desafios concluídos · 1 em andamento · HTTP Server, Git, DNS Server, Tokenizer, SQLite, Claude Code, BitTorrent e Kafka jogáveis na plataforma.
+**Status geral:** **144/425 stages (34%)** · 9 desafios concluídos · 1 em andamento · HTTP Server, Git, DNS Server, Tokenizer, SQLite, Claude Code, BitTorrent, Kafka e grep jogáveis na plataforma.
 
 **Integração na plataforma:** do desafio com menos stages para o com mais —
 Git (7) ✅ → DNS Server (8) ✅ → Tokenizer (8) ✅ → SQLite (9) ✅ → Claude Code (18) ✅ → BitTorrent (19) ✅
-→ Kafka (25) ✅ → grep (33) → Shell (76) → Interpreter (84) → Redis (124).
+→ Kafka (25) ✅ → grep (33) ✅ → Shell (76) → Interpreter (84) → Redis (124).
 
 | # | Desafio | Stages | Progresso | Status | Acesso | Onde está |
 |---:|---|---:|---:|---|---|---|
@@ -19,7 +19,7 @@ Git (7) ✅ → DNS Server (8) ✅ → Tokenizer (8) ✅ → SQLite (9) ✅ → 
 | 6 | [Tokenizer](https://app.codecrafters.io/courses/tokenizer/overview) | 8 | 8/8 | ✅ concluído | early access | [`challenges/tokenizer`](../../challenges/tokenizer) |
 | 7 | [BitTorrent](https://app.codecrafters.io/courses/bittorrent/overview) | 19 | 19/19 | ✅ concluído | membros | [`challenges/bittorrent`](../../challenges/bittorrent) |
 | 8 | [Kafka](https://app.codecrafters.io/courses/kafka/overview) | 25 | 25/25 | ✅ concluído | membros | [`challenges/kafka`](../../challenges/kafka) |
-| 9 | [grep](https://app.codecrafters.io/courses/grep/overview) | 33 | 0/33 | ⬜ não iniciado | membros | — |
+| 9 | [grep](https://app.codecrafters.io/courses/grep/overview) | 33 | 33/33 | ✅ concluído | membros | [`challenges/grep`](../../challenges/grep) |
 | 10 | [Shell](https://app.codecrafters.io/courses/shell/overview) | 76 | 0/76 | ⬜ não iniciado | membros | — |
 | 11 | [Interpreter](https://app.codecrafters.io/courses/interpreter/overview) | 84 | 0/84 | ⬜ não iniciado | membros | — |
 | 12 | [Claude Code](https://app.codecrafters.io/courses/claude-code/overview) | 18 | 18/18 | ✅ concluído | beta | [`challenges/claude-code`](../../challenges/claude-code) |
@@ -45,7 +45,7 @@ O que vamos replicar na plataforma:
 - progresso por stage (JSON local nesta versão; PostgreSQL no roadmap);
 - comando/hook de submissão (`wizard submit` ou git hook).
 
-**Já implementado para HTTP Server, Git, DNS Server, Tokenizer, SQLite, Claude Code, BitTorrent e Kafka:** catálogo, página, instruções, starter Java,
+**Já implementado para HTTP Server, Git, DNS Server, Tokenizer, SQLite, Claude Code, BitTorrent, Kafka e grep:** catálogo, página, instruções, starter Java,
 runner, CLI `npm run cc -- ...`, remote local `wizard` e hook `post-receive`.
 
 ## Ordem recomendada
@@ -349,22 +349,75 @@ linguagens.
 
 ---
 
-### ⬜ grep — 0/33
+### ✅ grep — 33/33
 
-**Foco:** engine de regex (character classes, anchors, quantifiers, alternation,
-backreferences), impressão de linhas, highlighting e busca em arquivos.
+**Foco:** motor de expressões regulares próprio (classes, âncoras, quantificadores gulosos
+com backtracking, alternação, grupos, backreferences), `-o`, destaque ANSI, busca em
+arquivos e recursiva.
 
-| Seção | Stages | Cobre | Status |
-|---|---:|---|---|
-| Core | 12 | literais, classes, âncoras, `+`, `?`, `.`, alternation | ⬜ |
-| Printing Matches | 2 | imprimir linha(s) que casam | ⬜ |
-| Multiple Matches | 3 | múltiplos matches por linha e múltiplas linhas | ⬜ |
-| Highlighting | 5 | cores, `--color`, auto | ⬜ |
-| File Search | 4 | arquivos, múltiplos arquivos, recursivo | ⬜ |
-| Quantifiers | 4 | `*`, `{n}`, `{n,}`, `{n,m}` | ⬜ |
-| Backreferences | 3 | `\1`, múltiplos e aninhados | ⬜ |
+**Implementação:** [`challenges/grep/java`](../../challenges/grep/java) ·
+**Tester:** [`challenges/grep/tests/run-stages.mjs`](../../challenges/grep/tests/run-stages.mjs)
 
-**O que falta:** parser + matcher de regex, output formatado e caminhamento de diretórios.
+**Core:**
+
+- [x] 1. Match a literal character
+- [x] 2. Match digits
+- [x] 3. Match word characters
+- [x] 4. Positive Character Groups
+- [x] 5. Negative Character Groups
+- [x] 6. Combining Character Classes
+- [x] 7. Start of string anchor
+- [x] 8. End of string anchor
+- [x] 9. Match one or more times
+- [x] 10. Match zero or one times
+- [x] 11. Wildcard
+- [x] 12. Alternation
+
+**Printing Matches:**
+
+- [x] 13. Print a single matching line
+- [x] 14. Print multiple matching lines
+
+**Multiple Matches:**
+
+- [x] 15. Print single match
+- [x] 16. Print multiple matches
+- [x] 17. Process multiple input lines
+
+**Highlighting:**
+
+- [x] 18. Highlight a single match
+- [x] 19. Highlight multiple matches
+- [x] 20. Highlight matches in multiple lines
+- [x] 21. Disable highlighting
+- [x] 22. Implement the auto color option
+
+**File Search:**
+
+- [x] 23. Search a single-line file
+- [x] 24. Search a multi-line file
+- [x] 25. Search multiple files
+- [x] 26. Recursive search
+
+**Quantifiers:**
+
+- [x] 27. Match zero or more times
+- [x] 28. Match exactly n times
+- [x] 29. Match at least n times
+- [x] 30. Match between n and m times
+
+**Backreferences:**
+
+- [x] 31. Single Backreference
+- [x] 32. Multiple Backreferences
+- [x] 33. Nested Backreferences
+
+**Como o tester funciona:** gera entradas e padrões aleatórios e compara código de saída
+e stdout com um oráculo baseado no `RegExp` do JavaScript (mesma semântica para o
+subconjunto do desafio). Código que usa `java.util.regex` é recusado.
+
+**O que falta:** `\s`, quantificadores preguiçosos, `-i`, `-v`, `-c` e starters para outras
+linguagens.
 
 ---
 
@@ -487,7 +540,7 @@ local `wizard`, hook `post-receive` e progresso por stage em JSON.
 2. **Runner isolado**: container com limite de CPU/memória/tempo, diretório temporário
    e porta isolada; devolver JSON por stage.
 3. **Outros starters**: Go, Python, Rust etc. para o HTTP Server.
-4. **Próximos desafios**: grep, Shell, Interpreter (ordem por número de stages).
+4. **Próximos desafios**: Shell, Interpreter, Redis (ordem por número de stages).
 5. **Conteúdo**: instruções em português para cada stage dos novos desafios.
 
 ## Convenções
