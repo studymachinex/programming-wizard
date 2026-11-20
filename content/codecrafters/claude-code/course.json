@@ -1,0 +1,55 @@
+{
+  "slug": "claude-code",
+  "title": "Build your own Claude Code",
+  "tagline": "Entenda como agentes de código funcionam construindo um, do primeiro request ao LSP.",
+  "description": "Você vai construir em Java um agente de código de linha de comando: chamadas a um LLM compatível com Chat Completions, tool calling, o loop do agente, ferramentas de arquivo e shell, skills com argumentos, scripts e subagentes e, por fim, um cliente LSP para navegar e corrigir código. São 18 stages testados contra um LLM e um language server falsos — nenhuma API paga é usada.",
+  "language": "java",
+  "languageLabel": "Java 21",
+  "estimatedHours": 14,
+  "topics": [
+    "LLM APIs",
+    "tool calling",
+    "agent loop",
+    "ferramentas de arquivo e shell",
+    "skills",
+    "subagentes",
+    "JSON-RPC",
+    "Language Server Protocol"
+  ],
+  "prerequisites": [
+    "Java 21 instalado (java -version)",
+    "Maven instalado (mvn -version)",
+    "Node instalado (usado pelos scripts de skill e pelo language server do tester)"
+  ],
+  "runtime": {
+    "starter": "challenges/claude-code/starter/java",
+    "reference": "challenges/claude-code/java",
+    "runner": "challenges/claude-code/tests/stages.mjs",
+    "compile": {
+      "command": "mvn",
+      "args": ["-q", "-B", "package"],
+      "timeoutMs": 240000
+    },
+    "runCommand": "./your_program.sh -p \"<prompt>\""
+  },
+  "stages": [
+    { "order": 1, "id": "introduction", "slug": "communicate-with-llm", "title": "Communicate with the LLM", "difficulty": "Very easy", "section": "Core", "summary": "Envie o prompt para a API Chat Completions e imprima a resposta.", "file": "stages/01-communicate-with-llm.md" },
+    { "order": 2, "id": "aq1", "slug": "advertise-read-tool", "title": "Advertise the read tool", "difficulty": "Easy", "section": "Core", "summary": "Descreva a ferramenta read com JSON Schema no campo tools.", "file": "stages/02-advertise-read-tool.md" },
+    { "order": 3, "id": "md6", "slug": "execute-read-tool", "title": "Execute the read tool", "difficulty": "Easy", "section": "Core", "summary": "Quando o modelo pedir, leia o arquivo e devolva o conteúdo.", "file": "stages/03-execute-read-tool.md" },
+    { "order": 4, "id": "ff2", "slug": "agent-loop", "title": "Implement the agent loop", "difficulty": "Medium", "section": "Core", "summary": "Repita request → ferramentas → request até o modelo responder com texto.", "file": "stages/04-agent-loop.md" },
+    { "order": 5, "id": "oz7", "slug": "write-tool", "title": "Implement the write tool", "difficulty": "Easy", "section": "Core", "summary": "Deixe o modelo criar e sobrescrever arquivos.", "file": "stages/05-write-tool.md" },
+    { "order": 6, "id": "oq5", "slug": "bash-tool", "title": "Implement the bash tool", "difficulty": "Easy", "section": "Core", "summary": "Execute comandos de shell no projeto e devolva saída e código de saída.", "file": "stages/06-bash-tool.md" },
+    { "order": 7, "id": "vh1", "slug": "advertise-skills", "title": "Advertise skills to the LLM", "difficulty": "Medium", "section": "Skills", "summary": "Descubra as skills em .agent/skills e liste-as no prompt de sistema.", "file": "stages/07-advertise-skills.md" },
+    { "order": 8, "id": "jd8", "slug": "invoke-skill", "title": "Invoke a skill by name", "difficulty": "Easy", "section": "Skills", "summary": "Troque /nome-da-skill pelo corpo do SKILL.md.", "file": "stages/08-invoke-skill.md" },
+    { "order": 9, "id": "wd2", "slug": "skill-arguments", "title": "Pass arguments to a skill", "difficulty": "Easy", "section": "Skills", "summary": "Substitua $ARGUMENTS pelo texto depois do comando.", "file": "stages/09-skill-arguments.md" },
+    { "order": 10, "id": "sk5", "slug": "stack-skills", "title": "Stack multiple skills", "difficulty": "Medium", "section": "Skills", "summary": "Expanda vários comandos de skill no mesmo prompt, em ordem.", "file": "stages/10-stack-skills.md" },
+    { "order": 11, "id": "tq1", "slug": "skill-scripts", "title": "Run a script bundled with a skill", "difficulty": "Medium", "section": "Skills", "summary": "Troque ${SKILL_DIR} pelo caminho da skill para o modelo rodar os scripts dela.", "file": "stages/11-skill-scripts.md" },
+    { "order": 12, "id": "gq2", "slug": "model-chooses-skill", "title": "Let the model choose a skill", "difficulty": "Medium", "section": "Skills", "summary": "Ofereça a ferramenta skill para o modelo carregar instruções sozinho.", "file": "stages/12-model-chooses-skill.md" },
+    { "order": 13, "id": "mj2", "slug": "skill-subagent", "title": "Run a skill in a subagent", "difficulty": "Hard", "section": "Skills", "summary": "Rode skills marcadas como subagent em uma conversa isolada.", "file": "stages/13-skill-subagent.md" },
+    { "order": 14, "id": "iy3", "slug": "lsp-tool", "title": "Add the LSP tool", "difficulty": "Easy", "section": "Language Server Protocol", "summary": "Inicie o language server via JSON-RPC e anuncie a ferramenta lsp.", "file": "stages/14-lsp-tool.md" },
+    { "order": 15, "id": "gz6", "slug": "lsp-definition", "title": "Find the implementation", "difficulty": "Medium", "section": "Language Server Protocol", "summary": "Use textDocument/definition para achar onde uma função é declarada.", "file": "stages/15-lsp-definition.md" },
+    { "order": 16, "id": "rb6", "slug": "lsp-references", "title": "Find the affected callers", "difficulty": "Easy", "section": "Language Server Protocol", "summary": "Use textDocument/references para listar quem chama uma função.", "file": "stages/16-lsp-references.md" },
+    { "order": 17, "id": "bn2", "slug": "lsp-sync", "title": "Keep the analysis current", "difficulty": "Medium", "section": "Language Server Protocol", "summary": "Avise o servidor das edições com didOpen/didChange.", "file": "stages/17-lsp-sync.md" },
+    { "order": 18, "id": "ql9", "slug": "lsp-diagnostics", "title": "Repair edits with diagnostics", "difficulty": "Medium", "section": "Language Server Protocol", "summary": "Devolva os diagnostics junto com o resultado de cada write.", "file": "stages/18-lsp-diagnostics.md" }
+  ]
+}

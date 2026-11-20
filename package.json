@@ -20,6 +20,7 @@
     "challenge:dns": "node challenges/dns-server/tests/run-stages.mjs",
     "challenge:tokenizer": "node challenges/tokenizer/tests/run-stages.mjs",
     "challenge:sqlite": "node challenges/sqlite/tests/run-stages.mjs",
+    "challenge:claude-code": "node challenges/claude-code/tests/run-stages.mjs",
     "cc": "node challenges/engine/cc.mjs"
   },
   "dependencies": {

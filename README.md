@@ -71,7 +71,7 @@ aplicação não envia seus dados para nenhum serviço externo.
 - **Capstones** — 13 projetos de portfólio com requisitos, stack e critérios de conclusão.
 - **CodeCrafters local** — catálogo de 12 desafios (425 stages), starter repo, instruções,
   runner real, remote git local e hook de submissão. **HTTP Server**, **Git**,
-  **DNS Server**, **Tokenizer** e **SQLite** estão jogáveis de ponta a ponta.
+  **DNS Server**, **Tokenizer**, **SQLite** e **Claude Code** estão jogáveis de ponta a ponta.
 - **Busca global** — `Ctrl+K` / `⌘K` para aulas, exercícios, problemas e projetos.
 - **Backup** — exportação do progresso em JSON em **Configurações → Exportar backup**.
 
@@ -253,6 +253,7 @@ cache.
 | `npm run challenge:dns` | Compila e valida a referência dos 8 stages do DNS Server |
 | `npm run challenge:tokenizer` | Compila e valida a referência dos 8 stages do Tokenizer |
 | `npm run challenge:sqlite` | Compila e valida a referência dos 9 stages do SQLite |
+| `npm run challenge:claude-code` | Compila e valida a referência dos 18 stages do Claude Code |
 | `npm run cc -- <cmd>` | CLI dos desafios: `start`, `task`, `test`, `submit`, `status`, `list`, `reset` |
 
 ## Como usar a plataforma
@@ -280,9 +281,9 @@ starter repo, instruções por stage, runner de testes, remote git local e um ho
 confirma a conclusão no push.
 
 **Jogáveis de ponta a ponta:** HTTP Server (14 stages), Git (7), DNS Server (8),
-Tokenizer (8) e SQLite (9). As páginas ficam em
+Tokenizer (8), SQLite (9) e Claude Code (18). As páginas ficam em
 `http://localhost:3000/projetos/codecrafters/<desafio>` (`http-server`, `git`,
-`dns-server`, `tokenizer`, `sqlite`) e também pela aba Projetos. Os
+`dns-server`, `tokenizer`, `sqlite`, `claude-code`) e também pela aba Projetos. Os
 próximos são integrados do desafio com menos stages para o com mais.
 
 ![Página do desafio HTTP Server](docs/screenshots/challenge.png)
@@ -314,7 +315,7 @@ npm run cc -- start http-server
 ### Comandos
 
 ```bash
-npm run cc -- start http-server   # cria o workspace (ou: git, dns-server, tokenizer, sqlite)
+npm run cc -- start http-server   # cria o workspace (ou: git, dns-server, tokenizer, sqlite, claude-code)
 npm run cc -- task               # instruções do stage atual
 npm run cc -- task --stage 4     # instruções de um stage específico
 npm run cc -- test               # compila e testa, sem commitar
@@ -390,6 +391,21 @@ referência. Código em [`challenges/sqlite`](challenges/sqlite) e instruções 
 ```bash
 npm run cc -- start sqlite
 npm run challenge:sqlite   # valida a referência
+```
+
+### Desafio Claude Code
+
+Um agente de código de linha de comando: API Chat Completions, tool calling, loop do
+agente, ferramentas `read`/`write`/`bash`, skills (argumentos, composição, scripts,
+subagentes) e um cliente LSP. Funciona com OpenAI, OpenRouter ou Ollama via
+`OPENAI_BASE_URL`, `OPENAI_API_KEY` e `MODEL`; nos testes, um LLM falso e um language
+server de brinquedo rodam localmente, **sem nenhuma API paga**. Código em
+[`challenges/claude-code`](challenges/claude-code) e instruções em
+[`content/codecrafters/claude-code`](content/codecrafters/claude-code).
+
+```bash
+npm run cc -- start claude-code
+npm run challenge:claude-code   # valida a referência
 ```
 
 ### Estrutura do desafio HTTP Server
@@ -531,7 +547,7 @@ recriar workspace, progresso e remote local do zero, ou faça um `git pull` no w
 - Perfil único local (`Profile.id = "local"`), sem autenticação e sem multiusuário.
 - Os testes dos desafios CodeCrafters rodam no seu host (Java/Maven), não em um sandbox
   de container.
-- HTTP Server, Git, DNS Server, Tokenizer e SQLite estão jogáveis; os outros 7 desafios estão no catálogo e no roadmap.
+- HTTP Server, Git, DNS Server, Tokenizer, SQLite e Claude Code estão jogáveis; os outros 6 desafios estão no catálogo e no roadmap.
 - O progresso dos desafios fica em JSON local (`challenges/.workspaces/.state/`), não no
   PostgreSQL.
 - Os links de problemas externos exigem internet.

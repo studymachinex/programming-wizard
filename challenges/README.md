@@ -19,7 +19,7 @@ Implementações de referência e engine dos desafios do
 | grep | 33 | ⬜ em breve | ⬜ |
 | Shell | 76 | ⬜ em breve | ⬜ |
 | Interpreter | 84 | ⬜ em breve | ⬜ |
-| Claude Code | 18 | ⬜ em breve | ⬜ |
+| Claude Code | 18 | ✅ jogável | ✅ 18/18 |
 
 O progresso detalhado e os tópicos de cada desafio ficam em
 [`docs/codecrafters/ROADMAP.md`](../docs/codecrafters/ROADMAP.md). O progresso do
@@ -180,9 +180,27 @@ npm run challenge:sqlite                                         # contra a refe
 node challenges/sqlite/tests/run-stages.mjs --dir <pasta> --no-build
 ```
 
+## Claude Code
+
+- Curso e instruções: [`content/codecrafters/claude-code`](../content/codecrafters/claude-code).
+- Starter: [`claude-code/starter/java`](claude-code/starter/java) (inclui um `Json.java` pronto).
+- Referência: [`claude-code/java`](claude-code/java).
+- Tester: [`claude-code/tests/run-stages.mjs`](claude-code/tests/run-stages.mjs) e o
+  language server de brinquedo [`claude-code/tests/lsp-server.mjs`](claude-code/tests/lsp-server.mjs).
+
+Um agente de código (`your_program.sh -p "<prompt>"`) que fala com qualquer API compatível
+com Chat Completions (`OPENAI_BASE_URL`, `OPENAI_API_KEY`, `MODEL`). Nos testes, um LLM
+falso responde com roteiros determinísticos — nenhuma API paga é usada.
+
+```bash
+npm run challenge:claude-code                                         # contra a referência
+node challenges/claude-code/tests/run-stages.mjs --dir <pasta> --no-build
+```
+
 ## Próximos desafios
 
-A integração segue do desafio com menos stages para o com mais: Claude Code (18), BitTorrent (19) e assim por diante.
+A integração segue do desafio com menos stages para o com mais: BitTorrent (19),
+Kafka (25), grep (33) e assim por diante.
 
 
 Para adicionar um desafio, o contrato é:

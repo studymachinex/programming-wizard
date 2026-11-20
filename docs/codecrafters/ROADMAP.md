@@ -3,10 +3,10 @@
 > Roadmap vivo dos desafios "Build your own X" do [CodeCrafters](https://app.codecrafters.io/catalog).
 > Atualize os checkboxes conforme cada stage for concluído.
 
-**Status geral:** **49/425 stages (12%)** · 5 desafios concluídos · 1 em andamento · HTTP Server, Git, DNS Server, Tokenizer e SQLite jogáveis na plataforma.
+**Status geral:** **67/425 stages (16%)** · 6 desafios concluídos · 1 em andamento · HTTP Server, Git, DNS Server, Tokenizer, SQLite e Claude Code jogáveis na plataforma.
 
 **Integração na plataforma:** do desafio com menos stages para o com mais —
-Git (7) ✅ → DNS Server (8) ✅ → Tokenizer (8) ✅ → SQLite (9) ✅ → Claude Code (18) → BitTorrent (19)
+Git (7) ✅ → DNS Server (8) ✅ → Tokenizer (8) ✅ → SQLite (9) ✅ → Claude Code (18) ✅ → BitTorrent (19)
 → Kafka (25) → grep (33) → Shell (76) → Interpreter (84) → Redis (124).
 
 | # | Desafio | Stages | Progresso | Status | Acesso | Onde está |
@@ -22,7 +22,7 @@ Git (7) ✅ → DNS Server (8) ✅ → Tokenizer (8) ✅ → SQLite (9) ✅ → 
 | 9 | [grep](https://app.codecrafters.io/courses/grep/overview) | 33 | 0/33 | ⬜ não iniciado | membros | — |
 | 10 | [Shell](https://app.codecrafters.io/courses/shell/overview) | 76 | 0/76 | ⬜ não iniciado | membros | — |
 | 11 | [Interpreter](https://app.codecrafters.io/courses/interpreter/overview) | 84 | 0/84 | ⬜ não iniciado | membros | — |
-| 12 | [Claude Code](https://app.codecrafters.io/courses/claude-code/overview) | 18 | 0/18 | ⬜ não iniciado | beta | — |
+| 12 | [Claude Code](https://app.codecrafters.io/courses/claude-code/overview) | 18 | 18/18 | ✅ concluído | beta | [`challenges/claude-code`](../../challenges/claude-code) |
 
 > **Total:** 425 stages. O catálogo público completo, com todos os stages e IDs, está em
 > [`content/codecrafters/catalog.json`](../../content/codecrafters/catalog.json).
@@ -45,7 +45,7 @@ O que vamos replicar na plataforma:
 - progresso por stage (JSON local nesta versão; PostgreSQL no roadmap);
 - comando/hook de submissão (`wizard submit` ou git hook).
 
-**Já implementado para HTTP Server, Git, DNS Server, Tokenizer e SQLite:** catálogo, página, instruções, starter Java,
+**Já implementado para HTTP Server, Git, DNS Server, Tokenizer, SQLite e Claude Code:** catálogo, página, instruções, starter Java,
 runner, CLI `npm run cc -- ...`, remote local `wizard` e hook `post-receive`.
 
 ## Ordem recomendada
@@ -393,37 +393,47 @@ semântica e classes; é o desafio mais longo do catálogo.
 
 ---
 
-### ⬜ Claude Code — 0/18
+### ✅ Claude Code — 18/18
 
-**Foco:** LLM APIs, tool calling, agent loop, ferramentas de arquivo/bash,
-skills, subagentes e Language Server Protocol.
+**Foco:** API Chat Completions, tool calling, agent loop, ferramentas de arquivo e shell,
+skills (argumentos, composição, scripts, escolha pelo modelo, subagentes) e Language
+Server Protocol (definition, references, sincronização e diagnostics).
+
+**Implementação:** [`challenges/claude-code/java`](../../challenges/claude-code/java) ·
+**Tester:** [`challenges/claude-code/tests/run-stages.mjs`](../../challenges/claude-code/tests/run-stages.mjs)
 
 **Core + Skills:**
 
-- [ ] 1. Communicate with the LLM
-- [ ] 2. Advertise the read tool
-- [ ] 3. Execute the read tool
-- [ ] 4. Implement the agent loop
-- [ ] 5. Implement the write tool
-- [ ] 6. Implement the bash tool
-- [ ] 7. Advertise skills to the LLM
-- [ ] 8. Invoke a skill by name
-- [ ] 9. Pass arguments to a skill
-- [ ] 10. Stack multiple skills
-- [ ] 11. Run a script bundled with a skill
-- [ ] 12. Let the model choose a skill
-- [ ] 13. Run a skill in a subagent
+- [x] 1. Communicate with the LLM
+- [x] 2. Advertise the read tool
+- [x] 3. Execute the read tool
+- [x] 4. Implement the agent loop
+- [x] 5. Implement the write tool
+- [x] 6. Implement the bash tool
+- [x] 7. Advertise skills to the LLM
+- [x] 8. Invoke a skill by name
+- [x] 9. Pass arguments to a skill
+- [x] 10. Stack multiple skills
+- [x] 11. Run a script bundled with a skill
+- [x] 12. Let the model choose a skill
+- [x] 13. Run a skill in a subagent
 
 **Language Server Protocol:**
 
-- [ ] 14. Add the LSP tool
-- [ ] 15. Find the implementation
-- [ ] 16. Find the affected callers
-- [ ] 17. Keep the analysis current
-- [ ] 18. Repair edits with diagnostics
+- [x] 14. Add the LSP tool
+- [x] 15. Find the implementation
+- [x] 16. Find the affected callers
+- [x] 17. Keep the analysis current
+- [x] 18. Repair edits with diagnostics
 
-**O que falta:** cliente de LLM, tool schemas, loop de mensagens,
-sandbox de tools, skills e integração LSP.
+**Como o tester funciona:** nenhuma API paga é usada. O tester sobe um LLM falso
+compatível com Chat Completions, que responde com roteiros determinísticos e valida
+cada request (ferramentas anunciadas, histórico, `tool_call_id`). Os stages de LSP usam um
+language server de brinquedo em Node ([`lsp-server.mjs`](../../challenges/claude-code/tests/lsp-server.mjs)),
+que só enxerga edições enviadas por `didOpen`/`didChange`.
+
+**O que falta:** streaming, permissões antes de `write`/`bash` e starters para outras
+linguagens.
 
 ---
 
@@ -455,7 +465,7 @@ local `wizard`, hook `post-receive` e progresso por stage em JSON.
 2. **Runner isolado**: container com limite de CPU/memória/tempo, diretório temporário
    e porta isolada; devolver JSON por stage.
 3. **Outros starters**: Go, Python, Rust etc. para o HTTP Server.
-4. **Próximos desafios**: Claude Code, BitTorrent, Kafka (ordem por número de stages).
+4. **Próximos desafios**: BitTorrent, Kafka, grep (ordem por número de stages).
 5. **Conteúdo**: instruções em português para cada stage dos novos desafios.
 
 ## Convenções
