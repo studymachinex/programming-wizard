@@ -71,7 +71,7 @@ aplicação não envia seus dados para nenhum serviço externo.
 - **Capstones** — 13 projetos de portfólio com requisitos, stack e critérios de conclusão.
 - **CodeCrafters local** — catálogo de 12 desafios (425 stages), starter repo, instruções,
   runner real, remote git local e hook de submissão. **HTTP Server**, **Git**,
-  **DNS Server** e **Tokenizer** estão jogáveis de ponta a ponta.
+  **DNS Server**, **Tokenizer** e **SQLite** estão jogáveis de ponta a ponta.
 - **Busca global** — `Ctrl+K` / `⌘K` para aulas, exercícios, problemas e projetos.
 - **Backup** — exportação do progresso em JSON em **Configurações → Exportar backup**.
 
@@ -252,6 +252,7 @@ cache.
 | `npm run challenge:git` | Compila e valida a referência dos 7 stages do Git |
 | `npm run challenge:dns` | Compila e valida a referência dos 8 stages do DNS Server |
 | `npm run challenge:tokenizer` | Compila e valida a referência dos 8 stages do Tokenizer |
+| `npm run challenge:sqlite` | Compila e valida a referência dos 9 stages do SQLite |
 | `npm run cc -- <cmd>` | CLI dos desafios: `start`, `task`, `test`, `submit`, `status`, `list`, `reset` |
 
 ## Como usar a plataforma
@@ -278,9 +279,10 @@ A plataforma replica o fluxo “Build your own X” do
 starter repo, instruções por stage, runner de testes, remote git local e um hook que
 confirma a conclusão no push.
 
-**Jogáveis de ponta a ponta:** HTTP Server (14 stages), Git (7), DNS Server (8) e
-Tokenizer (8). As páginas ficam em `http://localhost:3000/projetos/codecrafters/<desafio>`
-(`http-server`, `git`, `dns-server`, `tokenizer`) e também pela aba Projetos. Os
+**Jogáveis de ponta a ponta:** HTTP Server (14 stages), Git (7), DNS Server (8),
+Tokenizer (8) e SQLite (9). As páginas ficam em
+`http://localhost:3000/projetos/codecrafters/<desafio>` (`http-server`, `git`,
+`dns-server`, `tokenizer`, `sqlite`) e também pela aba Projetos. Os
 próximos são integrados do desafio com menos stages para o com mais.
 
 ![Página do desafio HTTP Server](docs/screenshots/challenge.png)
@@ -312,7 +314,7 @@ npm run cc -- start http-server
 ### Comandos
 
 ```bash
-npm run cc -- start http-server   # cria o workspace (ou: git, dns-server, tokenizer)
+npm run cc -- start http-server   # cria o workspace (ou: git, dns-server, tokenizer, sqlite)
 npm run cc -- task               # instruções do stage atual
 npm run cc -- task --stage 4     # instruções de um stage específico
 npm run cc -- test               # compila e testa, sem commitar
@@ -375,6 +377,19 @@ OpenAI). Instruções em [`content/codecrafters/tokenizer`](content/codecrafters
 ```bash
 npm run cc -- start tokenizer
 npm run challenge:tokenizer   # valida a referência
+```
+
+### Desafio SQLite
+
+Leitura de arquivos `.db` do SQLite sem biblioteca: header, páginas de B-tree, registros,
+schema, `SELECT`/`WHERE`, tabelas de milhares de páginas e busca por índice. O tester
+gera bancos aleatórios com `node:sqlite` (**Node 22.13+**) e usa o próprio SQLite como
+referência. Código em [`challenges/sqlite`](challenges/sqlite) e instruções em
+[`content/codecrafters/sqlite`](content/codecrafters/sqlite).
+
+```bash
+npm run cc -- start sqlite
+npm run challenge:sqlite   # valida a referência
 ```
 
 ### Estrutura do desafio HTTP Server
@@ -516,7 +531,7 @@ recriar workspace, progresso e remote local do zero, ou faça um `git pull` no w
 - Perfil único local (`Profile.id = "local"`), sem autenticação e sem multiusuário.
 - Os testes dos desafios CodeCrafters rodam no seu host (Java/Maven), não em um sandbox
   de container.
-- HTTP Server, Git, DNS Server e Tokenizer estão jogáveis; os outros 8 desafios estão no catálogo e no roadmap.
+- HTTP Server, Git, DNS Server, Tokenizer e SQLite estão jogáveis; os outros 7 desafios estão no catálogo e no roadmap.
 - O progresso dos desafios fica em JSON local (`challenges/.workspaces/.state/`), não no
   PostgreSQL.
 - Os links de problemas externos exigem internet.

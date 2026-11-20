@@ -1,0 +1,128 @@
+{
+  "slug": "sqlite",
+  "title": "Build your own SQLite",
+  "tagline": "Entenda como um banco de dados guarda tabelas em disco lendo arquivos .db do zero.",
+  "description": "Você vai ler arquivos do SQLite em Java sem nenhuma biblioteca: o header do banco, páginas de B-tree, o formato de registro com varints, o schema, consultas SELECT com WHERE, tabelas que ocupam milhares de páginas e, por fim, buscas por índice. São 9 stages, conferidos contra o SQLite de verdade.",
+  "language": "java",
+  "languageLabel": "Java 21",
+  "estimatedHours": 12,
+  "topics": [
+    "formato de arquivo",
+    "páginas",
+    "B-trees",
+    "varints",
+    "formato de registro",
+    "schema",
+    "SQL",
+    "full table scan",
+    "índices"
+  ],
+  "prerequisites": [
+    "Java 21 instalado (java -version)",
+    "Maven instalado (mvn -version)",
+    "Node 22.13+ (o tester gera os bancos com node:sqlite)"
+  ],
+  "runtime": {
+    "starter": "challenges/sqlite/starter/java",
+    "reference": "challenges/sqlite/java",
+    "runner": "challenges/sqlite/tests/stages.mjs",
+    "compile": {
+      "command": "mvn",
+      "args": ["-q", "-B", "package"],
+      "timeoutMs": 240000
+    },
+    "runCommand": "./your_program.sh <banco.db> <comando>"
+  },
+  "stages": [
+    {
+      "order": 1,
+      "id": "introduction",
+      "slug": "page-size",
+      "title": "Print page size",
+      "difficulty": "Very easy",
+      "section": "Core",
+      "summary": "Leia o header de 100 bytes e imprima o tamanho da página.",
+      "file": "stages/01-page-size.md"
+    },
+    {
+      "order": 2,
+      "id": "ce0",
+      "slug": "number-of-tables",
+      "title": "Print number of tables",
+      "difficulty": "Hard",
+      "section": "Core",
+      "summary": "Leia o header da primeira página de B-tree e conte as tabelas do schema.",
+      "file": "stages/02-number-of-tables.md"
+    },
+    {
+      "order": 3,
+      "id": "sz4",
+      "slug": "table-names",
+      "title": "Print table names",
+      "difficulty": "Hard",
+      "section": "Core",
+      "summary": "Decodifique os registros do sqlite_schema: varints e serial types.",
+      "file": "stages/03-table-names.md"
+    },
+    {
+      "order": 4,
+      "id": "nd9",
+      "slug": "count-rows",
+      "title": "Count rows in a table",
+      "difficulty": "Medium",
+      "section": "Core",
+      "summary": "Encontre a página raiz da tabela e conte as suas células.",
+      "file": "stages/04-count-rows.md"
+    },
+    {
+      "order": 5,
+      "id": "az9",
+      "slug": "read-single-column",
+      "title": "Read data from a single column",
+      "difficulty": "Hard",
+      "section": "Core",
+      "summary": "Descubra as colunas pelo CREATE TABLE e imprima uma delas.",
+      "file": "stages/05-read-single-column.md"
+    },
+    {
+      "order": 6,
+      "id": "vc9",
+      "slug": "read-multiple-columns",
+      "title": "Read data from multiple columns",
+      "difficulty": "Hard",
+      "section": "Core",
+      "summary": "Imprima várias colunas separadas por |.",
+      "file": "stages/06-read-multiple-columns.md"
+    },
+    {
+      "order": 7,
+      "id": "rf3",
+      "slug": "where-clause",
+      "title": "Filter data with a WHERE clause",
+      "difficulty": "Hard",
+      "section": "Core",
+      "summary": "Filtre as linhas com WHERE coluna = 'valor'.",
+      "file": "stages/07-where-clause.md"
+    },
+    {
+      "order": 8,
+      "id": "ws9",
+      "slug": "full-table-scan",
+      "title": "Retrieve data using a full-table scan",
+      "difficulty": "Hard",
+      "section": "Core",
+      "summary": "Percorra B-trees de várias páginas e trate INTEGER PRIMARY KEY.",
+      "file": "stages/08-full-table-scan.md"
+    },
+    {
+      "order": 9,
+      "id": "nz8",
+      "slug": "index-scan",
+      "title": "Retrieve data using an index",
+      "difficulty": "Hard",
+      "section": "Core",
+      "summary": "Use o índice para achar os rowids e busque só as linhas necessárias.",
+      "file": "stages/09-index-scan.md"
+    }
+  ]
+}

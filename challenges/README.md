@@ -12,7 +12,7 @@ Implementações de referência e engine dos desafios do
 | Redis | 124 | ⬜ em breve | 🟡 3/124 (clone externo) |
 | Git | 7 | ✅ jogável | ✅ 7/7 |
 | DNS Server | 8 | ✅ jogável | ✅ 8/8 |
-| SQLite | 9 | ⬜ em breve | ⬜ |
+| SQLite | 9 | ✅ jogável | ✅ 9/9 |
 | Tokenizer | 8 | ✅ jogável | ✅ 8/8 |
 | BitTorrent | 19 | ⬜ em breve | ⬜ |
 | Kafka | 25 | ⬜ em breve | ⬜ |
@@ -163,9 +163,26 @@ npm run challenge:tokenizer                                         # contra a r
 node challenges/tokenizer/tests/run-stages.mjs --dir <pasta> --no-build
 ```
 
+## SQLite
+
+- Curso e instruções: [`content/codecrafters/sqlite`](../content/codecrafters/sqlite).
+- Starter: [`sqlite/starter/java`](sqlite/starter/java).
+- Referência: [`sqlite/java`](sqlite/java).
+- Tester: [`sqlite/tests/run-stages.mjs`](sqlite/tests/run-stages.mjs).
+
+O programa lê arquivos `.db` sem biblioteca: `your_program.sh <banco> .dbinfo | .tables |
+"SELECT ..."`. O tester gera bancos aleatórios com `node:sqlite` (Node 22.13+) e usa o
+próprio SQLite como oráculo; no stage 9 ele zera as folhas da tabela que não interessam
+à consulta, então só uma busca pelo índice responde.
+
+```bash
+npm run challenge:sqlite                                         # contra a referência
+node challenges/sqlite/tests/run-stages.mjs --dir <pasta> --no-build
+```
+
 ## Próximos desafios
 
-A integração segue do desafio com menos stages para o com mais: SQLite (9), Claude Code (18), BitTorrent (19) e assim por diante.
+A integração segue do desafio com menos stages para o com mais: Claude Code (18), BitTorrent (19) e assim por diante.
 
 
 Para adicionar um desafio, o contrato é:

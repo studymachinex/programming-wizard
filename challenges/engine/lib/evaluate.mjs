@@ -128,7 +128,7 @@ export async function evaluateDirectory({ slug, dir, course, kind = "test", comm
       stageOutput,
       "",
       `${passed}/${runResult.results.length} stages passaram.`,
-      runResult.logs?.trim() ? `\n[server]\n${tail(runResult.logs, 4000)}` : "",
+      failed > 0 && runResult.logs?.trim() ? `\n[server]\n${tail(runResult.logs, 4000)}` : "",
     ]
       .filter(Boolean)
       .join("\n")

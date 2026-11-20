@@ -3,10 +3,10 @@
 > Roadmap vivo dos desafios "Build your own X" do [CodeCrafters](https://app.codecrafters.io/catalog).
 > Atualize os checkboxes conforme cada stage for concluído.
 
-**Status geral:** **40/425 stages (9%)** · 4 desafios concluídos · 1 em andamento · HTTP Server, Git, DNS Server e Tokenizer jogáveis na plataforma.
+**Status geral:** **49/425 stages (12%)** · 5 desafios concluídos · 1 em andamento · HTTP Server, Git, DNS Server, Tokenizer e SQLite jogáveis na plataforma.
 
 **Integração na plataforma:** do desafio com menos stages para o com mais —
-Git (7) ✅ → DNS Server (8) ✅ → Tokenizer (8) ✅ → SQLite (9) → Claude Code (18) → BitTorrent (19)
+Git (7) ✅ → DNS Server (8) ✅ → Tokenizer (8) ✅ → SQLite (9) ✅ → Claude Code (18) → BitTorrent (19)
 → Kafka (25) → grep (33) → Shell (76) → Interpreter (84) → Redis (124).
 
 | # | Desafio | Stages | Progresso | Status | Acesso | Onde está |
@@ -15,7 +15,7 @@ Git (7) ✅ → DNS Server (8) ✅ → Tokenizer (8) ✅ → SQLite (9) → Clau
 | 2 | [Redis](https://app.codecrafters.io/courses/redis/overview) | 124 | 3/124 | 🟡 em andamento | grátis até 31/12/2026 | clone local `codecrafters-redis-java` |
 | 3 | [Git](https://app.codecrafters.io/courses/git/overview) | 7 | 7/7 | ✅ concluído | membros | [`challenges/git`](../../challenges/git) |
 | 4 | [DNS Server](https://app.codecrafters.io/courses/dns-server/overview) | 8 | 8/8 | ✅ concluído | membros | [`challenges/dns-server`](../../challenges/dns-server) |
-| 5 | [SQLite](https://app.codecrafters.io/courses/sqlite/overview) | 9 | 0/9 | ⬜ não iniciado | membros | — |
+| 5 | [SQLite](https://app.codecrafters.io/courses/sqlite/overview) | 9 | 9/9 | ✅ concluído | membros | [`challenges/sqlite`](../../challenges/sqlite) |
 | 6 | [Tokenizer](https://app.codecrafters.io/courses/tokenizer/overview) | 8 | 8/8 | ✅ concluído | early access | [`challenges/tokenizer`](../../challenges/tokenizer) |
 | 7 | [BitTorrent](https://app.codecrafters.io/courses/bittorrent/overview) | 19 | 0/19 | ⬜ não iniciado | membros | — |
 | 8 | [Kafka](https://app.codecrafters.io/courses/kafka/overview) | 25 | 0/25 | ⬜ não iniciado | membros | — |
@@ -45,7 +45,7 @@ O que vamos replicar na plataforma:
 - progresso por stage (JSON local nesta versão; PostgreSQL no roadmap);
 - comando/hook de submissão (`wizard submit` ou git hook).
 
-**Já implementado para HTTP Server, Git, DNS Server e Tokenizer:** catálogo, página, instruções, starter Java,
+**Já implementado para HTTP Server, Git, DNS Server, Tokenizer e SQLite:** catálogo, página, instruções, starter Java,
 runner, CLI `npm run cc -- ...`, remote local `wizard` e hook `post-receive`.
 
 ## Ordem recomendada
@@ -190,22 +190,31 @@ por pacote.
 
 ---
 
-### ⬜ SQLite — 0/9
+### ✅ SQLite — 9/9
 
-**Foco:** formato de arquivo, page size, B-tree, schema, record format, WHERE e índices.
+**Foco:** formato de arquivo, páginas, B-trees de tabela e de índice, varints, formato de
+registro, schema, SELECT/WHERE, full table scan e busca por índice.
 
-- [ ] 1. Print page size
-- [ ] 2. Print number of tables
-- [ ] 3. Print table names
-- [ ] 4. Count rows in a table
-- [ ] 5. Read data from a single column
-- [ ] 6. Read data from multiple columns
-- [ ] 7. Filter data with a WHERE clause
-- [ ] 8. Retrieve data using a full-table scan
-- [ ] 9. Retrieve data using an index
+**Implementação:** [`challenges/sqlite/java`](../../challenges/sqlite/java) ·
+**Tester:** [`challenges/sqlite/tests/run-stages.mjs`](../../challenges/sqlite/tests/run-stages.mjs)
 
-**O que falta:** parser do header de 100 bytes, traversal de B-tree pages,
-varints/serial types, leitura de registros e uso de índices.
+- [x] 1. Print page size
+- [x] 2. Print number of tables
+- [x] 3. Print table names
+- [x] 4. Count rows in a table
+- [x] 5. Read data from a single column
+- [x] 6. Read data from multiple columns
+- [x] 7. Filter data with a WHERE clause
+- [x] 8. Retrieve data using a full-table scan
+- [x] 9. Retrieve data using an index
+
+**Como o tester funciona:** gera bancos aleatórios com o SQLite embutido no Node
+(`node:sqlite`, Node 22.13+) e compara com o resultado do próprio SQLite. No stage 9,
+zera as páginas folha da tabela que não têm linhas do resultado: só uma busca pelo
+índice seguida de busca por rowid consegue responder.
+
+**O que falta:** overflow pages, outros operadores no WHERE e starters para outras
+linguagens.
 
 ---
 
@@ -446,7 +455,7 @@ local `wizard`, hook `post-receive` e progresso por stage em JSON.
 2. **Runner isolado**: container com limite de CPU/memória/tempo, diretório temporário
    e porta isolada; devolver JSON por stage.
 3. **Outros starters**: Go, Python, Rust etc. para o HTTP Server.
-4. **Próximos desafios**: SQLite, Claude Code, BitTorrent (ordem por número de stages).
+4. **Próximos desafios**: Claude Code, BitTorrent, Kafka (ordem por número de stages).
 5. **Conteúdo**: instruções em português para cada stage dos novos desafios.
 
 ## Convenções
