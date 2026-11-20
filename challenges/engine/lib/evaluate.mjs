@@ -56,7 +56,9 @@ export async function evaluateDirectory({ slug, dir, course, kind = "test", comm
   const startedAt = Date.now();
   const previous = readState(slug);
   const attemptedStage = nextStage(previous.completed, course.stages.length);
-  let output = `$ cd ${displayPath(dir)}\n$ mvn -q -B package`;
+  const compileSpec = course.runtime?.compile;
+  let output = `$ cd ${displayPath(dir)}`;
+  if (compileSpec) output += `\n$ ${[compileSpec.command, ...compileSpec.args].join(" ")}`;
   const compile = await compileWorkspace(dir, course);
 
   if (!compile.ok) {

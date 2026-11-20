@@ -48,8 +48,12 @@ function progressBar(completed, total, width = 28) {
 function requireCourse(slug) {
   const course = loadCourse(slug);
   if (!course) {
+    const available = loadCatalog()
+      .challenges.filter((challenge) => loadCourse(challenge.slug))
+      .map((challenge) => challenge.slug)
+      .join(", ");
     throw new Error(
-      `O desafio "${slug}" ainda não tem curso local. Hoje o disponível é: http-server.`
+      `O desafio "${slug}" ainda não tem curso local. Disponíveis: ${available}.`
     );
   }
   return course;

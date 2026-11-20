@@ -55,7 +55,12 @@ export default async function ProjectsPage() {
   const done = projects.filter((p) => p.progress[0]?.status === "done").length;
   const inProgress = projects.filter((p) => p.progress[0]?.status === "in_progress").length;
   const hours = projects.reduce((s, p) => s + p.estimatedHours, 0);
-  const http = codecrafters.cards.find((card) => card.slug === "http-server");
+  const playable = codecrafters.cards.filter((card) => card.available);
+  const next =
+    playable.find((card) => card.completed > 0 && card.completed < card.stageCount) ??
+    playable.find((card) => card.completed < card.stageCount) ??
+    playable[0];
+  const nextName = next?.title.replace(/^Build your own /, "");
 
   return (
     <div>
@@ -113,20 +118,20 @@ export default async function ProjectsPage() {
             </h2>
             <p className="mt-1.5 max-w-2xl text-[12px] leading-relaxed text-zinc-500">
               425 stages mapeados do catálogo público. Cada desafio tem starter repo, instruções,
-              runner e um remote git cujo hook roda os testes no push. O HTTP Server já está jogável
-              de ponta a ponta.
+              runner e um remote git cujo hook roda os testes no push. Jogáveis de ponta a ponta:{" "}
+              {playable.map((card) => card.title.replace(/^Build your own /, "")).join(", ")}.
             </p>
           </div>
-          {http && (
+          {next && (
             <Link
-              href="/projetos/codecrafters/http-server"
+              href={next.href}
               className="flex shrink-0 items-center gap-1.5 text-[11.5px] text-arcane-300/80 transition-colors hover:text-arcane-200"
             >
-              {http.completed >= http.stageCount
+              {next.completed >= next.stageCount
                 ? "rever desafio"
-                : http.completed > 0
-                  ? "continuar HTTP Server"
-                  : "começar HTTP Server"}
+                : next.completed > 0
+                  ? `continuar ${nextName}`
+                  : `começar ${nextName}`}
               <ArrowRight className="h-3 w-3" />
             </Link>
           )}

@@ -3,13 +3,17 @@
 > Roadmap vivo dos desafios "Build your own X" do [CodeCrafters](https://app.codecrafters.io/catalog).
 > Atualize os checkboxes conforme cada stage for concluído.
 
-**Status geral:** **17/425 stages (4%)** · 1 desafio concluído · 1 em andamento · HTTP Server jogável na plataforma.
+**Status geral:** **24/425 stages (6%)** · 2 desafios concluídos · 1 em andamento · HTTP Server e Git jogáveis na plataforma.
+
+**Integração na plataforma:** do desafio com menos stages para o com mais —
+Git (7) ✅ → DNS Server (8) → Tokenizer (8) → SQLite (9) → Claude Code (18) → BitTorrent (19)
+→ Kafka (25) → grep (33) → Shell (76) → Interpreter (84) → Redis (124).
 
 | # | Desafio | Stages | Progresso | Status | Acesso | Onde está |
 |---:|---|---:|---:|---|---|---|
 | 1 | [HTTP Server](https://app.codecrafters.io/courses/http-server/overview) | 14 | 14/14 | ✅ concluído | membros | [`challenges/http-server`](../../challenges/http-server) |
 | 2 | [Redis](https://app.codecrafters.io/courses/redis/overview) | 124 | 3/124 | 🟡 em andamento | grátis até 31/12/2026 | clone local `codecrafters-redis-java` |
-| 3 | [Git](https://app.codecrafters.io/courses/git/overview) | 7 | 0/7 | ⬜ não iniciado | membros | — |
+| 3 | [Git](https://app.codecrafters.io/courses/git/overview) | 7 | 7/7 | ✅ concluído | membros | [`challenges/git`](../../challenges/git) |
 | 4 | [DNS Server](https://app.codecrafters.io/courses/dns-server/overview) | 8 | 0/8 | ⬜ não iniciado | membros | — |
 | 5 | [SQLite](https://app.codecrafters.io/courses/sqlite/overview) | 9 | 0/9 | ⬜ não iniciado | membros | — |
 | 6 | [Tokenizer](https://app.codecrafters.io/courses/tokenizer/overview) | 8 | 0/8 | ⬜ não iniciado | early access | — |
@@ -41,7 +45,7 @@ O que vamos replicar na plataforma:
 - progresso por stage (JSON local nesta versão; PostgreSQL no roadmap);
 - comando/hook de submissão (`wizard submit` ou git hook).
 
-**Já implementado para HTTP Server:** catálogo, página, instruções, starter Java,
+**Já implementado para HTTP Server e Git:** catálogo, página, instruções, starter Java,
 runner, CLI `npm run cc -- ...`, remote local `wizard` e hook `post-receive`.
 
 ## Ordem recomendada
@@ -135,20 +139,28 @@ responde múltiplos PINGs na mesma conexão e aceita RESP e comandos inline.
 
 ---
 
-### ⬜ Git — 0/7
+### ✅ Git — 7/7
 
-**Foco:** formato `.git`, SHA-1, zlib, objetos blob/tree/commit, index e clone.
+**Foco:** formato `.git`, SHA-1, zlib, objetos blob/tree/commit, protocolo smart HTTP,
+packfiles e deltas.
 
-- [ ] 1. Initialize the `.git` directory
-- [ ] 2. Read a blob object
-- [ ] 3. Create a blob object
-- [ ] 4. Read a tree object
-- [ ] 5. Write a tree object
-- [ ] 6. Create a commit
-- [ ] 7. Clone a repository
+**Implementação:** [`challenges/git/java`](../../challenges/git/java) ·
+**Tester:** [`challenges/git/tests/run-stages.mjs`](../../challenges/git/tests/run-stages.mjs)
 
-**O que falta:** CLI com `init`, `cat-file -p`, `hash-object -w`, `ls-tree`,
-`write-tree`, `commit-tree` e `clone`; leitura/escrita de objetos comprimidos e packfiles.
+- [x] 1. Initialize the `.git` directory
+- [x] 2. Read a blob object
+- [x] 3. Create a blob object
+- [x] 4. Read a tree object
+- [x] 5. Write a tree object
+- [x] 6. Create a commit
+- [x] 7. Clone a repository
+
+**Como o tester funciona:** cada stage roda o programa em uma pasta temporária e usa o
+git real como oráculo (SHAs, `cat-file`, `ls-tree`, `log`). O clone sobe um servidor
+smart HTTP local com `git http-backend`, servindo um repositório de 5 commits
+compactado com deltas — não precisa de internet.
+
+**O que falta:** index (`.git/index`) e starters para outras linguagens.
 
 ---
 
@@ -416,7 +428,7 @@ local `wizard`, hook `post-receive` e progresso por stage em JSON.
 2. **Runner isolado**: container com limite de CPU/memória/tempo, diretório temporário
    e porta isolada; devolver JSON por stage.
 3. **Outros starters**: Go, Python, Rust etc. para o HTTP Server.
-4. **Próximos desafios**: Redis core (RESP + concorrência), Git, DNS, SQLite.
+4. **Próximos desafios**: DNS Server, Tokenizer, SQLite (ordem por número de stages).
 5. **Conteúdo**: instruções em português para cada stage dos novos desafios.
 
 ## Convenções

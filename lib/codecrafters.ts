@@ -52,7 +52,7 @@ export type Course = {
     reference: string;
     runner: string;
     compile: { command: string; args: string[]; timeoutMs: number };
-    port: number;
+    port?: number;
     runCommand: string;
   };
   stages: CourseStage[];

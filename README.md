@@ -70,8 +70,8 @@ aplicação não envia seus dados para nenhum serviço externo.
 - **Dashboard e progresso** — sequência de dias, meta diária, timer, heatmap e plano semanal.
 - **Capstones** — 13 projetos de portfólio com requisitos, stack e critérios de conclusão.
 - **CodeCrafters local** — catálogo de 12 desafios (425 stages), starter repo, instruções,
-  runner real, remote git local e hook de submissão. O **HTTP Server** está jogável de
-  ponta a ponta.
+  runner real, remote git local e hook de submissão. **HTTP Server** e **Git** estão
+  jogáveis de ponta a ponta.
 - **Busca global** — `Ctrl+K` / `⌘K` para aulas, exercícios, problemas e projetos.
 - **Backup** — exportação do progresso em JSON em **Configurações → Exportar backup**.
 
@@ -249,6 +249,7 @@ cache.
 | `npm run validate:content` | Valida o conteúdo com Zod antes do seed |
 | `npm run catalog:sync` | Ressincroniza o catálogo CodeCrafters a partir do site |
 | `npm run challenge:http` | Compila e valida a referência dos 14 stages do HTTP Server |
+| `npm run challenge:git` | Compila e valida a referência dos 7 stages do Git |
 | `npm run cc -- <cmd>` | CLI dos desafios: `start`, `task`, `test`, `submit`, `status`, `list`, `reset` |
 
 ## Como usar a plataforma
@@ -275,9 +276,10 @@ A plataforma replica o fluxo “Build your own X” do
 starter repo, instruções por stage, runner de testes, remote git local e um hook que
 confirma a conclusão no push.
 
-**HTTP Server está jogável de ponta a ponta.** A página fica em
-<http://localhost:3000/projetos/codecrafters/http-server> e também é acessível pela aba
-Projetos.
+**Jogáveis de ponta a ponta:** HTTP Server (14 stages) e Git (7 stages). As páginas ficam
+em <http://localhost:3000/projetos/codecrafters/http-server> e
+<http://localhost:3000/projetos/codecrafters/git>, e também pela aba Projetos. Os
+próximos são integrados do desafio com menos stages para o com mais.
 
 ![Página do desafio HTTP Server](docs/screenshots/challenge.png)
 
@@ -308,7 +310,7 @@ npm run cc -- start http-server
 ### Comandos
 
 ```bash
-npm run cc -- start http-server   # cria o workspace
+npm run cc -- start http-server   # cria o workspace (ou: start git)
 npm run cc -- task               # instruções do stage atual
 npm run cc -- task --stage 4     # instruções de um stage específico
 npm run cc -- test               # compila e testa, sem commitar
@@ -333,6 +335,19 @@ git push wizard master
 O progresso fica em `challenges/.workspaces/.state/<desafio>.json`, que é ignorado pelo
 git. O runner roda no seu host, com Java/Maven instalados; não há sandbox de container
 nesta versão.
+
+### Desafio Git
+
+Um desafio de CLI: o seu programa é chamado como `git <comando>` e o tester confere cada
+stage com o git real (`init`, `cat-file`, `hash-object`, `ls-tree`, `write-tree`,
+`commit-tree` e `clone` via smart HTTP). O clone usa um servidor local com
+`git http-backend`, sem internet. Código em [`challenges/git`](challenges/git) e
+instruções em [`content/codecrafters/git`](content/codecrafters/git).
+
+```bash
+npm run cc -- start git
+npm run challenge:git   # valida a referência
+```
 
 ### Estrutura do desafio HTTP Server
 
@@ -473,7 +488,7 @@ recriar workspace, progresso e remote local do zero, ou faça um `git pull` no w
 - Perfil único local (`Profile.id = "local"`), sem autenticação e sem multiusuário.
 - Os testes dos desafios CodeCrafters rodam no seu host (Java/Maven), não em um sandbox
   de container.
-- Apenas o HTTP Server está jogável; os outros 11 desafios estão no catálogo e no roadmap.
+- HTTP Server e Git estão jogáveis; os outros 10 desafios estão no catálogo e no roadmap.
 - O progresso dos desafios fica em JSON local (`challenges/.workspaces/.state/`), não no
   PostgreSQL.
 - Os links de problemas externos exigem internet.

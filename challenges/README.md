@@ -10,7 +10,7 @@ Implementações de referência e engine dos desafios do
 |---|---:|---|---|
 | HTTP Server | 14 | ✅ jogável | ✅ 14/14 |
 | Redis | 124 | ⬜ em breve | 🟡 3/124 (clone externo) |
-| Git | 7 | ⬜ em breve | ⬜ |
+| Git | 7 | ✅ jogável | ✅ 7/7 |
 | DNS Server | 8 | ⬜ em breve | ⬜ |
 | SQLite | 9 | ⬜ em breve | ⬜ |
 | Tokenizer | 8 | ⬜ em breve | ⬜ |
@@ -114,7 +114,28 @@ Rodar contra qualquer worktree:
 node challenges/http-server/tests/run-stages.mjs --dir <pasta> --no-build
 ```
 
+## Git
+
+- Curso e instruções: [`content/codecrafters/git`](../content/codecrafters/git).
+- Starter: [`git/starter/java`](git/starter/java).
+- Referência: [`git/java`](git/java).
+- Tester: [`git/tests/run-stages.mjs`](git/tests/run-stages.mjs).
+
+Diferente do HTTP Server, o Git é um desafio de CLI: o tester executa
+`java -jar target/git.jar <comando>` em pastas temporárias e confere o resultado com o
+git real. O stage de clone sobe um servidor smart HTTP local (`git http-backend`), então
+roda offline.
+
+```bash
+npm run challenge:git                                         # contra a referência
+node challenges/git/tests/run-stages.mjs --dir <pasta> --no-build
+```
+
 ## Próximos desafios
+
+A integração segue do desafio com menos stages para o com mais: DNS Server (8),
+Tokenizer (8), SQLite (9), Claude Code (18), BitTorrent (19) e assim por diante.
+
 
 Para adicionar um desafio, o contrato é:
 

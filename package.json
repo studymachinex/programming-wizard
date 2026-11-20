@@ -16,6 +16,7 @@
     "validate:content": "tsx scripts/validate-content.ts",
     "catalog:sync": "node scripts/sync-codecrafters-catalog.mjs",
     "challenge:http": "node challenges/http-server/tests/run-stages.mjs",
+    "challenge:git": "node challenges/git/tests/run-stages.mjs",
     "cc": "node challenges/engine/cc.mjs"
   },
   "dependencies": {

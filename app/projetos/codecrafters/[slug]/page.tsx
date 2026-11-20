@@ -125,6 +125,8 @@ export default async function CodeChallengePage({
   const state = getChallengeState(slug);
 
   if (!course) {
+    const playable = getCodecraftersOverview().cards.filter((card) => card.available);
+    const suggestion = playable.find((card) => card.completed < card.stageCount) ?? playable[0];
     return (
       <div>
         <Breadcrumb
@@ -173,8 +175,8 @@ export default async function CodeChallengePage({
           <div className="panel p-6">
             <h2 className="text-[13px] font-medium text-white">Stages do desafio</h2>
             <p className="mt-1 text-[11.5px] text-zinc-500">
-              O conteúdo e o runner local serão adicionados na ordem do roadmap. O HTTP Server já está
-              jogável de ponta a ponta.
+              O conteúdo e o runner local são adicionados na ordem do roadmap, do desafio com menos
+              stages para o com mais. Já jogáveis: {playable.map((card) => card.title.replace(/^Build your own /, "")).join(", ")}.
             </p>
             <div className="mt-4 space-y-1">
               {challenge.stages.map((stage) => (
@@ -196,19 +198,18 @@ export default async function CodeChallengePage({
           </div>
 
           <aside className="space-y-4">
-            <div className="panel p-5">
-              <p className="eyebrow mb-3">Comece por aqui</p>
-              <p className="text-[12px] leading-relaxed text-zinc-400">
-                O primeiro desafio implementado é o <strong className="text-white">HTTP Server</strong>.
-                Ele ensina TCP, HTTP, arquivos e keep-alive — a base para Redis, Git e os demais.
-              </p>
-              <Link
-                href="/projetos/codecrafters/http-server"
-                className="btn-primary mt-4 w-full py-2 text-[12px]"
-              >
-                <Terminal className="h-3.5 w-3.5" /> Abrir HTTP Server
-              </Link>
-            </div>
+            {suggestion && (
+              <div className="panel p-5">
+                <p className="eyebrow mb-3">Enquanto isso</p>
+                <p className="text-[12px] leading-relaxed text-zinc-400">
+                  <strong className="text-white">{suggestion.title}</strong> já está jogável de ponta a
+                  ponta, com starter, instruções e runner local.
+                </p>
+                <Link href={suggestion.href} className="btn-primary mt-4 w-full py-2 text-[12px]">
+                  <Terminal className="h-3.5 w-3.5" /> Abrir {suggestion.title.replace(/^Build your own /, "")}
+                </Link>
+              </div>
+            )}
             <Link
               href="/projetos#codecrafters"
               className="flex items-center gap-2 px-1 text-[11.5px] text-zinc-500 hover:text-arcane-300"

@@ -1,0 +1,108 @@
+{
+  "slug": "git",
+  "title": "Build your own Git",
+  "tagline": "Entenda o modelo de objetos do Git implementando o seu próprio cliente.",
+  "description": "Você vai construir um Git em Java: o diretório .git, objetos blob, tree e commit comprimidos com zlib e endereçados por SHA-1, e por fim um clone real via protocolo smart HTTP, com parsing de packfile e deltas. São 7 stages, cada um conferido contra o git de verdade.",
+  "language": "java",
+  "languageLabel": "Java 21",
+  "estimatedHours": 10,
+  "topics": [
+    "objetos Git",
+    "SHA-1",
+    "zlib",
+    "blobs",
+    "trees",
+    "commits",
+    "protocolo smart HTTP",
+    "packfiles",
+    "deltas"
+  ],
+  "prerequisites": [
+    "Java 21 instalado (java -version)",
+    "Maven instalado (mvn -version)",
+    "Git instalado (o tester usa o git real como referência)"
+  ],
+  "runtime": {
+    "starter": "challenges/git/starter/java",
+    "reference": "challenges/git/java",
+    "runner": "challenges/git/tests/stages.mjs",
+    "compile": {
+      "command": "mvn",
+      "args": ["-q", "-B", "package"],
+      "timeoutMs": 240000
+    },
+    "runCommand": "./your_program.sh <comando>"
+  },
+  "stages": [
+    {
+      "order": 1,
+      "id": "introduction",
+      "slug": "init",
+      "title": "Initialize the .git directory",
+      "difficulty": "Very easy",
+      "section": "Core",
+      "summary": "Implemente init: crie .git/objects, .git/refs e .git/HEAD.",
+      "file": "stages/01-init.md"
+    },
+    {
+      "order": 2,
+      "id": "ic4",
+      "slug": "read-blob",
+      "title": "Read a blob object",
+      "difficulty": "Medium",
+      "section": "Core",
+      "summary": "Implemente cat-file -p: descomprima o objeto e imprima o conteúdo do blob.",
+      "file": "stages/02-read-blob.md"
+    },
+    {
+      "order": 3,
+      "id": "jt4",
+      "slug": "create-blob",
+      "title": "Create a blob object",
+      "difficulty": "Medium",
+      "section": "Core",
+      "summary": "Implemente hash-object -w: calcule o SHA-1 e grave o blob comprimido.",
+      "file": "stages/03-create-blob.md"
+    },
+    {
+      "order": 4,
+      "id": "kp1",
+      "slug": "read-tree",
+      "title": "Read a tree object",
+      "difficulty": "Medium",
+      "section": "Core",
+      "summary": "Implemente ls-tree --name-only: faça o parsing do formato binário da tree.",
+      "file": "stages/04-read-tree.md"
+    },
+    {
+      "order": 5,
+      "id": "fe4",
+      "slug": "write-tree",
+      "title": "Write a tree object",
+      "difficulty": "Medium",
+      "section": "Core",
+      "summary": "Implemente write-tree: grave o diretório atual como trees e blobs.",
+      "file": "stages/05-write-tree.md"
+    },
+    {
+      "order": 6,
+      "id": "jm9",
+      "slug": "create-commit",
+      "title": "Create a commit",
+      "difficulty": "Medium",
+      "section": "Core",
+      "summary": "Implemente commit-tree: crie um commit com tree, parent, autor e mensagem.",
+      "file": "stages/06-create-commit.md"
+    },
+    {
+      "order": 7,
+      "id": "mg6",
+      "slug": "clone",
+      "title": "Clone a repository",
+      "difficulty": "Hard",
+      "section": "Core",
+      "summary": "Implemente clone via smart HTTP: refs, packfile, deltas e checkout.",
+      "file": "stages/07-clone.md"
+    }
+  ]
+}
