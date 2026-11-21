@@ -71,8 +71,8 @@ aplicação não envia seus dados para nenhum serviço externo.
 - **Capstones** — 13 projetos de portfólio com requisitos, stack e critérios de conclusão.
 - **CodeCrafters local** — catálogo de 12 desafios (425 stages), starter repo, instruções,
   runner real, remote git local e hook de submissão. **HTTP Server**, **Git**,
-  **DNS Server**, **Tokenizer**, **SQLite**, **Claude Code**, **BitTorrent**, **Kafka** e
-  **grep** estão jogáveis de ponta a ponta.
+  **DNS Server**, **Tokenizer**, **SQLite**, **Claude Code**, **BitTorrent**, **Kafka**,
+  **grep** e **Shell** estão jogáveis de ponta a ponta.
 - **Busca global** — `Ctrl+K` / `⌘K` para aulas, exercícios, problemas e projetos.
 - **Backup** — exportação do progresso em JSON em **Configurações → Exportar backup**.
 
@@ -258,6 +258,7 @@ cache.
 | `npm run challenge:bittorrent` | Compila e valida a referência dos 19 stages do BitTorrent |
 | `npm run challenge:kafka` | Compila e valida a referência dos 25 stages do Kafka |
 | `npm run challenge:grep` | Compila e valida a referência dos 33 stages do grep |
+| `npm run challenge:shell` | Compila e valida a referência dos 76 stages do Shell |
 | `npm run cc -- <cmd>` | CLI dos desafios: `start`, `task`, `test`, `submit`, `status`, `list`, `reset` |
 
 ## Como usar a plataforma
@@ -285,9 +286,9 @@ starter repo, instruções por stage, runner de testes, remote git local e um ho
 confirma a conclusão no push.
 
 **Jogáveis de ponta a ponta:** HTTP Server (14 stages), Git (7), DNS Server (8),
-Tokenizer (8), SQLite (9), Claude Code (18), BitTorrent (19), Kafka (25) e grep (33). As
+Tokenizer (8), SQLite (9), Claude Code (18), BitTorrent (19), Kafka (25), grep (33) e Shell (76). As
 páginas ficam em `http://localhost:3000/projetos/codecrafters/<desafio>` (`http-server`,
-`git`, `dns-server`, `tokenizer`, `sqlite`, `claude-code`, `bittorrent`, `kafka`, `grep`)
+`git`, `dns-server`, `tokenizer`, `sqlite`, `claude-code`, `bittorrent`, `kafka`, `grep`, `shell`)
 e também pela aba Projetos. Os
 próximos são integrados do desafio com menos stages para o com mais.
 
@@ -320,7 +321,7 @@ npm run cc -- start http-server
 ### Comandos
 
 ```bash
-npm run cc -- start http-server   # cria o workspace (ou: git, dns-server, tokenizer, sqlite, claude-code, bittorrent, kafka, grep)
+npm run cc -- start http-server   # cria o workspace (ou: git, dns-server, tokenizer, sqlite, claude-code, bittorrent, kafka, grep, shell)
 npm run cc -- task               # instruções do stage atual
 npm run cc -- task --stage 4     # instruções de um stage específico
 npm run cc -- test               # compila e testa, sem commitar
@@ -450,6 +451,21 @@ além de `-o`, `--color`, busca em arquivos e `-r`. Código em
 ```bash
 npm run cc -- start grep
 npm run challenge:grep   # valida a referência
+```
+
+### Desafio Shell
+
+Um shell POSIX simplificado: REPL, builtins, execução de programas do `PATH`, quoting,
+redirecionamento, pipelines, jobs em background, histórico (setas e arquivo), expansão de
+variáveis e um editor de linha próprio com autocompletar de comandos, arquivos e completers
+programáveis. O tester conversa com o shell por pipes (sem pseudo-terminal), mandando as
+teclas como bytes, e usa programas auxiliares próprios — roda igual em Linux, macOS e
+Windows. Código em [`challenges/shell`](challenges/shell) e instruções em
+[`content/codecrafters/shell`](content/codecrafters/shell).
+
+```bash
+npm run cc -- start shell
+npm run challenge:shell   # valida a referência
 ```
 
 ### Estrutura do desafio HTTP Server
@@ -591,7 +607,7 @@ recriar workspace, progresso e remote local do zero, ou faça um `git pull` no w
 - Perfil único local (`Profile.id = "local"`), sem autenticação e sem multiusuário.
 - Os testes dos desafios CodeCrafters rodam no seu host (Java/Maven), não em um sandbox
   de container.
-- HTTP Server, Git, DNS Server, Tokenizer, SQLite, Claude Code, BitTorrent, Kafka e grep estão jogáveis; os outros 3 desafios estão no catálogo e no roadmap.
+- HTTP Server, Git, DNS Server, Tokenizer, SQLite, Claude Code, BitTorrent, Kafka, grep e Shell estão jogáveis; os outros 2 desafios estão no catálogo e no roadmap.
 - O progresso dos desafios fica em JSON local (`challenges/.workspaces/.state/`), não no
   PostgreSQL.
 - Os links de problemas externos exigem internet.

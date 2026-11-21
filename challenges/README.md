@@ -17,7 +17,7 @@ Implementações de referência e engine dos desafios do
 | BitTorrent | 19 | ✅ jogável | ✅ 19/19 |
 | Kafka | 25 | ✅ jogável | ✅ 25/25 |
 | grep | 33 | ✅ jogável | ✅ 33/33 |
-| Shell | 76 | ⬜ em breve | ⬜ |
+| Shell | 76 | ✅ jogável | ✅ 76/76 |
 | Interpreter | 84 | ⬜ em breve | ⬜ |
 | Claude Code | 18 | ✅ jogável | ✅ 18/18 |
 
@@ -244,10 +244,30 @@ npm run challenge:grep                                         # contra a refer�
 node challenges/grep/tests/run-stages.mjs --dir <pasta> --no-build
 ```
 
+## Shell
+
+- Curso e instruções: [`content/codecrafters/shell`](../content/codecrafters/shell).
+- Starter: [`shell/starter/java`](shell/starter/java).
+- Referência: [`shell/java`](shell/java).
+- Tester: [`shell/tests/run-stages.mjs`](shell/tests/run-stages.mjs).
+
+Um shell com REPL, builtins, quoting, redirecionamento, pipelines, jobs, histórico, variáveis
+e autocompletar. Não há pseudo-terminal: o tester escreve as teclas no stdin (Tab = `\t`,
+↑ = `ESC [ A`), lê stdout e stderr mesclados num único pipe e interpreta a saída com um
+emulador de terminal mínimo. Os programas externos (`cat`, `ls`, `head`, `wc`, `sleep`,
+`ticker`, ...) são scripts Node criados pelo tester — `.cmd` no Windows — e o `PATH` do
+shell só contém diretórios do tester.
+
+```bash
+npm run challenge:shell                                         # contra a referência
+node challenges/shell/tests/run-stages.mjs --dir <pasta> --no-build
+node challenges/shell/tests/run-stages.mjs --no-build --only 23,27  # só alguns stages
+```
+
 ## Próximos desafios
 
-A integração segue do desafio com menos stages para o com mais: Shell (76),
-Interpreter (84) e Redis (124).
+A integração segue do desafio com menos stages para o com mais: Interpreter (84) e
+Redis (124).
 
 
 Para adicionar um desafio, o contrato é:

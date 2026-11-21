@@ -1,0 +1,801 @@
+{
+  "slug": "shell",
+  "title": "Build your own Shell",
+  "tagline": "Construa um shell POSIX: do prompt aos pipelines, jobs e autocompletar.",
+  "description": "Você vai construir um shell em Java do zero: REPL, builtins (echo, type, cd, pwd, history, jobs, complete, declare), execução de programas do PATH, quoting com aspas e barras, redirecionamento de saídas, pipelines concorrentes, jobs em background, histórico com setas e persistência, expansão de variáveis e um editor de linha próprio com autocompletar de comandos, arquivos e completers programáveis. Funciona em Linux, macOS e Windows. São 76 stages.",
+  "language": "java",
+  "languageLabel": "Java 21",
+  "estimatedHours": 30,
+  "topics": [
+    "processos",
+    "REPL",
+    "parsing e quoting",
+    "redirecionamento",
+    "pipes",
+    "controle de jobs",
+    "editor de linha",
+    "autocompletar",
+    "variáveis de ambiente"
+  ],
+  "prerequisites": [
+    "Java 21 instalado (java -version)",
+    "Maven instalado (mvn -version)"
+  ],
+  "runtime": {
+    "starter": "challenges/shell/starter/java",
+    "reference": "challenges/shell/java",
+    "runner": "challenges/shell/tests/stages.mjs",
+    "compile": {
+      "command": "mvn",
+      "args": [
+        "-q",
+        "-B",
+        "package"
+      ],
+      "timeoutMs": 240000
+    },
+    "runCommand": "./your_program.sh"
+  },
+  "stages": [
+    {
+      "order": 1,
+      "id": "introduction",
+      "slug": "print-prompt",
+      "title": "Print a prompt",
+      "difficulty": "Very easy",
+      "section": "Core",
+      "summary": "Mostre o prompt \"$ \" e espere um comando.",
+      "file": "stages/01-print-prompt.md"
+    },
+    {
+      "order": 2,
+      "id": "cz2",
+      "slug": "invalid-commands",
+      "title": "Handle invalid commands",
+      "difficulty": "Easy",
+      "section": "Core",
+      "summary": "Leia um comando e responda \"<comando>: command not found\".",
+      "file": "stages/02-invalid-commands.md"
+    },
+    {
+      "order": 3,
+      "id": "ff0",
+      "slug": "repl",
+      "title": "Implement a REPL",
+      "difficulty": "Easy",
+      "section": "Core",
+      "summary": "Repita: prompt, leitura, execução.",
+      "file": "stages/03-repl.md"
+    },
+    {
+      "order": 4,
+      "id": "pn5",
+      "slug": "exit",
+      "title": "Implement exit",
+      "difficulty": "Easy",
+      "section": "Core",
+      "summary": "O builtin exit encerra o shell.",
+      "file": "stages/04-exit.md"
+    },
+    {
+      "order": 5,
+      "id": "iz3",
+      "slug": "echo",
+      "title": "Implement echo",
+      "difficulty": "Easy",
+      "section": "Core",
+      "summary": "O builtin echo imprime os argumentos.",
+      "file": "stages/05-echo.md"
+    },
+    {
+      "order": 6,
+      "id": "ez5",
+      "slug": "type",
+      "title": "Implement type",
+      "difficulty": "Easy",
+      "section": "Core",
+      "summary": "O builtin type diz se um nome é builtin.",
+      "file": "stages/06-type.md"
+    },
+    {
+      "order": 7,
+      "id": "mg5",
+      "slug": "locate-executables",
+      "title": "Locate executable files",
+      "difficulty": "Medium",
+      "section": "Core",
+      "summary": "type procura executáveis nos diretórios do PATH.",
+      "file": "stages/07-locate-executables.md"
+    },
+    {
+      "order": 8,
+      "id": "ip1",
+      "slug": "run-program",
+      "title": "Run a program",
+      "difficulty": "Medium",
+      "section": "Core",
+      "summary": "Execute programas externos com argumentos.",
+      "file": "stages/08-run-program.md"
+    },
+    {
+      "order": 9,
+      "id": "ei0",
+      "slug": "pwd",
+      "title": "The pwd builtin",
+      "difficulty": "Easy",
+      "section": "Navigation",
+      "summary": "pwd imprime o diretório atual.",
+      "file": "stages/09-pwd.md"
+    },
+    {
+      "order": 10,
+      "id": "ra6",
+      "slug": "cd-absolute",
+      "title": "The cd builtin: Absolute paths",
+      "difficulty": "Medium",
+      "section": "Navigation",
+      "summary": "cd com caminhos absolutos.",
+      "file": "stages/10-cd-absolute.md"
+    },
+    {
+      "order": 11,
+      "id": "gq9",
+      "slug": "cd-relative",
+      "title": "The cd builtin: Relative paths",
+      "difficulty": "Medium",
+      "section": "Navigation",
+      "summary": "cd com ./, ../ e caminhos relativos.",
+      "file": "stages/11-cd-relative.md"
+    },
+    {
+      "order": 12,
+      "id": "gp4",
+      "slug": "cd-home",
+      "title": "The cd builtin: Home directory",
+      "difficulty": "Medium",
+      "section": "Navigation",
+      "summary": "cd ~ vai para o diretório HOME.",
+      "file": "stages/12-cd-home.md"
+    },
+    {
+      "order": 13,
+      "id": "ni6",
+      "slug": "single-quotes",
+      "title": "Single quotes",
+      "difficulty": "Medium",
+      "section": "Quoting",
+      "summary": "Texto entre aspas simples é literal.",
+      "file": "stages/13-single-quotes.md"
+    },
+    {
+      "order": 14,
+      "id": "tg6",
+      "slug": "double-quotes",
+      "title": "Double quotes",
+      "difficulty": "Medium",
+      "section": "Quoting",
+      "summary": "Texto entre aspas duplas preserva espaços.",
+      "file": "stages/14-double-quotes.md"
+    },
+    {
+      "order": 15,
+      "id": "yt5",
+      "slug": "backslash-outside",
+      "title": "Backslash outside quotes",
+      "difficulty": "Medium",
+      "section": "Quoting",
+      "summary": "\\ fora de aspas preserva o caractere seguinte.",
+      "file": "stages/15-backslash-outside.md"
+    },
+    {
+      "order": 16,
+      "id": "le5",
+      "slug": "backslash-single",
+      "title": "Backslash within single quotes",
+      "difficulty": "Medium",
+      "section": "Quoting",
+      "summary": "Dentro de aspas simples, \\ é literal.",
+      "file": "stages/16-backslash-single.md"
+    },
+    {
+      "order": 17,
+      "id": "gu3",
+      "slug": "backslash-double",
+      "title": "Backslash within double quotes",
+      "difficulty": "Medium",
+      "section": "Quoting",
+      "summary": "Dentro de aspas duplas, \\ escapa só \\ \" e $.",
+      "file": "stages/17-backslash-double.md"
+    },
+    {
+      "order": 18,
+      "id": "qj0",
+      "slug": "quoted-executable",
+      "title": "Executing a quoted executable",
+      "difficulty": "Medium",
+      "section": "Quoting",
+      "summary": "Execute programas cujo nome tem espaços ou aspas.",
+      "file": "stages/18-quoted-executable.md"
+    },
+    {
+      "order": 19,
+      "id": "jv1",
+      "slug": "redirect-stdout",
+      "title": "Redirect stdout",
+      "difficulty": "Medium",
+      "section": "Redirection",
+      "summary": "> e 1> mandam a saída para um arquivo.",
+      "file": "stages/19-redirect-stdout.md"
+    },
+    {
+      "order": 20,
+      "id": "vz4",
+      "slug": "redirect-stderr",
+      "title": "Redirect stderr",
+      "difficulty": "Medium",
+      "section": "Redirection",
+      "summary": "2> manda o stderr para um arquivo.",
+      "file": "stages/20-redirect-stderr.md"
+    },
+    {
+      "order": 21,
+      "id": "el9",
+      "slug": "append-stdout",
+      "title": "Append stdout",
+      "difficulty": "Medium",
+      "section": "Redirection",
+      "summary": ">> e 1>> acrescentam ao final do arquivo.",
+      "file": "stages/21-append-stdout.md"
+    },
+    {
+      "order": 22,
+      "id": "un3",
+      "slug": "append-stderr",
+      "title": "Append stderr",
+      "difficulty": "Medium",
+      "section": "Redirection",
+      "summary": "2>> acrescenta o stderr ao arquivo.",
+      "file": "stages/22-append-stderr.md"
+    },
+    {
+      "order": 23,
+      "id": "qp2",
+      "slug": "builtin-completion",
+      "title": "Builtin completion",
+      "difficulty": "Medium",
+      "section": "Command Completion",
+      "summary": "Tab completa nomes de builtins.",
+      "file": "stages/23-builtin-completion.md"
+    },
+    {
+      "order": 24,
+      "id": "gm9",
+      "slug": "completion-arguments",
+      "title": "Completion with arguments",
+      "difficulty": "Medium",
+      "section": "Command Completion",
+      "summary": "Depois de completar, o usuário continua digitando.",
+      "file": "stages/24-completion-arguments.md"
+    },
+    {
+      "order": 25,
+      "id": "qm8",
+      "slug": "missing-command-completion",
+      "title": "Missing completions",
+      "difficulty": "Easy",
+      "section": "Command Completion",
+      "summary": "Sem candidatos, Tab toca o sinal sonoro.",
+      "file": "stages/25-missing-command-completion.md"
+    },
+    {
+      "order": 26,
+      "id": "gy5",
+      "slug": "executable-completion",
+      "title": "Executable completion",
+      "difficulty": "Medium",
+      "section": "Command Completion",
+      "summary": "Tab completa nomes de executáveis do PATH.",
+      "file": "stages/26-executable-completion.md"
+    },
+    {
+      "order": 27,
+      "id": "wh6",
+      "slug": "multiple-completions",
+      "title": "Multiple completions",
+      "difficulty": "Hard",
+      "section": "Command Completion",
+      "summary": "Vários candidatos: sinal no primeiro Tab, lista no segundo.",
+      "file": "stages/27-multiple-completions.md"
+    },
+    {
+      "order": 28,
+      "id": "wt6",
+      "slug": "partial-completions",
+      "title": "Partial completions",
+      "difficulty": "Hard",
+      "section": "Command Completion",
+      "summary": "Completa até o maior prefixo comum.",
+      "file": "stages/28-partial-completions.md"
+    },
+    {
+      "order": 29,
+      "id": "zv2",
+      "slug": "file-completion",
+      "title": "File completion",
+      "difficulty": "Medium",
+      "section": "Filename Completion",
+      "summary": "Tab completa nomes de arquivos nos argumentos.",
+      "file": "stages/29-file-completion.md"
+    },
+    {
+      "order": 30,
+      "id": "ue6",
+      "slug": "nested-file-completion",
+      "title": "Nested file completion",
+      "difficulty": "Medium",
+      "section": "Filename Completion",
+      "summary": "Completar arquivos dentro de subdiretórios.",
+      "file": "stages/30-nested-file-completion.md"
+    },
+    {
+      "order": 31,
+      "id": "lc6",
+      "slug": "directory-completion",
+      "title": "Directory completion",
+      "difficulty": "Easy",
+      "section": "Filename Completion",
+      "summary": "Diretórios completam com / em vez de espaço.",
+      "file": "stages/31-directory-completion.md"
+    },
+    {
+      "order": 32,
+      "id": "vs5",
+      "slug": "missing-file-completion",
+      "title": "Missing completions",
+      "difficulty": "Easy",
+      "section": "Filename Completion",
+      "summary": "Nenhum arquivo combina: BEL.",
+      "file": "stages/32-missing-file-completion.md"
+    },
+    {
+      "order": 33,
+      "id": "no5",
+      "slug": "multiple-file-matches",
+      "title": "Multiple matches",
+      "difficulty": "Hard",
+      "section": "Filename Completion",
+      "summary": "Vários arquivos: BEL, depois a lista.",
+      "file": "stages/33-multiple-file-matches.md"
+    },
+    {
+      "order": 34,
+      "id": "jp8",
+      "slug": "partial-file-completions",
+      "title": "Partial completions",
+      "difficulty": "Hard",
+      "section": "Filename Completion",
+      "summary": "Maior prefixo comum também para arquivos.",
+      "file": "stages/34-partial-file-completions.md"
+    },
+    {
+      "order": 35,
+      "id": "bf8",
+      "slug": "multi-argument-completions",
+      "title": "Multi-argument completions",
+      "difficulty": "Easy",
+      "section": "Filename Completion",
+      "summary": "Completar o segundo, terceiro... argumento.",
+      "file": "stages/35-multi-argument-completions.md"
+    },
+    {
+      "order": 36,
+      "id": "ne7",
+      "slug": "complete-builtin",
+      "title": "Register complete builtin",
+      "difficulty": "Easy",
+      "section": "Programmable Completion",
+      "summary": "O builtin complete registra um completer.",
+      "file": "stages/36-complete-builtin.md"
+    },
+    {
+      "order": 37,
+      "id": "oi7",
+      "slug": "missing-specification",
+      "title": "Printing missing specifications",
+      "difficulty": "Easy",
+      "section": "Programmable Completion",
+      "summary": "complete -p de um nome sem registro.",
+      "file": "stages/37-missing-specification.md"
+    },
+    {
+      "order": 38,
+      "id": "wl6",
+      "slug": "display-specifications",
+      "title": "Displaying registered specifications",
+      "difficulty": "Medium",
+      "section": "Programmable Completion",
+      "summary": "complete -p mostra o registro.",
+      "file": "stages/38-display-specifications.md"
+    },
+    {
+      "order": 39,
+      "id": "pm5",
+      "slug": "single-programmable-completion",
+      "title": "Single completion",
+      "difficulty": "Medium",
+      "section": "Programmable Completion",
+      "summary": "Tab executa o completer e usa a resposta.",
+      "file": "stages/39-single-programmable-completion.md"
+    },
+    {
+      "order": 40,
+      "id": "qf1",
+      "slug": "no-programmable-completions",
+      "title": "Handling no completions",
+      "difficulty": "Easy",
+      "section": "Programmable Completion",
+      "summary": "Completer sem resposta: BEL.",
+      "file": "stages/40-no-programmable-completions.md"
+    },
+    {
+      "order": 41,
+      "id": "zi0",
+      "slug": "completer-arguments",
+      "title": "Passing command-line arguments",
+      "difficulty": "Easy",
+      "section": "Programmable Completion",
+      "summary": "Os três argumentos do completer.",
+      "file": "stages/41-completer-arguments.md"
+    },
+    {
+      "order": 42,
+      "id": "nr7",
+      "slug": "completer-environment",
+      "title": "Passing environment variables",
+      "difficulty": "Easy",
+      "section": "Programmable Completion",
+      "summary": "COMP_LINE e COMP_POINT.",
+      "file": "stages/42-completer-environment.md"
+    },
+    {
+      "order": 43,
+      "id": "ep2",
+      "slug": "multiple-completer-candidates",
+      "title": "Multiple completer candidates",
+      "difficulty": "Easy",
+      "section": "Programmable Completion",
+      "summary": "Vários candidatos do completer: BEL e lista.",
+      "file": "stages/43-multiple-completer-candidates.md"
+    },
+    {
+      "order": 44,
+      "id": "xz3",
+      "slug": "completer-common-prefix",
+      "title": "Longest common prefix",
+      "difficulty": "Medium",
+      "section": "Programmable Completion",
+      "summary": "Prefixo comum dos candidatos do completer.",
+      "file": "stages/44-completer-common-prefix.md"
+    },
+    {
+      "order": 45,
+      "id": "tz2",
+      "slug": "unregister-completion",
+      "title": "Unregister a completion",
+      "difficulty": "Easy",
+      "section": "Programmable Completion",
+      "summary": "complete -r remove o registro.",
+      "file": "stages/45-unregister-completion.md"
+    },
+    {
+      "order": 46,
+      "id": "af3",
+      "slug": "jobs-builtin",
+      "title": "The jobs builtin",
+      "difficulty": "Easy",
+      "section": "Background Jobs",
+      "summary": "O builtin jobs (ainda sem jobs).",
+      "file": "stages/46-jobs-builtin.md"
+    },
+    {
+      "order": 47,
+      "id": "at7",
+      "slug": "background-jobs",
+      "title": "Starting background jobs",
+      "difficulty": "Medium",
+      "section": "Background Jobs",
+      "summary": "Comando & roda em background.",
+      "file": "stages/47-background-jobs.md"
+    },
+    {
+      "order": 48,
+      "id": "si2",
+      "slug": "background-output",
+      "title": "Printing background job output",
+      "difficulty": "Medium",
+      "section": "Background Jobs",
+      "summary": "A saída de jobs em background aparece na tela.",
+      "file": "stages/48-background-output.md"
+    },
+    {
+      "order": 49,
+      "id": "jd6",
+      "slug": "list-single-job",
+      "title": "List a single job",
+      "difficulty": "Medium",
+      "section": "Background Jobs",
+      "summary": "jobs lista um job rodando.",
+      "file": "stages/49-list-single-job.md"
+    },
+    {
+      "order": 50,
+      "id": "dk5",
+      "slug": "list-multiple-jobs",
+      "title": "List multiple jobs",
+      "difficulty": "Medium",
+      "section": "Background Jobs",
+      "summary": "Marcadores + e - com vários jobs.",
+      "file": "stages/50-list-multiple-jobs.md"
+    },
+    {
+      "order": 51,
+      "id": "ma9",
+      "slug": "reap-one-job",
+      "title": "Reap one job",
+      "difficulty": "Medium",
+      "section": "Background Jobs",
+      "summary": "Jobs que terminaram aparecem como Done e saem da lista.",
+      "file": "stages/51-reap-one-job.md"
+    },
+    {
+      "order": 52,
+      "id": "rq2",
+      "slug": "reap-multiple-jobs",
+      "title": "Reap multiple jobs",
+      "difficulty": "Medium",
+      "section": "Background Jobs",
+      "summary": "Vários jobs terminados de uma vez.",
+      "file": "stages/52-reap-multiple-jobs.md"
+    },
+    {
+      "order": 53,
+      "id": "bv8",
+      "slug": "reap-before-prompt",
+      "title": "Reap before the next prompt",
+      "difficulty": "Medium",
+      "section": "Background Jobs",
+      "summary": "Avisar jobs concluídos antes do prompt.",
+      "file": "stages/53-reap-before-prompt.md"
+    },
+    {
+      "order": 54,
+      "id": "fy4",
+      "slug": "recycle-job-numbers",
+      "title": "Recycle job numbers",
+      "difficulty": "Easy",
+      "section": "Background Jobs",
+      "summary": "Reaproveitar números de jobs.",
+      "file": "stages/54-recycle-job-numbers.md"
+    },
+    {
+      "order": 55,
+      "id": "br6",
+      "slug": "dual-pipeline",
+      "title": "Dual-command pipeline",
+      "difficulty": "Hard",
+      "section": "Pipelines",
+      "summary": "cmd1 | cmd2: a saída de um vira a entrada do outro.",
+      "file": "stages/55-dual-pipeline.md"
+    },
+    {
+      "order": 56,
+      "id": "ny9",
+      "slug": "pipeline-builtins",
+      "title": "Pipelines with built-ins",
+      "difficulty": "Hard",
+      "section": "Pipelines",
+      "summary": "Builtins em qualquer posição do pipeline.",
+      "file": "stages/56-pipeline-builtins.md"
+    },
+    {
+      "order": 57,
+      "id": "xk3",
+      "slug": "multi-pipelines",
+      "title": "Multi-command pipelines",
+      "difficulty": "Hard",
+      "section": "Pipelines",
+      "summary": "Três ou mais comandos encadeados.",
+      "file": "stages/57-multi-pipelines.md"
+    },
+    {
+      "order": 58,
+      "id": "bq4",
+      "slug": "history-builtin",
+      "title": "The history builtin",
+      "difficulty": "Easy",
+      "section": "History",
+      "summary": "O builtin history.",
+      "file": "stages/58-history-builtin.md"
+    },
+    {
+      "order": 59,
+      "id": "yf5",
+      "slug": "list-history",
+      "title": "Listing history",
+      "difficulty": "Medium",
+      "section": "History",
+      "summary": "history lista os comandos digitados.",
+      "file": "stages/59-list-history.md"
+    },
+    {
+      "order": 60,
+      "id": "ag6",
+      "slug": "limit-history",
+      "title": "Limiting history entries",
+      "difficulty": "Medium",
+      "section": "History",
+      "summary": "history N mostra só as N últimas.",
+      "file": "stages/60-limit-history.md"
+    },
+    {
+      "order": 61,
+      "id": "rh7",
+      "slug": "up-arrow",
+      "title": "Up-arrow navigation",
+      "difficulty": "Medium",
+      "section": "History",
+      "summary": "Seta para cima recupera comandos anteriores.",
+      "file": "stages/61-up-arrow.md"
+    },
+    {
+      "order": 62,
+      "id": "vq0",
+      "slug": "down-arrow",
+      "title": "Down-arrow navigation",
+      "difficulty": "Medium",
+      "section": "History",
+      "summary": "Seta para baixo volta para os mais recentes.",
+      "file": "stages/62-down-arrow.md"
+    },
+    {
+      "order": 63,
+      "id": "dm2",
+      "slug": "execute-from-history",
+      "title": "Executing commands from history",
+      "difficulty": "Medium",
+      "section": "History",
+      "summary": "Enter executa o comando recuperado.",
+      "file": "stages/63-execute-from-history.md"
+    },
+    {
+      "order": 64,
+      "id": "za2",
+      "slug": "history-read",
+      "title": "Read history from file",
+      "difficulty": "Medium",
+      "section": "History Persistence",
+      "summary": "history -r <arquivo> carrega comandos.",
+      "file": "stages/64-history-read.md"
+    },
+    {
+      "order": 65,
+      "id": "in3",
+      "slug": "history-write",
+      "title": "Write history to file",
+      "difficulty": "Medium",
+      "section": "History Persistence",
+      "summary": "history -w <arquivo> grava o histórico.",
+      "file": "stages/65-history-write.md"
+    },
+    {
+      "order": 66,
+      "id": "sx3",
+      "slug": "history-append",
+      "title": "Append history to file",
+      "difficulty": "Hard",
+      "section": "History Persistence",
+      "summary": "history -a <arquivo> acrescenta só o que é novo.",
+      "file": "stages/66-history-append.md"
+    },
+    {
+      "order": 67,
+      "id": "zp4",
+      "slug": "history-startup",
+      "title": "Read history on startup",
+      "difficulty": "Easy",
+      "section": "History Persistence",
+      "summary": "Carregar $HISTFILE ao iniciar.",
+      "file": "stages/67-history-startup.md"
+    },
+    {
+      "order": 68,
+      "id": "kz7",
+      "slug": "history-exit-write",
+      "title": "Write history on exit",
+      "difficulty": "Easy",
+      "section": "History Persistence",
+      "summary": "Gravar o histórico no exit.",
+      "file": "stages/68-history-exit-write.md"
+    },
+    {
+      "order": 69,
+      "id": "jv2",
+      "slug": "history-exit-append",
+      "title": "Append history on exit",
+      "difficulty": "Medium",
+      "section": "History Persistence",
+      "summary": "No exit, acrescentar só a sessão atual.",
+      "file": "stages/69-history-exit-append.md"
+    },
+    {
+      "order": 70,
+      "id": "ji0",
+      "slug": "declare-builtin",
+      "title": "The declare builtin",
+      "difficulty": "Easy",
+      "section": "Parameter Expansion",
+      "summary": "declare -p mostra variáveis de ambiente.",
+      "file": "stages/70-declare-builtin.md"
+    },
+    {
+      "order": 71,
+      "id": "oa2",
+      "slug": "declare-missing",
+      "title": "Printing missing variables",
+      "difficulty": "Easy",
+      "section": "Parameter Expansion",
+      "summary": "declare -p de variável inexistente.",
+      "file": "stages/71-declare-missing.md"
+    },
+    {
+      "order": 72,
+      "id": "kv5",
+      "slug": "store-variables",
+      "title": "Storing shell variables",
+      "difficulty": "Medium",
+      "section": "Parameter Expansion",
+      "summary": "declare NOME=valor cria variáveis do shell.",
+      "file": "stages/72-store-variables.md"
+    },
+    {
+      "order": 73,
+      "id": "db8",
+      "slug": "validate-variable-names",
+      "title": "Validating variable names",
+      "difficulty": "Easy",
+      "section": "Parameter Expansion",
+      "summary": "Nomes de variáveis válidos.",
+      "file": "stages/73-validate-variable-names.md"
+    },
+    {
+      "order": 74,
+      "id": "ge9",
+      "slug": "expand-variables",
+      "title": "Expanding variables",
+      "difficulty": "Hard",
+      "section": "Parameter Expansion",
+      "summary": "$NOME é substituído pelo valor.",
+      "file": "stages/74-expand-variables.md"
+    },
+    {
+      "order": 75,
+      "id": "br2",
+      "slug": "brace-expansion",
+      "title": "Expansion with braces",
+      "difficulty": "Medium",
+      "section": "Parameter Expansion",
+      "summary": "${NOME} delimita o nome.",
+      "file": "stages/75-brace-expansion.md"
+    },
+    {
+      "order": 76,
+      "id": "my0",
+      "slug": "empty-variables",
+      "title": "Expanding empty variables",
+      "difficulty": "Easy",
+      "section": "Parameter Expansion",
+      "summary": "Variáveis vazias somem da linha de comando.",
+      "file": "stages/76-empty-variables.md"
+    }
+  ]
+}

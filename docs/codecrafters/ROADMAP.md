@@ -3,11 +3,11 @@
 > Roadmap vivo dos desafios "Build your own X" do [CodeCrafters](https://app.codecrafters.io/catalog).
 > Atualize os checkboxes conforme cada stage for concluído.
 
-**Status geral:** **144/425 stages (34%)** · 9 desafios concluídos · 1 em andamento · HTTP Server, Git, DNS Server, Tokenizer, SQLite, Claude Code, BitTorrent, Kafka e grep jogáveis na plataforma.
+**Status geral:** **220/425 stages (52%)** · 10 desafios concluídos · 1 em andamento · HTTP Server, Git, DNS Server, Tokenizer, SQLite, Claude Code, BitTorrent, Kafka, grep e Shell jogáveis na plataforma.
 
 **Integração na plataforma:** do desafio com menos stages para o com mais —
 Git (7) ✅ → DNS Server (8) ✅ → Tokenizer (8) ✅ → SQLite (9) ✅ → Claude Code (18) ✅ → BitTorrent (19) ✅
-→ Kafka (25) ✅ → grep (33) ✅ → Shell (76) → Interpreter (84) → Redis (124).
+→ Kafka (25) ✅ → grep (33) ✅ → Shell (76) ✅ → Interpreter (84) → Redis (124).
 
 | # | Desafio | Stages | Progresso | Status | Acesso | Onde está |
 |---:|---|---:|---:|---|---|---|
@@ -20,7 +20,7 @@ Git (7) ✅ → DNS Server (8) ✅ → Tokenizer (8) ✅ → SQLite (9) ✅ → 
 | 7 | [BitTorrent](https://app.codecrafters.io/courses/bittorrent/overview) | 19 | 19/19 | ✅ concluído | membros | [`challenges/bittorrent`](../../challenges/bittorrent) |
 | 8 | [Kafka](https://app.codecrafters.io/courses/kafka/overview) | 25 | 25/25 | ✅ concluído | membros | [`challenges/kafka`](../../challenges/kafka) |
 | 9 | [grep](https://app.codecrafters.io/courses/grep/overview) | 33 | 33/33 | ✅ concluído | membros | [`challenges/grep`](../../challenges/grep) |
-| 10 | [Shell](https://app.codecrafters.io/courses/shell/overview) | 76 | 0/76 | ⬜ não iniciado | membros | — |
+| 10 | [Shell](https://app.codecrafters.io/courses/shell/overview) | 76 | 76/76 | ✅ concluído | membros | [`challenges/shell`](../../challenges/shell) |
 | 11 | [Interpreter](https://app.codecrafters.io/courses/interpreter/overview) | 84 | 0/84 | ⬜ não iniciado | membros | — |
 | 12 | [Claude Code](https://app.codecrafters.io/courses/claude-code/overview) | 18 | 18/18 | ✅ concluído | beta | [`challenges/claude-code`](../../challenges/claude-code) |
 
@@ -45,7 +45,7 @@ O que vamos replicar na plataforma:
 - progresso por stage (JSON local nesta versão; PostgreSQL no roadmap);
 - comando/hook de submissão (`wizard submit` ou git hook).
 
-**Já implementado para HTTP Server, Git, DNS Server, Tokenizer, SQLite, Claude Code, BitTorrent, Kafka e grep:** catálogo, página, instruções, starter Java,
+**Já implementado para HTTP Server, Git, DNS Server, Tokenizer, SQLite, Claude Code, BitTorrent, Kafka, grep e Shell:** catálogo, página, instruções, starter Java,
 runner, CLI `npm run cc -- ...`, remote local `wizard` e hook `post-receive`.
 
 ## Ordem recomendada
@@ -421,28 +421,137 @@ linguagens.
 
 ---
 
-### ⬜ Shell — 0/76
+### ✅ Shell — 76/76
 
-**Foco:** REPL, builtins, execução de programas, quoting, redirecionamento,
-completion, background jobs, pipes, history e parameter expansion.
+**Foco:** REPL, builtins, execução de programas, quoting, redirecionamento, autocompletar
+(comandos, arquivos e completers programáveis), jobs em background, pipelines, histórico
+(setas e persistência) e expansão de variáveis.
 
-| Seção | Stages | Cobre | Status |
-|---|---:|---|---|
-| Core | 8 | prompt, REPL, `exit`, `echo`, `type`, PATH, exec | ⬜ |
-| Navigation | 4 | `pwd`, `cd` absoluto/relativo/home | ⬜ |
-| Quoting | 6 | aspas simples/duplas, backslash | ⬜ |
-| Redirection | 4 | `>`, `2>`, `>>`, `2>>` | ⬜ |
-| Command Completion | 6 | Tab, builtins, executáveis | ⬜ |
-| Filename Completion | 7 | arquivos, diretórios, múltiplos matches | ⬜ |
-| Programmable Completion | 10 | `complete` builtin e specs | ⬜ |
-| Background Jobs | 9 | `jobs`, `&`, reap, job numbers | ⬜ |
-| Pipelines | 3 | pipes entre 2+ comandos e builtins | ⬜ |
-| History | 6 | `history`, setas, execução | ⬜ |
-| History Persistence | 6 | ler/escrever arquivo, append | ⬜ |
-| Parameter Expansion | 7 | `declare`, variáveis, `${var}` | ⬜ |
+**Implementação:** [`challenges/shell/java`](../../challenges/shell/java) ·
+**Tester:** [`challenges/shell/tests/run-stages.mjs`](../../challenges/shell/tests/run-stages.mjs)
 
-**O que falta:** tokenizer de linha de comando, parser de quoting,
-gerenciamento de processos/pipes e completion readline.
+**Core:**
+
+- [x] 1. Print a prompt
+- [x] 2. Handle invalid commands
+- [x] 3. Implement a REPL
+- [x] 4. Implement exit
+- [x] 5. Implement echo
+- [x] 6. Implement type
+- [x] 7. Locate executable files
+- [x] 8. Run a program
+
+**Navigation:**
+
+- [x] 9. The pwd builtin
+- [x] 10. The cd builtin: Absolute paths
+- [x] 11. The cd builtin: Relative paths
+- [x] 12. The cd builtin: Home directory
+
+**Quoting:**
+
+- [x] 13. Single quotes
+- [x] 14. Double quotes
+- [x] 15. Backslash outside quotes
+- [x] 16. Backslash within single quotes
+- [x] 17. Backslash within double quotes
+- [x] 18. Executing a quoted executable
+
+**Redirection:**
+
+- [x] 19. Redirect stdout
+- [x] 20. Redirect stderr
+- [x] 21. Append stdout
+- [x] 22. Append stderr
+
+**Command Completion:**
+
+- [x] 23. Builtin completion
+- [x] 24. Completion with arguments
+- [x] 25. Missing completions
+- [x] 26. Executable completion
+- [x] 27. Multiple completions
+- [x] 28. Partial completions
+
+**Filename Completion:**
+
+- [x] 29. File completion
+- [x] 30. Nested file completion
+- [x] 31. Directory completion
+- [x] 32. Missing completions
+- [x] 33. Multiple matches
+- [x] 34. Partial completions
+- [x] 35. Multi-argument completions
+
+**Programmable Completion:**
+
+- [x] 36. Register complete builtin
+- [x] 37. Printing missing specifications
+- [x] 38. Displaying registered specifications
+- [x] 39. Single completion
+- [x] 40. Handling no completions
+- [x] 41. Passing command-line arguments
+- [x] 42. Passing environment variables
+- [x] 43. Multiple completer candidates
+- [x] 44. Longest common prefix
+- [x] 45. Unregister a completion
+
+**Background Jobs:**
+
+- [x] 46. The jobs builtin
+- [x] 47. Starting background jobs
+- [x] 48. Printing background job output
+- [x] 49. List a single job
+- [x] 50. List multiple jobs
+- [x] 51. Reap one job
+- [x] 52. Reap multiple jobs
+- [x] 53. Reap before the next prompt
+- [x] 54. Recycle job numbers
+
+**Pipelines:**
+
+- [x] 55. Dual-command pipeline
+- [x] 56. Pipelines with built-ins
+- [x] 57. Multi-command pipelines
+
+**History:**
+
+- [x] 58. The history builtin
+- [x] 59. Listing history
+- [x] 60. Limiting history entries
+- [x] 61. Up-arrow navigation
+- [x] 62. Down-arrow navigation
+- [x] 63. Executing commands from history
+
+**History Persistence:**
+
+- [x] 64. Read history from file
+- [x] 65. Write history to file
+- [x] 66. Append history to file
+- [x] 67. Read history on startup
+- [x] 68. Write history on exit
+- [x] 69. Append history on exit
+
+**Parameter Expansion:**
+
+- [x] 70. The declare builtin
+- [x] 71. Printing missing variables
+- [x] 72. Storing shell variables
+- [x] 73. Validating variable names
+- [x] 74. Expanding variables
+- [x] 75. Expansion with braces
+- [x] 76. Expanding empty variables
+
+**Como o tester funciona:** sem pseudo-terminal. O tester escreve no stdin os bytes
+digitados (Tab = `\t`, setas = `ESC [ A/B`, Backspace = 127), lê stdout+stderr mesclados
+num pipe (`2>&1` via `sh`/`cmd`) e interpreta a saída com um emulador de terminal mínimo
+(`\r`, `\b`, `ESC[K`, BEL). Nos stages de linha inteira, se o shell não ecoa a entrada, o
+tester desenha a linha sozinho; nos de teclas, o eco é do shell. Os programas externos são
+scripts Node do próprio tester (`.cmd` no Windows), então os resultados são iguais em
+Linux, macOS e Windows. Validado em Windows e em Linux (container).
+
+**O que falta:** word splitting de expansões, `$?`, `&&`/`||`, `fg`/`bg`/sinais, edição no
+meio da linha (setas ←/→) e starters para outras linguagens.
 
 ---
 
@@ -540,7 +649,7 @@ local `wizard`, hook `post-receive` e progresso por stage em JSON.
 2. **Runner isolado**: container com limite de CPU/memória/tempo, diretório temporário
    e porta isolada; devolver JSON por stage.
 3. **Outros starters**: Go, Python, Rust etc. para o HTTP Server.
-4. **Próximos desafios**: Shell, Interpreter, Redis (ordem por número de stages).
+4. **Próximos desafios**: Interpreter, Redis (ordem por número de stages).
 5. **Conteúdo**: instruções em português para cada stage dos novos desafios.
 
 ## Convenções
