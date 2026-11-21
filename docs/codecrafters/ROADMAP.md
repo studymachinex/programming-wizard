@@ -3,16 +3,16 @@
 > Roadmap vivo dos desafios "Build your own X" do [CodeCrafters](https://app.codecrafters.io/catalog).
 > Atualize os checkboxes conforme cada stage for concluído.
 
-**Status geral:** **304/425 stages (72%)** · 11 desafios concluídos · 1 em andamento · HTTP Server, Git, DNS Server, Tokenizer, SQLite, Claude Code, BitTorrent, Kafka, grep, Shell e Interpreter jogáveis na plataforma.
+**Status geral:** **425/425 stages (100%)** · 12 desafios concluídos · todos jogáveis na plataforma.
 
 **Integração na plataforma:** do desafio com menos stages para o com mais —
 Git (7) ✅ → DNS Server (8) ✅ → Tokenizer (8) ✅ → SQLite (9) ✅ → Claude Code (18) ✅ → BitTorrent (19) ✅
-→ Kafka (25) ✅ → grep (33) ✅ → Shell (76) ✅ → Interpreter (84) ✅ → Redis (124).
+→ Kafka (25) ✅ → grep (33) ✅ → Shell (76) ✅ → Interpreter (84) ✅ → Redis (124) ✅.
 
 | # | Desafio | Stages | Progresso | Status | Acesso | Onde está |
 |---:|---|---:|---:|---|---|---|
 | 1 | [HTTP Server](https://app.codecrafters.io/courses/http-server/overview) | 14 | 14/14 | ✅ concluído | membros | [`challenges/http-server`](../../challenges/http-server) |
-| 2 | [Redis](https://app.codecrafters.io/courses/redis/overview) | 124 | 3/124 | 🟡 em andamento | grátis até 31/12/2026 | clone local `codecrafters-redis-java` |
+| 2 | [Redis](https://app.codecrafters.io/courses/redis/overview) | 124 | 124/124 | ✅ concluído | grátis até 31/12/2026 | [`challenges/redis`](../../challenges/redis) |
 | 3 | [Git](https://app.codecrafters.io/courses/git/overview) | 7 | 7/7 | ✅ concluído | membros | [`challenges/git`](../../challenges/git) |
 | 4 | [DNS Server](https://app.codecrafters.io/courses/dns-server/overview) | 8 | 8/8 | ✅ concluído | membros | [`challenges/dns-server`](../../challenges/dns-server) |
 | 5 | [SQLite](https://app.codecrafters.io/courses/sqlite/overview) | 9 | 9/9 | ✅ concluído | membros | [`challenges/sqlite`](../../challenges/sqlite) |
@@ -45,7 +45,7 @@ O que vamos replicar na plataforma:
 - progresso por stage (JSON local nesta versão; PostgreSQL no roadmap);
 - comando/hook de submissão (`wizard submit` ou git hook).
 
-**Já implementado para HTTP Server, Git, DNS Server, Tokenizer, SQLite, Claude Code, BitTorrent, Kafka, grep, Shell e Interpreter:** catálogo, página, instruções, starter Java,
+**Já implementado para HTTP Server, Git, DNS Server, Tokenizer, SQLite, Claude Code, BitTorrent, Kafka, grep, Shell, Interpreter e Redis:** catálogo, página, instruções, starter Java,
 runner, CLI `npm run cc -- ...`, remote local `wizard` e hook `post-receive`.
 
 ## Ordem recomendada
@@ -60,8 +60,8 @@ A ordem abaixo vai do menor para o maior esforço e introduz uma habilidade nova
 | 4 | **grep** → **Shell** → **Interpreter** | Regex, processos/pipes e lexer/parser/evaluator. |
 | 5 | **Redis** (8–124) → **Claude Code** → **Tokenizer** | Persistência/replicação, tool calling/agentes e BPE. |
 
-> Redis já está em andamento (3/124). A sugestão é fechar o core (stages 1–7) antes de
-> começar Git e DNS, e depois voltar para as seções avançadas em uma segunda passada.
+> Todos os desafios estão jogáveis na plataforma. A ordem acima continua sendo a sugestão de
+> estudo; o progresso pessoal no Redis original fica em [`redis.md`](redis.md).
 
 ---
 
@@ -97,45 +97,190 @@ CLI, remote git, hook e página em `/projetos/codecrafters/http-server`) está p
 
 ---
 
-### 🟡 Redis — 3/124
+### ✅ Redis — 124/124
 
 **Foco:** protocolo RESP, servidor TCP concorrente, estruturas de dados, expiração,
-transações, replicação, RDB/AOF, pub/sub, sorted sets, bitmaps, geo e autenticação.
+operações bloqueantes, transações e WATCH, replicação com WAIT, RDB/AOF, pub/sub, sorted
+sets, bitmaps, geohash e autenticação com ACL.
 
-**Implementação:** clone externo em `../codecrafters-redis-java` (não versionado
-neste repositório).
-**Guia detalhado:** [`redis.md`](redis.md)
+**Implementação:** [`challenges/redis/java`](../../challenges/redis/java) ·
+**Tester:** [`challenges/redis/tests/run-stages.mjs`](../../challenges/redis/tests/run-stages.mjs)
 
-**Core (1–7):**
+> O seu progresso pessoal no curso original (clone externo) continua registrado em
+> [`redis.md`](redis.md); esta ficha é da versão da plataforma.
+
+**Core:**
 
 - [x] 1. Bind to a port
 - [x] 2. Respond to PING
-- [x] 3. Respond to multiple PINGs (#wy1)
-- [ ] 4. Handle concurrent clients
-- [ ] 5. Implement the ECHO command
-- [ ] 6. Implement the SET & GET commands
-- [ ] 7. Expiry
+- [x] 3. Respond to multiple PINGs
+- [x] 4. Handle concurrent clients
+- [x] 5. Implement the ECHO command
+- [x] 6. Implement the SET & GET commands
+- [x] 7. Expiry
 
-**Seções restantes:**
+**Lists:**
 
-| Seção | Stages | Cobre | Status |
-|---|---:|---|---|
-| Lists | 11 | RPUSH, LRANGE, LPUSH, LLEN, LPOP, BLPOP | ⬜ |
-| Streams | 13 | XADD, XRANGE, XREAD, IDs, blocking reads | ⬜ |
-| Transactions | 11 | INCR, MULTI, EXEC, DISCARD, erros | ⬜ |
-| Optimistic Locking | 8 | WATCH, UNWATCH, modificações | ⬜ |
-| Replication | 18 | INFO, handshake, propagação, ACK, WAIT | ⬜ |
-| RDB Persistence | 6 | parsing de RDB, strings, expiração | ⬜ |
-| AOF Persistence | 10 | append-only file, manifest, replay | ⬜ |
-| Pub/Sub | 7 | SUBSCRIBE, PUBLISH, modo inscrito | ⬜ |
-| Sorted Sets | 8 | ZADD, ZRANGE, ranks, scores | ⬜ |
-| Bitmaps | 9 | SETBIT, GETBIT, BITCOUNT, AND/OR | ⬜ |
-| Geospatial | 8 | GEOADD, GEOPOS, distância, raio | ⬜ |
-| Authentication | 8 | ACL, AUTH, senha default | ⬜ |
+- [x] 8. Create a list
+- [x] 9. Append an element
+- [x] 10. Append multiple elements
+- [x] 11. List elements (positive indexes)
+- [x] 12. List elements (negative indexes)
+- [x] 13. Prepend elements
+- [x] 14. Query list length
+- [x] 15. Remove an element
+- [x] 16. Remove multiple elements
+- [x] 17. Blocking retrieval
+- [x] 18. Blocking retrieval with timeout
 
-**O que falta:** implementar os 121 stages restantes; o próximo é
-**#zu2 — Handle concurrent clients** (thread por cliente ou event loop). O clone já
-responde múltiplos PINGs na mesma conexão e aceita RESP e comandos inline.
+**Streams:**
+
+- [x] 19. The TYPE command
+- [x] 20. Create a stream
+- [x] 21. Validating entry IDs
+- [x] 22. Partially auto-generated IDs
+- [x] 23. Fully auto-generated IDs
+- [x] 24. Query entries from stream
+- [x] 25. Query with -
+- [x] 26. Query with +
+- [x] 27. Query single stream using XREAD
+- [x] 28. Query multiple streams using XREAD
+- [x] 29. Blocking reads
+- [x] 30. Blocking reads without timeout
+- [x] 31. Blocking reads using $
+
+**Transactions:**
+
+- [x] 32. The INCR command (1/3)
+- [x] 33. The INCR command (2/3)
+- [x] 34. The INCR command (3/3)
+- [x] 35. The MULTI command
+- [x] 36. The EXEC command
+- [x] 37. Empty transaction
+- [x] 38. Queueing commands
+- [x] 39. Executing a transaction
+- [x] 40. The DISCARD command
+- [x] 41. Failures within transactions
+- [x] 42. Multiple transactions
+
+**Optimistic Locking:**
+
+- [x] 43. The WATCH command
+- [x] 44. WATCH inside transaction
+- [x] 45. Tracking key modifications
+- [x] 46. Watching multiple keys
+- [x] 47. Watching missing keys
+- [x] 48. The UNWATCH command
+- [x] 49. Unwatch on EXEC
+- [x] 50. Unwatch on DISCARD
+
+**Replication:**
+
+- [x] 51. Configure listening port
+- [x] 52. The INFO command
+- [x] 53. The INFO command on a replica
+- [x] 54. Initial replication ID and offset
+- [x] 55. Send handshake (1/3)
+- [x] 56. Send handshake (2/3)
+- [x] 57. Send handshake (3/3)
+- [x] 58. Receive handshake (1/2)
+- [x] 59. Receive handshake (2/2)
+- [x] 60. Empty RDB transfer
+- [x] 61. Single-replica propagation
+- [x] 62. Multi-replica propagation
+- [x] 63. Command processing
+- [x] 64. ACKs with no commands
+- [x] 65. ACKs with commands
+- [x] 66. WAIT with no replicas
+- [x] 67. WAIT with no commands
+- [x] 68. WAIT with multiple commands
+
+**RDB Persistence:**
+
+- [x] 69. RDB file config
+- [x] 70. Read a key
+- [x] 71. Read a string value
+- [x] 72. Read multiple keys
+- [x] 73. Read multiple string values
+- [x] 74. Read value with expiry
+
+**AOF Persistence:**
+
+- [x] 75. Default AOF options
+- [x] 76. AOF options from flags
+- [x] 77. Create append-only directory
+- [x] 78. Create append-only file
+- [x] 79. Create manifest file
+- [x] 80. Write a single command
+- [x] 81. Write multiple commands
+- [x] 82. Filter write commands
+- [x] 83. Replay a single command
+- [x] 84. Replay multiple commands
+
+**Pub/Sub:**
+
+- [x] 85. Subscribe to a channel
+- [x] 86. Subscribe to multiple channels
+- [x] 87. Enter subscribed mode
+- [x] 88. PING in subscribed mode
+- [x] 89. Publish a message
+- [x] 90. Deliver messages
+- [x] 91. Unsubscribe
+
+**Sorted Sets:**
+
+- [x] 92. Create a sorted set
+- [x] 93. Add members
+- [x] 94. Retrieve member rank
+- [x] 95. List sorted set members
+- [x] 96. ZRANGE with negative indexes
+- [x] 97. Count sorted set members
+- [x] 98. Retrieve member score
+- [x] 99. Remove a member
+
+**Bitmaps:**
+
+- [x] 100. Create a bitmap
+- [x] 101. Retrieve a bit
+- [x] 102. Read a string as bits
+- [x] 103. Read bits as a string
+- [x] 104. Grow a bitmap
+- [x] 105. Count set bits
+- [x] 106. AND two bitmaps
+- [x] 107. AND bitmaps of different lengths
+- [x] 108. OR two bitmaps
+
+**Geospatial Commands:**
+
+- [x] 109. Respond to GEOADD
+- [x] 110. Validate coordinates
+- [x] 111. Store a location
+- [x] 112. Calculate location score
+- [x] 113. Respond to GEOPOS
+- [x] 114. Decode coordinates
+- [x] 115. Calculate distance
+- [x] 116. Search within radius
+
+**Authentication:**
+
+- [x] 117. Respond to ACL WHOAMI
+- [x] 118. Respond to ACL GETUSER
+- [x] 119. The nopass flag
+- [x] 120. The passwords property
+- [x] 121. Setting default user password
+- [x] 122. The AUTH command
+- [x] 123. Enforce authentication
+- [x] 124. Authenticate using AUTH
+
+**Como o tester funciona:** sobe o servidor sempre com `--port` numa porta livre e conversa
+em RESP como um cliente. Nos stages de replicação ele é o master falso (confere o
+handshake, envia RDB vazio, propaga comandos, pede GETACK) ou réplicas falsas (recebe a
+propagação e responde ACKs). Os arquivos RDB e AOF são gerados pelo tester, e o geohash é
+conferido com uma implementação em JS. Os resultados de geohash e distância foram
+comparados com um Redis 7 real. Validado em Windows e Linux.
+
+**O que falta:** hashes e sets, `PSUBSCRIBE`, reescrita do AOF (`BGREWRITEAOF`), resync
+parcial (`PSYNC <id> <offset>`), mais regras de ACL e starters para outras linguagens.
 
 ---
 
@@ -758,7 +903,7 @@ local `wizard`, hook `post-receive` e progresso por stage em JSON.
 2. **Runner isolado**: container com limite de CPU/memória/tempo, diretório temporário
    e porta isolada; devolver JSON por stage.
 3. **Outros starters**: Go, Python, Rust etc. para o HTTP Server.
-4. **Próximos desafios**: Redis (124 stages).
+4. **Desafios**: os 12 do catálogo estão integrados.
 5. **Conteúdo**: instruções em português para cada stage dos novos desafios.
 
 ## Convenções

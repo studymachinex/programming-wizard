@@ -1,5 +1,9 @@
 # Redis — progresso e próximos passos
 
+> Este arquivo acompanha o **seu** progresso no curso original do CodeCrafters (clone externo).
+> A versão completa do desafio na plataforma está em [`challenges/redis`](../../challenges/redis)
+> (referência 124/124) e [`content/codecrafters/redis`](../../content/codecrafters/redis).
+
 **Status:** 🟡 3/124 stages · próximo: **#zu2 — Handle concurrent clients**.
 
 - Desafio original: <https://app.codecrafters.io/courses/redis/overview>

@@ -1,0 +1,7 @@
+/**
+ * API do tester do Redis usada pelo runner da plataforma.
+ *
+ * A implementação vive em run-stages.mjs para que o mesmo arquivo continue
+ * servindo de CLI (`npm run challenge:redis`).
+ */
+export { runStages } from "./run-stages.mjs";

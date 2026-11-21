@@ -9,7 +9,7 @@ Implementações de referência e engine dos desafios do
 | Desafio | Stages | Plataforma | Referência |
 |---|---:|---|---|
 | HTTP Server | 14 | ✅ jogável | ✅ 14/14 |
-| Redis | 124 | ⬜ em breve | 🟡 3/124 (clone externo) |
+| Redis | 124 | ✅ jogável | ✅ 124/124 |
 | Git | 7 | ✅ jogável | ✅ 7/7 |
 | DNS Server | 8 | ✅ jogável | ✅ 8/8 |
 | SQLite | 9 | ✅ jogável | ✅ 9/9 |
@@ -282,9 +282,26 @@ npm run challenge:interpreter                                         # contra a
 node challenges/interpreter/tests/run-stages.mjs --dir <pasta> --no-build
 ```
 
-## Próximos desafios
+## Redis
 
-Falta o Redis (124 stages).
+- Curso e instruções: [`content/codecrafters/redis`](../content/codecrafters/redis).
+- Starter: [`redis/starter/java`](redis/starter/java).
+- Referência: [`redis/java`](redis/java).
+- Tester: [`redis/tests/run-stages.mjs`](redis/tests/run-stages.mjs).
+
+Um servidor compatível com o Redis. O tester sobe `java -jar target/redis.jar --port <porta
+livre> ...` (nunca usa a 6379), conversa em RESP e, nos stages de replicação, faz o papel de
+master falso (para testar a réplica) ou de réplicas falsas (para testar o master). Arquivos RDB
+e AOF são gerados pelo próprio tester; o geohash é conferido com uma implementação em JS.
+
+```bash
+npm run challenge:redis                                         # contra a referência
+node challenges/redis/tests/run-stages.mjs --dir <pasta> --no-build --only 61,68
+```
+
+## Todos os desafios integrados
+
+Os 12 desafios do catálogo (425 stages) estão jogáveis.
 
 
 Para adicionar um desafio, o contrato é:

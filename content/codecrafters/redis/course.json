@@ -1,0 +1,1282 @@
+{
+  "slug": "redis",
+  "title": "Build your own Redis",
+  "tagline": "Construa um servidor compatível com o Redis: do PING à replicação e persistência.",
+  "description": "Você vai construir em Java um servidor que fala o protocolo do Redis (RESP): strings com expiração, listas com BLPOP, streams com XREAD bloqueante, transações e WATCH, replicação master/réplica com WAIT, leitura de RDB, persistência AOF, pub/sub, sorted sets, bitmaps, comandos geoespaciais e autenticação com ACL. O tester simula clientes, masters e réplicas. São 124 stages.",
+  "language": "java",
+  "languageLabel": "Java 21",
+  "estimatedHours": 45,
+  "topics": [
+    "protocolo RESP",
+    "servidor TCP concorrente",
+    "estruturas de dados",
+    "operações bloqueantes",
+    "transações",
+    "replicação",
+    "persistência (RDB/AOF)",
+    "pub/sub",
+    "geohash",
+    "autenticação"
+  ],
+  "prerequisites": [
+    "Java 21 instalado (java -version)",
+    "Maven instalado (mvn -version)"
+  ],
+  "runtime": {
+    "starter": "challenges/redis/starter/java",
+    "reference": "challenges/redis/java",
+    "runner": "challenges/redis/tests/stages.mjs",
+    "compile": {
+      "command": "mvn",
+      "args": [
+        "-q",
+        "-B",
+        "package"
+      ],
+      "timeoutMs": 240000
+    },
+    "runCommand": "./your_program.sh --port <porta> [--replicaof \"host porta\"] [--dir d --dbfilename f] [--appendonly yes]"
+  },
+  "stages": [
+    {
+      "order": 1,
+      "id": "introduction",
+      "slug": "bind-port",
+      "title": "Bind to a port",
+      "difficulty": "Very easy",
+      "section": "Core",
+      "summary": "Abra um servidor TCP na porta recebida em --port.",
+      "file": "stages/001-bind-port.md"
+    },
+    {
+      "order": 2,
+      "id": "rg2",
+      "slug": "respond-ping",
+      "title": "Respond to PING",
+      "difficulty": "Easy",
+      "section": "Core",
+      "summary": "Responda +PONG.",
+      "file": "stages/002-respond-ping.md"
+    },
+    {
+      "order": 3,
+      "id": "wy1",
+      "slug": "multiple-pings",
+      "title": "Respond to multiple PINGs",
+      "difficulty": "Easy",
+      "section": "Core",
+      "summary": "Vários comandos na mesma conexão.",
+      "file": "stages/003-multiple-pings.md"
+    },
+    {
+      "order": 4,
+      "id": "zu2",
+      "slug": "concurrent-clients",
+      "title": "Handle concurrent clients",
+      "difficulty": "Medium",
+      "section": "Core",
+      "summary": "Vários clientes ao mesmo tempo.",
+      "file": "stages/004-concurrent-clients.md"
+    },
+    {
+      "order": 5,
+      "id": "qq0",
+      "slug": "echo",
+      "title": "Implement the ECHO command",
+      "difficulty": "Medium",
+      "section": "Core",
+      "summary": "ECHO devolve o argumento.",
+      "file": "stages/005-echo.md"
+    },
+    {
+      "order": 6,
+      "id": "la7",
+      "slug": "set-get",
+      "title": "Implement the SET & GET commands",
+      "difficulty": "Medium",
+      "section": "Core",
+      "summary": "Guardar e ler valores.",
+      "file": "stages/006-set-get.md"
+    },
+    {
+      "order": 7,
+      "id": "yz1",
+      "slug": "expiry",
+      "title": "Expiry",
+      "difficulty": "Medium",
+      "section": "Core",
+      "summary": "SET com PX.",
+      "file": "stages/007-expiry.md"
+    },
+    {
+      "order": 8,
+      "id": "mh6",
+      "slug": "create-list",
+      "title": "Create a list",
+      "difficulty": "Easy",
+      "section": "Lists",
+      "summary": "RPUSH cria uma lista.",
+      "file": "stages/008-create-list.md"
+    },
+    {
+      "order": 9,
+      "id": "tn7",
+      "slug": "append-element",
+      "title": "Append an element",
+      "difficulty": "Easy",
+      "section": "Lists",
+      "summary": "RPUSH em lista existente.",
+      "file": "stages/009-append-element.md"
+    },
+    {
+      "order": 10,
+      "id": "lx4",
+      "slug": "append-multiple",
+      "title": "Append multiple elements",
+      "difficulty": "Easy",
+      "section": "Lists",
+      "summary": "RPUSH com vários elementos.",
+      "file": "stages/010-append-multiple.md"
+    },
+    {
+      "order": 11,
+      "id": "sf6",
+      "slug": "lrange-positive",
+      "title": "List elements (positive indexes)",
+      "difficulty": "Easy",
+      "section": "Lists",
+      "summary": "LRANGE com índices positivos.",
+      "file": "stages/011-lrange-positive.md"
+    },
+    {
+      "order": 12,
+      "id": "ri1",
+      "slug": "lrange-negative",
+      "title": "List elements (negative indexes)",
+      "difficulty": "Easy",
+      "section": "Lists",
+      "summary": "Índices negativos.",
+      "file": "stages/012-lrange-negative.md"
+    },
+    {
+      "order": 13,
+      "id": "gu5",
+      "slug": "lpush",
+      "title": "Prepend elements",
+      "difficulty": "Easy",
+      "section": "Lists",
+      "summary": "LPUSH insere no início.",
+      "file": "stages/013-lpush.md"
+    },
+    {
+      "order": 14,
+      "id": "fv6",
+      "slug": "llen",
+      "title": "Query list length",
+      "difficulty": "Easy",
+      "section": "Lists",
+      "summary": "LLEN.",
+      "file": "stages/014-llen.md"
+    },
+    {
+      "order": 15,
+      "id": "ef1",
+      "slug": "lpop",
+      "title": "Remove an element",
+      "difficulty": "Easy",
+      "section": "Lists",
+      "summary": "LPOP remove o primeiro elemento.",
+      "file": "stages/015-lpop.md"
+    },
+    {
+      "order": 16,
+      "id": "jp1",
+      "slug": "lpop-multiple",
+      "title": "Remove multiple elements",
+      "difficulty": "Easy",
+      "section": "Lists",
+      "summary": "LPOP com contagem.",
+      "file": "stages/016-lpop-multiple.md"
+    },
+    {
+      "order": 17,
+      "id": "ec3",
+      "slug": "blpop",
+      "title": "Blocking retrieval",
+      "difficulty": "Medium",
+      "section": "Lists",
+      "summary": "BLPOP espera um elemento.",
+      "file": "stages/017-blpop.md"
+    },
+    {
+      "order": 18,
+      "id": "xj7",
+      "slug": "blpop-timeout",
+      "title": "Blocking retrieval with timeout",
+      "difficulty": "Medium",
+      "section": "Lists",
+      "summary": "BLPOP com prazo.",
+      "file": "stages/018-blpop-timeout.md"
+    },
+    {
+      "order": 19,
+      "id": "cc3",
+      "slug": "type",
+      "title": "The TYPE command",
+      "difficulty": "Easy",
+      "section": "Streams",
+      "summary": "TYPE diz o tipo do valor.",
+      "file": "stages/019-type.md"
+    },
+    {
+      "order": 20,
+      "id": "cf6",
+      "slug": "xadd",
+      "title": "Create a stream",
+      "difficulty": "Medium",
+      "section": "Streams",
+      "summary": "XADD cria entradas num stream.",
+      "file": "stages/020-xadd.md"
+    },
+    {
+      "order": 21,
+      "id": "hq8",
+      "slug": "xadd-validate",
+      "title": "Validating entry IDs",
+      "difficulty": "Easy",
+      "section": "Streams",
+      "summary": "IDs precisam crescer.",
+      "file": "stages/021-xadd-validate.md"
+    },
+    {
+      "order": 22,
+      "id": "yh3",
+      "slug": "xadd-partial-auto",
+      "title": "Partially auto-generated IDs",
+      "difficulty": "Medium",
+      "section": "Streams",
+      "summary": "IDs <ms>-*.",
+      "file": "stages/022-xadd-partial-auto.md"
+    },
+    {
+      "order": 23,
+      "id": "xu6",
+      "slug": "xadd-auto",
+      "title": "Fully auto-generated IDs",
+      "difficulty": "Medium",
+      "section": "Streams",
+      "summary": "ID *.",
+      "file": "stages/023-xadd-auto.md"
+    },
+    {
+      "order": 24,
+      "id": "zx1",
+      "slug": "xrange",
+      "title": "Query entries from stream",
+      "difficulty": "Medium",
+      "section": "Streams",
+      "summary": "XRANGE início fim.",
+      "file": "stages/024-xrange.md"
+    },
+    {
+      "order": 25,
+      "id": "yp1",
+      "slug": "xrange-minus",
+      "title": "Query with -",
+      "difficulty": "Easy",
+      "section": "Streams",
+      "summary": "- é o início do stream.",
+      "file": "stages/025-xrange-minus.md"
+    },
+    {
+      "order": 26,
+      "id": "fs1",
+      "slug": "xrange-plus",
+      "title": "Query with +",
+      "difficulty": "Easy",
+      "section": "Streams",
+      "summary": "+ é o fim do stream.",
+      "file": "stages/026-xrange-plus.md"
+    },
+    {
+      "order": 27,
+      "id": "um0",
+      "slug": "xread",
+      "title": "Query single stream using XREAD",
+      "difficulty": "Medium",
+      "section": "Streams",
+      "summary": "XREAD STREAMS s id.",
+      "file": "stages/027-xread.md"
+    },
+    {
+      "order": 28,
+      "id": "ru9",
+      "slug": "xread-multiple",
+      "title": "Query multiple streams using XREAD",
+      "difficulty": "Medium",
+      "section": "Streams",
+      "summary": "Vários streams.",
+      "file": "stages/028-xread-multiple.md"
+    },
+    {
+      "order": 29,
+      "id": "bs1",
+      "slug": "xread-block",
+      "title": "Blocking reads",
+      "difficulty": "Hard",
+      "section": "Streams",
+      "summary": "XREAD BLOCK ms.",
+      "file": "stages/029-xread-block.md"
+    },
+    {
+      "order": 30,
+      "id": "hw1",
+      "slug": "xread-block-zero",
+      "title": "Blocking reads without timeout",
+      "difficulty": "Medium",
+      "section": "Streams",
+      "summary": "BLOCK 0.",
+      "file": "stages/030-xread-block-zero.md"
+    },
+    {
+      "order": 31,
+      "id": "xu1",
+      "slug": "xread-dollar",
+      "title": "Blocking reads using $",
+      "difficulty": "Easy",
+      "section": "Streams",
+      "summary": "$ = só o que chegar depois.",
+      "file": "stages/031-xread-dollar.md"
+    },
+    {
+      "order": 32,
+      "id": "si4",
+      "slug": "incr-existing",
+      "title": "The INCR command (1/3)",
+      "difficulty": "Easy",
+      "section": "Transactions",
+      "summary": "INCR em número existente.",
+      "file": "stages/032-incr-existing.md"
+    },
+    {
+      "order": 33,
+      "id": "lz8",
+      "slug": "incr-missing",
+      "title": "The INCR command (2/3)",
+      "difficulty": "Easy",
+      "section": "Transactions",
+      "summary": "INCR em chave inexistente.",
+      "file": "stages/033-incr-missing.md"
+    },
+    {
+      "order": 34,
+      "id": "mk1",
+      "slug": "incr-invalid",
+      "title": "The INCR command (3/3)",
+      "difficulty": "Easy",
+      "section": "Transactions",
+      "summary": "INCR em valor não numérico.",
+      "file": "stages/034-incr-invalid.md"
+    },
+    {
+      "order": 35,
+      "id": "pn0",
+      "slug": "multi",
+      "title": "The MULTI command",
+      "difficulty": "Easy",
+      "section": "Transactions",
+      "summary": "MULTI inicia uma transação.",
+      "file": "stages/035-multi.md"
+    },
+    {
+      "order": 36,
+      "id": "lo4",
+      "slug": "exec-without-multi",
+      "title": "The EXEC command",
+      "difficulty": "Easy",
+      "section": "Transactions",
+      "summary": "EXEC sem MULTI.",
+      "file": "stages/036-exec-without-multi.md"
+    },
+    {
+      "order": 37,
+      "id": "we1",
+      "slug": "empty-transaction",
+      "title": "Empty transaction",
+      "difficulty": "Hard",
+      "section": "Transactions",
+      "summary": "MULTI + EXEC vazio.",
+      "file": "stages/037-empty-transaction.md"
+    },
+    {
+      "order": 38,
+      "id": "rs9",
+      "slug": "queueing",
+      "title": "Queueing commands",
+      "difficulty": "Medium",
+      "section": "Transactions",
+      "summary": "+QUEUED.",
+      "file": "stages/038-queueing.md"
+    },
+    {
+      "order": 39,
+      "id": "fy6",
+      "slug": "exec",
+      "title": "Executing a transaction",
+      "difficulty": "Hard",
+      "section": "Transactions",
+      "summary": "EXEC executa a fila.",
+      "file": "stages/039-exec.md"
+    },
+    {
+      "order": 40,
+      "id": "rl9",
+      "slug": "discard",
+      "title": "The DISCARD command",
+      "difficulty": "Easy",
+      "section": "Transactions",
+      "summary": "DISCARD cancela.",
+      "file": "stages/040-discard.md"
+    },
+    {
+      "order": 41,
+      "id": "sg9",
+      "slug": "transaction-failures",
+      "title": "Failures within transactions",
+      "difficulty": "Medium",
+      "section": "Transactions",
+      "summary": "Erros dentro do EXEC.",
+      "file": "stages/041-transaction-failures.md"
+    },
+    {
+      "order": 42,
+      "id": "jf8",
+      "slug": "multiple-transactions",
+      "title": "Multiple transactions",
+      "difficulty": "Medium",
+      "section": "Transactions",
+      "summary": "Transações em clientes diferentes.",
+      "file": "stages/042-multiple-transactions.md"
+    },
+    {
+      "order": 43,
+      "id": "jb7",
+      "slug": "watch",
+      "title": "The WATCH command",
+      "difficulty": "Easy",
+      "section": "Optimistic Locking",
+      "summary": "WATCH responde +OK.",
+      "file": "stages/043-watch.md"
+    },
+    {
+      "order": 44,
+      "id": "jq9",
+      "slug": "watch-in-multi",
+      "title": "WATCH inside transaction",
+      "difficulty": "Easy",
+      "section": "Optimistic Locking",
+      "summary": "WATCH dentro de MULTI.",
+      "file": "stages/044-watch-in-multi.md"
+    },
+    {
+      "order": 45,
+      "id": "mh8",
+      "slug": "watch-tracking",
+      "title": "Tracking key modifications",
+      "difficulty": "Medium",
+      "section": "Optimistic Locking",
+      "summary": "EXEC falha se a chave mudou.",
+      "file": "stages/045-watch-tracking.md"
+    },
+    {
+      "order": 46,
+      "id": "fp0",
+      "slug": "watch-multiple",
+      "title": "Watching multiple keys",
+      "difficulty": "Medium",
+      "section": "Optimistic Locking",
+      "summary": "Várias chaves observadas.",
+      "file": "stages/046-watch-multiple.md"
+    },
+    {
+      "order": 47,
+      "id": "uo9",
+      "slug": "watch-missing",
+      "title": "Watching missing keys",
+      "difficulty": "Easy",
+      "section": "Optimistic Locking",
+      "summary": "Observar chave inexistente.",
+      "file": "stages/047-watch-missing.md"
+    },
+    {
+      "order": 48,
+      "id": "bn1",
+      "slug": "unwatch",
+      "title": "The UNWATCH command",
+      "difficulty": "Easy",
+      "section": "Optimistic Locking",
+      "summary": "UNWATCH esquece as chaves.",
+      "file": "stages/048-unwatch.md"
+    },
+    {
+      "order": 49,
+      "id": "fn4",
+      "slug": "unwatch-exec",
+      "title": "Unwatch on EXEC",
+      "difficulty": "Easy",
+      "section": "Optimistic Locking",
+      "summary": "EXEC limpa o WATCH.",
+      "file": "stages/049-unwatch-exec.md"
+    },
+    {
+      "order": 50,
+      "id": "hq1",
+      "slug": "unwatch-discard",
+      "title": "Unwatch on DISCARD",
+      "difficulty": "Easy",
+      "section": "Optimistic Locking",
+      "summary": "DISCARD limpa o WATCH.",
+      "file": "stages/050-unwatch-discard.md"
+    },
+    {
+      "order": 51,
+      "id": "bw1",
+      "slug": "listening-port",
+      "title": "Configure listening port",
+      "difficulty": "Easy",
+      "section": "Replication",
+      "summary": "Várias instâncias em portas diferentes.",
+      "file": "stages/051-listening-port.md"
+    },
+    {
+      "order": 52,
+      "id": "ye5",
+      "slug": "info",
+      "title": "The INFO command",
+      "difficulty": "Easy",
+      "section": "Replication",
+      "summary": "INFO replication.",
+      "file": "stages/052-info.md"
+    },
+    {
+      "order": 53,
+      "id": "hc6",
+      "slug": "info-replica",
+      "title": "The INFO command on a replica",
+      "difficulty": "Medium",
+      "section": "Replication",
+      "summary": "--replicaof e role:slave.",
+      "file": "stages/053-info-replica.md"
+    },
+    {
+      "order": 54,
+      "id": "xc1",
+      "slug": "replid-offset",
+      "title": "Initial replication ID and offset",
+      "difficulty": "Easy",
+      "section": "Replication",
+      "summary": "master_replid e master_repl_offset.",
+      "file": "stages/054-replid-offset.md"
+    },
+    {
+      "order": 55,
+      "id": "gl7",
+      "slug": "handshake-ping",
+      "title": "Send handshake (1/3)",
+      "difficulty": "Easy",
+      "section": "Replication",
+      "summary": "A réplica conecta e manda PING.",
+      "file": "stages/055-handshake-ping.md"
+    },
+    {
+      "order": 56,
+      "id": "eh4",
+      "slug": "handshake-replconf",
+      "title": "Send handshake (2/3)",
+      "difficulty": "Easy",
+      "section": "Replication",
+      "summary": "REPLCONF listening-port e capa.",
+      "file": "stages/056-handshake-replconf.md"
+    },
+    {
+      "order": 57,
+      "id": "ju6",
+      "slug": "handshake-psync",
+      "title": "Send handshake (3/3)",
+      "difficulty": "Medium",
+      "section": "Replication",
+      "summary": "PSYNC ? -1.",
+      "file": "stages/057-handshake-psync.md"
+    },
+    {
+      "order": 58,
+      "id": "fj0",
+      "slug": "receive-replconf",
+      "title": "Receive handshake (1/2)",
+      "difficulty": "Easy",
+      "section": "Replication",
+      "summary": "O master responde aos REPLCONF.",
+      "file": "stages/058-receive-replconf.md"
+    },
+    {
+      "order": 59,
+      "id": "vm3",
+      "slug": "receive-psync",
+      "title": "Receive handshake (2/2)",
+      "difficulty": "Easy",
+      "section": "Replication",
+      "summary": "O master responde ao PSYNC.",
+      "file": "stages/059-receive-psync.md"
+    },
+    {
+      "order": 60,
+      "id": "cf8",
+      "slug": "empty-rdb",
+      "title": "Empty RDB transfer",
+      "difficulty": "Easy",
+      "section": "Replication",
+      "summary": "O master envia um RDB vazio.",
+      "file": "stages/060-empty-rdb.md"
+    },
+    {
+      "order": 61,
+      "id": "zn8",
+      "slug": "propagation-single",
+      "title": "Single-replica propagation",
+      "difficulty": "Medium",
+      "section": "Replication",
+      "summary": "Propague comandos de escrita.",
+      "file": "stages/061-propagation-single.md"
+    },
+    {
+      "order": 62,
+      "id": "hd5",
+      "slug": "propagation-multi",
+      "title": "Multi-replica propagation",
+      "difficulty": "Hard",
+      "section": "Replication",
+      "summary": "Várias réplicas.",
+      "file": "stages/062-propagation-multi.md"
+    },
+    {
+      "order": 63,
+      "id": "yg4",
+      "slug": "replica-processing",
+      "title": "Command processing",
+      "difficulty": "Hard",
+      "section": "Replication",
+      "summary": "A réplica aplica os comandos.",
+      "file": "stages/063-replica-processing.md"
+    },
+    {
+      "order": 64,
+      "id": "xv6",
+      "slug": "acks-no-commands",
+      "title": "ACKs with no commands",
+      "difficulty": "Easy",
+      "section": "Replication",
+      "summary": "REPLCONF GETACK *.",
+      "file": "stages/064-acks-no-commands.md"
+    },
+    {
+      "order": 65,
+      "id": "yd3",
+      "slug": "acks-commands",
+      "title": "ACKs with commands",
+      "difficulty": "Medium",
+      "section": "Replication",
+      "summary": "O offset conta os bytes processados.",
+      "file": "stages/065-acks-commands.md"
+    },
+    {
+      "order": 66,
+      "id": "my8",
+      "slug": "wait-no-replicas",
+      "title": "WAIT with no replicas",
+      "difficulty": "Medium",
+      "section": "Replication",
+      "summary": "WAIT sem réplicas.",
+      "file": "stages/066-wait-no-replicas.md"
+    },
+    {
+      "order": 67,
+      "id": "tu8",
+      "slug": "wait-no-commands",
+      "title": "WAIT with no commands",
+      "difficulty": "Medium",
+      "section": "Replication",
+      "summary": "WAIT sem escritas pendentes.",
+      "file": "stages/067-wait-no-commands.md"
+    },
+    {
+      "order": 68,
+      "id": "na2",
+      "slug": "wait-commands",
+      "title": "WAIT with multiple commands",
+      "difficulty": "Hard",
+      "section": "Replication",
+      "summary": "WAIT com GETACK.",
+      "file": "stages/068-wait-commands.md"
+    },
+    {
+      "order": 69,
+      "id": "zg5",
+      "slug": "rdb-config",
+      "title": "RDB file config",
+      "difficulty": "Easy",
+      "section": "RDB Persistence",
+      "summary": "--dir, --dbfilename e CONFIG GET.",
+      "file": "stages/069-rdb-config.md"
+    },
+    {
+      "order": 70,
+      "id": "jz6",
+      "slug": "rdb-read-key",
+      "title": "Read a key",
+      "difficulty": "Medium",
+      "section": "RDB Persistence",
+      "summary": "Carregar um RDB com uma chave.",
+      "file": "stages/070-rdb-read-key.md"
+    },
+    {
+      "order": 71,
+      "id": "gc6",
+      "slug": "rdb-read-value",
+      "title": "Read a string value",
+      "difficulty": "Medium",
+      "section": "RDB Persistence",
+      "summary": "GET de valor do RDB.",
+      "file": "stages/071-rdb-read-value.md"
+    },
+    {
+      "order": 72,
+      "id": "jw4",
+      "slug": "rdb-multiple-keys",
+      "title": "Read multiple keys",
+      "difficulty": "Medium",
+      "section": "RDB Persistence",
+      "summary": "Várias chaves.",
+      "file": "stages/072-rdb-multiple-keys.md"
+    },
+    {
+      "order": 73,
+      "id": "dq3",
+      "slug": "rdb-multiple-values",
+      "title": "Read multiple string values",
+      "difficulty": "Medium",
+      "section": "RDB Persistence",
+      "summary": "Vários valores.",
+      "file": "stages/073-rdb-multiple-values.md"
+    },
+    {
+      "order": 74,
+      "id": "sm4",
+      "slug": "rdb-expiry",
+      "title": "Read value with expiry",
+      "difficulty": "Medium",
+      "section": "RDB Persistence",
+      "summary": "Expiração no RDB.",
+      "file": "stages/074-rdb-expiry.md"
+    },
+    {
+      "order": 75,
+      "id": "uj3",
+      "slug": "aof-defaults",
+      "title": "Default AOF options",
+      "difficulty": "Easy",
+      "section": "AOF Persistence",
+      "summary": "Valores padrão do AOF.",
+      "file": "stages/075-aof-defaults.md"
+    },
+    {
+      "order": 76,
+      "id": "vd9",
+      "slug": "aof-flags",
+      "title": "AOF options from flags",
+      "difficulty": "Easy",
+      "section": "AOF Persistence",
+      "summary": "--appendonly etc.",
+      "file": "stages/076-aof-flags.md"
+    },
+    {
+      "order": 77,
+      "id": "fm0",
+      "slug": "aof-directory",
+      "title": "Create append-only directory",
+      "difficulty": "Easy",
+      "section": "AOF Persistence",
+      "summary": "Criar o diretório do AOF.",
+      "file": "stages/077-aof-directory.md"
+    },
+    {
+      "order": 78,
+      "id": "dw4",
+      "slug": "aof-file",
+      "title": "Create append-only file",
+      "difficulty": "Easy",
+      "section": "AOF Persistence",
+      "summary": "Criar o arquivo incremental.",
+      "file": "stages/078-aof-file.md"
+    },
+    {
+      "order": 79,
+      "id": "pb9",
+      "slug": "aof-manifest",
+      "title": "Create manifest file",
+      "difficulty": "Easy",
+      "section": "AOF Persistence",
+      "summary": "Criar o manifesto.",
+      "file": "stages/079-aof-manifest.md"
+    },
+    {
+      "order": 80,
+      "id": "dc8",
+      "slug": "aof-write-single",
+      "title": "Write a single command",
+      "difficulty": "Hard",
+      "section": "AOF Persistence",
+      "summary": "Gravar um comando.",
+      "file": "stages/080-aof-write-single.md"
+    },
+    {
+      "order": 81,
+      "id": "fi1",
+      "slug": "aof-write-multiple",
+      "title": "Write multiple commands",
+      "difficulty": "Medium",
+      "section": "AOF Persistence",
+      "summary": "Vários comandos.",
+      "file": "stages/081-aof-write-multiple.md"
+    },
+    {
+      "order": 82,
+      "id": "ep6",
+      "slug": "aof-filter",
+      "title": "Filter write commands",
+      "difficulty": "Easy",
+      "section": "AOF Persistence",
+      "summary": "Só escritas.",
+      "file": "stages/082-aof-filter.md"
+    },
+    {
+      "order": 83,
+      "id": "xz2",
+      "slug": "aof-replay-single",
+      "title": "Replay a single command",
+      "difficulty": "Hard",
+      "section": "AOF Persistence",
+      "summary": "Reexecutar o AOF ao iniciar.",
+      "file": "stages/083-aof-replay-single.md"
+    },
+    {
+      "order": 84,
+      "id": "kn2",
+      "slug": "aof-replay-multiple",
+      "title": "Replay multiple commands",
+      "difficulty": "Medium",
+      "section": "AOF Persistence",
+      "summary": "Vários comandos no replay.",
+      "file": "stages/084-aof-replay-multiple.md"
+    },
+    {
+      "order": 85,
+      "id": "mx3",
+      "slug": "subscribe",
+      "title": "Subscribe to a channel",
+      "difficulty": "Easy",
+      "section": "Pub/Sub",
+      "summary": "SUBSCRIBE.",
+      "file": "stages/085-subscribe.md"
+    },
+    {
+      "order": 86,
+      "id": "zc8",
+      "slug": "subscribe-multiple",
+      "title": "Subscribe to multiple channels",
+      "difficulty": "Easy",
+      "section": "Pub/Sub",
+      "summary": "Vários canais.",
+      "file": "stages/086-subscribe-multiple.md"
+    },
+    {
+      "order": 87,
+      "id": "aw8",
+      "slug": "subscribed-mode",
+      "title": "Enter subscribed mode",
+      "difficulty": "Medium",
+      "section": "Pub/Sub",
+      "summary": "Modo inscrito.",
+      "file": "stages/087-subscribed-mode.md"
+    },
+    {
+      "order": 88,
+      "id": "lf1",
+      "slug": "subscribed-ping",
+      "title": "PING in subscribed mode",
+      "difficulty": "Easy",
+      "section": "Pub/Sub",
+      "summary": "PING no modo inscrito.",
+      "file": "stages/088-subscribed-ping.md"
+    },
+    {
+      "order": 89,
+      "id": "hf2",
+      "slug": "publish",
+      "title": "Publish a message",
+      "difficulty": "Easy",
+      "section": "Pub/Sub",
+      "summary": "PUBLISH conta assinantes.",
+      "file": "stages/089-publish.md"
+    },
+    {
+      "order": 90,
+      "id": "dn4",
+      "slug": "deliver",
+      "title": "Deliver messages",
+      "difficulty": "Hard",
+      "section": "Pub/Sub",
+      "summary": "Entregar mensagens.",
+      "file": "stages/090-deliver.md"
+    },
+    {
+      "order": 91,
+      "id": "ze9",
+      "slug": "unsubscribe",
+      "title": "Unsubscribe",
+      "difficulty": "Medium",
+      "section": "Pub/Sub",
+      "summary": "UNSUBSCRIBE.",
+      "file": "stages/091-unsubscribe.md"
+    },
+    {
+      "order": 92,
+      "id": "ct1",
+      "slug": "zadd-create",
+      "title": "Create a sorted set",
+      "difficulty": "Easy",
+      "section": "Sorted Sets",
+      "summary": "ZADD.",
+      "file": "stages/092-zadd-create.md"
+    },
+    {
+      "order": 93,
+      "id": "hf1",
+      "slug": "zadd-members",
+      "title": "Add members",
+      "difficulty": "Medium",
+      "section": "Sorted Sets",
+      "summary": "Vários membros e atualização.",
+      "file": "stages/093-zadd-members.md"
+    },
+    {
+      "order": 94,
+      "id": "lg6",
+      "slug": "zrank",
+      "title": "Retrieve member rank",
+      "difficulty": "Medium",
+      "section": "Sorted Sets",
+      "summary": "ZRANK.",
+      "file": "stages/094-zrank.md"
+    },
+    {
+      "order": 95,
+      "id": "ic1",
+      "slug": "zrange",
+      "title": "List sorted set members",
+      "difficulty": "Easy",
+      "section": "Sorted Sets",
+      "summary": "ZRANGE.",
+      "file": "stages/095-zrange.md"
+    },
+    {
+      "order": 96,
+      "id": "bj4",
+      "slug": "zrange-negative",
+      "title": "ZRANGE with negative indexes",
+      "difficulty": "Easy",
+      "section": "Sorted Sets",
+      "summary": "Índices negativos no ZRANGE.",
+      "file": "stages/096-zrange-negative.md"
+    },
+    {
+      "order": 97,
+      "id": "kn4",
+      "slug": "zcard",
+      "title": "Count sorted set members",
+      "difficulty": "Easy",
+      "section": "Sorted Sets",
+      "summary": "ZCARD.",
+      "file": "stages/097-zcard.md"
+    },
+    {
+      "order": 98,
+      "id": "gd7",
+      "slug": "zscore",
+      "title": "Retrieve member score",
+      "difficulty": "Medium",
+      "section": "Sorted Sets",
+      "summary": "ZSCORE.",
+      "file": "stages/098-zscore.md"
+    },
+    {
+      "order": 99,
+      "id": "sq7",
+      "slug": "zrem",
+      "title": "Remove a member",
+      "difficulty": "Easy",
+      "section": "Sorted Sets",
+      "summary": "ZREM.",
+      "file": "stages/099-zrem.md"
+    },
+    {
+      "order": 100,
+      "id": "bq9",
+      "slug": "setbit",
+      "title": "Create a bitmap",
+      "difficulty": "Medium",
+      "section": "Bitmaps",
+      "summary": "SETBIT.",
+      "file": "stages/100-setbit.md"
+    },
+    {
+      "order": 101,
+      "id": "qj1",
+      "slug": "getbit",
+      "title": "Retrieve a bit",
+      "difficulty": "Easy",
+      "section": "Bitmaps",
+      "summary": "GETBIT.",
+      "file": "stages/101-getbit.md"
+    },
+    {
+      "order": 102,
+      "id": "yj2",
+      "slug": "string-as-bits",
+      "title": "Read a string as bits",
+      "difficulty": "Medium",
+      "section": "Bitmaps",
+      "summary": "GETBIT numa string comum.",
+      "file": "stages/102-string-as-bits.md"
+    },
+    {
+      "order": 103,
+      "id": "pk5",
+      "slug": "bits-as-string",
+      "title": "Read bits as a string",
+      "difficulty": "Easy",
+      "section": "Bitmaps",
+      "summary": "GET de um bitmap.",
+      "file": "stages/103-bits-as-string.md"
+    },
+    {
+      "order": 104,
+      "id": "yf6",
+      "slug": "grow-bitmap",
+      "title": "Grow a bitmap",
+      "difficulty": "Easy",
+      "section": "Bitmaps",
+      "summary": "SETBIT além do tamanho.",
+      "file": "stages/104-grow-bitmap.md"
+    },
+    {
+      "order": 105,
+      "id": "nx3",
+      "slug": "bitcount",
+      "title": "Count set bits",
+      "difficulty": "Medium",
+      "section": "Bitmaps",
+      "summary": "BITCOUNT.",
+      "file": "stages/105-bitcount.md"
+    },
+    {
+      "order": 106,
+      "id": "hv4",
+      "slug": "bitop-and",
+      "title": "AND two bitmaps",
+      "difficulty": "Medium",
+      "section": "Bitmaps",
+      "summary": "BITOP AND.",
+      "file": "stages/106-bitop-and.md"
+    },
+    {
+      "order": 107,
+      "id": "dk2",
+      "slug": "bitop-and-lengths",
+      "title": "AND bitmaps of different lengths",
+      "difficulty": "Medium",
+      "section": "Bitmaps",
+      "summary": "Tamanhos diferentes.",
+      "file": "stages/107-bitop-and-lengths.md"
+    },
+    {
+      "order": 108,
+      "id": "fr8",
+      "slug": "bitop-or",
+      "title": "OR two bitmaps",
+      "difficulty": "Easy",
+      "section": "Bitmaps",
+      "summary": "BITOP OR.",
+      "file": "stages/108-bitop-or.md"
+    },
+    {
+      "order": 109,
+      "id": "zt4",
+      "slug": "geoadd",
+      "title": "Respond to GEOADD",
+      "difficulty": "Easy",
+      "section": "Geospatial Commands",
+      "summary": "GEOADD.",
+      "file": "stages/109-geoadd.md"
+    },
+    {
+      "order": 110,
+      "id": "ck3",
+      "slug": "geo-validate",
+      "title": "Validate coordinates",
+      "difficulty": "Easy",
+      "section": "Geospatial Commands",
+      "summary": "Coordenadas válidas.",
+      "file": "stages/110-geo-validate.md"
+    },
+    {
+      "order": 111,
+      "id": "tn5",
+      "slug": "geo-store",
+      "title": "Store a location",
+      "difficulty": "Medium",
+      "section": "Geospatial Commands",
+      "summary": "Locais num sorted set.",
+      "file": "stages/111-geo-store.md"
+    },
+    {
+      "order": 112,
+      "id": "cr3",
+      "slug": "geo-score",
+      "title": "Calculate location score",
+      "difficulty": "Hard",
+      "section": "Geospatial Commands",
+      "summary": "O score é um geohash.",
+      "file": "stages/112-geo-score.md"
+    },
+    {
+      "order": 113,
+      "id": "xg4",
+      "slug": "geopos",
+      "title": "Respond to GEOPOS",
+      "difficulty": "Easy",
+      "section": "Geospatial Commands",
+      "summary": "GEOPOS.",
+      "file": "stages/113-geopos.md"
+    },
+    {
+      "order": 114,
+      "id": "hb5",
+      "slug": "geo-decode",
+      "title": "Decode coordinates",
+      "difficulty": "Hard",
+      "section": "Geospatial Commands",
+      "summary": "Decodificar o geohash.",
+      "file": "stages/114-geo-decode.md"
+    },
+    {
+      "order": 115,
+      "id": "ek6",
+      "slug": "geodist",
+      "title": "Calculate distance",
+      "difficulty": "Medium",
+      "section": "Geospatial Commands",
+      "summary": "GEODIST.",
+      "file": "stages/115-geodist.md"
+    },
+    {
+      "order": 116,
+      "id": "rm9",
+      "slug": "geosearch",
+      "title": "Search within radius",
+      "difficulty": "Easy",
+      "section": "Geospatial Commands",
+      "summary": "GEOSEARCH BYRADIUS.",
+      "file": "stages/116-geosearch.md"
+    },
+    {
+      "order": 117,
+      "id": "jn4",
+      "slug": "acl-whoami",
+      "title": "Respond to ACL WHOAMI",
+      "difficulty": "Easy",
+      "section": "Authentication",
+      "summary": "ACL WHOAMI.",
+      "file": "stages/117-acl-whoami.md"
+    },
+    {
+      "order": 118,
+      "id": "gx8",
+      "slug": "acl-getuser",
+      "title": "Respond to ACL GETUSER",
+      "difficulty": "Easy",
+      "section": "Authentication",
+      "summary": "ACL GETUSER.",
+      "file": "stages/118-acl-getuser.md"
+    },
+    {
+      "order": 119,
+      "id": "ql6",
+      "slug": "nopass",
+      "title": "The nopass flag",
+      "difficulty": "Easy",
+      "section": "Authentication",
+      "summary": "A flag nopass.",
+      "file": "stages/119-nopass.md"
+    },
+    {
+      "order": 120,
+      "id": "pl7",
+      "slug": "passwords-property",
+      "title": "The passwords property",
+      "difficulty": "Easy",
+      "section": "Authentication",
+      "summary": "A propriedade passwords.",
+      "file": "stages/120-passwords-property.md"
+    },
+    {
+      "order": 121,
+      "id": "uv9",
+      "slug": "set-password",
+      "title": "Setting default user password",
+      "difficulty": "Medium",
+      "section": "Authentication",
+      "summary": "ACL SETUSER default >senha.",
+      "file": "stages/121-set-password.md"
+    },
+    {
+      "order": 122,
+      "id": "hz3",
+      "slug": "auth",
+      "title": "The AUTH command",
+      "difficulty": "Medium",
+      "section": "Authentication",
+      "summary": "AUTH usuário senha.",
+      "file": "stages/122-auth.md"
+    },
+    {
+      "order": 123,
+      "id": "nm2",
+      "slug": "enforce-auth",
+      "title": "Enforce authentication",
+      "difficulty": "Medium",
+      "section": "Authentication",
+      "summary": "Exigir autenticação.",
+      "file": "stages/123-enforce-auth.md"
+    },
+    {
+      "order": 124,
+      "id": "ws7",
+      "slug": "authenticate",
+      "title": "Authenticate using AUTH",
+      "difficulty": "Medium",
+      "section": "Authentication",
+      "summary": "Autenticar e usar.",
+      "file": "stages/124-authenticate.md"
+    }
+  ]
+}

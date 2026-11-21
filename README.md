@@ -72,7 +72,7 @@ aplicação não envia seus dados para nenhum serviço externo.
 - **CodeCrafters local** — catálogo de 12 desafios (425 stages), starter repo, instruções,
   runner real, remote git local e hook de submissão. **HTTP Server**, **Git**,
   **DNS Server**, **Tokenizer**, **SQLite**, **Claude Code**, **BitTorrent**, **Kafka**,
-  **grep**, **Shell** e **Interpreter** estão jogáveis de ponta a ponta.
+  **grep**, **Shell**, **Interpreter** e **Redis** — os 12 desafios — estão jogáveis de ponta a ponta.
 - **Busca global** — `Ctrl+K` / `⌘K` para aulas, exercícios, problemas e projetos.
 - **Backup** — exportação do progresso em JSON em **Configurações → Exportar backup**.
 
@@ -260,6 +260,7 @@ cache.
 | `npm run challenge:grep` | Compila e valida a referência dos 33 stages do grep |
 | `npm run challenge:shell` | Compila e valida a referência dos 76 stages do Shell |
 | `npm run challenge:interpreter` | Compila e valida a referência dos 84 stages do Interpreter |
+| `npm run challenge:redis` | Compila e valida a referência dos 124 stages do Redis |
 | `npm run cc -- <cmd>` | CLI dos desafios: `start`, `task`, `test`, `submit`, `status`, `list`, `reset` |
 
 ## Como usar a plataforma
@@ -287,11 +288,10 @@ starter repo, instruções por stage, runner de testes, remote git local e um ho
 confirma a conclusão no push.
 
 **Jogáveis de ponta a ponta:** HTTP Server (14 stages), Git (7), DNS Server (8),
-Tokenizer (8), SQLite (9), Claude Code (18), BitTorrent (19), Kafka (25), grep (33), Shell (76) e Interpreter (84). As
+Tokenizer (8), SQLite (9), Claude Code (18), BitTorrent (19), Kafka (25), grep (33), Shell (76), Interpreter (84) e Redis (124). As
 páginas ficam em `http://localhost:3000/projetos/codecrafters/<desafio>` (`http-server`,
-`git`, `dns-server`, `tokenizer`, `sqlite`, `claude-code`, `bittorrent`, `kafka`, `grep`, `shell`, `interpreter`)
-e também pela aba Projetos. Os
-próximos são integrados do desafio com menos stages para o com mais.
+`git`, `dns-server`, `tokenizer`, `sqlite`, `claude-code`, `bittorrent`, `kafka`, `grep`, `shell`, `interpreter`, `redis`)
+e também pela aba Projetos.
 
 ![Página do desafio HTTP Server](docs/screenshots/challenge.png)
 
@@ -322,7 +322,7 @@ npm run cc -- start http-server
 ### Comandos
 
 ```bash
-npm run cc -- start http-server   # cria o workspace (ou: git, dns-server, tokenizer, sqlite, claude-code, bittorrent, kafka, grep, shell, interpreter)
+npm run cc -- start http-server   # cria o workspace (ou: git, dns-server, tokenizer, sqlite, claude-code, bittorrent, kafka, grep, shell, interpreter, redis)
 npm run cc -- task               # instruções do stage atual
 npm run cc -- task --stage 4     # instruções de um stage específico
 npm run cc -- test               # compila e testa, sem commitar
@@ -484,6 +484,20 @@ npm run cc -- start interpreter
 npm run challenge:interpreter   # valida a referência
 ```
 
+### Desafio Redis
+
+Um servidor compatível com o Redis (RESP): strings com expiração, listas com `BLPOP`,
+streams com `XREAD BLOCK`, transações e `WATCH`, replicação master/réplica com `WAIT`,
+leitura de RDB, persistência AOF, pub/sub, sorted sets, bitmaps, comandos geoespaciais e
+ACL. O tester sobe o servidor sempre com `--port` numa porta livre e simula clientes,
+masters e réplicas. Código em [`challenges/redis`](challenges/redis) e instruções em
+[`content/codecrafters/redis`](content/codecrafters/redis).
+
+```bash
+npm run cc -- start redis
+npm run challenge:redis   # valida a referência
+```
+
 ### Estrutura do desafio HTTP Server
 
 - [`content/codecrafters/http-server/course.json`](content/codecrafters/http-server/course.json)
@@ -623,7 +637,7 @@ recriar workspace, progresso e remote local do zero, ou faça um `git pull` no w
 - Perfil único local (`Profile.id = "local"`), sem autenticação e sem multiusuário.
 - Os testes dos desafios CodeCrafters rodam no seu host (Java/Maven), não em um sandbox
   de container.
-- HTTP Server, Git, DNS Server, Tokenizer, SQLite, Claude Code, BitTorrent, Kafka, grep, Shell e Interpreter estão jogáveis; o Redis está no catálogo e no roadmap.
+- Os 12 desafios do catálogo estão jogáveis (425 stages).
 - O progresso dos desafios fica em JSON local (`challenges/.workspaces/.state/`), não no
   PostgreSQL.
 - Os links de problemas externos exigem internet.
