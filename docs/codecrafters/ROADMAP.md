@@ -3,11 +3,11 @@
 > Roadmap vivo dos desafios "Build your own X" do [CodeCrafters](https://app.codecrafters.io/catalog).
 > Atualize os checkboxes conforme cada stage for concluído.
 
-**Status geral:** **220/425 stages (52%)** · 10 desafios concluídos · 1 em andamento · HTTP Server, Git, DNS Server, Tokenizer, SQLite, Claude Code, BitTorrent, Kafka, grep e Shell jogáveis na plataforma.
+**Status geral:** **304/425 stages (72%)** · 11 desafios concluídos · 1 em andamento · HTTP Server, Git, DNS Server, Tokenizer, SQLite, Claude Code, BitTorrent, Kafka, grep, Shell e Interpreter jogáveis na plataforma.
 
 **Integração na plataforma:** do desafio com menos stages para o com mais —
 Git (7) ✅ → DNS Server (8) ✅ → Tokenizer (8) ✅ → SQLite (9) ✅ → Claude Code (18) ✅ → BitTorrent (19) ✅
-→ Kafka (25) ✅ → grep (33) ✅ → Shell (76) ✅ → Interpreter (84) → Redis (124).
+→ Kafka (25) ✅ → grep (33) ✅ → Shell (76) ✅ → Interpreter (84) ✅ → Redis (124).
 
 | # | Desafio | Stages | Progresso | Status | Acesso | Onde está |
 |---:|---|---:|---:|---|---|---|
@@ -21,7 +21,7 @@ Git (7) ✅ → DNS Server (8) ✅ → Tokenizer (8) ✅ → SQLite (9) ✅ → 
 | 8 | [Kafka](https://app.codecrafters.io/courses/kafka/overview) | 25 | 25/25 | ✅ concluído | membros | [`challenges/kafka`](../../challenges/kafka) |
 | 9 | [grep](https://app.codecrafters.io/courses/grep/overview) | 33 | 33/33 | ✅ concluído | membros | [`challenges/grep`](../../challenges/grep) |
 | 10 | [Shell](https://app.codecrafters.io/courses/shell/overview) | 76 | 76/76 | ✅ concluído | membros | [`challenges/shell`](../../challenges/shell) |
-| 11 | [Interpreter](https://app.codecrafters.io/courses/interpreter/overview) | 84 | 0/84 | ⬜ não iniciado | membros | — |
+| 11 | [Interpreter](https://app.codecrafters.io/courses/interpreter/overview) | 84 | 84/84 | ✅ concluído | membros | [`challenges/interpreter`](../../challenges/interpreter) |
 | 12 | [Claude Code](https://app.codecrafters.io/courses/claude-code/overview) | 18 | 18/18 | ✅ concluído | beta | [`challenges/claude-code`](../../challenges/claude-code) |
 
 > **Total:** 425 stages. O catálogo público completo, com todos os stages e IDs, está em
@@ -45,7 +45,7 @@ O que vamos replicar na plataforma:
 - progresso por stage (JSON local nesta versão; PostgreSQL no roadmap);
 - comando/hook de submissão (`wizard submit` ou git hook).
 
-**Já implementado para HTTP Server, Git, DNS Server, Tokenizer, SQLite, Claude Code, BitTorrent, Kafka, grep e Shell:** catálogo, página, instruções, starter Java,
+**Já implementado para HTTP Server, Git, DNS Server, Tokenizer, SQLite, Claude Code, BitTorrent, Kafka, grep, Shell e Interpreter:** catálogo, página, instruções, starter Java,
 runner, CLI `npm run cc -- ...`, remote local `wizard` e hook `post-receive`.
 
 ## Ordem recomendada
@@ -555,25 +555,134 @@ meio da linha (setas ←/→) e starters para outras linguagens.
 
 ---
 
-### ⬜ Interpreter — 0/84
+### ✅ Interpreter — 84/84
 
-**Foco:** lexer, parser, AST, evaluator, statements, escopos, funções,
-closures, resolver, classes e herança — um interpretador estilo Lox.
+**Foco:** lexer, parser descendente recursivo, AST, avaliação de expressões, statements, escopos,
+controle de fluxo, funções e closures, resolução estática, classes e herança — Lox, a linguagem
+do livro *Crafting Interpreters* (Robert Nystrom).
 
-| Seção | Stages | Cobre | Status |
-|---|---:|---|---|
-| Core (scanning) | 15 | tokens, erros léxicos, strings, números, keywords | ⬜ |
-| Parsing Expressions | 10 | literais, unários, binários, precedência, erros | ⬜ |
-| Evaluating Expressions | 13 | valores, operadores, erros de runtime | ⬜ |
-| Statements & State | 10 | `print`, variáveis, blocos, escopos | ⬜ |
-| Control Flow | 9 | `if`, `else`, `or`, `and`, `while`, `for` | ⬜ |
-| Functions | 9 | nativas, parâmetros, retorno, closures | ⬜ |
-| Resolving & Binding | 4 | resolução de identificadores, redeclaração | ⬜ |
-| Classes | 8 | classes, instâncias, métodos, `this`, construtor | ⬜ |
-| Inheritance | 6 | herança, override, `super` | ⬜ |
+**Implementação:** [`challenges/interpreter/java`](../../challenges/interpreter/java) ·
+**Tester:** [`challenges/interpreter/tests/run-stages.mjs`](../../challenges/interpreter/tests/run-stages.mjs)
 
-**O que falta:** implementar a linguagem completa, incluindo resolução
-semântica e classes; é o desafio mais longo do catálogo.
+**Core:**
+
+- [x] 1. Scanning: Empty file
+- [x] 2. Scanning: Parentheses
+- [x] 3. Scanning: Braces
+- [x] 4. Scanning: Other single-character tokens
+- [x] 5. Scanning: Lexical errors
+- [x] 6. Scanning: Assignment & equality Operators
+- [x] 7. Scanning: Negation & inequality operators
+- [x] 8. Scanning: Relational operators
+- [x] 9. Scanning: Division operator & comments
+- [x] 10. Scanning: Whitespace
+- [x] 11. Scanning: Multi-line errors
+- [x] 12. Scanning: String literals
+- [x] 13. Scanning: Number literals
+- [x] 14. Scanning: Identifiers
+- [x] 15. Scanning: Reserved words
+
+**Parsing Expressions:**
+
+- [x] 16. Booleans & Nil
+- [x] 17. Number literals
+- [x] 18. String literals
+- [x] 19. Parentheses
+- [x] 20. Unary Operators
+- [x] 21. Arithmetic operators (1/2)
+- [x] 22. Arithmetic operators (2/2)
+- [x] 23. Comparison operators
+- [x] 24. Equality operators
+- [x] 25. Syntactic errors
+
+**Evaluating Expressions:**
+
+- [x] 26. Literals: Booleans & Nil
+- [x] 27. Literals: Strings & Numbers
+- [x] 28. Parentheses
+- [x] 29. Unary Operators: Negation & Not
+- [x] 30. Arithmetic Operators (1/2)
+- [x] 31. Arithmetic Operators (2/2)
+- [x] 32. String Concatenation
+- [x] 33. Relational Operators
+- [x] 34. Equality Operators
+- [x] 35. Runtime Errors: Unary Operators
+- [x] 36. Runtime Errors: Binary Operators (1/2)
+- [x] 37. Runtime Errors: Binary Operators (2/2)
+- [x] 38. Runtime Errors: Relational Operators
+
+**Statements & State:**
+
+- [x] 39. Print: Generate output
+- [x] 40. Print: Multiple statements
+- [x] 41. Expression statements
+- [x] 42. Variables: Declare variables
+- [x] 43. Variables: Runtime Errors
+- [x] 44. Variables: Initialize variables
+- [x] 45. Variables: Redeclare variables
+- [x] 46. Assignment operation
+- [x] 47. Block syntax
+- [x] 48. Scopes
+
+**Control Flow:**
+
+- [x] 49. If statements
+- [x] 50. Else statements
+- [x] 51. Else-if statements
+- [x] 52. Nested if statements
+- [x] 53. Logical OR operator
+- [x] 54. Logical AND operator
+- [x] 55. While statements
+- [x] 56. For statements
+- [x] 57. Syntactic errors
+
+**Functions:**
+
+- [x] 58. Native functions
+- [x] 59. Functions without arguments
+- [x] 60. Functions with arguments
+- [x] 61. Syntax errors
+- [x] 62. Return statements
+- [x] 63. Higher order functions
+- [x] 64. Runtime errors
+- [x] 65. Function scope
+- [x] 66. Closures
+
+**Resolving & Binding:**
+
+- [x] 67. Identifier Resolution
+- [x] 68. Self Initialization
+- [x] 69. Variable Redeclaration
+- [x] 70. Invalid Return
+
+**Classes:**
+
+- [x] 71. Class Declarations
+- [x] 72. Class Instances
+- [x] 73. Getters & Setters
+- [x] 74. Instance Methods
+- [x] 75. The 'this' keyword
+- [x] 76. Invalid usages of 'this'
+- [x] 77. Constructor calls
+- [x] 78. Return within constructors
+
+**Inheritance:**
+
+- [x] 79. Class Hierarchy
+- [x] 80. Inheriting Methods
+- [x] 81. Overriding Methods
+- [x] 82. Inheritance errors
+- [x] 83. The super keyword
+- [x] 84. Invalid Usages of the super Keyword
+
+**Como o tester funciona:** `tokenize` é comparado com um scanner de referência em JavaScript
+sobre fontes aleatórias; `parse`/`evaluate` usam expressões aleatórias geradas a partir da
+gramática, com a árvore e o valor esperados calculados pelo gerador; os stages de `run` usam
+programas escritos para cada stage com nomes e valores sorteados. Erros conferem o código de
+saída (65 estático, 70 em execução), a linha e a mensagem. Validado em Windows e Linux.
+
+**O que falta:** `break`/`continue`, funções anônimas, uma biblioteca padrão maior e starters
+para outras linguagens.
 
 ---
 
@@ -649,7 +758,7 @@ local `wizard`, hook `post-receive` e progresso por stage em JSON.
 2. **Runner isolado**: container com limite de CPU/memória/tempo, diretório temporário
    e porta isolada; devolver JSON por stage.
 3. **Outros starters**: Go, Python, Rust etc. para o HTTP Server.
-4. **Próximos desafios**: Interpreter, Redis (ordem por número de stages).
+4. **Próximos desafios**: Redis (124 stages).
 5. **Conteúdo**: instruções em português para cada stage dos novos desafios.
 
 ## Convenções

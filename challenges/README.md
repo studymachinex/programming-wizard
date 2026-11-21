@@ -18,7 +18,7 @@ Implementações de referência e engine dos desafios do
 | Kafka | 25 | ✅ jogável | ✅ 25/25 |
 | grep | 33 | ✅ jogável | ✅ 33/33 |
 | Shell | 76 | ✅ jogável | ✅ 76/76 |
-| Interpreter | 84 | ⬜ em breve | ⬜ |
+| Interpreter | 84 | ✅ jogável | ✅ 84/84 |
 | Claude Code | 18 | ✅ jogável | ✅ 18/18 |
 
 O progresso detalhado e os tópicos de cada desafio ficam em
@@ -264,10 +264,27 @@ node challenges/shell/tests/run-stages.mjs --dir <pasta> --no-build
 node challenges/shell/tests/run-stages.mjs --no-build --only 23,27  # só alguns stages
 ```
 
+## Interpreter
+
+- Curso e instruções: [`content/codecrafters/interpreter`](../content/codecrafters/interpreter).
+- Starter: [`interpreter/starter/java`](interpreter/starter/java).
+- Referência: [`interpreter/java`](interpreter/java).
+- Tester: [`interpreter/tests/run-stages.mjs`](interpreter/tests/run-stages.mjs).
+
+Um interpretador de Lox (linguagem do livro *Crafting Interpreters*, de Robert Nystrom) com os
+comandos `tokenize`, `parse`, `evaluate` e `run`. O tester compara o `tokenize` com um scanner de
+referência em JavaScript sobre fontes aleatórias, gera expressões aleatórias a partir da gramática
+(com a árvore e o valor esperados) e roda programas escritos para cada stage, conferindo stdout,
+código de saída (65/70) e a linha dos erros.
+
+```bash
+npm run challenge:interpreter                                         # contra a referência
+node challenges/interpreter/tests/run-stages.mjs --dir <pasta> --no-build
+```
+
 ## Próximos desafios
 
-A integração segue do desafio com menos stages para o com mais: Interpreter (84) e
-Redis (124).
+Falta o Redis (124 stages).
 
 
 Para adicionar um desafio, o contrato é:

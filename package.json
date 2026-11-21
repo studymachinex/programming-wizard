@@ -25,6 +25,7 @@
     "challenge:kafka": "node challenges/kafka/tests/run-stages.mjs",
     "challenge:grep": "node challenges/grep/tests/run-stages.mjs",
     "challenge:shell": "node challenges/shell/tests/run-stages.mjs",
+    "challenge:interpreter": "node challenges/interpreter/tests/run-stages.mjs",
     "cc": "node challenges/engine/cc.mjs"
   },
   "dependencies": {

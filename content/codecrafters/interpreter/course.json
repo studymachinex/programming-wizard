@@ -1,0 +1,880 @@
+{
+  "slug": "interpreter",
+  "title": "Build your own Interpreter",
+  "tagline": "Implemente uma linguagem de programação inteira: do scanner às classes com herança.",
+  "description": "Você vai construir em Java um interpretador tree-walk para Lox, a linguagem do livro Crafting Interpreters (Robert Nystrom): scanner, parser descendente recursivo, avaliação de expressões com erros de execução, variáveis e escopos, controle de fluxo, funções de primeira classe e closures, resolução estática, classes, construtores, herança e super. São 84 stages.",
+  "language": "java",
+  "languageLabel": "Java 21",
+  "estimatedHours": 35,
+  "topics": [
+    "análise léxica",
+    "parsing",
+    "AST",
+    "interpretação tree-walk",
+    "escopos e ambientes",
+    "closures",
+    "resolução estática",
+    "classes e herança"
+  ],
+  "prerequisites": [
+    "Java 21 instalado (java -version)",
+    "Maven instalado (mvn -version)"
+  ],
+  "runtime": {
+    "starter": "challenges/interpreter/starter/java",
+    "reference": "challenges/interpreter/java",
+    "runner": "challenges/interpreter/tests/stages.mjs",
+    "compile": {
+      "command": "mvn",
+      "args": [
+        "-q",
+        "-B",
+        "package"
+      ],
+      "timeoutMs": 240000
+    },
+    "runCommand": "./your_program.sh <tokenize|parse|evaluate|run> <arquivo.lox>"
+  },
+  "stages": [
+    {
+      "order": 1,
+      "id": "introduction",
+      "slug": "scanning-empty-file",
+      "title": "Scanning: Empty file",
+      "difficulty": "Very easy",
+      "section": "Core",
+      "summary": "Um arquivo vazio gera só o token EOF.",
+      "file": "stages/01-scanning-empty-file.md"
+    },
+    {
+      "order": 2,
+      "id": "ol4",
+      "slug": "scanning-parentheses",
+      "title": "Scanning: Parentheses",
+      "difficulty": "Medium",
+      "section": "Core",
+      "summary": "Tokens ( e ).",
+      "file": "stages/02-scanning-parentheses.md"
+    },
+    {
+      "order": 3,
+      "id": "oe8",
+      "slug": "scanning-braces",
+      "title": "Scanning: Braces",
+      "difficulty": "Easy",
+      "section": "Core",
+      "summary": "Tokens { e }.",
+      "file": "stages/03-scanning-braces.md"
+    },
+    {
+      "order": 4,
+      "id": "xc5",
+      "slug": "scanning-single-chars",
+      "title": "Scanning: Other single-character tokens",
+      "difficulty": "Medium",
+      "section": "Core",
+      "summary": "Vírgula, ponto, +, -, ;, *.",
+      "file": "stages/04-scanning-single-chars.md"
+    },
+    {
+      "order": 5,
+      "id": "ea6",
+      "slug": "scanning-lexical-errors",
+      "title": "Scanning: Lexical errors",
+      "difficulty": "Medium",
+      "section": "Core",
+      "summary": "Caracteres desconhecidos geram erro, mas o scan continua.",
+      "file": "stages/05-scanning-lexical-errors.md"
+    },
+    {
+      "order": 6,
+      "id": "mp7",
+      "slug": "scanning-equality",
+      "title": "Scanning: Assignment & equality Operators",
+      "difficulty": "Medium",
+      "section": "Core",
+      "summary": "= e ==.",
+      "file": "stages/06-scanning-equality.md"
+    },
+    {
+      "order": 7,
+      "id": "bu3",
+      "slug": "scanning-negation",
+      "title": "Scanning: Negation & inequality operators",
+      "difficulty": "Medium",
+      "section": "Core",
+      "summary": "! e !=.",
+      "file": "stages/07-scanning-negation.md"
+    },
+    {
+      "order": 8,
+      "id": "et2",
+      "slug": "scanning-relational",
+      "title": "Scanning: Relational operators",
+      "difficulty": "Medium",
+      "section": "Core",
+      "summary": "<, <=, > e >=.",
+      "file": "stages/08-scanning-relational.md"
+    },
+    {
+      "order": 9,
+      "id": "ml2",
+      "slug": "scanning-division-comments",
+      "title": "Scanning: Division operator & comments",
+      "difficulty": "Medium",
+      "section": "Core",
+      "summary": "/ e comentários //.",
+      "file": "stages/09-scanning-division-comments.md"
+    },
+    {
+      "order": 10,
+      "id": "er2",
+      "slug": "scanning-whitespace",
+      "title": "Scanning: Whitespace",
+      "difficulty": "Medium",
+      "section": "Core",
+      "summary": "Espaços, tabs e quebras de linha.",
+      "file": "stages/10-scanning-whitespace.md"
+    },
+    {
+      "order": 11,
+      "id": "tz7",
+      "slug": "scanning-multiline-errors",
+      "title": "Scanning: Multi-line errors",
+      "difficulty": "Medium",
+      "section": "Core",
+      "summary": "Erros apontam a linha certa.",
+      "file": "stages/11-scanning-multiline-errors.md"
+    },
+    {
+      "order": 12,
+      "id": "ue7",
+      "slug": "scanning-strings",
+      "title": "Scanning: String literals",
+      "difficulty": "Hard",
+      "section": "Core",
+      "summary": "Strings entre aspas duplas.",
+      "file": "stages/12-scanning-strings.md"
+    },
+    {
+      "order": 13,
+      "id": "kj0",
+      "slug": "scanning-numbers",
+      "title": "Scanning: Number literals",
+      "difficulty": "Hard",
+      "section": "Core",
+      "summary": "Números inteiros e decimais.",
+      "file": "stages/13-scanning-numbers.md"
+    },
+    {
+      "order": 14,
+      "id": "ey7",
+      "slug": "scanning-identifiers",
+      "title": "Scanning: Identifiers",
+      "difficulty": "Hard",
+      "section": "Core",
+      "summary": "Nomes: letras, dígitos e _.",
+      "file": "stages/14-scanning-identifiers.md"
+    },
+    {
+      "order": 15,
+      "id": "pq5",
+      "slug": "scanning-reserved-words",
+      "title": "Scanning: Reserved words",
+      "difficulty": "Medium",
+      "section": "Core",
+      "summary": "Palavras reservadas.",
+      "file": "stages/15-scanning-reserved-words.md"
+    },
+    {
+      "order": 16,
+      "id": "sc2",
+      "slug": "parse-booleans-nil",
+      "title": "Booleans & Nil",
+      "difficulty": "Hard",
+      "section": "Parsing Expressions",
+      "summary": "O comando parse com true, false e nil.",
+      "file": "stages/16-parse-booleans-nil.md"
+    },
+    {
+      "order": 17,
+      "id": "ra8",
+      "slug": "parse-numbers",
+      "title": "Number literals",
+      "difficulty": "Medium",
+      "section": "Parsing Expressions",
+      "summary": "Números na árvore.",
+      "file": "stages/17-parse-numbers.md"
+    },
+    {
+      "order": 18,
+      "id": "th5",
+      "slug": "parse-strings",
+      "title": "String literals",
+      "difficulty": "Medium",
+      "section": "Parsing Expressions",
+      "summary": "Strings na árvore.",
+      "file": "stages/18-parse-strings.md"
+    },
+    {
+      "order": 19,
+      "id": "xe6",
+      "slug": "parse-parentheses",
+      "title": "Parentheses",
+      "difficulty": "Medium",
+      "section": "Parsing Expressions",
+      "summary": "Agrupamento com parênteses.",
+      "file": "stages/19-parse-parentheses.md"
+    },
+    {
+      "order": 20,
+      "id": "mq1",
+      "slug": "parse-unary",
+      "title": "Unary Operators",
+      "difficulty": "Medium",
+      "section": "Parsing Expressions",
+      "summary": "! e - unários.",
+      "file": "stages/20-parse-unary.md"
+    },
+    {
+      "order": 21,
+      "id": "wa9",
+      "slug": "parse-factor",
+      "title": "Arithmetic operators (1/2)",
+      "difficulty": "Medium",
+      "section": "Parsing Expressions",
+      "summary": "* e /.",
+      "file": "stages/21-parse-factor.md"
+    },
+    {
+      "order": 22,
+      "id": "yf2",
+      "slug": "parse-term",
+      "title": "Arithmetic operators (2/2)",
+      "difficulty": "Medium",
+      "section": "Parsing Expressions",
+      "summary": "+ e -.",
+      "file": "stages/22-parse-term.md"
+    },
+    {
+      "order": 23,
+      "id": "uh4",
+      "slug": "parse-comparison",
+      "title": "Comparison operators",
+      "difficulty": "Medium",
+      "section": "Parsing Expressions",
+      "summary": "<, <=, >, >=.",
+      "file": "stages/23-parse-comparison.md"
+    },
+    {
+      "order": 24,
+      "id": "ht8",
+      "slug": "parse-equality",
+      "title": "Equality operators",
+      "difficulty": "Medium",
+      "section": "Parsing Expressions",
+      "summary": "== e !=.",
+      "file": "stages/24-parse-equality.md"
+    },
+    {
+      "order": 25,
+      "id": "wz8",
+      "slug": "parse-errors",
+      "title": "Syntactic errors",
+      "difficulty": "Medium",
+      "section": "Parsing Expressions",
+      "summary": "Erros de sintaxe com código 65.",
+      "file": "stages/25-parse-errors.md"
+    },
+    {
+      "order": 26,
+      "id": "iz6",
+      "slug": "evaluate-booleans-nil",
+      "title": "Literals: Booleans & Nil",
+      "difficulty": "Hard",
+      "section": "Evaluating Expressions",
+      "summary": "O comando evaluate.",
+      "file": "stages/26-evaluate-booleans-nil.md"
+    },
+    {
+      "order": 27,
+      "id": "lv1",
+      "slug": "evaluate-strings-numbers",
+      "title": "Literals: Strings & Numbers",
+      "difficulty": "Medium",
+      "section": "Evaluating Expressions",
+      "summary": "Imprimir strings e números.",
+      "file": "stages/27-evaluate-strings-numbers.md"
+    },
+    {
+      "order": 28,
+      "id": "oq9",
+      "slug": "evaluate-parentheses",
+      "title": "Parentheses",
+      "difficulty": "Medium",
+      "section": "Evaluating Expressions",
+      "summary": "Grupos devolvem o valor de dentro.",
+      "file": "stages/28-evaluate-parentheses.md"
+    },
+    {
+      "order": 29,
+      "id": "dc1",
+      "slug": "evaluate-unary",
+      "title": "Unary Operators: Negation & Not",
+      "difficulty": "Medium",
+      "section": "Evaluating Expressions",
+      "summary": "-x e !x.",
+      "file": "stages/29-evaluate-unary.md"
+    },
+    {
+      "order": 30,
+      "id": "bp3",
+      "slug": "evaluate-factor",
+      "title": "Arithmetic Operators (1/2)",
+      "difficulty": "Medium",
+      "section": "Evaluating Expressions",
+      "summary": "* e /.",
+      "file": "stages/30-evaluate-factor.md"
+    },
+    {
+      "order": 31,
+      "id": "jy2",
+      "slug": "evaluate-term",
+      "title": "Arithmetic Operators (2/2)",
+      "difficulty": "Medium",
+      "section": "Evaluating Expressions",
+      "summary": "+ e -.",
+      "file": "stages/31-evaluate-term.md"
+    },
+    {
+      "order": 32,
+      "id": "jx8",
+      "slug": "evaluate-concatenation",
+      "title": "String Concatenation",
+      "difficulty": "Medium",
+      "section": "Evaluating Expressions",
+      "summary": "+ entre strings.",
+      "file": "stages/32-evaluate-concatenation.md"
+    },
+    {
+      "order": 33,
+      "id": "et4",
+      "slug": "evaluate-relational",
+      "title": "Relational Operators",
+      "difficulty": "Medium",
+      "section": "Evaluating Expressions",
+      "summary": "<, <=, >, >= devolvem booleanos.",
+      "file": "stages/33-evaluate-relational.md"
+    },
+    {
+      "order": 34,
+      "id": "hw7",
+      "slug": "evaluate-equality",
+      "title": "Equality Operators",
+      "difficulty": "Medium",
+      "section": "Evaluating Expressions",
+      "summary": "== e != entre quaisquer valores.",
+      "file": "stages/34-evaluate-equality.md"
+    },
+    {
+      "order": 35,
+      "id": "gj9",
+      "slug": "runtime-errors-unary",
+      "title": "Runtime Errors: Unary Operators",
+      "difficulty": "Medium",
+      "section": "Evaluating Expressions",
+      "summary": "-\"x\" é erro de execução.",
+      "file": "stages/35-runtime-errors-unary.md"
+    },
+    {
+      "order": 36,
+      "id": "yu6",
+      "slug": "runtime-errors-binary-1",
+      "title": "Runtime Errors: Binary Operators (1/2)",
+      "difficulty": "Medium",
+      "section": "Evaluating Expressions",
+      "summary": "*, /, - exigem números.",
+      "file": "stages/36-runtime-errors-binary-1.md"
+    },
+    {
+      "order": 37,
+      "id": "cq1",
+      "slug": "runtime-errors-binary-2",
+      "title": "Runtime Errors: Binary Operators (2/2)",
+      "difficulty": "Medium",
+      "section": "Evaluating Expressions",
+      "summary": "+ exige dois números ou duas strings.",
+      "file": "stages/37-runtime-errors-binary-2.md"
+    },
+    {
+      "order": 38,
+      "id": "ib5",
+      "slug": "runtime-errors-relational",
+      "title": "Runtime Errors: Relational Operators",
+      "difficulty": "Medium",
+      "section": "Evaluating Expressions",
+      "summary": "Comparações exigem números.",
+      "file": "stages/38-runtime-errors-relational.md"
+    },
+    {
+      "order": 39,
+      "id": "xy1",
+      "slug": "print-statement",
+      "title": "Print: Generate output",
+      "difficulty": "Medium",
+      "section": "Statements & State",
+      "summary": "O comando run e o statement print.",
+      "file": "stages/39-print-statement.md"
+    },
+    {
+      "order": 40,
+      "id": "oe4",
+      "slug": "print-multiple",
+      "title": "Print: Multiple statements",
+      "difficulty": "Medium",
+      "section": "Statements & State",
+      "summary": "Vários statements em sequência.",
+      "file": "stages/40-print-multiple.md"
+    },
+    {
+      "order": 41,
+      "id": "fi3",
+      "slug": "expression-statements",
+      "title": "Expression statements",
+      "difficulty": "Easy",
+      "section": "Statements & State",
+      "summary": "Expressões soltas como statements.",
+      "file": "stages/41-expression-statements.md"
+    },
+    {
+      "order": 42,
+      "id": "yg2",
+      "slug": "declare-variables",
+      "title": "Variables: Declare variables",
+      "difficulty": "Easy",
+      "section": "Statements & State",
+      "summary": "var nome = valor;",
+      "file": "stages/42-declare-variables.md"
+    },
+    {
+      "order": 43,
+      "id": "sv7",
+      "slug": "variables-runtime-errors",
+      "title": "Variables: Runtime Errors",
+      "difficulty": "Easy",
+      "section": "Statements & State",
+      "summary": "Variável indefinida.",
+      "file": "stages/43-variables-runtime-errors.md"
+    },
+    {
+      "order": 44,
+      "id": "bc1",
+      "slug": "initialize-variables",
+      "title": "Variables: Initialize variables",
+      "difficulty": "Easy",
+      "section": "Statements & State",
+      "summary": "var sem valor vale nil.",
+      "file": "stages/44-initialize-variables.md"
+    },
+    {
+      "order": 45,
+      "id": "dw9",
+      "slug": "redeclare-variables",
+      "title": "Variables: Redeclare variables",
+      "difficulty": "Easy",
+      "section": "Statements & State",
+      "summary": "Redeclarar globais é permitido.",
+      "file": "stages/45-redeclare-variables.md"
+    },
+    {
+      "order": 46,
+      "id": "pl3",
+      "slug": "assignment",
+      "title": "Assignment operation",
+      "difficulty": "Medium",
+      "section": "Statements & State",
+      "summary": "a = valor.",
+      "file": "stages/46-assignment.md"
+    },
+    {
+      "order": 47,
+      "id": "vr5",
+      "slug": "block-syntax",
+      "title": "Block syntax",
+      "difficulty": "Medium",
+      "section": "Statements & State",
+      "summary": "Blocos { ... }.",
+      "file": "stages/47-block-syntax.md"
+    },
+    {
+      "order": 48,
+      "id": "fb4",
+      "slug": "scopes",
+      "title": "Scopes",
+      "difficulty": "Medium",
+      "section": "Statements & State",
+      "summary": "Escopos léxicos com sombreamento.",
+      "file": "stages/48-scopes.md"
+    },
+    {
+      "order": 49,
+      "id": "ne3",
+      "slug": "if-statements",
+      "title": "If statements",
+      "difficulty": "Medium",
+      "section": "Control Flow",
+      "summary": "if (condição) statement.",
+      "file": "stages/49-if-statements.md"
+    },
+    {
+      "order": 50,
+      "id": "st5",
+      "slug": "else-statements",
+      "title": "Else statements",
+      "difficulty": "Medium",
+      "section": "Control Flow",
+      "summary": "else.",
+      "file": "stages/50-else-statements.md"
+    },
+    {
+      "order": 51,
+      "id": "fh8",
+      "slug": "else-if",
+      "title": "Else-if statements",
+      "difficulty": "Medium",
+      "section": "Control Flow",
+      "summary": "Cadeias else if.",
+      "file": "stages/51-else-if.md"
+    },
+    {
+      "order": 52,
+      "id": "xj4",
+      "slug": "nested-if",
+      "title": "Nested if statements",
+      "difficulty": "Medium",
+      "section": "Control Flow",
+      "summary": "if aninhados e o else pendente.",
+      "file": "stages/52-nested-if.md"
+    },
+    {
+      "order": 53,
+      "id": "wk8",
+      "slug": "logical-or",
+      "title": "Logical OR operator",
+      "difficulty": "Medium",
+      "section": "Control Flow",
+      "summary": "or com curto-circuito.",
+      "file": "stages/53-logical-or.md"
+    },
+    {
+      "order": 54,
+      "id": "jx4",
+      "slug": "logical-and",
+      "title": "Logical AND operator",
+      "difficulty": "Medium",
+      "section": "Control Flow",
+      "summary": "and com curto-circuito.",
+      "file": "stages/54-logical-and.md"
+    },
+    {
+      "order": 55,
+      "id": "qy3",
+      "slug": "while",
+      "title": "While statements",
+      "difficulty": "Medium",
+      "section": "Control Flow",
+      "summary": "Laço while.",
+      "file": "stages/55-while.md"
+    },
+    {
+      "order": 56,
+      "id": "bw6",
+      "slug": "for",
+      "title": "For statements",
+      "difficulty": "Medium",
+      "section": "Control Flow",
+      "summary": "Laço for (açúcar sintático).",
+      "file": "stages/56-for.md"
+    },
+    {
+      "order": 57,
+      "id": "vt1",
+      "slug": "control-flow-errors",
+      "title": "Syntactic errors",
+      "difficulty": "Medium",
+      "section": "Control Flow",
+      "summary": "Erros de sintaxe em controle de fluxo.",
+      "file": "stages/57-control-flow-errors.md"
+    },
+    {
+      "order": 58,
+      "id": "av4",
+      "slug": "native-functions",
+      "title": "Native functions",
+      "difficulty": "Medium",
+      "section": "Functions",
+      "summary": "Chamadas e a função nativa clock().",
+      "file": "stages/58-native-functions.md"
+    },
+    {
+      "order": 59,
+      "id": "pg8",
+      "slug": "functions-no-args",
+      "title": "Functions without arguments",
+      "difficulty": "Medium",
+      "section": "Functions",
+      "summary": "fun nome() { ... }",
+      "file": "stages/59-functions-no-args.md"
+    },
+    {
+      "order": 60,
+      "id": "lb6",
+      "slug": "functions-args",
+      "title": "Functions with arguments",
+      "difficulty": "Medium",
+      "section": "Functions",
+      "summary": "Parâmetros.",
+      "file": "stages/60-functions-args.md"
+    },
+    {
+      "order": 61,
+      "id": "px4",
+      "slug": "function-syntax-errors",
+      "title": "Syntax errors",
+      "difficulty": "Medium",
+      "section": "Functions",
+      "summary": "Erros de sintaxe em funções.",
+      "file": "stages/61-function-syntax-errors.md"
+    },
+    {
+      "order": 62,
+      "id": "rd2",
+      "slug": "return",
+      "title": "Return statements",
+      "difficulty": "Medium",
+      "section": "Functions",
+      "summary": "return valor;",
+      "file": "stages/62-return.md"
+    },
+    {
+      "order": 63,
+      "id": "ey3",
+      "slug": "higher-order-functions",
+      "title": "Higher order functions",
+      "difficulty": "Hard",
+      "section": "Functions",
+      "summary": "Funções recebendo e devolvendo funções.",
+      "file": "stages/63-higher-order-functions.md"
+    },
+    {
+      "order": 64,
+      "id": "fj7",
+      "slug": "function-runtime-errors",
+      "title": "Runtime errors",
+      "difficulty": "Medium",
+      "section": "Functions",
+      "summary": "Chamadas inválidas.",
+      "file": "stages/64-function-runtime-errors.md"
+    },
+    {
+      "order": 65,
+      "id": "bz4",
+      "slug": "function-scope",
+      "title": "Function scope",
+      "difficulty": "Medium",
+      "section": "Functions",
+      "summary": "Parâmetros e locais.",
+      "file": "stages/65-function-scope.md"
+    },
+    {
+      "order": 66,
+      "id": "gg6",
+      "slug": "closures",
+      "title": "Closures",
+      "difficulty": "Hard",
+      "section": "Functions",
+      "summary": "Funções lembram o ambiente onde foram criadas.",
+      "file": "stages/66-closures.md"
+    },
+    {
+      "order": 67,
+      "id": "de8",
+      "slug": "identifier-resolution",
+      "title": "Identifier Resolution",
+      "difficulty": "Hard",
+      "section": "Resolving & Binding",
+      "summary": "Resolução estática de variáveis.",
+      "file": "stages/67-identifier-resolution.md"
+    },
+    {
+      "order": 68,
+      "id": "pt7",
+      "slug": "self-initialization",
+      "title": "Self Initialization",
+      "difficulty": "Medium",
+      "section": "Resolving & Binding",
+      "summary": "var a = a; num escopo local.",
+      "file": "stages/68-self-initialization.md"
+    },
+    {
+      "order": 69,
+      "id": "pz7",
+      "slug": "variable-redeclaration",
+      "title": "Variable Redeclaration",
+      "difficulty": "Medium",
+      "section": "Resolving & Binding",
+      "summary": "Redeclarar no mesmo escopo local.",
+      "file": "stages/69-variable-redeclaration.md"
+    },
+    {
+      "order": 70,
+      "id": "eh3",
+      "slug": "invalid-return",
+      "title": "Invalid Return",
+      "difficulty": "Easy",
+      "section": "Resolving & Binding",
+      "summary": "return fora de função.",
+      "file": "stages/70-invalid-return.md"
+    },
+    {
+      "order": 71,
+      "id": "vf4",
+      "slug": "class-declarations",
+      "title": "Class Declarations",
+      "difficulty": "Medium",
+      "section": "Classes",
+      "summary": "class Nome { }",
+      "file": "stages/71-class-declarations.md"
+    },
+    {
+      "order": 72,
+      "id": "yk8",
+      "slug": "class-instances",
+      "title": "Class Instances",
+      "difficulty": "Medium",
+      "section": "Classes",
+      "summary": "Chamar a classe cria instâncias.",
+      "file": "stages/72-class-instances.md"
+    },
+    {
+      "order": 73,
+      "id": "yf3",
+      "slug": "getters-setters",
+      "title": "Getters & Setters",
+      "difficulty": "Medium",
+      "section": "Classes",
+      "summary": "Campos: obj.campo e obj.campo = valor.",
+      "file": "stages/73-getters-setters.md"
+    },
+    {
+      "order": 74,
+      "id": "qr2",
+      "slug": "instance-methods",
+      "title": "Instance Methods",
+      "difficulty": "Medium",
+      "section": "Classes",
+      "summary": "Métodos.",
+      "file": "stages/74-instance-methods.md"
+    },
+    {
+      "order": 75,
+      "id": "yd7",
+      "slug": "this",
+      "title": "The 'this' keyword",
+      "difficulty": "Medium",
+      "section": "Classes",
+      "summary": "this dentro de métodos.",
+      "file": "stages/75-this.md"
+    },
+    {
+      "order": 76,
+      "id": "dg2",
+      "slug": "invalid-this",
+      "title": "Invalid usages of 'this'",
+      "difficulty": "Medium",
+      "section": "Classes",
+      "summary": "this fora de classe.",
+      "file": "stages/76-invalid-this.md"
+    },
+    {
+      "order": 77,
+      "id": "ou5",
+      "slug": "constructors",
+      "title": "Constructor calls",
+      "difficulty": "Medium",
+      "section": "Classes",
+      "summary": "init como construtor.",
+      "file": "stages/77-constructors.md"
+    },
+    {
+      "order": 78,
+      "id": "eb9",
+      "slug": "constructor-return",
+      "title": "Return within constructors",
+      "difficulty": "Medium",
+      "section": "Classes",
+      "summary": "return no init.",
+      "file": "stages/78-constructor-return.md"
+    },
+    {
+      "order": 79,
+      "id": "mf6",
+      "slug": "class-hierarchy",
+      "title": "Class Hierarchy",
+      "difficulty": "Medium",
+      "section": "Inheritance",
+      "summary": "class Filha < Mae { }",
+      "file": "stages/79-class-hierarchy.md"
+    },
+    {
+      "order": 80,
+      "id": "ky1",
+      "slug": "inheriting-methods",
+      "title": "Inheriting Methods",
+      "difficulty": "Medium",
+      "section": "Inheritance",
+      "summary": "Subclasses herdam métodos.",
+      "file": "stages/80-inheriting-methods.md"
+    },
+    {
+      "order": 81,
+      "id": "ka5",
+      "slug": "overriding-methods",
+      "title": "Overriding Methods",
+      "difficulty": "Medium",
+      "section": "Inheritance",
+      "summary": "Sobrescrita.",
+      "file": "stages/81-overriding-methods.md"
+    },
+    {
+      "order": 82,
+      "id": "ab0",
+      "slug": "inheritance-errors",
+      "title": "Inheritance errors",
+      "difficulty": "Medium",
+      "section": "Inheritance",
+      "summary": "Herança inválida.",
+      "file": "stages/82-inheritance-errors.md"
+    },
+    {
+      "order": 83,
+      "id": "qi0",
+      "slug": "super",
+      "title": "The super keyword",
+      "difficulty": "Medium",
+      "section": "Inheritance",
+      "summary": "super.metodo().",
+      "file": "stages/83-super.md"
+    },
+    {
+      "order": 84,
+      "id": "ib9",
+      "slug": "invalid-super",
+      "title": "Invalid Usages of the super Keyword",
+      "difficulty": "Medium",
+      "section": "Inheritance",
+      "summary": "super fora de lugar.",
+      "file": "stages/84-invalid-super.md"
+    }
+  ]
+}
