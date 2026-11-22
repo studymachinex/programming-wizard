@@ -19,6 +19,8 @@ import { LessonQuiz } from "@/components/lesson-quiz";
 import { NotesPanel } from "@/components/notes-panel";
 import { MiniRing } from "@/components/progress-ring";
 import { Breadcrumb, ProgressBar, TrackIcon, accentOf } from "@/components/ui";
+import { LessonVisualizer } from "@/components/visualizer/lesson-visualizer";
+import { hasVisualizer } from "@/lib/visualizers/registry";
 
 export const dynamic = "force-dynamic";
 
@@ -145,6 +147,8 @@ export default async function LessonPage({
               </div>
             </div>
           </header>
+
+          {hasVisualizer(track.slug, lesson.slug) && <LessonVisualizer track={track.slug} lesson={lesson.slug} />}
 
           <div className="mt-8">
             <Markdown content={lesson.content} />
