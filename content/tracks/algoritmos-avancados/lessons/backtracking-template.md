@@ -145,14 +145,6 @@ O template se adapta a quase todo problema de enumeração. A diferença está e
 - **Não podar.** Sem colisão de colunas/diagonais, N-Queens testa n^n posições em vez de explorar só os ramos viáveis.
 - **Profundidade grande.** Backtracking com n = 30 pode estourar a pilha; nesse caso, a saída exponencial já é o gargalo, mas a pilha pode estourar antes.
 
-## Checklist de domínio
-
-- [ ] Você escreve o template escolher-explorar-desfazer sem consultar
-- [ ] Você adapta o estado para permutações, subconjuntos e N-Queens
-- [ ] Você poda com colisões e ordenação, e explica por que a poda é segura
-- [ ] Você calcula a complexidade em função do número de soluções e do custo de copiá-las
-- [ ] Você reconhece quando DP é melhor que enumeração
-
 ## Para ir além
 
 - [LeetCode 46 — Permutations](https://leetcode.com/problems/permutations/)

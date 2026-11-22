@@ -1,0 +1,34 @@
+[
+  {
+    "slug": "atv-adv-fenwick",
+    "kind": "code",
+    "title": "Fenwick tree (BIT)",
+    "statement": "Implemente uma Fenwick tree para somas com update pontual.\n\n## Contrato\n\n```java\nstatic class Fenwick {\n    Fenwick(int n);\n    void add(int i, long delta);   // índice 0-based\n    long prefixo(int i);           // soma de [0, i]\n    long soma(int l, int r);       // soma de [l, r], 0 se l > r\n}\n```\n\n## Restrições\n\n- Internamente 1-based; `i & -i` (lowbit). O(log n) por operação; 200 mil operações.",
+    "starterCode": "public class Solution {\n    static class Fenwick {\n        private final long[] t;\n\n        Fenwick(int n) { t = new long[n + 1]; }\n\n        void add(int i, long delta) { throw new UnsupportedOperationException(\"TODO\"); }\n        long prefixo(int i) { throw new UnsupportedOperationException(\"TODO\"); }\n        long soma(int l, int r) { throw new UnsupportedOperationException(\"TODO\"); }\n    }\n}\n",
+    "solutionCode": "public class Solution {\n    static class Fenwick {\n        private final long[] t;\n\n        Fenwick(int n) { t = new long[n + 1]; }\n\n        // t[i] cobre os lowbit(i) elementos que terminam em i.\n        void add(int i, long delta) {\n            for (i++; i < t.length; i += i & -i) t[i] += delta;\n        }\n\n        long prefixo(int i) {\n            long s = 0;\n            for (i++; i > 0; i -= i & -i) s += t[i];\n            return s;\n        }\n\n        long soma(int l, int r) {\n            if (l > r) return 0;\n            return prefixo(r) - (l == 0 ? 0 : prefixo(l - 1));\n        }\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nimport java.util.*;\n\nclass SolutionTest {\n    @Test void pequeno() {\n        var f = new Solution.Fenwick(5);\n        for (int i = 0; i < 5; i++) f.add(i, i + 1); // [1, 2, 3, 4, 5]\n        assertEquals(15, f.prefixo(4));\n        assertEquals(9, f.soma(1, 3));\n        assertEquals(1, f.soma(0, 0));\n        assertEquals(0, f.soma(3, 2));\n        f.add(2, -10);\n        assertEquals(-1, f.soma(1, 3));\n    }\n\n    @Test void aleatorio() {\n        var rnd = new Random(18);\n        int n = 50;\n        long[] a = new long[n];\n        var f = new Solution.Fenwick(n);\n        for (int op = 0; op < 5000; op++) {\n            int i = rnd.nextInt(n);\n            if (rnd.nextBoolean()) {\n                long d = rnd.nextInt(2_000_000_000) - 1_000_000_000L;\n                a[i] += d;\n                f.add(i, d);\n            } else {\n                int j = rnd.nextInt(n);\n                long e = 0;\n                for (int k = Math.min(i, j); k <= Math.max(i, j); k++) e += a[k];\n                assertEquals(e, f.soma(Math.min(i, j), Math.max(i, j)));\n            }\n        }\n    }\n\n    @Test void grande() {\n        int n = 200_000;\n        var f = new Solution.Fenwick(n);\n        for (int i = 0; i < n; i++) f.add(i, 1_000_000_000);\n        assertEquals(200_000L * 1_000_000_000, f.prefixo(n - 1));\n        assertEquals(1_000_000_000, f.soma(n - 1, n - 1));\n    }\n}\n",
+    "hints": [
+      "Converta para 1-based somando 1 ao índice.",
+      "add sobe com i += i & −i; prefixo desce com i −= i & −i."
+    ]
+  },
+  {
+    "slug": "atv-adv-sparse-table",
+    "kind": "code",
+    "title": "Sparse table para mínimo em O(1)",
+    "statement": "Array estático; responda muitas consultas de mínimo em `[l, r]` (inclusivo) em O(1) cada.\n\n## Contrato\n\n```java\nstatic class Sparse {\n    Sparse(int[] a);\n    int min(int l, int r);\n}\n```\n\n## Restrições\n\n- `st[k][i]` = mínimo de `[i, i + 2^k)`. Consulta: duas janelas de tamanho `2^k` que se sobrepõem.\n- Pré-calcule `log[]` (sem `Math.log`). Até 200 mil elementos e 1 milhão de consultas.",
+    "starterCode": "public class Solution {\n    static class Sparse {\n        Sparse(int[] a) { throw new UnsupportedOperationException(\"TODO\"); }\n        int min(int l, int r) { throw new UnsupportedOperationException(\"TODO\"); }\n    }\n}\n",
+    "solutionCode": "public class Solution {\n    static class Sparse {\n        private final int[][] st;\n        private final int[] log;\n\n        Sparse(int[] a) {\n            int n = a.length;\n            log = new int[n + 1];\n            for (int i = 2; i <= n; i++) log[i] = log[i / 2] + 1;\n            st = new int[log[Math.max(n, 1)] + 1][];\n            st[0] = a.clone();\n            for (int k = 1; k < st.length; k++) {\n                st[k] = new int[n - (1 << k) + 1];\n                for (int i = 0; i < st[k].length; i++) st[k][i] = Math.min(st[k - 1][i], st[k - 1][i + (1 << (k - 1))]);\n            }\n        }\n\n        // min é idempotente: sobrepor as duas janelas não altera o resultado.\n        int min(int l, int r) {\n            int k = log[r - l + 1];\n            return Math.min(st[k][l], st[k][r - (1 << k) + 1]);\n        }\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nimport java.util.*;\n\nclass SolutionTest {\n    @Test void pequeno() {\n        var s = new Solution.Sparse(new int[]{4, 6, 1, 5, 7, 3});\n        assertEquals(1, s.min(0, 5));\n        assertEquals(4, s.min(0, 1));\n        assertEquals(3, s.min(3, 5));\n        assertEquals(7, s.min(4, 4));\n    }\n\n    @Test void todosOsIntervalos() {\n        var rnd = new Random(19);\n        for (int n = 1; n <= 40; n++) {\n            int[] a = rnd.ints(n).toArray();\n            var s = new Solution.Sparse(a);\n            for (int l = 0; l < n; l++) {\n                int m = Integer.MAX_VALUE;\n                for (int r = l; r < n; r++) {\n                    m = Math.min(m, a[r]);\n                    assertEquals(m, s.min(l, r));\n                }\n            }\n        }\n    }\n\n    @Test void milhaoDeConsultas() {\n        int n = 200_000;\n        int[] a = new Random(20).ints(n).toArray();\n        var s = new Solution.Sparse(a);\n        var rnd = new Random(21);\n        long acc = 0;\n        for (int q = 0; q < 1_000_000; q++) {\n            int l = rnd.nextInt(n), r = l + rnd.nextInt(n - l);\n            acc += s.min(l, r);\n        }\n        assertNotEquals(0, acc);\n    }\n}\n",
+    "hints": [
+      "log[i] = log[i/2] + 1.",
+      "st[k][i] = min(st[k−1][i], st[k−1][i + 2^(k−1)]).",
+      "Consulta: k = log[tamanho]; min das janelas que começam em l e terminam em r."
+    ]
+  },
+  {
+    "slug": "atv-adv-fw-r1",
+    "kind": "reflection",
+    "title": "Compare memória e operações suportadas de Fenwick, sparse table e segment tree, e escolha por cenário."
+  }
+]

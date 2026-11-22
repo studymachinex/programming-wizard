@@ -1,0 +1,39 @@
+[
+  {
+    "slug": "atv-adv-diametro-arvore",
+    "kind": "code",
+    "title": "Tree DP: diâmetro e máximo global",
+    "statement": "Árvore binária com valores (podem ser negativos). Devolva a **maior soma de caminho** entre dois nós\nquaisquer (o caminho não precisa passar pela raiz e tem pelo menos um nó).\n\n## Contrato\n\n```java\nstatic long somaMaxima(Node raiz)\n```\n\n## Restrições\n\n- A recursão devolve ao pai o melhor caminho **descendo** a partir do nó (um braço só); o máximo\n  global, que pode usar os dois braços, fica numa variável à parte.",
+    "starterCode": "public class Solution {\n    static class Node {\n        int val;\n        Node esq, dir;\n        Node(int val, Node esq, Node dir) { this.val = val; this.esq = esq; this.dir = dir; }\n    }\n\n    static long somaMaxima(Node raiz) {\n        throw new UnsupportedOperationException(\"TODO\");\n    }\n}\n",
+    "solutionCode": "public class Solution {\n    static class Node {\n        int val;\n        Node esq, dir;\n        Node(int val, Node esq, Node dir) { this.val = val; this.esq = esq; this.dir = dir; }\n    }\n\n    private static long melhor;\n\n    static long somaMaxima(Node raiz) {\n        melhor = Long.MIN_VALUE;\n        descer(raiz);\n        return melhor;\n    }\n\n    // Retorno local: um braço (para o pai). Máximo global: os dois braços passando pelo nó.\n    private static long descer(Node n) {\n        if (n == null) return 0;\n        long e = Math.max(0, descer(n.esq)), d = Math.max(0, descer(n.dir));\n        melhor = Math.max(melhor, n.val + e + d);\n        return n.val + Math.max(e, d);\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nclass SolutionTest {\n    private static Solution.Node n(int v, Solution.Node e, Solution.Node d) { return new Solution.Node(v, e, d); }\n    private static Solution.Node f(int v) { return new Solution.Node(v, null, null); }\n\n    @Test void exemplos() {\n        assertEquals(6, Solution.somaMaxima(n(1, f(2), f(3))));\n        assertEquals(42, Solution.somaMaxima(n(-10, f(9), n(20, f(15), f(7)))));\n    }\n\n    @Test void todosNegativos() {\n        assertEquals(-2, Solution.somaMaxima(n(-3, f(-2), f(-5))));\n    }\n\n    @Test void naoPassaPelaRaiz() {\n        // o melhor caminho é 4 -> 5 -> 6 dentro da subárvore esquerda\n        assertEquals(15, Solution.somaMaxima(n(-100, n(5, f(4), f(6)), f(1))));\n    }\n\n    @Test void valoresGrandes() {\n        assertEquals(3L * Integer.MAX_VALUE, Solution.somaMaxima(n(Integer.MAX_VALUE, f(Integer.MAX_VALUE), f(Integer.MAX_VALUE))));\n    }\n}\n",
+    "hints": [
+      "Braço negativo não ajuda: use max(0, braço).",
+      "Atualize o global com val + esq + dir; devolva val + max(esq, dir)."
+    ]
+  },
+  {
+    "slug": "atv-adv-tsp-bitmask",
+    "kind": "code",
+    "title": "Caixeiro viajante com bitmask DP",
+    "statement": "`dist[i][j]` é a distância entre as cidades. Partindo da cidade 0, visite todas exatamente uma vez e\nvolte a 0. Devolva o custo mínimo.\n\n## Contrato\n\n```java\nstatic long tsp(int[][] dist)\n```\n\n## Restrições\n\n- `1 <= n <= 16`. `dp[mascara][u]` = menor custo para visitar o conjunto `mascara`, terminando em `u`.\n- O(2ⁿ · n²).",
+    "starterCode": "public class Solution {\n    static long tsp(int[][] dist) {\n        throw new UnsupportedOperationException(\"TODO\");\n    }\n}\n",
+    "solutionCode": "import java.util.Arrays;\n\npublic class Solution {\n    static long tsp(int[][] dist) {\n        int n = dist.length;\n        if (n == 1) return 0;\n        long INF = Long.MAX_VALUE / 4;\n        long[][] dp = new long[1 << n][n];\n        for (long[] linha : dp) Arrays.fill(linha, INF);\n        dp[1][0] = 0;\n        for (int m = 1; m < 1 << n; m++) {\n            if ((m & 1) == 0) continue; // todo caminho começa em 0\n            for (int u = 0; u < n; u++) {\n                if (dp[m][u] == INF) continue;\n                for (int v = 0; v < n; v++) {\n                    if ((m >> v & 1) == 1) continue;\n                    int nm = m | 1 << v;\n                    dp[nm][v] = Math.min(dp[nm][v], dp[m][u] + dist[u][v]);\n                }\n            }\n        }\n        long melhor = INF;\n        for (int u = 1; u < n; u++) melhor = Math.min(melhor, dp[(1 << n) - 1][u] + dist[u][0]);\n        return melhor;\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nimport java.util.*;\n\nclass SolutionTest {\n    private static long bruta(int[][] d) {\n        int n = d.length;\n        List<Integer> resto = new ArrayList<>();\n        for (int i = 1; i < n; i++) resto.add(i);\n        return permutar(d, resto, 0, 0);\n    }\n\n    private static long permutar(int[][] d, List<Integer> resto, int u, long custo) {\n        if (resto.isEmpty()) return custo + d[u][0];\n        long melhor = Long.MAX_VALUE;\n        for (int i = 0; i < resto.size(); i++) {\n            int v = resto.remove(i);\n            melhor = Math.min(melhor, permutar(d, resto, v, custo + d[u][v]));\n            resto.add(i, v);\n        }\n        return melhor;\n    }\n\n    @Test void exemplo() {\n        int[][] d = {{0, 10, 15, 20}, {10, 0, 35, 25}, {15, 35, 0, 30}, {20, 25, 30, 0}};\n        assertEquals(80, Solution.tsp(d));\n        assertEquals(0, Solution.tsp(new int[][]{{0}}));\n    }\n\n    @Test void aleatorioContraBruta() {\n        var rnd = new Random(13);\n        for (int t = 0; t < 30; t++) {\n            int n = 2 + rnd.nextInt(6);\n            int[][] d = new int[n][n];\n            for (int i = 0; i < n; i++) for (int j = 0; j < n; j++) d[i][j] = i == j ? 0 : 1 + rnd.nextInt(100);\n            assertEquals(bruta(d), Solution.tsp(d));\n        }\n    }\n\n    @Test void dezesseisCidades() {\n        int n = 16;\n        int[][] d = new int[n][n];\n        for (int i = 0; i < n; i++) for (int j = 0; j < n; j++) d[i][j] = Math.abs(i - j) * 3;\n        assertEquals(2L * 3 * (n - 1), Solution.tsp(d));\n    }\n}\n",
+    "hints": [
+      "Estado: (conjunto visitado, cidade atual).",
+      "Transição: de (m, u) para (m | 1 << v, v) se v não está em m.",
+      "No fim, some a volta para 0."
+    ]
+  },
+  {
+    "slug": "atv-adv-tdp-r1",
+    "kind": "reflection",
+    "title": "Explique a diferença entre o que a recursão devolve ao pai e o máximo global, num problema de tree DP."
+  },
+  {
+    "slug": "atv-adv-tdp-r2",
+    "kind": "reflection",
+    "title": "Estime o limite prático de n para bitmask DP (memória e tempo de 2ⁿ · n²)."
+  }
+]

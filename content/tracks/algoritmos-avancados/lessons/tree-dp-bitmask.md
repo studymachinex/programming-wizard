@@ -136,14 +136,6 @@ O tempo é O(n · 2^n) e o espaço é O(2^n). Para `n = 20`, são cerca de um mi
 - **Usar `1 << 31`.** Em Java, o deslocamento com sinal produz um valor negativo. Para 31 bits, use `1L << i` ou restrinja `n <= 30`.
 - **Esquecer que a soma corrente é derivada da máscara.** Se você incluir a soma na chave, o memo fica maior sem necessidade; se a soma não for derivável, inclua.
 
-## Checklist de domínio
-
-- [ ] Você define o que a recursão de tree DP retorna ao pai
-- [ ] Você distingue retorno local de máximo global
-- [ ] Você implementa bitmask DP com máscara, memo e transição de bits
-- [ ] Você reconhece os limites de n e o risco de estouro de pilha
-- [ ] Você poda estados equivalentes e explica por que a poda é segura
-
 ## Para ir além
 
 - [LeetCode 124 — Binary Tree Maximum Path Sum](https://leetcode.com/problems/binary-tree-maximum-path-sum/)

@@ -127,14 +127,6 @@ Quando o entrevistador discordar, não defenda por reflexo. Pergunte qual premis
 - **Discutir com a dica.** A dica é um teste de colaboração. Incorpore, explique o impacto e siga.
 - **Ficar em silêncio ao travar.** Verbalize o bloqueio: "não estou vendo como provar que o ponteiro pode avançar; vou testar um exemplo pequeno".
 
-## Checklist de domínio
-
-- [ ] Você faz de três a cinco perguntas de clarificação que realmente mudam a solução
-- [ ] Você apresenta duas abordagens com tempo, espaço e risco antes de escolher
-- [ ] Você explica invariantes enquanto codifica, sem narrar sintaxe
-- [ ] Você incorpora dicas sem perder o fio da solução
-- [ ] Você fecha com complexidade e testes, não com "acho que está certo"
-
 ## Para ir além
 
 - [Google Careers — Interview Tips](https://www.google.com/about/careers/applications/interview-tips/)

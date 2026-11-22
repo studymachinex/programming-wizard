@@ -78,14 +78,6 @@ Aplique SCC em: detecção de ciclo em dependências, análise de deadlock, cond
 - Kosaraju sem transpor corretamente.
 - Ordem de término errada.
 
-## Checklist de domínio
-
-- [ ] Implemento Kosaraju e Tarjan.
-- [ ] Explico `disc`/`low`.
-- [ ] Condenso o grafo em DAG.
-- [ ] Sei a complexidade e o custo de memória.
-- [ ] Evito stack overflow.
-
 ## Para ir além
 
 Leia o capítulo de SCC em cp-algorithms.com. Depois encontre os SCCs de um grafo de dependências real e ordene os grupos.

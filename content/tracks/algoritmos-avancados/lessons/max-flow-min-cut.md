@@ -62,14 +62,6 @@ Cuidado com capacidades grandes e múltiplas arestas. Para grafos densos, matriz
 - Overflow ao somar fluxo.
 - Usar Edmonds-Karp em grafo grande quando Dinic é necessário.
 
-## Checklist de domínio
-
-- [ ] Implemento Edmonds-Karp com reversa.
-- [ ] Entendo o teorema max-flow min-cut.
-- [ ] Extraio o corte mínimo.
-- [ ] Modelo matching como fluxo.
-- [ ] Sei quando usar Dinic.
-
 ## Para ir além
 
 Leia o capítulo de max-flow em cp-algorithms.com. Depois resolva um matching bipartido com fluxo e identifique o corte mínimo.

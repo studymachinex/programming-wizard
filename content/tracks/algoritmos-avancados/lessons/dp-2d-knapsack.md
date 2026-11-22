@@ -107,14 +107,6 @@ A mesma tabela resolve uma família de problemas.
 - **Ignorar o custo da capacidade.** O(n · C) com C = 10^9 não roda. Leia as restrições antes.
 - **Não copiar strings ao reconstruir.** Em problemas de caminho, guardar referências mutáveis produz resultados fantasma.
 
-## Checklist de domínio
-
-- [ ] Você define `dp[i][j]` em uma frase com os dois prefixos ou dimensões
-- [ ] Você escreve as bases antes da recorrência
-- [ ] Você comprime a tabela para 1D e sabe em qual direção iterar
-- [ ] Você distingue 0/1 de unbounded pela direção do laço
-- [ ] Você reconhece quando a capacidade torna a DP inviável
-
 ## Para ir além
 
 - [CP-Algorithms — Knapsack](https://cp-algorithms.com/dynamic_programming/knapsack.html)

@@ -115,14 +115,6 @@ Em entrevista, diga a alternativa e por que não a escolheu. "Vou de dois heaps 
 - **Esquecer duplicatas.** O algoritmo funciona com valores repetidos, mas testes que assumem valores únicos não pegam o problema.
 - **Achar que `findMedian` pode ser O(log n).** Com as invariantes mantidas, os topos estão sempre disponíveis; a consulta é O(1).
 
-## Checklist de domínio
-
-- [ ] Você enuncia as duas invariantes antes de escrever código
-- [ ] Você implementa `addNum` com as três etapas e explica por que a ordem funciona
-- [ ] Você calcula a mediana ímpar e par corretamente, sem overflow
-- [ ] Você sabe quando o padrão não se aplica (remoção arbitrária, janela deslizante)
-- [ ] Você testa com duplicatas e sequências aleatórias, não só com o exemplo
-
 ## Para ir além
 
 - [LeetCode 295 — Find Median from Data Stream](https://leetcode.com/problems/find-median-from-data-stream/)

@@ -1,0 +1,31 @@
+[
+  {
+    "slug": "atv-adv-primeira-versao-ruim",
+    "kind": "code",
+    "title": "Busca binária sem overflow: a primeira versão ruim",
+    "statement": "As versões `1..n` foram publicadas em ordem; a partir de uma delas, todas são ruins. Descubra a\nprimeira ruim chamando `ehRuim` o mínimo de vezes.\n\n## Contrato\n\n```java\nstatic int primeiraRuim(int n, java.util.function.IntPredicate ehRuim)\n```\n\n## Restrições\n\n- `1 <= n <= Integer.MAX_VALUE`, e a versão `n` é sempre ruim.\n- No máximo 32 chamadas a `ehRuim`.\n- `(lo + hi) / 2` estoura com `n` perto de `Integer.MAX_VALUE`: use `lo + (hi - lo) / 2`.",
+    "starterCode": "import java.util.function.IntPredicate;\n\npublic class Solution {\n    static int primeiraRuim(int n, IntPredicate ehRuim) {\n        throw new UnsupportedOperationException(\"TODO\");\n    }\n}\n",
+    "solutionCode": "import java.util.function.IntPredicate;\n\npublic class Solution {\n    // Invariante: a resposta está em [lo, hi]. O(log n) chamadas.\n    static int primeiraRuim(int n, IntPredicate ehRuim) {\n        int lo = 1, hi = n;\n        while (lo < hi) {\n            int mid = lo + (hi - lo) / 2;\n            if (ehRuim.test(mid)) hi = mid;\n            else lo = mid + 1;\n        }\n        return lo;\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nimport java.util.concurrent.atomic.AtomicInteger;\n\nclass SolutionTest {\n    private static int rodar(int n, int primeira, AtomicInteger chamadas) {\n        return Solution.primeiraRuim(n, v -> {\n            chamadas.incrementAndGet();\n            if (v < 1 || v > n) throw new IllegalArgumentException(\"versão fora do intervalo: \" + v);\n            return v >= primeira;\n        });\n    }\n\n    @Test void pequenos() {\n        for (int n = 1; n <= 40; n++) for (int p = 1; p <= n; p++) assertEquals(p, rodar(n, p, new AtomicInteger()));\n    }\n\n    @Test void semOverflow() {\n        var c = new AtomicInteger();\n        assertEquals(Integer.MAX_VALUE, rodar(Integer.MAX_VALUE, Integer.MAX_VALUE, c));\n        assertTrue(c.get() <= 32, c.get() + \" chamadas\");\n        assertEquals(Integer.MAX_VALUE - 1, rodar(Integer.MAX_VALUE, Integer.MAX_VALUE - 1, new AtomicInteger()));\n    }\n\n    @Test void poucasChamadas() {\n        var c = new AtomicInteger();\n        assertEquals(1_234_567, rodar(2_000_000_000, 1_234_567, c));\n        assertTrue(c.get() <= 32, c.get() + \" chamadas\");\n    }\n}\n",
+    "hints": [
+      "Mantenha a resposta dentro de [lo, hi] e pare quando lo == hi.",
+      "Se mid é ruim, a primeira ruim é mid ou antes: hi = mid.",
+      "lo + (hi − lo) / 2 nunca passa de hi."
+    ]
+  },
+  {
+    "slug": "atv-adv-bord-r1",
+    "kind": "reflection",
+    "title": "Enumere bordas por tipo de entrada (vazio, um elemento, duplicatas, extremos, ordenado) antes de codar um problema novo."
+  },
+  {
+    "slug": "atv-adv-bord-r2",
+    "kind": "reflection",
+    "title": "Faça um dry run à mão de uma entrada pequena antes de rodar o código."
+  },
+  {
+    "slug": "atv-adv-bord-r3",
+    "kind": "reflection",
+    "title": "Teste na ordem: exemplo, borda, adversarial e volume — e diga o que cada um pega."
+  }
+]

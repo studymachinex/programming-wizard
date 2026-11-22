@@ -1,0 +1,38 @@
+[
+  {
+    "slug": "atv-adv-lis-nlogn",
+    "kind": "code",
+    "title": "LIS em O(n log n)",
+    "statement": "Tamanho da maior subsequência **estritamente** crescente.\n\n## Contrato\n\n```java\nstatic int lis(int[] nums)\n```\n\n## Exemplos\n\n```\n[10, 9, 2, 5, 3, 7, 101, 18]  ->  4\n[7, 7, 7]                     ->  1\n```\n\n## Restrições\n\n- `tails[k]` = menor final possível de uma subsequência crescente de tamanho `k + 1`. Busca binária\n  pelo primeiro `tails[k] >= x`. Até 200 mil elementos.",
+    "starterCode": "public class Solution {\n    static int lis(int[] nums) {\n        throw new UnsupportedOperationException(\"TODO\");\n    }\n}\n",
+    "solutionCode": "public class Solution {\n    static int lis(int[] nums) {\n        int[] tails = new int[nums.length];\n        int tam = 0;\n        for (int x : nums) {\n            int lo = 0, hi = tam; // primeiro tails[k] >= x (estrita: igual substitui)\n            while (lo < hi) {\n                int mid = (lo + hi) >>> 1;\n                if (tails[mid] < x) lo = mid + 1;\n                else hi = mid;\n            }\n            tails[lo] = x;\n            if (lo == tam) tam++;\n        }\n        return tam;\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nimport java.util.*;\n\nclass SolutionTest {\n    private static int quadratica(int[] a) {\n        int[] dp = new int[a.length];\n        int melhor = 0;\n        for (int i = 0; i < a.length; i++) {\n            dp[i] = 1;\n            for (int j = 0; j < i; j++) if (a[j] < a[i]) dp[i] = Math.max(dp[i], dp[j] + 1);\n            melhor = Math.max(melhor, dp[i]);\n        }\n        return melhor;\n    }\n\n    @Test void exemplos() {\n        assertEquals(4, Solution.lis(new int[]{10, 9, 2, 5, 3, 7, 101, 18}));\n        assertEquals(1, Solution.lis(new int[]{7, 7, 7}));\n        assertEquals(0, Solution.lis(new int[]{}));\n    }\n\n    @Test void aleatorio() {\n        var rnd = new Random(9);\n        for (int t = 0; t < 300; t++) {\n            int[] a = rnd.ints(rnd.nextInt(40), 0, 15).toArray();\n            assertEquals(quadratica(a), Solution.lis(a), Arrays.toString(a));\n        }\n    }\n\n    @Test void grande() {\n        int[] a = new int[200_000];\n        for (int i = 0; i < a.length; i++) a[i] = i % 2 == 0 ? i : -i;\n        assertEquals(100_000, Solution.lis(a));\n    }\n}\n",
+    "hints": [
+      "Para cada x, ache o primeiro tails[k] >= x.",
+      "Se não existe, x estende a maior; senão, substitui (final menor é sempre melhor)."
+    ]
+  },
+  {
+    "slug": "atv-adv-stock-cooldown",
+    "kind": "code",
+    "title": "Ações com cooldown (máquina de estados)",
+    "statement": "`precos[i]` é o preço no dia `i`. Compre e venda quantas vezes quiser, uma ação por vez, mas depois de\nvender fica **um dia sem comprar**. Maximize o lucro.\n\n## Contrato\n\n```java\nstatic long lucro(int[] precos)\n```\n\n## Exemplos\n\n```\n[1, 2, 3, 0, 2]  ->  3   (compra 1, vende 2, cooldown, compra 0, vende 2)\n```\n\n## Restrições\n\n- Três estados por dia: segurando, acabou de vender, livre. O(n), O(1).",
+    "starterCode": "public class Solution {\n    static long lucro(int[] precos) {\n        throw new UnsupportedOperationException(\"TODO\");\n    }\n}\n",
+    "solutionCode": "public class Solution {\n    static long lucro(int[] precos) {\n        long segurando = Long.MIN_VALUE / 2, vendeu = 0, livre = 0;\n        for (int p : precos) {\n            long s = Math.max(segurando, livre - p);   // continua segurando ou compra (só se estava livre)\n            long v = segurando + p;                     // vende hoje\n            long l = Math.max(livre, vendeu);           // descansa (cooldown termina)\n            segurando = s;\n            vendeu = v;\n            livre = l;\n        }\n        return Math.max(vendeu, livre);\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nimport java.util.*;\n\nclass SolutionTest {\n    private static long bruta(int[] p, int i, boolean seg) {\n        if (i >= p.length) return 0;\n        long pular = bruta(p, i + 1, seg);\n        if (seg) return Math.max(pular, p[i] + bruta(p, i + 2, false));\n        return Math.max(pular, -p[i] + bruta(p, i + 1, true));\n    }\n\n    @Test void exemplos() {\n        assertEquals(3, Solution.lucro(new int[]{1, 2, 3, 0, 2}));\n        assertEquals(0, Solution.lucro(new int[]{5, 4, 3}));\n        assertEquals(0, Solution.lucro(new int[]{}));\n    }\n\n    @Test void aleatorio() {\n        var rnd = new Random(10);\n        for (int t = 0; t < 300; t++) {\n            int[] p = rnd.ints(rnd.nextInt(12), 0, 10).toArray();\n            assertEquals(bruta(p, 0, false), Solution.lucro(p), Arrays.toString(p));\n        }\n    }\n}\n",
+    "hints": [
+      "Estados ao fim de cada dia: segurando, vendeu hoje, livre (pode comprar amanhã).",
+      "Comprar só a partir de livre; livre vem de livre ou de vendeu ontem."
+    ]
+  },
+  {
+    "slug": "atv-adv-lis-r1",
+    "kind": "reflection",
+    "title": "Explique o que `tails[k]` representa e por que substituir por um valor menor é seguro."
+  },
+  {
+    "slug": "atv-adv-lis-r2",
+    "kind": "reflection",
+    "title": "Escreva a recorrência de interval DP (burst balloons ou palíndromos) e explique por que se itera por comprimento."
+  }
+]

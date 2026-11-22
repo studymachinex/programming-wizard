@@ -125,14 +125,6 @@ public class StockWithCooldown {
 - **Comprar no mesmo dia da venda com cooldown.** Use o estado `sold` separado e só permita comprar a partir de `rest`.
 - **Esquecer o caso de um único elemento.** Em interval DP, as bordas `dp[i][i-1]` e `dp[j+1][j]` devem valer zero.
 
-## Checklist de domínio
-
-- [ ] Você explica o que `tails[k]` representa e por que a substituição é segura
-- [ ] Você implementa LIS O(n log n) com a busca binária correta
-- [ ] Você escreve a recorrência de interval DP e itera por comprimento
-- [ ] Você modela stock problems como máquina de estados
-- [ ] Você reconhece a diferença entre "último elemento" e "ponto de divisão" na recorrência
-
 ## Para ir além
 
 - [CP-Algorithms — Longest Increasing Subsequence](https://cp-algorithms.com/sequences/longest_increasing_subsequence.html)

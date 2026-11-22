@@ -119,13 +119,6 @@ Quando NÃO precisa de nada disso: se a resposta cabe em `long` pelas restriçõ
 - **Dividir com `/` depois de reduzir.** `(a % M) / b` não é `(a / b) % M`. Depois que você reduziu, a divisão inteira perdeu o sentido; use o inverso.
 - **Resultado negativo na subtração.** Some `M` antes do último `%`.
 
-## Checklist de domínio
-
-- [ ] Você explica por que dois resíduos de 10^9 + 7 podem ser multiplicados em `long`, mas três não
-- [ ] Você implementa a exponenciação por quadrados do zero, iterativa
-- [ ] Você calcula o inverso modular por Fermat e sabe quando ele não se aplica
-- [ ] Você trata o caso `Integer.MIN_VALUE` no Pow(x, n)
-
 ## Para ir além
 
 - [Binary Exponentiation — cp-algorithms](https://cp-algorithms.com/algebra/binary-exp.html)

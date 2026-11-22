@@ -1,0 +1,39 @@
+[
+  {
+    "slug": "atv-adv-house-robber",
+    "kind": "code",
+    "title": "House robber com O(1) de espaço",
+    "statement": "Casas em linha, cada uma com um valor; não dá para roubar duas vizinhas. Maximize o total.\nDepois, resolva a versão **circular** (a primeira e a última são vizinhas).\n\n## Contrato\n\n```java\nstatic long linha(int[] v)\nstatic long circular(int[] v)\n```\n\n## Exemplos\n\n```\nlinha([2, 7, 9, 3, 1]) = 12      circular([2, 3, 2]) = 3\n```\n\n## Restrições\n\n- `dp[i]` = melhor total olhando as casas `0..i`. Guarde só os dois últimos valores.\n- Valores até 10⁹ e até 100 mil casas: use `long`.",
+    "starterCode": "public class Solution {\n    static long linha(int[] v) {\n        throw new UnsupportedOperationException(\"TODO\");\n    }\n\n    static long circular(int[] v) {\n        throw new UnsupportedOperationException(\"TODO\");\n    }\n}\n",
+    "solutionCode": "public class Solution {\n    static long linha(int[] v) { return faixa(v, 0, v.length - 1); }\n\n    // dp[i] = max(dp[i-1], dp[i-2] + v[i]): a última decisão é roubar ou não a casa i.\n    private static long faixa(int[] v, int de, int ate) {\n        long antes2 = 0, antes1 = 0;\n        for (int i = de; i <= ate; i++) {\n            long atual = Math.max(antes1, antes2 + v[i]);\n            antes2 = antes1;\n            antes1 = atual;\n        }\n        return antes1;\n    }\n\n    // Circular: ou a primeira fica de fora, ou a última.\n    static long circular(int[] v) {\n        if (v.length == 1) return v[0];\n        return Math.max(faixa(v, 0, v.length - 2), faixa(v, 1, v.length - 1));\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nimport java.util.*;\n\nclass SolutionTest {\n    private static long bruta(int[] v, boolean circ) {\n        long melhor = 0;\n        int n = v.length;\n        for (int m = 0; m < 1 << n; m++) {\n            if ((m & (m << 1)) != 0) continue;\n            if (circ && n > 1 && (m & 1) == 1 && (m >> (n - 1) & 1) == 1) continue;\n            long s = 0;\n            for (int i = 0; i < n; i++) if ((m >> i & 1) == 1) s += v[i];\n            melhor = Math.max(melhor, s);\n        }\n        return melhor;\n    }\n\n    @Test void exemplos() {\n        assertEquals(12, Solution.linha(new int[]{2, 7, 9, 3, 1}));\n        assertEquals(3, Solution.circular(new int[]{2, 3, 2}));\n        assertEquals(0, Solution.linha(new int[]{}));\n        assertEquals(5, Solution.circular(new int[]{5}));\n    }\n\n    @Test void aleatorioContraBruta() {\n        var rnd = new Random(7);\n        for (int t = 0; t < 300; t++) {\n            int[] v = rnd.ints(1 + rnd.nextInt(12), 0, 50).toArray();\n            assertEquals(bruta(v, false), Solution.linha(v));\n            assertEquals(bruta(v, true), Solution.circular(v));\n        }\n    }\n\n    @Test void grandeEmLong() {\n        int[] v = new int[100_000];\n        Arrays.fill(v, 1_000_000_000);\n        assertEquals(50_000L * 1_000_000_000, Solution.linha(v));\n    }\n}\n",
+    "hints": [
+      "A última decisão: roubar a casa i (soma com dp[i−2]) ou não (dp[i−1]).",
+      "Duas variáveis bastam.",
+      "Circular = máximo entre excluir a primeira e excluir a última."
+    ]
+  },
+  {
+    "slug": "atv-adv-decode-ways",
+    "kind": "code",
+    "title": "Decode ways",
+    "statement": "Letras foram codificadas como `A = 1 … Z = 26`. Quantas decodificações tem a string de dígitos `s`?\nResponda módulo 10⁹ + 7.\n\n## Contrato\n\n```java\nstatic int formas(String s)\n```\n\n## Exemplos\n\n```\n\"12\" -> 2 (\"AB\", \"L\")     \"226\" -> 3     \"06\" -> 0     \"10\" -> 1\n```\n\n## Restrições\n\n- Até 100 mil dígitos. `'0'` sozinho não decodifica; `\"07\"` também não.",
+    "starterCode": "public class Solution {\n    static int formas(String s) {\n        throw new UnsupportedOperationException(\"TODO\");\n    }\n}\n",
+    "solutionCode": "public class Solution {\n    private static final int MOD = 1_000_000_007;\n\n    // dp[i] = formas do prefixo de tamanho i; a última letra usa 1 ou 2 dígitos.\n    static int formas(String s) {\n        long antes2 = 1, antes1 = s.isEmpty() || s.charAt(0) == '0' ? 0 : 1;\n        if (s.isEmpty()) return 1;\n        for (int i = 2; i <= s.length(); i++) {\n            long atual = 0;\n            if (s.charAt(i - 1) != '0') atual += antes1;\n            int dois = (s.charAt(i - 2) - '0') * 10 + (s.charAt(i - 1) - '0');\n            if (dois >= 10 && dois <= 26) atual += antes2;\n            antes2 = antes1;\n            antes1 = atual % MOD;\n        }\n        return (int) antes1;\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nclass SolutionTest {\n    @Test void exemplos() {\n        assertEquals(2, Solution.formas(\"12\"));\n        assertEquals(3, Solution.formas(\"226\"));\n        assertEquals(0, Solution.formas(\"06\"));\n        assertEquals(1, Solution.formas(\"10\"));\n        assertEquals(0, Solution.formas(\"100\"));\n        assertEquals(1, Solution.formas(\"27\"));\n    }\n\n    @Test void fibonacci() {\n        assertEquals(89, Solution.formas(\"1\".repeat(10)));\n    }\n\n    @Test void grandeModulo() {\n        // \"1\" repetido n vezes dá Fib(n + 1); para n = 100 000 o valor só cabe módulo 10^9 + 7.\n        long a = 1, b = 1;\n        for (int i = 2; i <= 100_000; i++) { long c = (a + b) % 1_000_000_007; a = b; b = c; }\n        assertEquals((int) b, Solution.formas(\"1\".repeat(100_000)));\n    }\n}\n",
+    "hints": [
+      "dp[i] depende de dp[i−1] (último dígito sozinho, se não for '0') e dp[i−2] (dois dígitos entre 10 e 26).",
+      "Base: prefixo vazio tem 1 forma."
+    ]
+  },
+  {
+    "slug": "atv-adv-dp1-r1",
+    "kind": "reflection",
+    "title": "Defina `dp[i]` em uma frase para três problemas antes de escrever qualquer código."
+  },
+  {
+    "slug": "atv-adv-dp1-r2",
+    "kind": "reflection",
+    "title": "Converta uma solução top-down (memo) para bottom-up e reduza o espaço para O(1)."
+  }
+]

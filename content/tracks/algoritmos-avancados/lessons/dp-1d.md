@@ -99,14 +99,6 @@ Outro padrão 1D importante é o de **dois estados complementares**, como "melho
 - **Definir estado ambíguo.** "dp[i] é o melhor até i" não diz se o elemento `i` foi incluído. Sem isso, a transição não fecha.
 - **Otimizar espaço sem entender a dependência.** Se `dp[i]` depende de `dp[i-2]`, um único escalar não basta.
 
-## Checklist de domínio
-
-- [ ] Você define `dp[i]` em uma frase antes de escrever código
-- [ ] Você deriva a recorrência a partir da última decisão
-- [ ] Você define bases e sentinela de impossível sem risco de overflow
-- [ ] Você escolhe a ordem de iteração e justifica
-- [ ] Você converte top-down para bottom-up e reduz espaço quando possível
-
 ## Para ir além
 
 - [CP-Algorithms — Introdução a Programação Dinâmica](https://cp-algorithms.com/dynamic_programming/intro-to-dp.html)

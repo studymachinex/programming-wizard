@@ -1,0 +1,27 @@
+[
+  {
+    "slug": "atv-adv-mock-r1",
+    "kind": "reflection",
+    "title": "Faça um mock de 45 minutos seguindo o protocolo da aula, com cronômetro."
+  },
+  {
+    "slug": "atv-adv-mock-r2",
+    "kind": "reflection",
+    "title": "Comunique trade-offs em voz alta durante todo o mock, sem silêncios longos."
+  },
+  {
+    "slug": "atv-adv-mock-r3",
+    "kind": "reflection",
+    "title": "Teste bordas sem que o entrevistador peça."
+  },
+  {
+    "slug": "atv-adv-mock-r4",
+    "kind": "reflection",
+    "title": "Peça uma dica no momento certo e incorpore-a sem perder o fio da solução."
+  },
+  {
+    "slug": "atv-adv-mock-r5",
+    "kind": "reflection",
+    "title": "Grave um mock, assista e anote três pontos de melhoria."
+  }
+]

@@ -117,14 +117,6 @@ Sobre complexidade, cuidado com custos escondidos: `substring` em Java moderno c
 - **Testar só o exemplo.** O exemplo valida o caminho feliz, não o contrato. Sempre adicione uma borda e um adversarial.
 - **Declarar complexidade sem contar a estrutura auxiliar.** `HashSet`, `StringBuilder` e a pilha de recursão contam.
 
-## Checklist de domínio
-
-- [ ] Você enumera bordas por tipo de entrada antes de escrever a primeira linha
-- [ ] Você calcula complexidade contando laços, estruturas auxiliares e profundidade de recursão
-- [ ] Você testa exemplo, borda, adversarial e volume, nessa ordem
-- [ ] Você faz um dry run de uma entrada pequena antes de rodar o código
-- [ ] Você sabe explicar por que `lo + (hi - lo) / 2` é mais seguro que `(lo + hi) / 2`
-
 ## Para ir além
 
 - [JUnit 5 — User Guide](https://junit.org/junit5/docs/current/user-guide/)

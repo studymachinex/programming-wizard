@@ -1,0 +1,40 @@
+[
+  {
+    "slug": "atv-adv-bellman-ford",
+    "kind": "code",
+    "title": "Bellman-Ford com detecção de ciclo negativo",
+    "statement": "Grafo dirigido com pesos possivelmente **negativos**. Devolva as distâncias a partir de `origem`\n(`Long.MAX_VALUE` = inalcançável) ou `null` se existir ciclo negativo **alcançável** da origem.\n\n## Contrato\n\n```java\nstatic long[] distancias(int n, int[][] arestas, int origem)   // arestas[i] = [u, v, peso]\n```\n\n## Restrições\n\n- `V − 1` rodadas de relaxamento; uma rodada extra que ainda melhora algo denuncia o ciclo.\n- Não relaxe a partir de vértice inalcançável (`MAX_VALUE + peso` estoura).",
+    "starterCode": "public class Solution {\n    static long[] distancias(int n, int[][] arestas, int origem) {\n        throw new UnsupportedOperationException(\"TODO\");\n    }\n}\n",
+    "solutionCode": "import java.util.Arrays;\n\npublic class Solution {\n    // O(V·E). Para cedo se uma rodada não muda nada.\n    static long[] distancias(int n, int[][] arestas, int origem) {\n        long[] d = new long[n];\n        Arrays.fill(d, Long.MAX_VALUE);\n        d[origem] = 0;\n        for (int rodada = 0; rodada < n - 1; rodada++) {\n            boolean mudou = false;\n            for (int[] e : arestas) {\n                if (d[e[0]] != Long.MAX_VALUE && d[e[0]] + e[2] < d[e[1]]) {\n                    d[e[1]] = d[e[0]] + e[2];\n                    mudou = true;\n                }\n            }\n            if (!mudou) return d;\n        }\n        for (int[] e : arestas) if (d[e[0]] != Long.MAX_VALUE && d[e[0]] + e[2] < d[e[1]]) return null;\n        return d;\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nclass SolutionTest {\n    @Test void pesosNegativosSemCiclo() {\n        int[][] e = {{0, 1, 4}, {0, 2, 5}, {1, 2, -3}, {2, 3, 2}, {3, 1, 1}};\n        assertArrayEquals(new long[]{0, 4, 1, 3}, Solution.distancias(4, e, 0));\n    }\n\n    @Test void cicloNegativoAlcancavel() {\n        assertNull(Solution.distancias(3, new int[][]{{0, 1, 1}, {1, 2, -2}, {2, 1, 1}}, 0));\n    }\n\n    @Test void cicloNegativoInalcancavelNaoImporta() {\n        long[] d = Solution.distancias(4, new int[][]{{0, 1, 2}, {2, 3, -5}, {3, 2, 1}}, 0);\n        assertNotNull(d);\n        assertEquals(2, d[1]);\n        assertEquals(Long.MAX_VALUE, d[2]);\n    }\n\n    @Test void cadeiaLonga() {\n        int n = 2000;\n        int[][] e = new int[n - 1][];\n        for (int i = 0; i + 1 < n; i++) e[i] = new int[]{n - 2 - i, n - 1 - i, -1}; // ordem ruim de propósito\n        int[][] inv = new int[n - 1][];\n        for (int i = 0; i < n - 1; i++) inv[i] = new int[]{i, i + 1, -1};\n        assertEquals(-(n - 1), Solution.distancias(n, e, 0)[n - 1]);\n        assertEquals(-(n - 1), Solution.distancias(n, inv, 0)[n - 1]);\n    }\n}\n",
+    "hints": [
+      "Relaxe todas as arestas V − 1 vezes.",
+      "Pule arestas cujo início ainda é inalcançável.",
+      "Se a rodada V ainda melhora alguma distância, há ciclo negativo alcançável."
+    ]
+  },
+  {
+    "slug": "atv-adv-floyd-warshall",
+    "kind": "code",
+    "title": "Floyd-Warshall com reconstrução de caminho",
+    "statement": "Calcule todas as distâncias mínimas (pesos podem ser negativos, sem ciclos negativos) e reconstrua o\ncaminho entre dois vértices.\n\n## Contrato\n\n```java\nstatic class Floyd {\n    Floyd(int n, int[][] arestas);              // arestas[i] = [u, v, peso], dirigidas\n    long dist(int u, int v);                    // Long.MAX_VALUE se inalcançável\n    java.util.List<Integer> caminho(int u, int v); // vazio se inalcançável; [u] se u == v\n}\n```\n\n## Restrições\n\n- O laço do vértice intermediário `k` é o **mais externo**. Use `next[u][v]` para reconstruir.\n- `n <= 300`.",
+    "starterCode": "import java.util.*;\n\npublic class Solution {\n    static class Floyd {\n        Floyd(int n, int[][] arestas) {\n            throw new UnsupportedOperationException(\"TODO\");\n        }\n\n        long dist(int u, int v) { throw new UnsupportedOperationException(\"TODO\"); }\n        List<Integer> caminho(int u, int v) { throw new UnsupportedOperationException(\"TODO\"); }\n    }\n}\n",
+    "solutionCode": "import java.util.*;\n\npublic class Solution {\n    static class Floyd {\n        private static final long INF = Long.MAX_VALUE;\n        private final long[][] d;\n        private final int[][] next;\n\n        Floyd(int n, int[][] arestas) {\n            d = new long[n][n];\n            next = new int[n][n];\n            for (int i = 0; i < n; i++) {\n                Arrays.fill(d[i], INF);\n                Arrays.fill(next[i], -1);\n                d[i][i] = 0;\n                next[i][i] = i;\n            }\n            for (int[] e : arestas) {\n                if (e[2] < d[e[0]][e[1]]) {\n                    d[e[0]][e[1]] = e[2];\n                    next[e[0]][e[1]] = e[1];\n                }\n            }\n            // k fora: depois da iteração k, d[i][j] usa só intermediários em {0..k}.\n            for (int k = 0; k < n; k++)\n                for (int i = 0; i < n; i++) {\n                    if (d[i][k] == INF) continue;\n                    for (int j = 0; j < n; j++) {\n                        if (d[k][j] == INF) continue;\n                        if (d[i][k] + d[k][j] < d[i][j]) {\n                            d[i][j] = d[i][k] + d[k][j];\n                            next[i][j] = next[i][k];\n                        }\n                    }\n                }\n        }\n\n        long dist(int u, int v) { return d[u][v]; }\n\n        List<Integer> caminho(int u, int v) {\n            if (next[u][v] == -1) return List.of();\n            List<Integer> out = new ArrayList<>();\n            out.add(u);\n            while (u != v) {\n                u = next[u][v];\n                out.add(u);\n            }\n            return out;\n        }\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nimport java.util.*;\n\nclass SolutionTest {\n    private static final int[][] G = {{0, 1, 3}, {0, 2, 8}, {1, 2, -2}, {2, 3, 1}, {3, 0, 2}, {1, 3, 7}};\n\n    @Test void distancias() {\n        var f = new Solution.Floyd(4, G);\n        assertEquals(1, f.dist(0, 2));\n        assertEquals(2, f.dist(0, 3));\n        assertEquals(3, f.dist(2, 0));\n        assertEquals(0, f.dist(3, 3));\n    }\n\n    @Test void caminhos() {\n        var f = new Solution.Floyd(4, G);\n        assertEquals(List.of(0, 1, 2, 3), f.caminho(0, 3));\n        assertEquals(List.of(2, 3, 0), f.caminho(2, 0));\n        assertEquals(List.of(1), f.caminho(1, 1));\n    }\n\n    @Test void inalcancavel() {\n        var f = new Solution.Floyd(3, new int[][]{{0, 1, 5}});\n        assertEquals(Long.MAX_VALUE, f.dist(1, 0));\n        assertEquals(List.of(), f.caminho(2, 0));\n    }\n\n    @Test void ordemDoKImporta() {\n        // Com k no laço interno, este grafo dá resposta errada para 3 -> 0.\n        int[][] e = {{3, 2, 1}, {2, 1, 1}, {1, 0, 1}, {3, 0, 100}};\n        assertEquals(3, new Solution.Floyd(4, e).dist(3, 0));\n    }\n\n    @Test void trezentos() {\n        int n = 300;\n        int[][] e = new int[n][];\n        for (int i = 0; i < n; i++) e[i] = new int[]{i, (i + 1) % n, 1};\n        var f = new Solution.Floyd(n, e);\n        assertEquals(n - 1, f.dist(1, 0));\n        assertEquals(n, f.caminho(1, 0).size());\n    }\n}\n",
+    "hints": [
+      "Inicialize d[i][i] = 0, d[u][v] = menor aresta e next[u][v] = v.",
+      "Laço k por fora; ao melhorar via k, next[i][j] = next[i][k].",
+      "Reconstrua seguindo next de u até v."
+    ]
+  },
+  {
+    "slug": "atv-adv-bf-r1",
+    "kind": "reflection",
+    "title": "Compare limites de V/E para Dijkstra, Bellman-Ford e Floyd e escolha um para três cenários."
+  },
+  {
+    "slug": "atv-adv-bf-r2",
+    "kind": "reflection",
+    "title": "Explique o reweighting de Johnson e por que ele permite Dijkstra com pesos negativos."
+  }
+]

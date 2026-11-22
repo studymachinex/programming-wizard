@@ -127,13 +127,6 @@ Quando NÃO usar o crivo: se o problema testa primalidade de poucos números gra
 - **Confundir "menor que n" com "até n".** LeetCode 204 pede primos estritamente menores que `n`. Leia a restrição duas vezes; o erro de um elemento é o bug mais comum nesse problema.
 - **Começar a marcar em `2 * p`.** Funciona, mas desperdiça trabalho. Começar em `p * p` mostra que você entende por que o algoritmo é correto.
 
-## Checklist de domínio
-
-- [ ] Você consegue demonstrar em voz alta por que `mdc(a, b) = mdc(b, a % b)`
-- [ ] Você implementa o crivo do zero, começando em `p * p`, sem overflow
-- [ ] Você explica quando trocar `boolean[]` por `BitSet`
-- [ ] Você reconhece MDC/MMC escondido em problemas de ciclos e agrupamento
-
 ## Para ir além
 
 - [Sieve of Eratosthenes — cp-algorithms](https://cp-algorithms.com/algebra/sieve-of-eratosthenes.html)

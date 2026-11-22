@@ -65,14 +65,6 @@ Em Java, `LinkedHashMap` com `accessOrder=true` e `removeEldestEntry` implementa
 - Skip list com nível máximo baixo.
 - Cache sem métrica de hit ratio.
 
-## Checklist de domínio
-
-- [ ] Implemento LRU do zero.
-- [ ] Explico LFU e seu envelhecimento.
-- [ ] Sei a garantia do Bloom filter.
-- [ ] Entendo skip list e concorrência.
-- [ ] Escolho por acesso e memória.
-
 ## Para ir além
 
 Leia sobre Caffeine e a documentação de `ConcurrentSkipListMap`. Depois implemente LRU e LFU e compare hit ratio em uma trace real.

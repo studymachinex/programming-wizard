@@ -1,0 +1,39 @@
+[
+  {
+    "slug": "atv-adv-mochila-01",
+    "kind": "code",
+    "title": "Mochila 0/1 e ilimitada em 1D",
+    "statement": "Itens com `peso[i]` e `valor[i]`; capacidade `W`. Implemente as duas versões com **um único array**\n`dp[0..W]`:\n\n- `zeroUm`: cada item no máximo uma vez.\n- `ilimitada`: cada item quantas vezes quiser.\n\n## Contrato\n\n```java\nstatic long zeroUm(int[] peso, int[] valor, int W)\nstatic long ilimitada(int[] peso, int[] valor, int W)\n```\n\n## Restrições\n\n- O(n·W) de tempo e O(W) de memória. A diferença entre as duas é **só a direção do laço**.\n- `n <= 200`, `W <= 100 000`.",
+    "starterCode": "public class Solution {\n    static long zeroUm(int[] peso, int[] valor, int W) {\n        throw new UnsupportedOperationException(\"TODO\");\n    }\n\n    static long ilimitada(int[] peso, int[] valor, int W) {\n        throw new UnsupportedOperationException(\"TODO\");\n    }\n}\n",
+    "solutionCode": "public class Solution {\n    // De trás para frente: dp[w - p] ainda é da rodada anterior, então o item entra uma vez só.\n    static long zeroUm(int[] peso, int[] valor, int W) {\n        long[] dp = new long[W + 1];\n        for (int i = 0; i < peso.length; i++)\n            for (int w = W; w >= peso[i]; w--) dp[w] = Math.max(dp[w], dp[w - peso[i]] + valor[i]);\n        return dp[W];\n    }\n\n    // Da frente para trás: dp[w - p] já pode conter o item, então ele pode repetir.\n    static long ilimitada(int[] peso, int[] valor, int W) {\n        long[] dp = new long[W + 1];\n        for (int i = 0; i < peso.length; i++)\n            for (int w = peso[i]; w <= W; w++) dp[w] = Math.max(dp[w], dp[w - peso[i]] + valor[i]);\n        return dp[W];\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nimport java.util.*;\n\nclass SolutionTest {\n    @Test void exemplo() {\n        int[] p = {1, 3, 4, 5}, v = {1, 4, 5, 7};\n        assertEquals(9, Solution.zeroUm(p, v, 7));\n        assertEquals(9, Solution.ilimitada(p, v, 7));\n        assertEquals(10, Solution.ilimitada(new int[]{2}, new int[]{5}, 4));\n        assertEquals(5, Solution.zeroUm(new int[]{2}, new int[]{5}, 4));\n    }\n\n    @Test void aleatorioContraBruta() {\n        var rnd = new Random(8);\n        for (int t = 0; t < 200; t++) {\n            int n = 1 + rnd.nextInt(8), W = rnd.nextInt(30);\n            int[] p = rnd.ints(n, 1, 10).toArray(), v = rnd.ints(n, 0, 20).toArray();\n            long melhor = 0;\n            for (int m = 0; m < 1 << n; m++) {\n                long sp = 0, sv = 0;\n                for (int i = 0; i < n; i++) if ((m >> i & 1) == 1) { sp += p[i]; sv += v[i]; }\n                if (sp <= W) melhor = Math.max(melhor, sv);\n            }\n            assertEquals(melhor, Solution.zeroUm(p, v, W));\n        }\n    }\n\n    @Test void grande() {\n        int n = 200, W = 100_000;\n        int[] p = new int[n], v = new int[n];\n        for (int i = 0; i < n; i++) { p[i] = 1000 + i; v[i] = 1_000_000_000; }\n        assertTrue(Solution.zeroUm(p, v, W) > 0);\n        assertEquals(100L * 1_000_000_000, Solution.ilimitada(p, v, W));\n    }\n}\n",
+    "hints": [
+      "dp[w] = melhor valor com capacidade w.",
+      "0/1: percorra w de W até peso[i]. Ilimitada: de peso[i] até W."
+    ]
+  },
+  {
+    "slug": "atv-adv-edit-distance",
+    "kind": "code",
+    "title": "Distância de edição",
+    "statement": "Menor número de inserções, remoções e substituições para transformar `a` em `b`.\n\n## Contrato\n\n```java\nstatic int distancia(String a, String b)\n```\n\n## Exemplos\n\n```\n\"horse\", \"ros\"  ->  3\n\"intention\", \"execution\"  ->  5\n```\n\n## Restrições\n\n- `dp[i][j]` = distância entre os prefixos `a[0..i)` e `b[0..j)`. Até 3000 caracteres cada:\n  use duas linhas (O(m) de memória).",
+    "starterCode": "public class Solution {\n    static int distancia(String a, String b) {\n        throw new UnsupportedOperationException(\"TODO\");\n    }\n}\n",
+    "solutionCode": "public class Solution {\n    static int distancia(String a, String b) {\n        int n = a.length(), m = b.length();\n        int[] ant = new int[m + 1], cur = new int[m + 1];\n        for (int j = 0; j <= m; j++) ant[j] = j; // base: inserir j caracteres\n        for (int i = 1; i <= n; i++) {\n            cur[0] = i;                           // base: remover i caracteres\n            for (int j = 1; j <= m; j++) {\n                if (a.charAt(i - 1) == b.charAt(j - 1)) cur[j] = ant[j - 1];\n                else cur[j] = 1 + Math.min(ant[j - 1], Math.min(ant[j], cur[j - 1]));\n            }\n            int[] t = ant; ant = cur; cur = t;\n        }\n        return ant[m];\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nclass SolutionTest {\n    @Test void exemplos() {\n        assertEquals(3, Solution.distancia(\"horse\", \"ros\"));\n        assertEquals(5, Solution.distancia(\"intention\", \"execution\"));\n    }\n\n    @Test void bordas() {\n        assertEquals(0, Solution.distancia(\"\", \"\"));\n        assertEquals(4, Solution.distancia(\"\", \"abcd\"));\n        assertEquals(3, Solution.distancia(\"abc\", \"\"));\n        assertEquals(0, Solution.distancia(\"igual\", \"igual\"));\n    }\n\n    @Test void grande() {\n        String a = \"ab\".repeat(1500), b = \"ba\".repeat(1500);\n        assertEquals(2, Solution.distancia(a, b));\n    }\n}\n",
+    "hints": [
+      "Bases: dp[0][j] = j e dp[i][0] = i.",
+      "Se os últimos caracteres são iguais, dp[i][j] = dp[i−1][j−1].",
+      "Senão, 1 + mínimo entre substituir, remover e inserir."
+    ]
+  },
+  {
+    "slug": "atv-adv-dp2-r1",
+    "kind": "reflection",
+    "title": "Explique por que a direção do laço distingue mochila 0/1 de ilimitada."
+  },
+  {
+    "slug": "atv-adv-dp2-r2",
+    "kind": "reflection",
+    "title": "Reconheça quando a capacidade (W até 10⁹) torna a mochila pseudo-polinomial inviável, e o que fazer."
+  }
+]

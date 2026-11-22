@@ -107,14 +107,6 @@ Um teste rápido para saber se greedy é suspeito: existe uma escolha local que 
 - **Assumir que "maior primeiro" é sempre ótimo.** Knapsack 0/1 é o contraexemplo clássico: o item de maior valor/peso pode bloquear uma combinação melhor.
 - **Esquecer a soma total.** Em Gas Station, verificar apenas o tanque local sem o total leva a retornar um início inválido.
 
-## Checklist de domínio
-
-- [ ] Você enuncia a escolha gulosa e a propriedade que ela precisa satisfazer
-- [ ] Você escreve uma prova por troca em quatro passos
-- [ ] Você encontra um contraexemplo quando a propriedade não vale
-- [ ] Você reconhece quando o problema pede DP em vez de greedy
-- [ ] Você testa empates, valores negativos e casos impossíveis
-
 ## Para ir além
 
 - [LeetCode 55 — Jump Game](https://leetcode.com/problems/jump-game/)

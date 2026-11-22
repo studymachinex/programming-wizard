@@ -1,0 +1,38 @@
+[
+  {
+    "slug": "atv-adv-max-intervalos",
+    "kind": "code",
+    "title": "Máximo de intervalos sem sobreposição",
+    "statement": "Escolha o maior número de intervalos `[inicio, fim)` dois a dois disjuntos (encostar é permitido).\nDevolva quantos.\n\n## Contrato\n\n```java\nstatic int maximo(int[][] intervalos)\n```\n\n## Restrições\n\n- Greedy: ordene pelo **fim** e pegue o próximo que começa depois do último fim escolhido. O(n log n).\n- Até 100 mil intervalos; valores extremos de `int`.",
+    "starterCode": "import java.util.*;\n\npublic class Solution {\n    static int maximo(int[][] intervalos) {\n        throw new UnsupportedOperationException(\"TODO\");\n    }\n}\n",
+    "solutionCode": "import java.util.*;\n\npublic class Solution {\n    // Prova por troca: o que termina primeiro deixa o maior espaço livre para o resto.\n    static int maximo(int[][] intervalos) {\n        int[][] a = intervalos.clone();\n        Arrays.sort(a, Comparator.comparingInt(x -> x[1]));\n        int total = 0;\n        long fim = Long.MIN_VALUE;\n        for (int[] x : a) {\n            if (x[0] >= fim) {\n                total++;\n                fim = x[1];\n            }\n        }\n        return total;\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nimport java.util.*;\n\nclass SolutionTest {\n    private static int bruta(int[][] a) {\n        int melhor = 0;\n        for (int m = 0; m < 1 << a.length; m++) {\n            boolean ok = true;\n            for (int i = 0; i < a.length && ok; i++) for (int j = i + 1; j < a.length && ok; j++)\n                if ((m >> i & 1) == 1 && (m >> j & 1) == 1 && a[i][0] < a[j][1] && a[j][0] < a[i][1]) ok = false;\n            if (ok) melhor = Math.max(melhor, Integer.bitCount(m));\n        }\n        return melhor;\n    }\n\n    @Test void exemplos() {\n        assertEquals(3, Solution.maximo(new int[][]{{1, 2}, {2, 3}, {3, 4}, {1, 3}}));\n        assertEquals(2, Solution.maximo(new int[][]{{1, 100}, {2, 3}, {50, 60}}));\n        assertEquals(0, Solution.maximo(new int[][]{}));\n    }\n\n    @Test void comecarCedoNaoEhOCriterio() {\n        assertEquals(2, Solution.maximo(new int[][]{{0, 10}, {1, 2}, {3, 4}}));\n    }\n\n    @Test void extremos() {\n        assertEquals(2, Solution.maximo(new int[][]{{Integer.MIN_VALUE, 0}, {0, Integer.MAX_VALUE}}));\n    }\n\n    @Test void aleatorioContraBruta() {\n        var rnd = new Random(5);\n        for (int t = 0; t < 300; t++) {\n            int[][] a = new int[rnd.nextInt(11)][];\n            for (int i = 0; i < a.length; i++) {\n                int s = rnd.nextInt(20);\n                a[i] = new int[]{s, s + 1 + rnd.nextInt(6)};\n            }\n            assertEquals(bruta(a), Solution.maximo(a));\n        }\n    }\n}\n",
+    "hints": [
+      "Ordenar pelo início ou pela duração tem contraexemplos; pelo fim, não.",
+      "Guarde o fim do último escolhido e aceite quem começa em ou depois dele."
+    ]
+  },
+  {
+    "slug": "atv-adv-posto-gasolina",
+    "kind": "code",
+    "title": "Posto de gasolina (circuito)",
+    "statement": "Há `n` postos num circuito. No posto `i` você abastece `gas[i]` e gasta `custo[i]` para ir ao próximo.\nCom tanque vazio no início, de qual posto dá para completar a volta? Devolva o índice ou `-1`.\nSe houver mais de uma partida possível, devolva qualquer uma.\n\n## Contrato\n\n```java\nstatic int inicio(int[] gas, int[] custo)\n```\n\n## Restrições\n\n- O(n) e O(1) de memória: se você fica sem gasolina ao chegar em `j`, nenhum posto entre o início e\n  `j` funciona como partida.",
+    "starterCode": "public class Solution {\n    static int inicio(int[] gas, int[] custo) {\n        throw new UnsupportedOperationException(\"TODO\");\n    }\n}\n",
+    "solutionCode": "public class Solution {\n    static int inicio(int[] gas, int[] custo) {\n        long total = 0, tanque = 0;\n        int partida = 0;\n        for (int i = 0; i < gas.length; i++) {\n            long saldo = (long) gas[i] - custo[i];\n            total += saldo;\n            tanque += saldo;\n            if (tanque < 0) { // ninguém em [partida, i] serve: recomeça depois de i\n                partida = i + 1;\n                tanque = 0;\n            }\n        }\n        return total >= 0 ? partida : -1;\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nimport java.util.*;\n\nclass SolutionTest {\n    private static boolean funciona(int[] g, int[] c, int s) {\n        long t = 0;\n        for (int k = 0; k < g.length; k++) {\n            t += g[(s + k) % g.length] - c[(s + k) % g.length];\n            if (t < 0) return false;\n        }\n        return true;\n    }\n\n    @Test void exemplos() {\n        assertEquals(3, Solution.inicio(new int[]{1, 2, 3, 4, 5}, new int[]{3, 4, 5, 1, 2}));\n        assertEquals(-1, Solution.inicio(new int[]{2, 3, 4}, new int[]{3, 4, 3}));\n        assertEquals(0, Solution.inicio(new int[]{5}, new int[]{5}));\n    }\n\n    @Test void aleatorioContraBruta() {\n        var rnd = new Random(6);\n        for (int t = 0; t < 500; t++) {\n            int n = 1 + rnd.nextInt(8);\n            int[] g = rnd.ints(n, 0, 6).toArray(), c = rnd.ints(n, 0, 6).toArray();\n            boolean existe = false;\n            for (int s = 0; s < n; s++) existe |= funciona(g, c, s);\n            int r = Solution.inicio(g, c);\n            if (!existe) assertEquals(-1, r, Arrays.toString(g) + Arrays.toString(c));\n            else assertTrue(r >= 0 && r < n && funciona(g, c, r), Arrays.toString(g) + Arrays.toString(c) + \" -> \" + r);\n        }\n    }\n}\n",
+    "hints": [
+      "Se a soma total de gas − custo for negativa, é impossível.",
+      "Ao zerar o tanque em i, a nova partida candidata é i + 1."
+    ]
+  },
+  {
+    "slug": "atv-adv-gr-r1",
+    "kind": "reflection",
+    "title": "Escreva a prova por troca (quatro passos) do intervalo que termina primeiro."
+  },
+  {
+    "slug": "atv-adv-gr-r2",
+    "kind": "reflection",
+    "title": "Encontre um contraexemplo para o troco guloso com moedas {1, 3, 4} e explique por que ali é DP."
+  }
+]

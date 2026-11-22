@@ -1,0 +1,40 @@
+[
+  {
+    "slug": "atv-adv-lfu",
+    "kind": "code",
+    "title": "LFU cache com O(1)",
+    "statement": "Cache de capacidade fixa que evicta a chave **menos frequentemente usada**; em empate, a menos\nrecentemente usada entre elas.\n\n## Contrato\n\n```java\nstatic class LFU {\n    LFU(int capacidade);\n    int get(int key);              // -1 se ausente; conta como uso\n    void put(int key, int value);  // atualizar também conta como uso\n}\n```\n\n## Restrições\n\n- O(1) por operação: mapa chave → (valor, freq), mapa freq → `LinkedHashSet` de chaves, e `minFreq`.\n- `capacidade` pode ser 0 (nada é guardado).",
+    "starterCode": "import java.util.*;\n\npublic class Solution {\n    static class LFU {\n        LFU(int capacidade) { throw new UnsupportedOperationException(\"TODO\"); }\n        int get(int key) { throw new UnsupportedOperationException(\"TODO\"); }\n        void put(int key, int value) { throw new UnsupportedOperationException(\"TODO\"); }\n    }\n}\n",
+    "solutionCode": "import java.util.*;\n\npublic class Solution {\n    static class LFU {\n        private final int capacidade;\n        private final Map<Integer, int[]> dados = new HashMap<>();              // chave -> {valor, freq}\n        private final Map<Integer, LinkedHashSet<Integer>> porFreq = new HashMap<>(); // ordem de inserção = LRU\n        private int minFreq;\n\n        LFU(int capacidade) { this.capacidade = capacidade; }\n\n        private void tocar(int key, int[] d) {\n            LinkedHashSet<Integer> grupo = porFreq.get(d[1]);\n            grupo.remove(key);\n            if (grupo.isEmpty()) {\n                porFreq.remove(d[1]);\n                if (minFreq == d[1]) minFreq++;\n            }\n            d[1]++;\n            porFreq.computeIfAbsent(d[1], f -> new LinkedHashSet<>()).add(key);\n        }\n\n        int get(int key) {\n            int[] d = dados.get(key);\n            if (d == null) return -1;\n            tocar(key, d);\n            return d[0];\n        }\n\n        void put(int key, int value) {\n            if (capacidade == 0) return;\n            int[] d = dados.get(key);\n            if (d != null) {\n                d[0] = value;\n                tocar(key, d);\n                return;\n            }\n            if (dados.size() == capacidade) {\n                LinkedHashSet<Integer> grupo = porFreq.get(minFreq);\n                int vitima = grupo.iterator().next(); // menos recente entre os menos frequentes\n                grupo.remove(vitima);\n                if (grupo.isEmpty()) porFreq.remove(minFreq);\n                dados.remove(vitima);\n            }\n            dados.put(key, new int[]{value, 1});\n            porFreq.computeIfAbsent(1, f -> new LinkedHashSet<>()).add(key);\n            minFreq = 1;\n        }\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nclass SolutionTest {\n    @Test void sequenciaClassica() {\n        var c = new Solution.LFU(2);\n        c.put(1, 1); c.put(2, 2);\n        assertEquals(1, c.get(1));   // freq(1)=2\n        c.put(3, 3);                 // evicta 2\n        assertEquals(-1, c.get(2));\n        assertEquals(3, c.get(3));   // freq(3)=2\n        c.put(4, 4);                 // empate 1 e 3 (freq 2): evicta 1, o menos recente\n        assertEquals(-1, c.get(1));\n        assertEquals(3, c.get(3));\n        assertEquals(4, c.get(4));\n    }\n\n    @Test void atualizarContaUso() {\n        var c = new Solution.LFU(2);\n        c.put(1, 1); c.put(2, 2);\n        c.put(1, 10);                // freq(1)=2\n        c.put(3, 3);                 // evicta 2\n        assertEquals(10, c.get(1));\n        assertEquals(-1, c.get(2));\n    }\n\n    @Test void capacidadeZero() {\n        var c = new Solution.LFU(0);\n        c.put(1, 1);\n        assertEquals(-1, c.get(1));\n    }\n\n    @Test void volume() {\n        var c = new Solution.LFU(1000);\n        for (int i = 0; i < 300_000; i++) {\n            c.put(i % 5000, i);\n            c.get(i % 37);\n        }\n        assertTrue(c.get(36) >= 0);\n    }\n}\n",
+    "hints": [
+      "Guarde minFreq; um novo item sempre zera minFreq para 1.",
+      "LinkedHashSet mantém a ordem de inserção: o primeiro é o menos recente da frequência.",
+      "Ao tocar, mova a chave de freq para freq + 1 e atualize minFreq se o grupo antigo esvaziou."
+    ]
+  },
+  {
+    "slug": "atv-adv-bloom",
+    "kind": "code",
+    "title": "Bloom filter",
+    "statement": "Implemente um Bloom filter sobre `long[]` com `k` funções de hash derivadas de dois hashes\n(`h1 + i·h2`, técnica de Kirsch–Mitzenmacher).\n\n## Contrato\n\n```java\nstatic class Bloom {\n    Bloom(int bits, int k);\n    void add(String s);\n    boolean talvezContem(String s);\n}\n```\n\n## Restrições\n\n- **Nunca** dá falso negativo.\n- Com 1 milhão de bits, k = 7 e 100 mil elementos, a taxa de falso positivo medida fica abaixo de 2%.",
+    "starterCode": "public class Solution {\n    static class Bloom {\n        private final long[] bits;\n        private final int m, k;\n\n        Bloom(int bits, int k) {\n            this.bits = new long[(bits + 63) / 64];\n            this.m = bits;\n            this.k = k;\n        }\n\n        void add(String s) { throw new UnsupportedOperationException(\"TODO\"); }\n        boolean talvezContem(String s) { throw new UnsupportedOperationException(\"TODO\"); }\n    }\n}\n",
+    "solutionCode": "public class Solution {\n    static class Bloom {\n        private final long[] bits;\n        private final int m, k;\n\n        Bloom(int bits, int k) {\n            this.bits = new long[(bits + 63) / 64];\n            this.m = bits;\n            this.k = k;\n        }\n\n        private static int mix(int h) { // espalha os bits (finalizador do MurmurHash3)\n            h ^= h >>> 16; h *= 0x85ebca6b; h ^= h >>> 13; h *= 0xc2b2ae35; h ^= h >>> 16;\n            return h;\n        }\n\n        private int pos(String s, int i) {\n            int h1 = mix(s.hashCode()), h2 = mix(h1 ^ 0x9e3779b9) | 1;\n            return Math.floorMod(h1 + i * h2, m);\n        }\n\n        void add(String s) {\n            for (int i = 0; i < k; i++) {\n                int p = pos(s, i);\n                bits[p >>> 6] |= 1L << (p & 63);\n            }\n        }\n\n        // Algum bit zerado prova ausência; todos ligados = \"talvez\".\n        boolean talvezContem(String s) {\n            for (int i = 0; i < k; i++) {\n                int p = pos(s, i);\n                if ((bits[p >>> 6] & (1L << (p & 63))) == 0) return false;\n            }\n            return true;\n        }\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nclass SolutionTest {\n    @Test void semFalsoNegativo() {\n        var b = new Solution.Bloom(1_000_000, 7);\n        for (int i = 0; i < 100_000; i++) b.add(\"user:\" + i);\n        for (int i = 0; i < 100_000; i++) assertTrue(b.talvezContem(\"user:\" + i), \"user:\" + i);\n    }\n\n    @Test void taxaDeFalsoPositivo() {\n        var b = new Solution.Bloom(1_000_000, 7);\n        for (int i = 0; i < 100_000; i++) b.add(\"user:\" + i);\n        int fp = 0;\n        for (int i = 0; i < 100_000; i++) if (b.talvezContem(\"outro:\" + i)) fp++;\n        assertTrue(fp < 2000, fp + \" falsos positivos em 100 000\");\n    }\n\n    @Test void vazioNaoContemNada() {\n        var b = new Solution.Bloom(1024, 3);\n        assertFalse(b.talvezContem(\"x\"));\n    }\n}\n",
+    "hints": [
+      "Bit p: bits[p >>> 6], máscara 1L << (p & 63).",
+      "Posição i = (h1 + i·h2) mod m, com h2 ímpar.",
+      "talvezContem só devolve false se algum dos k bits estiver zerado."
+    ]
+  },
+  {
+    "slug": "atv-adv-lfu-r1",
+    "kind": "reflection",
+    "title": "Explique por que LFU precisa de envelhecimento (decay) em cargas que mudam ao longo do tempo."
+  },
+  {
+    "slug": "atv-adv-lfu-r2",
+    "kind": "reflection",
+    "title": "Explique como uma skip list oferece O(log n) esperado e por que ela é amigável a concorrência."
+  }
+]

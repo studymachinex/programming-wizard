@@ -1,0 +1,40 @@
+[
+  {
+    "slug": "atv-adv-pow-double",
+    "kind": "code",
+    "title": "Pow(x, n) com n negativo e Integer.MIN_VALUE",
+    "statement": "Calcule `x^n` para `double x` e `int n` com exponenciação por quadrados **iterativa**.\n\n## Contrato\n\n```java\nstatic double pow(double x, int n)\n```\n\n## Restrições\n\n- O(log |n|). `-Integer.MIN_VALUE` estoura `int`: converta `n` para `long` antes de negar.\n- Não use `Math.pow`.",
+    "starterCode": "public class Solution {\n    static double pow(double x, int n) {\n        throw new UnsupportedOperationException(\"TODO\");\n    }\n}\n",
+    "solutionCode": "public class Solution {\n    // Bits do expoente: a cada passo o x vira x², e o bit ligado multiplica no resultado.\n    static double pow(double x, int n) {\n        long e = n;\n        if (e < 0) {\n            x = 1 / x;\n            e = -e;\n        }\n        double r = 1;\n        while (e > 0) {\n            if ((e & 1) == 1) r *= x;\n            x *= x;\n            e >>= 1;\n        }\n        return r;\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nclass SolutionTest {\n    @Test void basicos() {\n        assertEquals(1024.0, Solution.pow(2.0, 10), 1e-9);\n        assertEquals(9.261, Solution.pow(2.1, 3), 1e-9);\n        assertEquals(0.25, Solution.pow(2.0, -2), 1e-12);\n        assertEquals(1.0, Solution.pow(123.0, 0));\n    }\n\n    @Test void minValue() {\n        assertEquals(0.0, Solution.pow(2.0, Integer.MIN_VALUE), 1e-300);\n        assertEquals(1.0, Solution.pow(1.0, Integer.MIN_VALUE));\n        assertEquals(1.0, Solution.pow(-1.0, Integer.MIN_VALUE));\n    }\n\n    @Test void rapidoComExpoenteEnorme() {\n        assertEquals(1.0, Solution.pow(-1.0, Integer.MAX_VALUE) * -1, 0);\n        double esperado = Math.pow(1.0000001, 2_000_000_000);\n        assertEquals(esperado, Solution.pow(1.0000001, 2_000_000_000), esperado * 1e-6);\n    }\n}\n",
+    "hints": [
+      "Converta n para long antes de trocar o sinal.",
+      "Para n negativo, use 1/x com o expoente positivo.",
+      "Enquanto e > 0: bit ligado multiplica o resultado; x = x · x; e >>= 1."
+    ]
+  },
+  {
+    "slug": "atv-adv-inverso-modular",
+    "kind": "code",
+    "title": "Inverso modular e divisão módulo primo",
+    "statement": "Com `MOD = 1_000_000_007` (primo), calcule o inverso modular por Fermat (`a^(MOD−2)`) e use-o para a\n**média módulo primo** de uma lista: `(soma) · inverso(n) mod MOD`.\n\n## Contrato\n\n```java\nstatic long modPow(long b, long e, long mod)\nstatic long inverso(long a)        // IllegalArgumentException se a ≡ 0 (mod MOD)\nstatic long mediaMod(long[] valores)\n```\n\n## Restrições\n\n- Reduza antes de multiplicar: dois resíduos < 10⁹+7 cabem num `long`, três não.\n- Valores podem ser negativos: normalize com `((v % MOD) + MOD) % MOD`.",
+    "starterCode": "public class Solution {\n    static final long MOD = 1_000_000_007L;\n\n    static long modPow(long b, long e, long mod) { throw new UnsupportedOperationException(\"TODO\"); }\n    static long inverso(long a) { throw new UnsupportedOperationException(\"TODO\"); }\n    static long mediaMod(long[] valores) { throw new UnsupportedOperationException(\"TODO\"); }\n}\n",
+    "solutionCode": "public class Solution {\n    static final long MOD = 1_000_000_007L;\n\n    static long modPow(long b, long e, long mod) {\n        b %= mod;\n        if (b < 0) b += mod;\n        long r = 1 % mod;\n        while (e > 0) {\n            if ((e & 1) == 1) r = r * b % mod;\n            b = b * b % mod;\n            e >>= 1;\n        }\n        return r;\n    }\n\n    // Pequeno teorema de Fermat: a^(p-1) ≡ 1, então a^(p-2) é o inverso (se p não divide a).\n    static long inverso(long a) {\n        long r = ((a % MOD) + MOD) % MOD;\n        if (r == 0) throw new IllegalArgumentException(\"sem inverso\");\n        return modPow(r, MOD - 2, MOD);\n    }\n\n    static long mediaMod(long[] valores) {\n        long soma = 0;\n        for (long v : valores) soma = (soma + ((v % MOD) + MOD) % MOD) % MOD;\n        return soma * inverso(valores.length) % MOD;\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nclass SolutionTest {\n    @Test void inversoMultiplicaParaUm() {\n        for (long a : new long[]{1, 2, 3, 999_999_999, 123_456_789_012L, -5}) {\n            long inv = Solution.inverso(a);\n            long norm = ((a % Solution.MOD) + Solution.MOD) % Solution.MOD;\n            assertEquals(1, norm * inv % Solution.MOD, \"a = \" + a);\n        }\n        assertEquals(500_000_004, Solution.inverso(2));\n    }\n\n    @Test void semInverso() {\n        assertThrows(IllegalArgumentException.class, () -> Solution.inverso(0));\n        assertThrows(IllegalArgumentException.class, () -> Solution.inverso(Solution.MOD * 3));\n    }\n\n    @Test void media() {\n        assertEquals(2, Solution.mediaMod(new long[]{1, 2, 3}));\n        assertEquals(500_000_004, Solution.mediaMod(new long[]{0, 1}));     // 1/2\n        assertEquals(Solution.MOD - 1, Solution.mediaMod(new long[]{-1, -1}));\n    }\n\n    @Test void modPowGrande() {\n        assertEquals(1, Solution.modPow(5, Solution.MOD - 1, Solution.MOD));\n        assertEquals(0, Solution.modPow(7, 3, 1));\n    }\n}\n",
+    "hints": [
+      "modPow: r = r·b % mod quando o bit está ligado; b = b·b % mod sempre.",
+      "inverso(a) = a^(MOD−2) depois de normalizar a.",
+      "Média = soma · inverso(n), tudo mod MOD."
+    ]
+  },
+  {
+    "slug": "atv-adv-mod-r1",
+    "kind": "reflection",
+    "title": "Explique por que dois resíduos de 10⁹+7 podem ser multiplicados em `long`, mas três não."
+  },
+  {
+    "slug": "atv-adv-mod-r2",
+    "kind": "reflection",
+    "title": "Diga quando o inverso por Fermat não se aplica (módulo não primo) e qual a alternativa (Euclides estendido)."
+  }
+]

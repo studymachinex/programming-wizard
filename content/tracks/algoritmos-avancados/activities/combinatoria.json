@@ -1,0 +1,31 @@
+[
+  {
+    "slug": "atv-adv-binomial-exato",
+    "kind": "code",
+    "title": "C(n, k) exato sem overflow",
+    "statement": "Calcule `C(n, k)` **exato** em `long` para `n <= 66` (o maior, `C(66, 33)`, ainda cabe). O caminho\ningênuo `n! / (k!(n−k)!)` estoura já em `21!`.\n\n## Contrato\n\n```java\nstatic long binomial(int n, int k)   // 0 se k < 0 ou k > n\nstatic long catalan(int n)           // C(2n, n) / (n + 1), n <= 33\n```\n\n## Restrições\n\n- Método multiplicativo: `r = r · (n − k + i) / i` para `i = 1..k`, com `k = min(k, n − k)`.\n  A divisão é sempre exata, mas `r · (n − k + i)` pode estourar perto do fim — divida pelo MDC antes\n  (ou use `Math.multiplyHigh`/`BigInteger` só no passo crítico).",
+    "starterCode": "public class Solution {\n    static long binomial(int n, int k) {\n        throw new UnsupportedOperationException(\"TODO\");\n    }\n\n    static long catalan(int n) {\n        throw new UnsupportedOperationException(\"TODO\");\n    }\n}\n",
+    "solutionCode": "public class Solution {\n    private static long mdc(long a, long b) { while (b != 0) { long t = a % b; a = b; b = t; } return a; }\n\n    // r = C(n-k+i, i) a cada passo. Para multiplicar por num e dividir por i sem estourar,\n    // cancela o MDC de i com r e com num antes da multiplicação.\n    static long binomial(int n, int k) {\n        if (k < 0 || k > n) return 0;\n        k = Math.min(k, n - k);\n        long r = 1;\n        for (int i = 1; i <= k; i++) {\n            long num = n - k + i, den = i;\n            long g = mdc(r, den);\n            r /= g;\n            den /= g;\n            num /= den; // agora den divide num (r·num/den é inteiro e mdc(r, den) = 1)\n            r *= num;\n        }\n        return r;\n    }\n\n    static long catalan(int n) {\n        return binomial(2 * n, n) / (n + 1);\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nimport java.math.BigInteger;\n\nclass SolutionTest {\n    private static BigInteger exato(int n, int k) {\n        BigInteger r = BigInteger.ONE;\n        for (int i = 1; i <= k; i++) r = r.multiply(BigInteger.valueOf(n - k + i)).divide(BigInteger.valueOf(i));\n        return r;\n    }\n\n    @Test void pequenos() {\n        assertEquals(10, Solution.binomial(5, 2));\n        assertEquals(1, Solution.binomial(7, 0));\n        assertEquals(1, Solution.binomial(7, 7));\n        assertEquals(0, Solution.binomial(3, 5));\n        assertEquals(0, Solution.binomial(3, -1));\n    }\n\n    @Test void todosAte66() {\n        for (int n = 0; n <= 66; n++)\n            for (int k = 0; k <= n; k++)\n                assertEquals(exato(n, k).longValueExact(), Solution.binomial(n, k), \"C(\" + n + \",\" + k + \")\");\n    }\n\n    @Test void catalan() {\n        long[] esperado = {1, 1, 2, 5, 14, 42, 132, 429, 1430, 4862};\n        for (int n = 0; n < esperado.length; n++) assertEquals(esperado[n], Solution.catalan(n));\n        assertEquals(exato(66, 33).divide(BigInteger.valueOf(34)).longValueExact(), Solution.catalan(33));\n    }\n}\n",
+    "hints": [
+      "Use a simetria: k = min(k, n − k).",
+      "Depois de i passos, r = C(n − k + i, i): sempre inteiro.",
+      "Antes de multiplicar, cancele o MDC entre r e i; o resto de i divide o numerador."
+    ]
+  },
+  {
+    "slug": "atv-adv-comb-r1",
+    "kind": "reflection",
+    "title": "Classifique cinco problemas de contagem nas quatro categorias (ordem importa? repetição?) antes de codar."
+  },
+  {
+    "slug": "atv-adv-comb-r2",
+    "kind": "reflection",
+    "title": "Explique a descida `invFat[i−1] = invFat[i] · i` para pré-calcular inversos de fatoriais em O(n)."
+  },
+  {
+    "slug": "atv-adv-comb-r3",
+    "kind": "reflection",
+    "title": "Reconheça a recorrência de Catalan numa DP (BSTs distintas, parênteses balanceados)."
+  }
+]

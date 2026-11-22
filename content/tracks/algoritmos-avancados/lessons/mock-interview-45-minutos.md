@@ -49,14 +49,6 @@ Teste você mesmo antes de dizer "pronto". Casos: vazio, um elemento, duplicatas
 - Discutir otimização antes da corretude.
 - Mentir sobre experiência.
 
-## Checklist de domínio
-
-- [ ] Sigo o protocolo de 45 minutos.
-- [ ] Comunico trade-offs em voz alta.
-- [ ] Testo bordas sem ser solicitado.
-- [ ] Sei pedir dica e incorporar.
-- [ ] Pratico com gravação e feedback.
-
 ## Para ir além
 
 Grave duas entrevistas simuladas e revise: tempo por etapa, clareza e testes. Depois refaça os dois problemas com metade do tempo.

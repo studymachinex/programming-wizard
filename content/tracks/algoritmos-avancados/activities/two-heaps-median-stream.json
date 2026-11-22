@@ -1,0 +1,26 @@
+[
+  {
+    "slug": "atv-adv-mediana-janela",
+    "kind": "code",
+    "title": "Mediana de janela deslizante",
+    "statement": "Para cada janela de tamanho `k` de `nums`, devolva a mediana (com `k` par, a média dos dois do meio).\nAqui os dois heaps simples não bastam: elementos **saem** da janela. Use duas estruturas que aceitem\nremoção arbitrária (por exemplo, dois `TreeSet` de índices ordenados por valor).\n\n## Contrato\n\n```java\nstatic double[] medianas(int[] nums, int k)\n```\n\n## Exemplos\n\n```\nnums = [1, 3, -1, -3, 5, 3, 6, 7], k = 3  ->  [1, -1, -1, 3, 5, 6]\n```\n\n## Restrições\n\n- O(n log k); até 100 mil elementos; valores extremos de `int` sem overflow.",
+    "starterCode": "import java.util.*;\n\npublic class Solution {\n    static double[] medianas(int[] nums, int k) {\n        throw new UnsupportedOperationException(\"TODO\");\n    }\n}\n",
+    "solutionCode": "import java.util.*;\n\npublic class Solution {\n    // Dois TreeSet de índices (desempate por índice permite duplicatas). baixo tem k/2 + k%2 elementos.\n    static double[] medianas(int[] nums, int k) {\n        Comparator<Integer> cmp = (a, b) -> nums[a] != nums[b] ? Integer.compare(nums[a], nums[b]) : Integer.compare(a, b);\n        TreeSet<Integer> baixo = new TreeSet<>(cmp), alto = new TreeSet<>(cmp);\n        double[] out = new double[nums.length - k + 1];\n        for (int i = 0; i < nums.length; i++) {\n            if (i >= k && !baixo.remove(i - k)) alto.remove(i - k);\n            baixo.add(i);\n            alto.add(baixo.pollLast());\n            while (baixo.size() < alto.size()) baixo.add(alto.pollFirst());\n            if (i >= k - 1) {\n                out[i - k + 1] = k % 2 == 1\n                    ? nums[baixo.last()]\n                    : ((long) nums[baixo.last()] + nums[alto.first()]) / 2.0;\n            }\n        }\n        return out;\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nimport java.util.*;\n\nclass SolutionTest {\n    private static double[] bruta(int[] a, int k) {\n        double[] out = new double[a.length - k + 1];\n        for (int i = 0; i + k <= a.length; i++) {\n            int[] w = Arrays.copyOfRange(a, i, i + k);\n            Arrays.sort(w);\n            out[i] = k % 2 == 1 ? w[k / 2] : ((long) w[k / 2 - 1] + w[k / 2]) / 2.0;\n        }\n        return out;\n    }\n\n    @Test void exemplo() {\n        assertArrayEquals(new double[]{1, -1, -1, 3, 5, 6}, Solution.medianas(new int[]{1, 3, -1, -3, 5, 3, 6, 7}, 3));\n    }\n\n    @Test void parEExtremos() {\n        assertArrayEquals(new double[]{Integer.MAX_VALUE, -0.5},\n            Solution.medianas(new int[]{Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MIN_VALUE}, 2));\n    }\n\n    @Test void aleatorioComDuplicatas() {\n        var rnd = new Random(2);\n        for (int t = 0; t < 200; t++) {\n            int n = 1 + rnd.nextInt(30), k = 1 + rnd.nextInt(n);\n            int[] a = rnd.ints(n, 0, 6).toArray();\n            assertArrayEquals(bruta(a, k), Solution.medianas(a, k), Arrays.toString(a) + \" k=\" + k);\n        }\n    }\n\n    @Test void grande() {\n        int[] a = new Random(3).ints(100_000).toArray();\n        assertEquals(100_000 - 1000 + 1, Solution.medianas(a, 1000).length);\n    }\n}\n",
+    "hints": [
+      "Heaps não removem um elemento arbitrário em O(log n); TreeSet remove.",
+      "Guarde índices e desempate por índice para aceitar valores repetidos.",
+      "Remova o elemento que saiu de qualquer um dos dois conjuntos e rebalanceie."
+    ]
+  },
+  {
+    "slug": "atv-adv-2h-r1",
+    "kind": "reflection",
+    "title": "Enuncie as duas invariantes dos dois heaps (ordem e tamanho) antes de escrever código."
+  },
+  {
+    "slug": "atv-adv-2h-r2",
+    "kind": "reflection",
+    "title": "Explique por que o padrão de dois heaps não serve quando há remoção arbitrária."
+  }
+]

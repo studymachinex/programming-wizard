@@ -78,14 +78,6 @@ Use arrays de tamanho `4n`; para `n` até 10^6, memória de ~64 MB por árvore d
 - `lazy` não inicializado.
 - Recursão profunda demais.
 
-## Checklist de domínio
-
-- [ ] Implemento build, update e query com lazy.
-- [ ] Sei compor atualizações (soma/atribuição).
-- [ ] Analiso O(log n) e memória.
-- [ ] Testo intervalos vazios e bordas.
-- [ ] Sei quando Fenwick basta.
-
 ## Para ir além
 
 Leia o capítulo de segment tree em cp-algorithms.com. Depois implemente range add + range sum e compare com força bruta.

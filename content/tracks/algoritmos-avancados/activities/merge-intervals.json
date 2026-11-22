@@ -1,0 +1,40 @@
+[
+  {
+    "slug": "atv-adv-inserir-intervalo",
+    "kind": "code",
+    "title": "Inserir intervalo numa lista ordenada",
+    "statement": "`intervalos` está ordenado pelo início e sem sobreposições. Insira `novo`, fundindo o que for preciso.\nIntervalos que apenas **se tocam** (`[1, 2]` e `[2, 3]`) também se fundem.\n\n## Contrato\n\n```java\nstatic int[][] inserir(int[][] intervalos, int[] novo)\n```\n\n## Exemplos\n\n```\n[[1, 3], [6, 9]] + [2, 5]                        ->  [[1, 5], [6, 9]]\n[[1, 2], [3, 5], [6, 7], [8, 10], [12, 16]] + [4, 8]  ->  [[1, 2], [3, 10], [12, 16]]\n```\n\n## Restrições\n\n- O(n), sem reordenar: três fases (antes, sobrepostos, depois).",
+    "starterCode": "import java.util.*;\n\npublic class Solution {\n    static int[][] inserir(int[][] intervalos, int[] novo) {\n        throw new UnsupportedOperationException(\"TODO\");\n    }\n}\n",
+    "solutionCode": "import java.util.*;\n\npublic class Solution {\n    static int[][] inserir(int[][] intervalos, int[] novo) {\n        List<int[]> out = new ArrayList<>();\n        int i = 0, n = intervalos.length;\n        while (i < n && intervalos[i][1] < novo[0]) out.add(intervalos[i++]);       // terminam antes\n        int ini = novo[0], fim = novo[1];\n        while (i < n && intervalos[i][0] <= fim) {                                   // se sobrepõem ou tocam\n            ini = Math.min(ini, intervalos[i][0]);\n            fim = Math.max(fim, intervalos[i][1]);\n            i++;\n        }\n        out.add(new int[]{ini, fim});\n        while (i < n) out.add(intervalos[i++]);                                      // começam depois\n        return out.toArray(new int[0][]);\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nclass SolutionTest {\n    @Test void exemplos() {\n        assertArrayEquals(new int[][]{{1, 5}, {6, 9}}, Solution.inserir(new int[][]{{1, 3}, {6, 9}}, new int[]{2, 5}));\n        assertArrayEquals(new int[][]{{1, 2}, {3, 10}, {12, 16}},\n            Solution.inserir(new int[][]{{1, 2}, {3, 5}, {6, 7}, {8, 10}, {12, 16}}, new int[]{4, 8}));\n    }\n\n    @Test void pontas() {\n        assertArrayEquals(new int[][]{{0, 0}, {2, 3}}, Solution.inserir(new int[][]{{2, 3}}, new int[]{0, 0}));\n        assertArrayEquals(new int[][]{{2, 3}, {5, 6}}, Solution.inserir(new int[][]{{2, 3}}, new int[]{5, 6}));\n        assertArrayEquals(new int[][]{{4, 4}}, Solution.inserir(new int[][]{}, new int[]{4, 4}));\n    }\n\n    @Test void tocarFunde() {\n        assertArrayEquals(new int[][]{{1, 5}}, Solution.inserir(new int[][]{{1, 2}, {4, 5}}, new int[]{2, 4}));\n    }\n\n    @Test void engoleTudo() {\n        assertArrayEquals(new int[][]{{0, 100}}, Solution.inserir(new int[][]{{1, 2}, {5, 6}, {9, 10}}, new int[]{0, 100}));\n    }\n}\n",
+    "hints": [
+      "Primeiro copie os que terminam antes do novo começar.",
+      "Depois funda todos que começam até o fim atual (<= por causa do toque).",
+      "Copie o resto."
+    ]
+  },
+  {
+    "slug": "atv-adv-salas-reuniao",
+    "kind": "code",
+    "title": "Mínimo de salas de reunião",
+    "statement": "Cada reunião é `[inicio, fim)` (meio aberta: quem termina às 10 libera a sala para quem começa às 10).\nQuantas salas são necessárias no mínimo?\n\n## Contrato\n\n```java\nstatic int salas(int[][] reunioes)\n```\n\n## Exemplos\n\n```\n[[0, 30], [5, 10], [15, 20]]  ->  2\n[[7, 10], [2, 4]]             ->  1\n```\n\n## Restrições\n\n- O(n log n); até 100 mil reuniões.",
+    "starterCode": "import java.util.*;\n\npublic class Solution {\n    static int salas(int[][] reunioes) {\n        throw new UnsupportedOperationException(\"TODO\");\n    }\n}\n",
+    "solutionCode": "import java.util.*;\n\npublic class Solution {\n    // Varredura: inícios e fins ordenados separadamente; um fim <= início libera uma sala antes.\n    static int salas(int[][] reunioes) {\n        int n = reunioes.length;\n        int[] ini = new int[n], fim = new int[n];\n        for (int i = 0; i < n; i++) {\n            ini[i] = reunioes[i][0];\n            fim[i] = reunioes[i][1];\n        }\n        Arrays.sort(ini);\n        Arrays.sort(fim);\n        int usadas = 0, maximo = 0, j = 0;\n        for (int i = 0; i < n; i++) {\n            while (fim[j] <= ini[i]) {\n                j++;\n                usadas--;\n            }\n            usadas++;\n            maximo = Math.max(maximo, usadas);\n        }\n        return maximo;\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nimport java.util.*;\n\nclass SolutionTest {\n    @Test void exemplos() {\n        assertEquals(2, Solution.salas(new int[][]{{0, 30}, {5, 10}, {15, 20}}));\n        assertEquals(1, Solution.salas(new int[][]{{7, 10}, {2, 4}}));\n        assertEquals(0, Solution.salas(new int[][]{}));\n    }\n\n    @Test void encostadasUsamUmaSala() {\n        assertEquals(1, Solution.salas(new int[][]{{1, 5}, {5, 10}, {10, 12}}));\n    }\n\n    @Test void todasJuntas() {\n        int[][] r = new int[1000][];\n        for (int i = 0; i < r.length; i++) r[i] = new int[]{0, 1 + i};\n        assertEquals(1000, Solution.salas(r));\n    }\n\n    @Test void aleatorioContraBruta() {\n        var rnd = new Random(4);\n        for (int t = 0; t < 200; t++) {\n            int n = rnd.nextInt(20);\n            int[][] r = new int[n][];\n            int[] ocup = new int[60];\n            for (int i = 0; i < n; i++) {\n                int a = rnd.nextInt(50), b = a + 1 + rnd.nextInt(9);\n                r[i] = new int[]{a, b};\n                for (int x = a; x < b; x++) ocup[x]++;\n            }\n            assertEquals(Arrays.stream(ocup).max().getAsInt(), Solution.salas(r));\n        }\n    }\n}\n",
+    "hints": [
+      "O que importa é o máximo de reuniões simultâneas.",
+      "Ordene inícios e fins separadamente e varra com dois ponteiros.",
+      "Com intervalo meio aberto, fim <= início libera a sala."
+    ]
+  },
+  {
+    "slug": "atv-adv-int-r1",
+    "kind": "reflection",
+    "title": "Explique por que ordenar pelo início permite uma decisão local na fusão."
+  },
+  {
+    "slug": "atv-adv-int-r2",
+    "kind": "reflection",
+    "title": "Distinga fusão, contagem de salas e seleção de intervalos: qual ordenação cada um usa e por quê."
+  }
+]

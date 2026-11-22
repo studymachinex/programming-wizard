@@ -1,0 +1,22 @@
+[
+  {
+    "slug": "atv-adv-com-r1",
+    "kind": "reflection",
+    "title": "Escreva de três a cinco perguntas de clarificação que mudariam a solução de \"top-k palavras mais frequentes\"."
+  },
+  {
+    "slug": "atv-adv-com-r2",
+    "kind": "reflection",
+    "title": "Apresente em voz alta duas abordagens para um problema, com tempo, espaço e risco, antes de escolher."
+  },
+  {
+    "slug": "atv-adv-com-r3",
+    "kind": "reflection",
+    "title": "Resolva um problema narrando invariantes (não sintaxe) e grave para ouvir depois."
+  },
+  {
+    "slug": "atv-adv-com-r4",
+    "kind": "reflection",
+    "title": "Feche uma solução com complexidade e casos de teste, sem \"acho que está certo\"."
+  }
+]

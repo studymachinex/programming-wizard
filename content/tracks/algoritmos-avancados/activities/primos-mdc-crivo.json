@@ -1,0 +1,39 @@
+[
+  {
+    "slug": "atv-adv-crivo-fatoracao",
+    "kind": "code",
+    "title": "Crivo com menor fator primo e fatoração",
+    "statement": "Pré-calcule o **menor fator primo** (`spf`) de todo número até `N` e use-o para fatorar rapidamente.\n\n## Contrato\n\n```java\nstatic class Crivo {\n    Crivo(int N);\n    boolean primo(int x);\n    int contarPrimosAte(int x);\n    java.util.List<Integer> fatorar(int x);   // fatores em ordem crescente, com repetição; [] para 1\n}\n```\n\n## Restrições\n\n- `N` até 10 milhões. Marque a partir de `p·p` usando `long` para não estourar.",
+    "starterCode": "import java.util.*;\n\npublic class Solution {\n    static class Crivo {\n        Crivo(int N) { throw new UnsupportedOperationException(\"TODO\"); }\n        boolean primo(int x) { throw new UnsupportedOperationException(\"TODO\"); }\n        int contarPrimosAte(int x) { throw new UnsupportedOperationException(\"TODO\"); }\n        List<Integer> fatorar(int x) { throw new UnsupportedOperationException(\"TODO\"); }\n    }\n}\n",
+    "solutionCode": "import java.util.*;\n\npublic class Solution {\n    static class Crivo {\n        private final int[] spf;\n        private final int[] acumulado;\n\n        Crivo(int N) {\n            spf = new int[N + 1];\n            for (int p = 2; p <= N; p++) {\n                if (spf[p] != 0) continue;\n                spf[p] = p;\n                for (long m = (long) p * p; m <= N; m += p) if (spf[(int) m] == 0) spf[(int) m] = p;\n            }\n            acumulado = new int[N + 1];\n            for (int i = 2; i <= N; i++) acumulado[i] = acumulado[i - 1] + (spf[i] == i ? 1 : 0);\n        }\n\n        boolean primo(int x) { return x >= 2 && spf[x] == x; }\n\n        int contarPrimosAte(int x) { return x < 2 ? 0 : acumulado[x]; }\n\n        // O(log x): cada divisão pelo menor fator ao menos divide x por 2.\n        List<Integer> fatorar(int x) {\n            List<Integer> out = new ArrayList<>();\n            while (x > 1) {\n                out.add(spf[x]);\n                x /= spf[x];\n            }\n            return out;\n        }\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nimport java.util.*;\n\nclass SolutionTest {\n    @Test void pequenos() {\n        var c = new Solution.Crivo(100);\n        assertTrue(c.primo(2));\n        assertTrue(c.primo(97));\n        assertFalse(c.primo(1));\n        assertFalse(c.primo(91));\n        assertEquals(25, c.contarPrimosAte(100));\n        assertEquals(0, c.contarPrimosAte(1));\n        assertEquals(List.of(2, 2, 3, 5), c.fatorar(60));\n        assertEquals(List.of(), c.fatorar(1));\n        assertEquals(List.of(97), c.fatorar(97));\n    }\n\n    @Test void dezMilhoes() {\n        var c = new Solution.Crivo(10_000_000);\n        assertEquals(664_579, c.contarPrimosAte(10_000_000));\n        assertTrue(c.primo(9_999_991));\n        assertEquals(List.of(2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 5, 5, 5, 5), c.fatorar(10_000_000));\n    }\n\n    @Test void fatorPrimoGrande() {\n        var c = new Solution.Crivo(10_000_000);\n        assertEquals(List.of(3, 3_333_331), c.fatorar(9_999_993));\n    }\n}\n",
+    "hints": [
+      "spf[p] == 0 ao chegar em p significa que p é primo.",
+      "Marque múltiplos a partir de p·p (em long), só onde spf ainda é 0.",
+      "Fatorar: divida por spf[x] até chegar em 1."
+    ]
+  },
+  {
+    "slug": "atv-adv-mdc-mmc",
+    "kind": "code",
+    "title": "MDC, MMC e ciclos que se alinham",
+    "statement": "Três ônibus partem juntos do terminal; cada um volta a cada `periodos[i]` minutos. Em quantos\nminutos todos voltam a se encontrar no terminal? Implemente `mdc` (Euclides, iterativo) e `mmc`\nsem overflow intermediário.\n\n## Contrato\n\n```java\nstatic long mdc(long a, long b)\nstatic long mmc(long a, long b)\nstatic long encontro(long[] periodos)   // MMC de todos\n```\n\n## Restrições\n\n- O resultado cabe em `long`, mas `a * b` pode não caber: calcule `a / mdc(a, b) * b`.",
+    "starterCode": "public class Solution {\n    static long mdc(long a, long b) { throw new UnsupportedOperationException(\"TODO\"); }\n    static long mmc(long a, long b) { throw new UnsupportedOperationException(\"TODO\"); }\n    static long encontro(long[] periodos) { throw new UnsupportedOperationException(\"TODO\"); }\n}\n",
+    "solutionCode": "public class Solution {\n    // mdc(a, b) = mdc(b, a % b): todo divisor comum de a e b divide a % b. O(log min).\n    static long mdc(long a, long b) {\n        while (b != 0) {\n            long r = a % b;\n            a = b;\n            b = r;\n        }\n        return a;\n    }\n\n    static long mmc(long a, long b) { return a / mdc(a, b) * b; }\n\n    static long encontro(long[] periodos) {\n        long r = 1;\n        for (long p : periodos) r = mmc(r, p);\n        return r;\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nclass SolutionTest {\n    @Test void basicos() {\n        assertEquals(6, Solution.mdc(48, 18));\n        assertEquals(7, Solution.mdc(7, 0));\n        assertEquals(144, Solution.mmc(48, 18));\n        assertEquals(60, Solution.encontro(new long[]{12, 15, 20}));\n    }\n\n    @Test void semOverflowIntermediario() {\n        long a = 4_000_000_000L, b = 6_000_000_000L; // a * b estoura long\n        assertEquals(12_000_000_000L, Solution.mmc(a, b));\n    }\n\n    @Test void encontroGrande() {\n        assertEquals(232_792_560L, Solution.encontro(new long[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20}));\n    }\n\n    @Test void fibonacciConsecutivos() {\n        assertEquals(1, Solution.mdc(7_540_113_804_746_346_429L, 4_660_046_610_375_530_309L));\n    }\n}\n",
+    "hints": [
+      "Euclides: troque (a, b) por (b, a % b) até b ser 0.",
+      "Divida antes de multiplicar: a / mdc · b."
+    ]
+  },
+  {
+    "slug": "atv-adv-pri-r1",
+    "kind": "reflection",
+    "title": "Demonstre em voz alta por que `mdc(a, b) = mdc(b, a % b)`."
+  },
+  {
+    "slug": "atv-adv-pri-r2",
+    "kind": "reflection",
+    "title": "Explique quando trocar `boolean[]` por `BitSet` (ou por um crivo segmentado) num crivo."
+  }
+]

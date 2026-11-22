@@ -1,0 +1,26 @@
+[
+  {
+    "slug": "atv-adv-segtree-min",
+    "kind": "code",
+    "title": "Segment tree iterativa: update pontual e mínimo no intervalo",
+    "statement": "Implemente uma segment tree **iterativa** (bottom-up, array de tamanho `2n`) para mínimo.\n\n## Contrato\n\n```java\nstatic class SegMin {\n    SegMin(int[] a);\n    void set(int i, int valor);\n    int min(int l, int r);   // mínimo em [l, r), Integer.MAX_VALUE se vazio\n}\n```\n\n## Restrições\n\n- O(log n) por operação; até 200 mil elementos e 200 mil operações. Folhas em `t[n + i]`.\n- É a variante sem lazy: quando não há update de intervalo, ela basta (ou um Fenwick, para somas).",
+    "starterCode": "public class Solution {\n    static class SegMin {\n        private final int n;\n        private final int[] t;\n\n        SegMin(int[] a) {\n            n = a.length;\n            t = new int[2 * n];\n            throw new UnsupportedOperationException(\"TODO\");\n        }\n\n        void set(int i, int valor) { throw new UnsupportedOperationException(\"TODO\"); }\n        int min(int l, int r) { throw new UnsupportedOperationException(\"TODO\"); }\n    }\n}\n",
+    "solutionCode": "public class Solution {\n    static class SegMin {\n        private final int n;\n        private final int[] t;\n\n        SegMin(int[] a) {\n            n = a.length;\n            t = new int[2 * n];\n            System.arraycopy(a, 0, t, n, n);\n            for (int i = n - 1; i > 0; i--) t[i] = Math.min(t[2 * i], t[2 * i + 1]);\n        }\n\n        void set(int i, int valor) {\n            for (t[i += n] = valor; i > 1; i >>= 1) t[i >> 1] = Math.min(t[i], t[i ^ 1]);\n        }\n\n        // Sobe pelas duas bordas: um índice ímpar à esquerda (par à direita) é um nó inteiro dentro do intervalo.\n        int min(int l, int r) {\n            int res = Integer.MAX_VALUE;\n            for (l += n, r += n; l < r; l >>= 1, r >>= 1) {\n                if ((l & 1) == 1) res = Math.min(res, t[l++]);\n                if ((r & 1) == 1) res = Math.min(res, t[--r]);\n            }\n            return res;\n        }\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nimport java.util.*;\n\nclass SolutionTest {\n    @Test void pequeno() {\n        var s = new Solution.SegMin(new int[]{5, 2, 8, 6, 3, 7});\n        assertEquals(2, s.min(0, 6));\n        assertEquals(3, s.min(2, 5));\n        assertEquals(8, s.min(2, 3));\n        assertEquals(Integer.MAX_VALUE, s.min(3, 3));\n        s.set(1, 10);\n        assertEquals(3, s.min(0, 6));\n        s.set(5, -1);\n        assertEquals(-1, s.min(4, 6));\n    }\n\n    @Test void tamanhoNaoPotenciaDeDois() {\n        var rnd = new Random(17);\n        for (int n = 1; n <= 20; n++) {\n            int[] a = rnd.ints(n, -50, 50).toArray();\n            var s = new Solution.SegMin(a);\n            for (int op = 0; op < 200; op++) {\n                if (rnd.nextBoolean()) {\n                    int i = rnd.nextInt(n), v = rnd.nextInt(100) - 50;\n                    a[i] = v;\n                    s.set(i, v);\n                } else {\n                    int l = rnd.nextInt(n + 1), r = l + rnd.nextInt(n - l + 1);\n                    int esperado = Integer.MAX_VALUE;\n                    for (int i = l; i < r; i++) esperado = Math.min(esperado, a[i]);\n                    assertEquals(esperado, s.min(l, r), \"n=\" + n + \" [\" + l + \",\" + r + \")\");\n                }\n            }\n        }\n    }\n\n    @Test void grande() {\n        int n = 200_000;\n        int[] a = new int[n];\n        for (int i = 0; i < n; i++) a[i] = n - i;\n        var s = new Solution.SegMin(a);\n        long soma = 0;\n        for (int i = 0; i < 200_000; i++) {\n            s.set(i % n, i);\n            soma += s.min(0, n);\n        }\n        assertTrue(soma >= 0);\n        assertEquals(0, s.min(0, 1));\n    }\n}\n",
+    "hints": [
+      "Folhas em t[n..2n); o pai de i é i/2 e t[i] = min(t[2i], t[2i+1]).",
+      "No set, suba recalculando com o irmão i ^ 1.",
+      "Na consulta, l ímpar entra e avança; r ímpar recua e entra."
+    ]
+  },
+  {
+    "slug": "atv-adv-seg-r1",
+    "kind": "reflection",
+    "title": "Explique como compor atualizações lazy de soma e de atribuição (qual tem prioridade e por quê)."
+  },
+  {
+    "slug": "atv-adv-seg-r2",
+    "kind": "reflection",
+    "title": "Diga quando um Fenwick basta e quando é preciso segment tree com lazy."
+  }
+]

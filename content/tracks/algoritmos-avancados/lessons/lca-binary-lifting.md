@@ -146,13 +146,6 @@ Fora do quadro branco, o mesmo padrão aparece em sistemas reais: encontrar o co
 - **Esquecer o caso `u == v` após igualar.** Se um nó é ancestral do outro, a resposta é ele mesmo; sem o `if`, o laço devolve o pai dele.
 - **Propagar `-1` sem checar.** `up[k-1][-1]` lança `ArrayIndexOutOfBoundsException`. Trate a ausência de ancestral explicitamente.
 
-## Checklist de domínio
-
-- [ ] Você deriva `up[k][v] = up[k-1][up[k-1][v]]` e explica o custo O(n log n)
-- [ ] Você implementa o k-ésimo ancestral decompondo `k` em binário
-- [ ] Você explica por que o segundo passo do LCA só salta quando os ancestrais diferem
-- [ ] Você escolhe entre DFS por consulta, binary lifting e Euler tour pelas restrições
-
 ## Para ir além
 
 - [Lowest Common Ancestor — Binary Lifting (cp-algorithms)](https://cp-algorithms.com/graph/lca_binary_lifting.html)

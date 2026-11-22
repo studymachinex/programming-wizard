@@ -1,0 +1,31 @@
+[
+  {
+    "slug": "atv-adv-maior-substring-sem-repeticao",
+    "kind": "code",
+    "title": "Da força bruta à janela: maior substring sem repetição",
+    "statement": "Devolva o tamanho da maior substring de `s` sem caracteres repetidos. Escreva primeiro a força bruta\nem `forcaBruta` (O(n³) ou O(n²)) e depois a versão O(n) em `janela`. Os testes comparam as duas em\nentradas pequenas e cobram desempenho só de `janela`.\n\n## Contrato\n\n```java\nstatic int forcaBruta(String s)\nstatic int janela(String s)\n```\n\n## Exemplos\n\n```\n\"abcabcbb\" -> 3     \"bbbbb\" -> 1     \"pwwkew\" -> 3     \"\" -> 0\n```\n\n## Restrições\n\n- ASCII; até 200 mil caracteres para `janela`.",
+    "starterCode": "public class Solution {\n    static int forcaBruta(String s) {\n        throw new UnsupportedOperationException(\"TODO\");\n    }\n\n    static int janela(String s) {\n        throw new UnsupportedOperationException(\"TODO\");\n    }\n}\n",
+    "solutionCode": "import java.util.Arrays;\n\npublic class Solution {\n    // O(n²): para cada início, estende até repetir.\n    static int forcaBruta(String s) {\n        int melhor = 0;\n        for (int i = 0; i < s.length(); i++) {\n            boolean[] visto = new boolean[128];\n            for (int j = i; j < s.length(); j++) {\n                if (visto[s.charAt(j)]) break;\n                visto[s.charAt(j)] = true;\n                melhor = Math.max(melhor, j - i + 1);\n            }\n        }\n        return melhor;\n    }\n\n    // O(n): ultimo[c] diz onde c apareceu; a janela pula direto para depois dele.\n    static int janela(String s) {\n        int[] ultimo = new int[128];\n        Arrays.fill(ultimo, -1);\n        int melhor = 0, l = 0;\n        for (int r = 0; r < s.length(); r++) {\n            char c = s.charAt(r);\n            if (ultimo[c] >= l) l = ultimo[c] + 1;\n            ultimo[c] = r;\n            melhor = Math.max(melhor, r - l + 1);\n        }\n        return melhor;\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nimport java.util.Random;\n\nclass SolutionTest {\n    @Test void exemplos() {\n        for (var caso : new Object[][]{{\"abcabcbb\", 3}, {\"bbbbb\", 1}, {\"pwwkew\", 3}, {\"\", 0}, {\"abba\", 2}}) {\n            assertEquals(caso[1], Solution.forcaBruta((String) caso[0]), \"forcaBruta \" + caso[0]);\n            assertEquals(caso[1], Solution.janela((String) caso[0]), \"janela \" + caso[0]);\n        }\n    }\n\n    @Test void asDuasConcordam() {\n        var rnd = new Random(1);\n        for (int t = 0; t < 300; t++) {\n            var sb = new StringBuilder();\n            for (int i = rnd.nextInt(30); i > 0; i--) sb.append((char) ('a' + rnd.nextInt(5)));\n            assertEquals(Solution.forcaBruta(sb.toString()), Solution.janela(sb.toString()), sb.toString());\n        }\n    }\n\n    @Test void janelaGrande() {\n        var sb = new StringBuilder();\n        for (int i = 0; i < 200_000; i++) sb.append((char) (33 + i % 90));\n        assertEquals(90, Solution.janela(sb.toString()));\n    }\n}\n",
+    "hints": [
+      "Força bruta: para cada início, estenda até achar um repetido.",
+      "Sinal de janela: \"maior substring contígua com uma restrição\".",
+      "Guarde a última posição de cada caractere e pule l para depois dela."
+    ]
+  },
+  {
+    "slug": "atv-adv-pad-r1",
+    "kind": "reflection",
+    "title": "Classifique cinco enunciados (de qualquer lista) pela saída e pelas restrições, em menos de dois minutos cada."
+  },
+  {
+    "slug": "atv-adv-pad-r2",
+    "kind": "reflection",
+    "title": "Liste os sinais de janela, DP, backtracking, heap e grafo sem depender de palavras-chave do enunciado."
+  },
+  {
+    "slug": "atv-adv-pad-r3",
+    "kind": "reflection",
+    "title": "Para um problema resolvido, explique por que o padrão é válido (o invariante), não só que ele existe."
+  }
+]

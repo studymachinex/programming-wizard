@@ -63,14 +63,6 @@ Detecção de ciclo negativo: após V-1 relaxamentos, qualquer aresta que ainda 
 - Dijkstra em grafo com peso negativo.
 - Confundir ciclo negativo alcançável com qualquer ciclo.
 
-## Checklist de domínio
-
-- [ ] Implemento Bellman-Ford e detecto ciclo.
-- [ ] Implemento Floyd na ordem correta.
-- [ ] Reconstruo caminhos.
-- [ ] Sei os limites de V/E para cada um.
-- [ ] Aplico reweighting quando necessário.
-
 ## Para ir além
 
 Leia os capítulos de Bellman-Ford e Floyd-Warshall em cp-algorithms.com. Depois detecte arbitragem em um grafo de câmbio.

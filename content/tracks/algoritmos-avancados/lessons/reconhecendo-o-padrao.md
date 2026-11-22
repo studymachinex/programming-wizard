@@ -154,13 +154,6 @@ Na entrevista, verbalize o funil: "A saída é um comprimento, a entrada tem at�
 - **Pular a força bruta.** Sem ela, você não sabe qual trabalho está repetido e não tem plano B se a otimização falhar.
 - **Confundir substring com subsequência.** Substring é contígua; subsequência não. Essa diferença muda o algoritmo inteiro e é uma pergunta de clarificação obrigatória.
 
-## Checklist de domínio
-
-- [ ] Você consegue classificar um problema pela saída e pelas restrições em menos de dois minutos
-- [ ] Você escreve a força bruta antes de propor a otimização
-- [ ] Você reconhece os sinais de janela, DP, backtracking, heap e grafo sem depender de palavra-chave
-- [ ] Você consegue explicar por que o padrão escolhido é válido, não apenas que ele existe
-
 ## Para ir além
 
 - [Tech Interview Handbook — Coding Interview Study Plan](https://www.techinterviewhandbook.org/coding-interview-study-plan/)

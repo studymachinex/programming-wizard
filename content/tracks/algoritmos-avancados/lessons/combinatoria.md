@@ -124,13 +124,6 @@ Combinatória também guia decisões fora do quadro branco. Estimar quantos caso
 - **Esquecer a simetria.** `C(n, k) = C(n, n-k)`. Trocar `k` pelo menor dos dois reduz o laço e o risco de overflow.
 - **Classificar errado.** Contar senhas como combinação (sem ordem) é o erro de raciocínio mais comum. Pergunte: trocar dois elementos gera um resultado diferente?
 
-## Checklist de domínio
-
-- [ ] Você classifica um problema de contagem nas quatro categorias antes de codar
-- [ ] Você calcula `C(n, k)` sem overflow pelos três métodos e sabe quando usar cada um
-- [ ] Você pré-calcula fatoriais e inversos em O(n) com a descida `invFat[i-1] = invFat[i] · i`
-- [ ] Você reconhece a recorrência de Catalan numa DP
-
 ## Para ir além
 
 - [Binomial Coefficients — cp-algorithms](https://cp-algorithms.com/combinatorics/binomial-coefficients.html)

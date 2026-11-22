@@ -117,14 +117,6 @@ O padrão se desdobra em três famílias.
 - **Mutar a entrada.** Se o entrevistador reutilizar o array nos testes, a segunda chamada recebe dados alterados.
 - **Assumir que a entrada está ordenada.** Se não estiver, ordene; se estiver, diga que está usando essa premissa.
 
-## Checklist de domínio
-
-- [ ] Você explica por que ordenar pelo início permite uma decisão local
-- [ ] Você trata intervalos aninhados com `max`
-- [ ] Você implementa inserção em lista ordenada sem reordenar
-- [ ] Você distingue fusão, contagem de salas e seleção de intervalos
-- [ ] Você clarifica a regra de toque antes de codar
-
 ## Para ir além
 
 - [LeetCode 56 — Merge Intervals](https://leetcode.com/problems/merge-intervals/)

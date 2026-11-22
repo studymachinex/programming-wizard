@@ -69,14 +69,6 @@ Sparse table para RMQ, GCD e qualquer operação idempotente e associativa. Mem�
 - Usar sparse table com operação não idempotente.
 - Esquecer que Fenwick não responde mínimo com update simples.
 
-## Checklist de domínio
-
-- [ ] Implemento Fenwick e entendo `lowbit`.
-- [ ] Implemento sparse table e `log`.
-- [ ] Sei o custo de memória dos dois.
-- [ ] Escolho por operação e updates.
-- [ ] Testo bordas e índices.
-
 ## Para ir além
 
 Leia os capítulos de Fenwick e sparse table em cp-algorithms.com. Depois conte inversões com Fenwick e compare com merge sort.

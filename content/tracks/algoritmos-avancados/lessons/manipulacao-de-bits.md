@@ -121,13 +121,6 @@ Quando NÃO usar: legibilidade importa. Em código de negócio, `Set<Permissao>`
 - **`1 << 31` é negativo** e `1 << 32` é `1` (o deslocamento usa só os 5 bits baixos). Para máscaras de até 63 bits, use `1L << i`.
 - **Potência de dois com zero.** `0 & (0 - 1) == 0`, então o teste ingênuo diz que 0 é potência de dois. Exija `x > 0`.
 
-## Checklist de domínio
-
-- [ ] Você explica por que `x & -x` isola o bit mais baixo usando complemento de dois
-- [ ] Você resolve "único entre pares" e "único entre triplos" em O(1) de memória
-- [ ] Você enumera subconjuntos com máscara e sabe o limite prático de `n`
-- [ ] Você evita as armadilhas de precedência e de `>>` com negativos
-
 ## Para ir além
 
 - [Bit manipulation — cp-algorithms](https://cp-algorithms.com/algebra/bit-manipulation.html)

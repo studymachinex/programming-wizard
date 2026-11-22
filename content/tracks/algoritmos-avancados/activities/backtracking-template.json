@@ -1,0 +1,40 @@
+[
+  {
+    "slug": "atv-adv-subconjuntos-duplicatas",
+    "kind": "code",
+    "title": "Subconjuntos sem repetição (com duplicatas na entrada)",
+    "statement": "Devolva todos os subconjuntos **distintos** de `nums`, que pode ter repetidos. Cada subconjunto em\nordem crescente; a lista final na ordem que o backtracking natural produz após ordenar a entrada\n(os testes comparam como conjunto, então a ordem da lista não importa).\n\n## Contrato\n\n```java\nstatic List<List<Integer>> subconjuntos(int[] nums)\n```\n\n## Exemplos\n\n```\n[1, 2, 2]  ->  [[], [1], [1, 2], [1, 2, 2], [2], [2, 2]]\n```\n\n## Restrições\n\n- Escolher → explorar → desfazer. Pule duplicatas no mesmo nível (sem `Set` de resultados).",
+    "starterCode": "import java.util.*;\n\npublic class Solution {\n    static List<List<Integer>> subconjuntos(int[] nums) {\n        throw new UnsupportedOperationException(\"TODO\");\n    }\n}\n",
+    "solutionCode": "import java.util.*;\n\npublic class Solution {\n    static List<List<Integer>> subconjuntos(int[] nums) {\n        int[] a = nums.clone();\n        Arrays.sort(a);\n        List<List<Integer>> out = new ArrayList<>();\n        explorar(a, 0, new ArrayList<>(), out);\n        return out;\n    }\n\n    // Cada nó da recursão é um subconjunto. No mesmo nível, um valor igual ao anterior geraria repetição.\n    private static void explorar(int[] a, int inicio, List<Integer> atual, List<List<Integer>> out) {\n        out.add(new ArrayList<>(atual));\n        for (int i = inicio; i < a.length; i++) {\n            if (i > inicio && a[i] == a[i - 1]) continue;\n            atual.add(a[i]);              // escolher\n            explorar(a, i + 1, atual, out); // explorar\n            atual.remove(atual.size() - 1); // desfazer\n        }\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nimport java.util.*;\n\nclass SolutionTest {\n    private static Set<List<Integer>> comoSet(List<List<Integer>> l) { return new HashSet<>(l); }\n\n    @Test void exemplo() {\n        var r = Solution.subconjuntos(new int[]{1, 2, 2});\n        assertEquals(6, r.size());\n        assertEquals(Set.of(List.of(), List.of(1), List.of(1, 2), List.of(1, 2, 2), List.of(2), List.of(2, 2)), comoSet(r));\n    }\n\n    @Test void semRepeticoesNoResultado() {\n        var r = Solution.subconjuntos(new int[]{3, 1, 3, 3, 1});\n        assertEquals(comoSet(r).size(), r.size());\n        assertEquals(12, r.size()); // (2 + 1) * (3 + 1)\n        for (var s : r) {\n            var ord = new ArrayList<>(s);\n            Collections.sort(ord);\n            assertEquals(ord, s);\n        }\n    }\n\n    @Test void vazioEDistintos() {\n        assertEquals(List.of(List.of()), Solution.subconjuntos(new int[]{}));\n        assertEquals(1 << 10, Solution.subconjuntos(new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}).size());\n    }\n}\n",
+    "hints": [
+      "Ordene a entrada para os iguais ficarem lado a lado.",
+      "Todo nó da recursão já é uma resposta: adicione uma cópia ao entrar.",
+      "if (i > inicio && a[i] == a[i − 1]) continue; pula o repetido só no mesmo nível."
+    ]
+  },
+  {
+    "slug": "atv-adv-n-rainhas",
+    "kind": "code",
+    "title": "N-Rainhas: contar soluções com poda",
+    "statement": "Conte de quantas formas `n` rainhas cabem num tabuleiro `n × n` sem se atacarem.\n\n## Contrato\n\n```java\nstatic int contar(int n)\n```\n\n## Exemplos\n\n```\nn = 4 -> 2     n = 8 -> 92     n = 1 -> 1     n = 2 -> 0\n```\n\n## Restrições\n\n- Uma rainha por linha; marque colunas e as duas diagonais ocupadas para podar em O(1).\n- `n = 12` (14 200 soluções) precisa rodar em menos de 1 s.",
+    "starterCode": "public class Solution {\n    static int contar(int n) {\n        throw new UnsupportedOperationException(\"TODO\");\n    }\n}\n",
+    "solutionCode": "public class Solution {\n    static int contar(int n) {\n        return colocar(0, n, new boolean[n], new boolean[2 * n], new boolean[2 * n]);\n    }\n\n    // Diagonal \"/\" tem linha + coluna constante; \"\\\" tem linha − coluna + n constante.\n    private static int colocar(int linha, int n, boolean[] col, boolean[] d1, boolean[] d2) {\n        if (linha == n) return 1;\n        int total = 0;\n        for (int c = 0; c < n; c++) {\n            if (col[c] || d1[linha + c] || d2[linha - c + n]) continue;\n            col[c] = d1[linha + c] = d2[linha - c + n] = true;\n            total += colocar(linha + 1, n, col, d1, d2);\n            col[c] = d1[linha + c] = d2[linha - c + n] = false;\n        }\n        return total;\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nclass SolutionTest {\n    @Test void pequenos() {\n        int[] esperado = {1, 0, 0, 2, 10, 4, 40, 92};\n        for (int n = 1; n <= 8; n++) assertEquals(esperado[n - 1], Solution.contar(n), \"n = \" + n);\n    }\n\n    @Test void doze() {\n        assertEquals(14_200, Solution.contar(12));\n    }\n}\n",
+    "hints": [
+      "Coloque uma rainha por linha; a recursão escolhe a coluna.",
+      "Na diagonal /, linha + coluna é constante; na \\, linha − coluna também.",
+      "Marque antes de descer e desmarque ao voltar."
+    ]
+  },
+  {
+    "slug": "atv-adv-bt-r1",
+    "kind": "reflection",
+    "title": "Calcule a complexidade de gerar subconjuntos em função do número de soluções e do custo de copiá-las."
+  },
+  {
+    "slug": "atv-adv-bt-r2",
+    "kind": "reflection",
+    "title": "Dê um exemplo em que DP é melhor que enumerar com backtracking (contar vs. listar)."
+  }
+]

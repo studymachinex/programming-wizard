@@ -1,0 +1,26 @@
+[
+  {
+    "slug": "atv-adv-subconjuntos-mascara",
+    "kind": "code",
+    "title": "Subconjuntos por máscara e lowbit",
+    "statement": "Duas tarefas com máscaras de bits:\n\n- `subconjuntosComSoma(nums, alvo)`: quantos subconjuntos de `nums` (até 20 elementos) somam `alvo`?\n  Calcule as somas de todas as máscaras em O(2ⁿ), reaproveitando a soma da máscara sem seu bit mais\n  baixo (`m & (m − 1)`).\n- `popcount(x)`: quantos bits ligados em `x` (inclusive negativos), sem `Integer.bitCount`.\n\n## Contrato\n\n```java\nstatic int subconjuntosComSoma(int[] nums, long alvo)\nstatic int popcount(int x)\n```",
+    "starterCode": "public class Solution {\n    static int subconjuntosComSoma(int[] nums, long alvo) {\n        throw new UnsupportedOperationException(\"TODO\");\n    }\n\n    static int popcount(int x) {\n        throw new UnsupportedOperationException(\"TODO\");\n    }\n}\n",
+    "solutionCode": "public class Solution {\n    // soma[m] = soma[m sem o bit mais baixo] + nums[índice desse bit]. O(2^n) no total.\n    static int subconjuntosComSoma(int[] nums, long alvo) {\n        int n = nums.length;\n        long[] soma = new long[1 << n];\n        int total = alvo == 0 ? 1 : 0; // máscara vazia\n        for (int m = 1; m < 1 << n; m++) {\n            int baixo = m & -m;                         // isola o bit mais baixo\n            soma[m] = soma[m & (m - 1)] + nums[Integer.numberOfTrailingZeros(baixo)];\n            if (soma[m] == alvo) total++;\n        }\n        return total;\n    }\n\n    // Kernighan: x & (x - 1) apaga o bit mais baixo; uma volta por bit ligado.\n    static int popcount(int x) {\n        int c = 0;\n        while (x != 0) {\n            x &= x - 1;\n            c++;\n        }\n        return c;\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nclass SolutionTest {\n    @Test void somas() {\n        assertEquals(2, Solution.subconjuntosComSoma(new int[]{1, 2, 3}, 3));   // {3}, {1, 2}\n        assertEquals(1, Solution.subconjuntosComSoma(new int[]{1, 2, 3}, 0));   // vazio\n        assertEquals(0, Solution.subconjuntosComSoma(new int[]{}, 5));\n    }\n\n    @Test void vinteElementos() {\n        int[] a = new int[20];\n        java.util.Arrays.fill(a, 1);\n        assertEquals(184_756, Solution.subconjuntosComSoma(a, 10)); // C(20, 10)\n    }\n\n    @Test void negativosEGrandes() {\n        assertEquals(2, Solution.subconjuntosComSoma(new int[]{Integer.MAX_VALUE, Integer.MAX_VALUE, -1}, Integer.MAX_VALUE));\n        assertEquals(1, Solution.subconjuntosComSoma(new int[]{Integer.MAX_VALUE, Integer.MAX_VALUE}, 2L * Integer.MAX_VALUE));\n    }\n\n    @Test void popcount() {\n        assertEquals(0, Solution.popcount(0));\n        assertEquals(3, Solution.popcount(0b1011));\n        assertEquals(32, Solution.popcount(-1));\n        assertEquals(1, Solution.popcount(Integer.MIN_VALUE));\n        for (int x = -1000; x <= 1000; x++) assertEquals(Integer.bitCount(x), Solution.popcount(x));\n    }\n}\n",
+    "hints": [
+      "m & −m isola o bit mais baixo; m & (m − 1) o apaga.",
+      "Integer.numberOfTrailingZeros diz qual índice esse bit representa.",
+      "No popcount, não use x >> 1 com negativos: x &= x − 1 funciona para qualquer sinal."
+    ]
+  },
+  {
+    "slug": "atv-adv-bits-r1",
+    "kind": "reflection",
+    "title": "Explique por que `x & -x` isola o bit mais baixo usando complemento de dois."
+  },
+  {
+    "slug": "atv-adv-bits-r2",
+    "kind": "reflection",
+    "title": "Explique as armadilhas de precedência (`x & 1 == 0`) e a diferença entre `>>` e `>>>` com negativos."
+  }
+]
