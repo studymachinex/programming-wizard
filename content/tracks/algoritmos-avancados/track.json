@@ -6,15 +6,15 @@
   "level": "especialista",
   "icon": "network",
   "accent": "ember",
-  "estimatedHours": 52,
+  "estimatedHours": 63,
   "isCore": true,
   "outcomes": [
     "Reconhecer o padrão de um problema de entrevista em menos de cinco minutos e justificar a escolha em voz alta",
     "Derivar recorrências de programação dinâmica 1D, 2D, em árvores e com bitmask a partir do enunciado",
     "Implementar segment tree com lazy propagation e Fenwick tree para atualizações e consultas de intervalo",
-    "Aplicar Bellman-Ford, Floyd-Warshall, Tarjan/Kosaraju e max flow/min cut em problemas de grafos",
-    "Estruturar uma resposta de 45 minutos com clarificação, trade-offs, código, testes e análise de complexidade",
-    "Conduzir um mock interview completo e avaliar o próprio desempenho com uma rubrica objetiva"
+    "Aplicar Bellman-Ford, Floyd-Warshall, Tarjan/Kosaraju, max flow/min cut e LCA com binary lifting em problemas de grafos e árvores",
+    "Resolver problemas de contagem e divisibilidade com aritmética modular, combinatória e truques de bits, sem overflow",
+    "Conduzir um mock interview de 45 minutos com clarificação, trade-offs, código, testes e autoavaliação por rubrica"
   ],
   "modules": [
     {
@@ -634,8 +634,8 @@
     {
       "slug": "grafos-avancados",
       "title": "Grafos avançados",
-      "description": "Pesos negativos, componentes fortemente conexas e fluxo: os algoritmos que separam quem sabe grafos de quem só sabe BFS.",
-      "estimatedHours": 9,
+      "description": "Pesos negativos, componentes fortemente conexas, fluxo e consultas em árvores: os algoritmos que separam quem sabe grafos de quem só sabe BFS.",
+      "estimatedHours": 11,
       "lessons": [
         {
           "slug": "bellman-ford-floyd-warshall",
@@ -810,9 +810,58 @@
               "explanation": "O fluxo residual reverso representa a possibilidade de cancelar fluxo; é o que permite que algoritmos gulosos encontrem o ótimo global."
             }
           ]
+        },
+        {
+          "slug": "lca-binary-lifting",
+          "title": "LCA com binary lifting: muitas consultas em árvores",
+          "summary": "Tabela de saltos em potências de dois para k-ésimo ancestral e menor ancestral comum em O(log n) por consulta.",
+          "minutes": 45,
+          "file": "lessons/lca-binary-lifting.md",
+          "takeaways": [
+            "Montar a tabela up[k][v] em O(n log n)",
+            "Responder k-ésimo ancestral decompondo k em binário",
+            "Calcular LCA e distância entre nós e comparar com DFS e Euler tour"
+          ],
+          "quiz": [
+            {
+              "question": "Qual é a recorrência da tabela de binary lifting?",
+              "options": [
+                "up[k][v] = up[k-1][v] + 1",
+                "up[k][v] = up[k-1][up[k-1][v]]",
+                "up[k][v] = up[0][v] * 2",
+                "up[k][v] = v >> k"
+              ],
+              "answer": 1,
+              "explanation": "Subir 2^k níveis é subir 2^(k-1) duas vezes."
+            },
+            {
+              "question": "Após igualar as profundidades, quando o LCA salta os dois nós no nível k?",
+              "options": [
+                "Sempre",
+                "Quando up[k][u] == up[k][v]",
+                "Quando up[k][u] != up[k][v]",
+                "Só no nível 0"
+              ],
+              "answer": 2,
+              "explanation": "Saltos que mantêm os nós diferentes não passam do LCA; ao final, os dois são filhos dele."
+            },
+            {
+              "question": "Com 10^5 consultas de LCA numa árvore de 10^5 nós, por que não usar a DFS do LeetCode 236 por consulta?",
+              "options": [
+                "Ela é incorreta",
+                "Ela custa O(n) por consulta: ~10^10 operações",
+                "Ela não funciona em árvores binárias",
+                "Ela usa memória O(n^2)"
+              ],
+              "answer": 1,
+              "explanation": "Binary lifting paga O(n log n) uma vez e responde cada consulta em O(log n)."
+            }
+          ]
         }
       ],
-      "exercises": []
+      "exercises": [
+        "exercises/adv-lca-binary-lifting.json"
+      ]
     },
     {
       "slug": "estruturas-avancadas",
@@ -997,6 +1046,206 @@
       ],
       "exercises": [
         "exercises/adv-segment-tree-lazy.json"
+      ]
+    },
+    {
+      "slug": "matematica-e-bits",
+      "title": "Matemática e bits para entrevistas",
+      "description": "Divisibilidade, aritmética modular, combinatória e manipulação de bits: a matemática que aparece disfarçada em problemas de contagem, DP e otimização de memória.",
+      "estimatedHours": 9,
+      "lessons": [
+        {
+          "slug": "primos-mdc-crivo",
+          "title": "Primos, MDC e o crivo de Eratóstenes",
+          "summary": "Euclides para MDC/MMC sem overflow, primalidade até a raiz e o crivo para listar todos os primos até n em tempo quase linear.",
+          "minutes": 45,
+          "file": "lessons/primos-mdc-crivo.md",
+          "takeaways": [
+            "Calcular MDC em O(log n) e MMC dividindo antes de multiplicar",
+            "Implementar o crivo começando em p*p e sem overflow",
+            "Escolher entre divisão até a raiz, crivo e crivo do menor fator primo"
+          ],
+          "quiz": [
+            {
+              "question": "Por que o crivo de Eratóstenes pode começar a marcar os múltiplos de p em p*p?",
+              "options": [
+                "Porque p*p é sempre primo",
+                "Porque múltiplos menores de p já foram marcados por primos menores",
+                "Porque o array só começa em p*p",
+                "Para evitar números pares"
+              ],
+              "answer": 1,
+              "explanation": "Todo múltiplo k*p com k < p tem um fator primo menor que p, que já o marcou."
+            },
+            {
+              "question": "Qual expressão calcula o MMC com menos risco de overflow?",
+              "options": [
+                "a * b / mdc(a, b)",
+                "a / mdc(a, b) * b",
+                "(a + b) / mdc(a, b)",
+                "mdc(a, b) * a * b"
+              ],
+              "answer": 1,
+              "explanation": "Dividir antes de multiplicar mantém o valor intermediário do tamanho do resultado final."
+            },
+            {
+              "question": "Você precisa saber se um único número até 10^12 é primo. Qual abordagem?",
+              "options": [
+                "Crivo até 10^12",
+                "Divisão por candidatos até a raiz quadrada",
+                "Testar todos os divisores até n",
+                "Ordenar os dígitos"
+              ],
+              "answer": 1,
+              "explanation": "A raiz de 10^12 é 10^6: a divisão até a raiz é viável, enquanto um crivo até 10^12 não cabe na memória."
+            }
+          ]
+        },
+        {
+          "slug": "aritmetica-modular",
+          "title": "Aritmética modular e exponenciação rápida",
+          "summary": "Por que 10^9 + 7, como reduzir sem overflow, exponenciação por quadrados em O(log n) e divisão com inverso modular.",
+          "minutes": 45,
+          "file": "lessons/aritmetica-modular.md",
+          "takeaways": [
+            "Reduzir somas, subtrações e produtos módulo 10^9 + 7 sem overflow",
+            "Implementar exponenciação por quadrados iterativa",
+            "Calcular o inverso modular pelo pequeno teorema de Fermat"
+          ],
+          "quiz": [
+            {
+              "question": "Por que é seguro multiplicar dois valores já reduzidos módulo 10^9 + 7 em long?",
+              "options": [
+                "Porque long tem 128 bits",
+                "Porque o produto é menor que 10^18, abaixo do máximo de long (~9,2·10^18)",
+                "Porque o Java detecta overflow",
+                "Porque o módulo é par"
+              ],
+              "answer": 1,
+              "explanation": "Dois resíduos são menores que ~10^9; o produto fica abaixo de 10^18. Um terceiro fator já estouraria."
+            },
+            {
+              "question": "Quantas multiplicações a exponenciação por quadrados faz para calcular a^b?",
+              "options": [
+                "O(b)",
+                "O(log b)",
+                "O(sqrt b)",
+                "O(1)"
+              ],
+              "answer": 1,
+              "explanation": "Cada iteração processa um bit do expoente."
+            },
+            {
+              "question": "Como dividir a por b módulo um primo p?",
+              "options": [
+                "(a / b) % p",
+                "(a % p) / (b % p)",
+                "a * b^(p-2) % p",
+                "a * b % p"
+              ],
+              "answer": 2,
+              "explanation": "Pelo pequeno teorema de Fermat, b^(p-2) é o inverso de b módulo p."
+            }
+          ]
+        },
+        {
+          "slug": "combinatoria",
+          "title": "Combinatória: contar sem enumerar",
+          "summary": "As quatro perguntas de contagem, três formas de calcular C(n, k) e a sequência de Catalan escondida em DPs.",
+          "minutes": 45,
+          "file": "lessons/combinatoria.md",
+          "takeaways": [
+            "Classificar um problema de contagem por ordem e repetição",
+            "Calcular C(n, k) por Pascal, produto incremental ou fatoriais modulares",
+            "Reconhecer a recorrência de Catalan"
+          ],
+          "quiz": [
+            {
+              "question": "Quantos caminhos existem numa grade m x n andando só para a direita e para baixo?",
+              "options": [
+                "m * n",
+                "2^(m+n)",
+                "C(m + n - 2, m - 1)",
+                "(m + n)!"
+              ],
+              "answer": 2,
+              "explanation": "Todo caminho tem m-1 passos para baixo e n-1 para a direita; contar caminhos é escolher as posições dos passos para baixo."
+            },
+            {
+              "question": "O enunciado pede o resultado módulo 10^9 (não primo). Qual método de C(n, k) funciona?",
+              "options": [
+                "Fatoriais com inverso por Fermat",
+                "Triângulo de Pascal",
+                "Dividir n! por k!(n-k)! em long",
+                "Nenhum"
+              ],
+              "answer": 1,
+              "explanation": "Pascal só usa somas, então vale para qualquer módulo; Fermat exige módulo primo."
+            },
+            {
+              "question": "Uma DP com a forma dp[n] = soma de dp[i] * dp[n-1-i] calcula qual sequência?",
+              "options": [
+                "Fibonacci",
+                "Catalan",
+                "Fatorial",
+                "Potências de dois"
+              ],
+              "answer": 1,
+              "explanation": "É a recorrência dos números de Catalan: árvores binárias, parênteses balanceados."
+            }
+          ]
+        },
+        {
+          "slug": "manipulacao-de-bits",
+          "title": "Manipulação de bits: XOR, máscaras e truques",
+          "summary": "Complemento de dois, x & (x - 1), XOR que cancela pares, contagem de bits e subconjuntos por máscara.",
+          "minutes": 40,
+          "file": "lessons/manipulacao-de-bits.md",
+          "takeaways": [
+            "Usar XOR para encontrar elementos únicos em O(1) de memória",
+            "Aplicar x & (x - 1) e x & -x",
+            "Enumerar subconjuntos com máscara e evitar as armadilhas de precedência e de >>"
+          ],
+          "quiz": [
+            {
+              "question": "O que x & (x - 1) faz?",
+              "options": [
+                "Inverte todos os bits",
+                "Apaga o bit 1 mais baixo de x",
+                "Isola o bit 1 mais baixo",
+                "Multiplica x por 2"
+              ],
+              "answer": 1,
+              "explanation": "Subtrair 1 inverte o bit 1 mais baixo e os zeros abaixo dele; o AND apaga esse bit."
+            },
+            {
+              "question": "Todo número aparece duas vezes, menos um. Qual solução usa O(1) de memória?",
+              "options": [
+                "HashSet",
+                "Ordenar com cópia",
+                "XOR de todos os elementos",
+                "Contar com HashMap"
+              ],
+              "answer": 2,
+              "explanation": "a ^ a = 0 e o XOR é associativo e comutativo: os pares se cancelam."
+            },
+            {
+              "question": "Em Java, qual é o problema de escrever if (x & 1 == 0)?",
+              "options": [
+                "Nenhum",
+                "== tem precedência maior que &, então a expressão não compila",
+                "& só funciona com long",
+                "Fica mais lento"
+              ],
+              "answer": 1,
+              "explanation": "A expressão vira x & (1 == 0); use parênteses: (x & 1) == 0."
+            }
+          ]
+        }
+      ],
+      "exercises": [
+        "exercises/adv-modular-combinatorics.json",
+        "exercises/adv-bit-tricks.json"
       ]
     },
     {

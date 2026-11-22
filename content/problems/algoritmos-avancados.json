@@ -163,5 +163,104 @@
     "topic": "Max Flow / Matching",
     "moduleSlug": "grafos-avancados",
     "description": "Matching bipartido com augmenting paths. Resolva primeiro com DFS e depois discuta a redução para max-flow e o teorema de König. É o tipo de problema que separa quem sabe grafos de quem decora BFS."
+  },
+  {
+    "slug": "adv-count-primes",
+    "title": "Count Primes",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/count-primes/",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "Matemática",
+    "moduleSlug": "matematica-e-bits",
+    "description": "O crivo de Eratóstenes na forma mais direta. Atenção ao 'estritamente menor que n' e a começar a marcar em p*p."
+  },
+  {
+    "slug": "adv-x-of-a-kind",
+    "title": "X of a Kind in a Deck of Cards",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/x-of-a-kind-in-a-deck-of-cards/",
+    "difficulty": "facil",
+    "level": 2,
+    "topic": "Matemática",
+    "moduleSlug": "matematica-e-bits",
+    "description": "MDC disfarçado: a resposta é se o MDC das frequências é pelo menos 2."
+  },
+  {
+    "slug": "adv-pow-x-n",
+    "title": "Pow(x, n)",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/powx-n/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Matemática",
+    "moduleSlug": "matematica-e-bits",
+    "description": "Exponenciação por quadrados com expoente negativo; o teste escondido é n = Integer.MIN_VALUE."
+  },
+  {
+    "slug": "adv-unique-paths",
+    "title": "Unique Paths",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/unique-paths/",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "Combinatória",
+    "moduleSlug": "matematica-e-bits",
+    "description": "Resolva com DP e depois com C(m+n-2, m-1). Saber as duas respostas é o que o follow-up testa."
+  },
+  {
+    "slug": "adv-unique-binary-search-trees",
+    "title": "Unique Binary Search Trees",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/unique-binary-search-trees/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Combinatória",
+    "moduleSlug": "matematica-e-bits",
+    "description": "A recorrência da DP é a de Catalan; reconhecer isso permite a fórmula fechada."
+  },
+  {
+    "slug": "adv-single-number-ii",
+    "title": "Single Number II",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/single-number-ii/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Bits",
+    "moduleSlug": "matematica-e-bits",
+    "description": "XOR não cancela triplos: conte cada bit módulo 3. Cuidado com negativos e >>>."
+  },
+  {
+    "slug": "adv-counting-bits",
+    "title": "Counting Bits",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/counting-bits/",
+    "difficulty": "facil",
+    "level": 2,
+    "topic": "Bits",
+    "moduleSlug": "matematica-e-bits",
+    "description": "A DP de uma linha bits[i] = bits[i >> 1] + (i & 1), sem Integer.bitCount."
+  },
+  {
+    "slug": "adv-lowest-common-ancestor",
+    "title": "Lowest Common Ancestor of a Binary Tree",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Árvores",
+    "moduleSlug": "grafos-avancados",
+    "description": "A versão de uma consulta, com DFS O(n). Prepare o follow-up: e se forem 10^5 consultas?"
+  },
+  {
+    "slug": "adv-kth-ancestor",
+    "title": "Kth Ancestor of a Tree Node",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/kth-ancestor-of-a-tree-node/",
+    "difficulty": "dificil",
+    "level": 4,
+    "topic": "Árvores",
+    "moduleSlug": "grafos-avancados",
+    "description": "Binary lifting puro: tabela de saltos em potências de dois e decomposição de k em binário."
   }
 ]
