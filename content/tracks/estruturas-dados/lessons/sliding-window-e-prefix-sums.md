@@ -130,13 +130,6 @@ Janela ou prefixo? Use janela quando a restrição é monotônica em relação a
 - **Recalcular a soma da janela a cada passo.** Some o que entra e subtraia o que sai; recalcular é O(n²).
 - **Confundir `[left, right]` com `[left, right)`.** O comprimento é `right - left + 1` no intervalo fechado e `right - left` no semiaberto. Escolha um e mantenha.
 
-## Checklist de domínio
-
-- [ ] Você implementa a janela variável e sabe exatamente quando encolher
-- [ ] Você constrói prefix sums com `long` e responde `[l, r]` em O(1)
-- [ ] Você conta subarrays com soma k mesmo com negativos
-- [ ] Você explica por que os dois padrões não são intercambiáveis
-
 ## Para ir além
 
 - [LeetCode — Longest Substring Without Repeating Characters](https://leetcode.com/problems/longest-substring-without-repeating-characters/): o clássico da janela variável.

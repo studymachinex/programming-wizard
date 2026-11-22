@@ -175,14 +175,6 @@ Dijkstra é o caso clássico: o heap guarda `(distância, vértice)` e cada ares
 - **Mutar o campo usado na prioridade depois de inserir.** O heap não reposiciona o elemento; a raiz deixa de ser o mínimo.
 - **Usar max-heap de tamanho n para top-k.** O min-heap de k é O(n log k) e usa O(k).
 
-## Checklist de domínio
-
-- [ ] Você implementa min-heap com array, sift-up e sift-down
-- [ ] Você explica por que `build` é O(n)
-- [ ] Você resolve top-k com min-heap de tamanho k
-- [ ] Você mantém a mediana com dois heaps balanceados
-- [ ] Você usa `Integer.compare` em comparators
-
 ## Para ir além
 
 - [Oracle — PriorityQueue (Java 21)](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/PriorityQueue.html): contrato, ordem e notas de implementação.

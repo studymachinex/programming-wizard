@@ -1,0 +1,31 @@
+[
+  {
+    "slug": "atv-ed-lru-sentinelas",
+    "kind": "code",
+    "title": "LRU cache com mapa + lista dupla",
+    "statement": "Implemente um cache LRU de capacidade fixa com `get` e `put` em O(1). O mapa guarda o **nó** da\nlista dupla; a lista vai do mais recente (perto de `head`) ao menos recente (perto de `tail`).\n\n## Contrato\n\n```java\nstatic class LRU {\n    LRU(int capacidade);\n    int get(int key);            // -1 se ausente; um acesso torna a chave a mais recente\n    void put(int key, int value); // insere/atualiza; se passar da capacidade, evicta a menos recente\n    int size();\n    int evictions();             // quantas evicções já aconteceram\n}\n```\n\n## Restrições\n\n- Não use `LinkedHashMap`. Use `HashMap<Integer, Node>` + lista dupla com sentinelas.\n- Atualizar uma chave existente não conta como evicção e também a torna a mais recente.",
+    "starterCode": "import java.util.HashMap;\nimport java.util.Map;\n\npublic class Solution {\n    static class LRU {\n        private static class Node {\n            int key, value;\n            Node prev, next;\n            Node(int key, int value) { this.key = key; this.value = value; }\n        }\n\n        private final int capacidade;\n        private final Map<Integer, Node> mapa = new HashMap<>();\n        private final Node head = new Node(0, 0), tail = new Node(0, 0);\n        private int evictions;\n\n        LRU(int capacidade) {\n            this.capacidade = capacidade;\n            head.next = tail;\n            tail.prev = head;\n        }\n\n        int get(int key) { throw new UnsupportedOperationException(\"TODO\"); }\n        void put(int key, int value) { throw new UnsupportedOperationException(\"TODO\"); }\n        int size() { return mapa.size(); }\n        int evictions() { return evictions; }\n    }\n}\n",
+    "solutionCode": "import java.util.HashMap;\nimport java.util.Map;\n\npublic class Solution {\n    static class LRU {\n        private static class Node {\n            int key, value;\n            Node prev, next;\n            Node(int key, int value) { this.key = key; this.value = value; }\n        }\n\n        private final int capacidade;\n        private final Map<Integer, Node> mapa = new HashMap<>();\n        private final Node head = new Node(0, 0), tail = new Node(0, 0);\n        private int evictions;\n\n        LRU(int capacidade) {\n            this.capacidade = capacidade;\n            head.next = tail;\n            tail.prev = head;\n        }\n\n        private void unlink(Node n) {\n            n.prev.next = n.next;\n            n.next.prev = n.prev;\n        }\n\n        private void pushFront(Node n) {\n            n.prev = head;\n            n.next = head.next;\n            head.next.prev = n;\n            head.next = n;\n        }\n\n        // O(1): o mapa acha o nó; a lista o move para a frente.\n        int get(int key) {\n            Node n = mapa.get(key);\n            if (n == null) return -1;\n            unlink(n);\n            pushFront(n);\n            return n.value;\n        }\n\n        void put(int key, int value) {\n            Node n = mapa.get(key);\n            if (n != null) {\n                n.value = value;\n                unlink(n);\n                pushFront(n);\n                return;\n            }\n            if (mapa.size() == capacidade) {\n                Node velho = tail.prev; // menos recente\n                unlink(velho);\n                mapa.remove(velho.key); // por isso o nó guarda a chave\n                evictions++;\n            }\n            n = new Node(key, value);\n            pushFront(n);\n            mapa.put(key, n);\n        }\n\n        int size() { return mapa.size(); }\n        int evictions() { return evictions; }\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nclass SolutionTest {\n    @Test void evictaMenosRecente() {\n        var c = new Solution.LRU(2);\n        c.put(1, 1); c.put(2, 2);\n        assertEquals(1, c.get(1));   // 1 vira o mais recente\n        c.put(3, 3);                 // evicta 2\n        assertEquals(-1, c.get(2));\n        assertEquals(1, c.get(1));\n        assertEquals(3, c.get(3));\n        assertEquals(1, c.evictions());\n    }\n\n    @Test void atualizarNaoEvictaETornaRecente() {\n        var c = new Solution.LRU(2);\n        c.put(1, 1); c.put(2, 2);\n        c.put(1, 10);                // atualiza, 1 vira recente\n        assertEquals(0, c.evictions());\n        c.put(3, 3);                 // evicta 2\n        assertEquals(10, c.get(1));\n        assertEquals(-1, c.get(2));\n        assertEquals(2, c.size());\n    }\n\n    @Test void capacidadeUm() {\n        var c = new Solution.LRU(1);\n        c.put(1, 1); c.put(2, 2);\n        assertEquals(-1, c.get(1));\n        assertEquals(2, c.get(2));\n    }\n\n    @Test void muitasOperacoes() {\n        var c = new Solution.LRU(1000);\n        for (int i = 0; i < 300_000; i++) {\n            c.put(i, i);\n            if (i >= 10) c.get(i - 10);\n        }\n        assertEquals(1000, c.size());\n        assertEquals(299_000, c.evictions());\n        assertEquals(299_990, c.get(299_990));\n    }\n}\n",
+    "hints": [
+      "Escreva dois auxiliares: unlink(n) e pushFront(n).",
+      "O menos recente é tail.prev.",
+      "O nó guarda a chave para que a evicção consiga remover do mapa."
+    ]
+  },
+  {
+    "slug": "atv-ed-lru-r1",
+    "kind": "reflection",
+    "title": "Explique por que o mapa guarda o nó, e não apenas o valor."
+  },
+  {
+    "slug": "atv-ed-lru-r2",
+    "kind": "reflection",
+    "title": "Compare LRU, LFU e TTL para uma carga real (ex.: catálogo de produtos)."
+  },
+  {
+    "slug": "atv-ed-lru-r3",
+    "kind": "reflection",
+    "title": "Estime o custo de memória por entrada (nó + entrada do mapa) e dimensione um cache de 1 milhão de chaves."
+  }
+]

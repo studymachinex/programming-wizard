@@ -1,0 +1,39 @@
+[
+  {
+    "slug": "atv-ed-fila-circular",
+    "kind": "code",
+    "title": "Fila circular com array e contador",
+    "statement": "Implemente uma fila de capacidade fixa sobre um array circular, usando um contador de elementos\npara distinguir cheia de vazia.\n\n## Contrato\n\n```java\nstatic class FilaCircular {\n    FilaCircular(int capacidade);\n    boolean offer(int v);   // false se cheia\n    int poll();             // NoSuchElementException se vazia\n    int peek();             // NoSuchElementException se vazia\n    int size();\n    boolean isEmpty();\n    boolean isFull();\n}\n```\n\n## Restrições\n\n- O(1) por operação; sem deslocar elementos.",
+    "starterCode": "import java.util.NoSuchElementException;\n\npublic class Solution {\n    static class FilaCircular {\n        private final int[] dados;\n        private int inicio, tamanho;\n\n        FilaCircular(int capacidade) { dados = new int[capacidade]; }\n\n        boolean offer(int v) { throw new UnsupportedOperationException(\"TODO\"); }\n        int poll() { throw new UnsupportedOperationException(\"TODO\"); }\n        int peek() { throw new UnsupportedOperationException(\"TODO\"); }\n        int size() { return tamanho; }\n        boolean isEmpty() { return tamanho == 0; }\n        boolean isFull() { return tamanho == dados.length; }\n    }\n}\n",
+    "solutionCode": "import java.util.NoSuchElementException;\n\npublic class Solution {\n    static class FilaCircular {\n        private final int[] dados;\n        private int inicio, tamanho;\n\n        FilaCircular(int capacidade) { dados = new int[capacidade]; }\n\n        // O fim é (inicio + tamanho) % capacidade: o contador evita a ambiguidade cheia/vazia.\n        boolean offer(int v) {\n            if (isFull()) return false;\n            dados[(inicio + tamanho) % dados.length] = v;\n            tamanho++;\n            return true;\n        }\n\n        int poll() {\n            int v = peek();\n            inicio = (inicio + 1) % dados.length;\n            tamanho--;\n            return v;\n        }\n\n        int peek() {\n            if (isEmpty()) throw new NoSuchElementException(\"fila vazia\");\n            return dados[inicio];\n        }\n\n        int size() { return tamanho; }\n        boolean isEmpty() { return tamanho == 0; }\n        boolean isFull() { return tamanho == dados.length; }\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nimport java.util.NoSuchElementException;\n\nclass SolutionTest {\n    @Test void fifo() {\n        var f = new Solution.FilaCircular(3);\n        assertTrue(f.offer(1)); assertTrue(f.offer(2)); assertTrue(f.offer(3));\n        assertFalse(f.offer(4));\n        assertTrue(f.isFull());\n        assertEquals(1, f.poll());\n        assertEquals(2, f.peek());\n    }\n\n    @Test void daAVolta() {\n        var f = new Solution.FilaCircular(2);\n        for (int i = 0; i < 1000; i++) {\n            assertTrue(f.offer(i));\n            assertEquals(i, f.poll());\n        }\n        assertTrue(f.isEmpty());\n    }\n\n    @Test void vazia() {\n        var f = new Solution.FilaCircular(1);\n        assertThrows(NoSuchElementException.class, f::poll);\n        assertThrows(NoSuchElementException.class, f::peek);\n    }\n}\n",
+    "hints": [
+      "A posição de escrita é (inicio + tamanho) % capacidade.",
+      "poll avança o inicio com módulo e decrementa o tamanho."
+    ]
+  },
+  {
+    "slug": "atv-ed-bfs-distancias",
+    "kind": "code",
+    "title": "BFS: distâncias em arestas",
+    "statement": "Grafo não dirigido com vértices `0..n-1` dado por lista de arestas. Devolva a distância (em número\nde arestas) da `origem` até cada vértice, ou `-1` se inalcançável.\n\n## Contrato\n\n```java\nstatic int[] distancias(int n, int[][] arestas, int origem)\n```\n\n## Restrições\n\n- O(V + E). Marque o vértice como visitado **ao enfileirar** (não ao desenfileirar).\n- Até 200 mil vértices.",
+    "starterCode": "import java.util.*;\n\npublic class Solution {\n    static int[] distancias(int n, int[][] arestas, int origem) {\n        throw new UnsupportedOperationException(\"TODO\");\n    }\n}\n",
+    "solutionCode": "import java.util.*;\n\npublic class Solution {\n    // BFS: a primeira vez que um vértice é alcançado é pelo caminho mais curto. O(V + E).\n    static int[] distancias(int n, int[][] arestas, int origem) {\n        List<List<Integer>> adj = new ArrayList<>();\n        for (int i = 0; i < n; i++) adj.add(new ArrayList<>());\n        for (int[] e : arestas) {\n            adj.get(e[0]).add(e[1]);\n            adj.get(e[1]).add(e[0]);\n        }\n        int[] dist = new int[n];\n        Arrays.fill(dist, -1);\n        ArrayDeque<Integer> fila = new ArrayDeque<>();\n        dist[origem] = 0;\n        fila.add(origem);\n        while (!fila.isEmpty()) {\n            int u = fila.poll();\n            for (int v : adj.get(u)) {\n                if (dist[v] == -1) {\n                    dist[v] = dist[u] + 1;\n                    fila.add(v);\n                }\n            }\n        }\n        return dist;\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nclass SolutionTest {\n    @Test void pequeno() {\n        int[][] e = {{0, 1}, {0, 2}, {1, 3}, {2, 3}, {3, 4}};\n        assertArrayEquals(new int[]{0, 1, 1, 2, 3}, Solution.distancias(5, e, 0));\n    }\n\n    @Test void inalcancavel() {\n        assertArrayEquals(new int[]{-1, 0, 1, -1}, Solution.distancias(4, new int[][]{{1, 2}}, 1));\n    }\n\n    @Test void caminhoLongo() {\n        int n = 200_000;\n        int[][] e = new int[n - 1][];\n        for (int i = 0; i + 1 < n; i++) e[i] = new int[]{i, i + 1};\n        assertEquals(n - 1, Solution.distancias(n, e, 0)[n - 1]);\n    }\n}\n",
+    "hints": [
+      "Monte a lista de adjacência nos dois sentidos.",
+      "dist[v] == -1 serve como \"não visitado\".",
+      "Defina dist[v] ao enfileirar: assim cada vértice entra na fila uma vez só."
+    ]
+  },
+  {
+    "slug": "atv-ed-q-r1",
+    "kind": "reflection",
+    "title": "Explique por que a BFS garante a distância mínima em número de arestas."
+  },
+  {
+    "slug": "atv-ed-q-r2",
+    "kind": "reflection",
+    "title": "Dê um exemplo em que um deque resolve melhor que uma fila simples (ex.: BFS 0-1)."
+  }
+]

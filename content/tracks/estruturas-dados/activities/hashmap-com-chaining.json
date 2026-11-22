@@ -1,0 +1,25 @@
+[
+  {
+    "slug": "atv-ed-chaining-remove",
+    "kind": "code",
+    "title": "Remover da cadeia: cabeça e meio",
+    "statement": "O mapa abaixo já tem `put` e `get` com encadeamento (listas ligadas por bucket). Falta o `remove`:\nele precisa funcionar quando o nó é a **cabeça** da cadeia e quando está no **meio** ou no fim.\n\n## Contrato\n\n```java\nInteger remove(int key);   // devolve o valor removido ou null\n```\n\n## Restrições\n\n- Use a capacidade pequena do starter (4) — os testes forçam colisões.\n- `size()` precisa refletir as remoções.",
+    "starterCode": "public class Solution {\n    static class ChainMap {\n        private static class Node {\n            final int key; int value; Node next;\n            Node(int key, int value, Node next) { this.key = key; this.value = value; this.next = next; }\n        }\n\n        private final Node[] buckets = new Node[4];\n        private int size;\n\n        private int index(int key) { return Math.floorMod(key, buckets.length); }\n\n        void put(int key, int value) {\n            int i = index(key);\n            for (Node n = buckets[i]; n != null; n = n.next) {\n                if (n.key == key) { n.value = value; return; }\n            }\n            buckets[i] = new Node(key, value, buckets[i]);\n            size++;\n        }\n\n        Integer get(int key) {\n            for (Node n = buckets[index(key)]; n != null; n = n.next) if (n.key == key) return n.value;\n            return null;\n        }\n\n        Integer remove(int key) {\n            throw new UnsupportedOperationException(\"TODO\");\n        }\n\n        int size() { return size; }\n    }\n}\n",
+    "solutionCode": "public class Solution {\n    static class ChainMap {\n        private static class Node {\n            final int key; int value; Node next;\n            Node(int key, int value, Node next) { this.key = key; this.value = value; this.next = next; }\n        }\n\n        private final Node[] buckets = new Node[4];\n        private int size;\n\n        private int index(int key) { return Math.floorMod(key, buckets.length); }\n\n        void put(int key, int value) {\n            int i = index(key);\n            for (Node n = buckets[i]; n != null; n = n.next) {\n                if (n.key == key) { n.value = value; return; }\n            }\n            buckets[i] = new Node(key, value, buckets[i]);\n            size++;\n        }\n\n        Integer get(int key) {\n            for (Node n = buckets[index(key)]; n != null; n = n.next) if (n.key == key) return n.value;\n            return null;\n        }\n\n        // Percorre com o anterior: cabeça troca o bucket; meio/fim religa anterior.next.\n        Integer remove(int key) {\n            int i = index(key);\n            Node anterior = null;\n            for (Node n = buckets[i]; n != null; anterior = n, n = n.next) {\n                if (n.key == key) {\n                    if (anterior == null) buckets[i] = n.next;\n                    else anterior.next = n.next;\n                    size--;\n                    return n.value;\n                }\n            }\n            return null;\n        }\n\n        int size() { return size; }\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nclass SolutionTest {\n    // Com 4 buckets, 1, 5, 9 e 13 caem todos no bucket 1. put insere na cabeça: cadeia 13 → 9 → 5 → 1.\n    private static Solution.ChainMap cadeia() {\n        var m = new Solution.ChainMap();\n        for (int k : new int[]{1, 5, 9, 13}) m.put(k, k * 10);\n        return m;\n    }\n\n    @Test void removeCabeca() {\n        var m = cadeia();\n        assertEquals(130, m.remove(13));\n        assertNull(m.get(13));\n        assertEquals(90, m.get(9));\n        assertEquals(3, m.size());\n    }\n\n    @Test void removeMeioEFim() {\n        var m = cadeia();\n        assertEquals(50, m.remove(5));\n        assertEquals(10, m.remove(1));\n        assertEquals(130, m.get(13));\n        assertEquals(90, m.get(9));\n        assertEquals(2, m.size());\n    }\n\n    @Test void ausenteEDuasVezes() {\n        var m = cadeia();\n        assertNull(m.remove(2));\n        assertEquals(90, m.remove(9));\n        assertNull(m.remove(9));\n        assertEquals(3, m.size());\n    }\n\n    @Test void negativos() {\n        var m = new Solution.ChainMap();\n        m.put(-3, 1);\n        m.put(1, 2);\n        assertEquals(1, m.remove(-3));\n        assertEquals(2, m.get(1));\n    }\n}\n",
+    "hints": [
+      "Percorra a cadeia guardando o nó anterior.",
+      "Se o removido for a cabeça (anterior == null), o bucket passa a apontar para n.next."
+    ]
+  },
+  {
+    "slug": "atv-ed-chain-r1",
+    "kind": "reflection",
+    "title": "Explique por que a capacidade do HashMap é sempre potência de dois."
+  },
+  {
+    "slug": "atv-ed-chain-r2",
+    "kind": "reflection",
+    "title": "Explique quando a JDK transforma uma cadeia em árvore (treeify) e por quê."
+  }
+]

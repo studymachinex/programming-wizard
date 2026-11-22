@@ -66,14 +66,6 @@ Path compression sozinho já dá O(log n) amortizado; com union by rank, chega a
 - Assumir que a MST é única quando há pesos iguais.
 - Não verificar se o grafo é conexo ao final.
 
-## Checklist de domínio
-
-- [ ] Implemento find/union com as duas otimizações.
-- [ ] Explico a inversa de Ackermann na prática.
-- [ ] Implemento Kruskal e detecto grafo desconexo.
-- [ ] Sei a diferença para Prim.
-- [ ] Aplico a componentes conexos e ciclos.
-
 ## Para ir além
 
 Leia o capítulo de disjoint set union em cp-algorithms.com. Depois implemente Kruskal e compare o custo com Prim em um grafo denso.

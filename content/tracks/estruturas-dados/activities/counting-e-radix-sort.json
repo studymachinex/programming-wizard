@@ -1,0 +1,26 @@
+[
+  {
+    "slug": "atv-ed-counting-sort",
+    "kind": "code",
+    "title": "Counting sort estável com offset",
+    "statement": "Ordene registros `[chave, id]` pela chave com counting sort **estável**. As chaves podem ser negativas.\n\n## Contrato\n\n```java\nstatic int[][] countingSort(int[][] regs)   // devolve um novo array; não altere a entrada\n```\n\n## Restrições\n\n- O(n + k), onde k = max − min + 1 (garantido ≤ 1 000 000 nos testes).\n- Saída estável: percorra a entrada de trás para frente sobre as posições acumuladas.",
+    "starterCode": "public class Solution {\n    static int[][] countingSort(int[][] regs) {\n        throw new UnsupportedOperationException(\"TODO\");\n    }\n}\n",
+    "solutionCode": "public class Solution {\n    // Conta, acumula as posições finais e distribui de trás para frente (estável). O(n + k).\n    static int[][] countingSort(int[][] regs) {\n        if (regs.length == 0) return new int[0][];\n        int min = Integer.MAX_VALUE, max = Integer.MIN_VALUE;\n        for (int[] r : regs) {\n            min = Math.min(min, r[0]);\n            max = Math.max(max, r[0]);\n        }\n        int[] cont = new int[max - min + 1];\n        for (int[] r : regs) cont[r[0] - min]++;\n        for (int i = 1; i < cont.length; i++) cont[i] += cont[i - 1];\n        int[][] out = new int[regs.length][];\n        for (int i = regs.length - 1; i >= 0; i--) out[--cont[regs[i][0] - min]] = regs[i];\n        return out;\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nimport java.util.*;\n\nclass SolutionTest {\n    @Test void estavelComNegativos() {\n        int[][] in = {{3, 0}, {-2, 1}, {3, 2}, {0, 3}, {-2, 4}};\n        int[][] out = Solution.countingSort(in);\n        assertArrayEquals(new int[][]{{-2, 1}, {-2, 4}, {0, 3}, {3, 0}, {3, 2}}, out);\n        assertArrayEquals(new int[]{3, 0}, in[0], \"a entrada não pode mudar\");\n    }\n\n    @Test void vazio() {\n        assertEquals(0, Solution.countingSort(new int[0][]).length);\n    }\n\n    @Test void grande() {\n        var rnd = new Random(4);\n        int[][] in = new int[1_000_000][];\n        for (int i = 0; i < in.length; i++) in[i] = new int[]{rnd.nextInt(1000) - 500, i};\n        int[][] out = Solution.countingSort(in);\n        for (int i = 1; i < out.length; i++) {\n            assertTrue(out[i - 1][0] < out[i][0] || (out[i - 1][0] == out[i][0] && out[i - 1][1] < out[i][1]));\n        }\n    }\n}\n",
+    "hints": [
+      "Offset: use chave − min como índice.",
+      "Acumule as contagens para saber onde termina cada chave.",
+      "Percorrer de trás para frente e decrementar a posição mantém a estabilidade."
+    ]
+  },
+  {
+    "slug": "atv-ed-cnt-r1",
+    "kind": "reflection",
+    "title": "Explique por que o radix LSD exige uma ordenação estável em cada passada."
+  },
+  {
+    "slug": "atv-ed-cnt-r2",
+    "kind": "reflection",
+    "title": "Decida entre counting, radix e um sort por comparação comparando n + k com n log n em dois cenários."
+  }
+]

@@ -1,0 +1,31 @@
+[
+  {
+    "slug": "atv-ed-pares-soma",
+    "kind": "code",
+    "title": "De O(n²) para O(n): pares com soma k",
+    "statement": "Conte quantos pares de índices `i < j` têm `nums[i] + nums[j] == k`. A versão com dois laços é\nO(n²) — e o teste grande tem 100 mil elementos.\n\n## Contrato\n\n```java\nstatic long contarPares(int[] nums, int k)\n```\n\n## Exemplos\n\n```\nnums = [1, 5, 3, 3, 7], k = 6  ->  2   (1+5 e 3+3; o par é de índices, então 5+1 não conta de novo)\nnums = [2, 2, 2], k = 4        ->  3\n```\n\n## Restrições\n\n- `0 <= n <= 100_000`; valores e `k` cabem em `int`, mas `nums[i] + nums[j]` pode estourar `int`.\n- O resultado pode passar de `Integer.MAX_VALUE`: use `long`.",
+    "starterCode": "public class Solution {\n    static long contarPares(int[] nums, int k) {\n        throw new UnsupportedOperationException(\"TODO\");\n    }\n}\n",
+    "solutionCode": "import java.util.HashMap;\nimport java.util.Map;\n\npublic class Solution {\n    // O(n): para cada x, quantos complementos (k - x) já apareceram antes.\n    static long contarPares(int[] nums, int k) {\n        Map<Long, Long> vistos = new HashMap<>();\n        long pares = 0;\n        for (int x : nums) {\n            long complemento = (long) k - x;\n            pares += vistos.getOrDefault(complemento, 0L);\n            vistos.merge((long) x, 1L, Long::sum);\n        }\n        return pares;\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nclass SolutionTest {\n    @Test void exemplos() {\n        assertEquals(2, Solution.contarPares(new int[]{1, 5, 3, 3, 7}, 6));\n        assertEquals(3, Solution.contarPares(new int[]{2, 2, 2}, 4));\n    }\n\n    @Test void semPares() {\n        assertEquals(0, Solution.contarPares(new int[]{}, 1));\n        assertEquals(0, Solution.contarPares(new int[]{1, 2, 3}, 100));\n    }\n\n    @Test void somaQueEstouraInt() {\n        assertEquals(1, Solution.contarPares(new int[]{Integer.MAX_VALUE, -1, 0}, Integer.MAX_VALUE - 1));\n    }\n\n    @Test void grandeComResultadoLong() {\n        int[] nums = new int[100_000];\n        java.util.Arrays.fill(nums, 7);\n        assertEquals(100_000L * 99_999 / 2, Solution.contarPares(nums, 14));\n    }\n}\n",
+    "hints": [
+      "Para cada número, o par que você precisa é k − x. Ele já apareceu antes?",
+      "Guarde contagens num HashMap enquanto percorre — não só presença.",
+      "Use long para o complemento e para o total."
+    ]
+  },
+  {
+    "slug": "atv-ed-bigo-r1",
+    "kind": "reflection",
+    "title": "Classifique um método com loops aninhados e dependentes (o interno vai até i) sem contar linhas."
+  },
+  {
+    "slug": "atv-ed-bigo-r2",
+    "kind": "reflection",
+    "title": "Explique a diferença entre O, Θ e Ω usando a busca linear como exemplo."
+  },
+  {
+    "slug": "atv-ed-bigo-r3",
+    "kind": "reflection",
+    "title": "Dê um exemplo em que uma constante grande faz um algoritmo O(n) perder para um O(n log n) na prática."
+  }
+]

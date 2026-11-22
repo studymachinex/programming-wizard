@@ -116,13 +116,6 @@ O mapa da trilha segue essa lógica: `complexidade` ensina a medir; `arrays-e-li
 - **Memorizar soluções em vez de padrões.** "Vou usar HashMap" não é um padrão; "preciso de busca por chave em tempo esperado constante" é.
 - **Ignorar o custo de memória.** Um cache sem limite de tamanho é um vazamento de memória com nome bonito.
 
-## Checklist de domínio
-
-- [ ] Você explica por que `ArrayList.contains` dentro de um loop é O(n²) sem consultar
-- [ ] Você escolhe entre `HashSet`, `TreeSet` e array ordenado a partir do requisito, não do hábito
-- [ ] Você sabe estimar quando um array de primitivos vence uma `ArrayList<Integer>`
-- [ ] Você reconhece que o mesmo problema admite soluções com trocas diferentes de tempo/espaço
-
 ## Para ir além
 
 - [MIT 6.006 — Introduction to Algorithms](https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/): base teórica com aulas completas sobre estruturas e complexidade.

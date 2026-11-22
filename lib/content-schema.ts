@@ -62,6 +62,33 @@ export const exerciseSchema = z.object({
   externalUrl: z.string().url().nullable().optional(),
 });
 
+/**
+ * Atividades do fim da aula (content/tracks/<trilha>/activities/<aula>.json).
+ * "code": exercício validado pelos testes no runner da plataforma.
+ * "reflection": algo que o aluno faz sozinho (explicar, comparar) e marca como feito.
+ */
+const activitySlug = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "slug da atividade deve ser kebab-case");
+
+export const codeActivitySchema = z.object({
+  slug: activitySlug,
+  kind: z.literal("code"),
+  title: z.string().min(6),
+  statement: z.string().min(60),
+  starterCode: z.string().min(10),
+  solutionCode: z.string().min(10),
+  tests: z.string().includes("@Test"),
+  hints: z.array(z.string().min(5)).min(1).max(5),
+});
+
+export const reflectionActivitySchema = z.object({
+  slug: activitySlug,
+  kind: z.literal("reflection"),
+  title: z.string().min(10),
+});
+
+export const activitySchema = z.discriminatedUnion("kind", [codeActivitySchema, reflectionActivitySchema]);
+export const activitiesFileSchema = z.array(activitySchema).min(1);
+
 export const problemSchema = z.object({
   slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
   title: z.string().min(3),
@@ -96,3 +123,4 @@ export type LessonMeta = z.infer<typeof lessonMetaSchema>;
 export type ExerciseManifest = z.infer<typeof exerciseSchema>;
 export type ProblemManifest = z.infer<typeof problemSchema>;
 export type ProjectManifest = z.infer<typeof projectSchema>;
+export type ActivityManifest = z.infer<typeof activitySchema>;

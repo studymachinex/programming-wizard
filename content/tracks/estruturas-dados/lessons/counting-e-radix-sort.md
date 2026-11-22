@@ -95,13 +95,6 @@ Radix troca o problema de `k` pelo número de passadas. Com base 256, 32 bits cu
 - **Usar um sort instável em cada dígito do radix.** A ordem dos dígitos anteriores é destruída silenciosamente.
 - **Escolher base grande demais.** Contadores demais estouram o cache; o ganho assintótico desaparece na prática.
 
-## Checklist de domínio
-
-- [ ] Você implementa counting sort com offset para negativos e saída estável
-- [ ] Você explica por que radix LSD exige estabilidade em cada passada
-- [ ] Você decide entre counting, radix e comparação comparando `n + k` com `n log n`
-- [ ] Você reconhece quando o range inviabiliza a ordenação por contagem
-
 ## Para ir além
 
 - [Java 21 — `Arrays.sort`](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Arrays.html): variantes da JDK e contratos.

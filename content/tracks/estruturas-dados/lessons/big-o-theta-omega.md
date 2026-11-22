@@ -149,13 +149,6 @@ Por isso a análise séria combina três camadas: complexidade assintótica para
 - **Chamar de O(n) o que é O(n log n) por causa de uma ordenação escondida.** `Stream.sorted()` no meio do pipeline custa O(n log n).
 - **Ignorar o espaço.** Um algoritmo O(n) de tempo pode ser O(n) de memória; em um serviço com 200 MB de heap, isso derruba o pod.
 
-## Checklist de domínio
-
-- [ ] Você classifica um método com loops aninhados e dependentes sem contar linhas
-- [ ] Você explica a diferença entre O, Θ e Ω com um exemplo de busca
-- [ ] Você reconhece quando uma constante grande inverte a ordem prática
-- [ ] Você sabe por que `ArrayList<Integer>` e `int[]` não são intercambiáveis em performance
-
 ## Para ir além
 
 - [Big-O Cheat Sheet](https://www.bigocheatsheet.com/): tabela de custos por estrutura e algoritmo.

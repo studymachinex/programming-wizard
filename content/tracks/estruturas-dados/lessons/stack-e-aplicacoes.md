@@ -156,13 +156,6 @@ Pilhas também aparecem em **undo**: cada ação empilha um comando com os dados
 - **Esquecer de validar o fim.** `"{[()"` tem todos os fechamentos corretos até o fim, mas sobra abertura; só a pilha vazia no final confirma.
 - **Empilhar objetos pesados sem limite.** Um histórico de undo que guarda cópias profundas de documentos pode consumir gigabytes; guarde diffs ou comandos.
 
-## Checklist de domínio
-
-- [ ] Você implementa push/pop/peek com array e trata underflow
-- [ ] Você valida parênteses com pilha e explica por que o topo é o par certo
-- [ ] Você avalia RPN respeitando a ordem dos operandos
-- [ ] Você sabe por que `ArrayDeque` substitui `Stack` no código novo
-
 ## Para ir além
 
 - [Oracle — Deque (Java 21)](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Deque.html): contrato de pilha e fila com `ArrayDeque`.

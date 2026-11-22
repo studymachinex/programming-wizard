@@ -144,14 +144,6 @@ Cada entrada ocupa ~64 bytes entre nó, entrada do mapa e slot. Para 10 mil entr
 - **Evictar depois de inserir.** Com capacidade cheia, você ultrapassa o limite por um instante.
 - **Ignorar concorrência.** `put` e `get` simultâneos podem criar ciclos. Use lock ou uma biblioteca testada.
 
-## Checklist de domínio
-
-- [ ] Você implementa `get`, `put` e evicção com sentinelas
-- [ ] Você explica por que o mapa guarda o nó, e não apenas o valor
-- [ ] Você mantém mapa e lista consistentes em toda remoção
-- [ ] Você compara LRU, LFU e TTL para uma carga real
-- [ ] Você reconhece o custo de memória por entrada e dimensiona o cache
-
 ## Para ir além
 
 - [Oracle — LinkedHashMap (Java 21)](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/LinkedHashMap.html): modo access-order e `removeEldestEntry`.

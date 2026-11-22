@@ -99,13 +99,6 @@ Merge sort brilha quando o dado não cabe na memória, quando você precisa de e
 - **Alocar o buffer dentro de cada merge.** O algoritmo aloca `O(n log n)` e pressiona o GC.
 - **Testar apenas entrada aleatória.** Inclua ordenado, reverso, todos iguais, vazio e um elemento.
 
-## Checklist de domínio
-
-- [ ] Você implementa merge sort com buffer único e explica por que ele é estável
-- [ ] Você deriva `Θ(n log n)` da recorrência
-- [ ] Você implementa quicksort com pivô aleatório e partição de três vias
-- [ ] Você justifica as escolhas de `Arrays.sort`
-
 ## Para ir além
 
 - [Java 21 — `Arrays.sort`](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Arrays.html): contratos de estabilidade e variantes.

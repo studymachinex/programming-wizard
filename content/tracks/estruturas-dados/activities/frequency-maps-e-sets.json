@@ -1,0 +1,39 @@
+[
+  {
+    "slug": "atv-ed-agrupar-anagramas",
+    "kind": "code",
+    "title": "Agrupar anagramas com chave canônica",
+    "statement": "Agrupe as palavras que são anagramas entre si. Cada grupo mantém a ordem de aparição; os grupos\naparecem na ordem da primeira palavra de cada um.\n\n## Contrato\n\n```java\nstatic List<List<String>> agrupar(List<String> palavras)\n```\n\n## Exemplos\n\n```\n[\"eat\", \"tea\", \"tan\", \"ate\", \"nat\", \"bat\"]\n  -> [[\"eat\", \"tea\", \"ate\"], [\"tan\", \"nat\"], [\"bat\"]]\n```\n\n## Restrições\n\n- Use uma chave canônica (por exemplo, as letras ordenadas ou a contagem das 26 letras) num mapa.\n- Use `computeIfAbsent`; palavras só com `a-z`.",
+    "starterCode": "import java.util.*;\n\npublic class Solution {\n    static List<List<String>> agrupar(List<String> palavras) {\n        throw new UnsupportedOperationException(\"TODO\");\n    }\n}\n",
+    "solutionCode": "import java.util.*;\n\npublic class Solution {\n    // Chave = letras ordenadas; LinkedHashMap preserva a ordem do primeiro de cada grupo. O(n·k log k).\n    static List<List<String>> agrupar(List<String> palavras) {\n        Map<String, List<String>> grupos = new LinkedHashMap<>();\n        for (String p : palavras) {\n            char[] letras = p.toCharArray();\n            Arrays.sort(letras);\n            grupos.computeIfAbsent(new String(letras), k -> new ArrayList<>()).add(p);\n        }\n        return new ArrayList<>(grupos.values());\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nimport java.util.*;\n\nclass SolutionTest {\n    @Test void exemplo() {\n        assertEquals(List.of(List.of(\"eat\", \"tea\", \"ate\"), List.of(\"tan\", \"nat\"), List.of(\"bat\")),\n            Solution.agrupar(List.of(\"eat\", \"tea\", \"tan\", \"ate\", \"nat\", \"bat\")));\n    }\n\n    @Test void vaziaERepetidas() {\n        assertEquals(List.of(), Solution.agrupar(List.of()));\n        assertEquals(List.of(List.of(\"\", \"\"), List.of(\"a\")), Solution.agrupar(List.of(\"\", \"a\", \"\")));\n    }\n\n    @Test void mesmaLetraQuantidadeDiferente() {\n        assertEquals(2, Solution.agrupar(List.of(\"aab\", \"abb\")).size());\n    }\n}\n",
+    "hints": [
+      "Duas palavras são anagramas se, ordenando as letras, ficam iguais.",
+      "Use LinkedHashMap para manter a ordem dos grupos."
+    ]
+  },
+  {
+    "slug": "atv-ed-top-k-frequentes",
+    "kind": "code",
+    "title": "Top-k mais frequentes com min-heap",
+    "statement": "Devolva os `k` números mais frequentes, do mais frequente para o menos; em empate de frequência,\no **menor** número primeiro.\n\n## Contrato\n\n```java\nstatic List<Integer> topK(int[] nums, int k)\n```\n\n## Exemplos\n\n```\n[1, 1, 1, 2, 2, 3], k = 2  ->  [1, 2]\n```\n\n## Restrições\n\n- Conte com um mapa (`merge`) e mantenha um min-heap de tamanho `k`: O(n log k).\n- Compare frequências com `Integer.compare` (não subtraia).",
+    "starterCode": "import java.util.*;\n\npublic class Solution {\n    static List<Integer> topK(int[] nums, int k) {\n        throw new UnsupportedOperationException(\"TODO\");\n    }\n}\n",
+    "solutionCode": "import java.util.*;\n\npublic class Solution {\n    // Min-heap de tamanho k ordenado do \"pior\" para o \"melhor\"; no fim, inverte. O(n log k).\n    static List<Integer> topK(int[] nums, int k) {\n        Map<Integer, Integer> freq = new HashMap<>();\n        for (int x : nums) freq.merge(x, 1, Integer::sum);\n        Comparator<Map.Entry<Integer, Integer>> pior = (a, b) -> {\n            int c = Integer.compare(a.getValue(), b.getValue());\n            return c != 0 ? c : Integer.compare(b.getKey(), a.getKey());\n        };\n        PriorityQueue<Map.Entry<Integer, Integer>> heap = new PriorityQueue<>(pior);\n        for (var e : freq.entrySet()) {\n            heap.offer(e);\n            if (heap.size() > k) heap.poll();\n        }\n        List<Integer> out = new ArrayList<>();\n        while (!heap.isEmpty()) out.add(heap.poll().getKey());\n        Collections.reverse(out);\n        return out;\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nimport java.util.*;\n\nclass SolutionTest {\n    @Test void exemplo() {\n        assertEquals(List.of(1, 2), Solution.topK(new int[]{1, 1, 1, 2, 2, 3}, 2));\n    }\n\n    @Test void empateMenorPrimeiro() {\n        assertEquals(List.of(4, 7, 9), Solution.topK(new int[]{9, 7, 4, 4, 7, 9}, 3));\n    }\n\n    @Test void kMaiorQueDistintos() {\n        assertEquals(List.of(5), Solution.topK(new int[]{5, 5}, 3));\n    }\n\n    @Test void grande() {\n        int[] a = new int[200_000];\n        for (int i = 0; i < a.length; i++) a[i] = i % 1000 == 0 ? 42 : i;\n        assertEquals(42, Solution.topK(a, 1).get(0));\n    }\n}\n",
+    "hints": [
+      "Primeiro conte com freq.merge(x, 1, Integer::sum).",
+      "O heap guarda os k melhores; o topo é o pior deles — sai quando passar de k.",
+      "No fim, desempilhe e inverta a lista."
+    ]
+  },
+  {
+    "slug": "atv-ed-freq-r1",
+    "kind": "reflection",
+    "title": "Troque mentalmente um laço aninhado de contagem por um mapa em O(n) e explique o ganho."
+  },
+  {
+    "slug": "atv-ed-freq-r2",
+    "kind": "reflection",
+    "title": "Escolha entre `int[26]`, `HashMap` e `TreeMap` para contar e justifique memória e ordem."
+  }
+]

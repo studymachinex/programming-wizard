@@ -137,13 +137,6 @@ O 3Sum combina ordenação com two pointers: fixa um índice `i`, e resolve two 
 - **Esquecer de pular duplicatas no 3Sum.** O mesmo trio aparece várias vezes; a saída correta exige unicidade.
 - **Sobrescrever dados ainda não lidos.** No `moverZeros`, o índice de escrita é sempre menor ou igual ao de leitura; se você inverter a ordem de leitura/escrita, perde valores.
 
-## Checklist de domínio
-
-- [ ] Você explica o invariante do two sum ordenado e por que descartar um lado é seguro
-- [ ] Você remove duplicatas in-place sem alocar um novo array
-- [ ] Você resolve 3Sum pulando duplicatas corretamente
-- [ ] Você reconhece quando o padrão é rápido/lento em vez de opostos
-
 ## Para ir além
 
 - [LeetCode — Two Sum II](https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/): a versão ordenada que exercita o padrão.

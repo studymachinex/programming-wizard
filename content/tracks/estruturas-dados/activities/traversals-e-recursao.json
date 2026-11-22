@@ -1,0 +1,30 @@
+[
+  {
+    "slug": "atv-ed-travessias",
+    "kind": "code",
+    "title": "As quatro travessias (em ordem iterativa)",
+    "statement": "Implemente pré-ordem, em ordem, pós-ordem e por níveis. A **em ordem** deve ser iterativa, com pilha\nexplícita — o teste usa uma árvore degenerada de 100 mil nós, que estouraria a pilha da recursão.\n\n## Contrato\n\n```java\nstatic List<Integer> preOrdem(Node r)\nstatic List<Integer> emOrdemIterativa(Node r)\nstatic List<Integer> posOrdem(Node r)\nstatic List<List<Integer>> porNiveis(Node r)\n```",
+    "starterCode": "import java.util.*;\n\npublic class Solution {\n    static class Node {\n        int val;\n        Node esq, dir;\n        Node(int val, Node esq, Node dir) { this.val = val; this.esq = esq; this.dir = dir; }\n    }\n\n    static List<Integer> preOrdem(Node r) { throw new UnsupportedOperationException(\"TODO\"); }\n    static List<Integer> emOrdemIterativa(Node r) { throw new UnsupportedOperationException(\"TODO\"); }\n    static List<Integer> posOrdem(Node r) { throw new UnsupportedOperationException(\"TODO\"); }\n    static List<List<Integer>> porNiveis(Node r) { throw new UnsupportedOperationException(\"TODO\"); }\n}\n",
+    "solutionCode": "import java.util.*;\n\npublic class Solution {\n    static class Node {\n        int val;\n        Node esq, dir;\n        Node(int val, Node esq, Node dir) { this.val = val; this.esq = esq; this.dir = dir; }\n    }\n\n    static List<Integer> preOrdem(Node r) {\n        List<Integer> out = new ArrayList<>();\n        pre(r, out);\n        return out;\n    }\n\n    private static void pre(Node n, List<Integer> out) {\n        if (n == null) return;\n        out.add(n.val);\n        pre(n.esq, out);\n        pre(n.dir, out);\n    }\n\n    // Desce à esquerda empilhando; ao voltar, visita e vai para a direita. O(n), pilha O(h).\n    static List<Integer> emOrdemIterativa(Node r) {\n        List<Integer> out = new ArrayList<>();\n        Deque<Node> pilha = new ArrayDeque<>();\n        Node atual = r;\n        while (atual != null || !pilha.isEmpty()) {\n            while (atual != null) {\n                pilha.push(atual);\n                atual = atual.esq;\n            }\n            atual = pilha.pop();\n            out.add(atual.val);\n            atual = atual.dir;\n        }\n        return out;\n    }\n\n    static List<Integer> posOrdem(Node r) {\n        List<Integer> out = new ArrayList<>();\n        pos(r, out);\n        return out;\n    }\n\n    private static void pos(Node n, List<Integer> out) {\n        if (n == null) return;\n        pos(n.esq, out);\n        pos(n.dir, out);\n        out.add(n.val);\n    }\n\n    static List<List<Integer>> porNiveis(Node r) {\n        List<List<Integer>> out = new ArrayList<>();\n        if (r == null) return out;\n        ArrayDeque<Node> fila = new ArrayDeque<>();\n        fila.add(r);\n        while (!fila.isEmpty()) {\n            List<Integer> nivel = new ArrayList<>();\n            for (int i = fila.size(); i > 0; i--) {\n                Node n = fila.poll();\n                nivel.add(n.val);\n                if (n.esq != null) fila.add(n.esq);\n                if (n.dir != null) fila.add(n.dir);\n            }\n            out.add(nivel);\n        }\n        return out;\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nimport java.util.*;\n\nclass SolutionTest {\n    private static Solution.Node n(int v, Solution.Node e, Solution.Node d) { return new Solution.Node(v, e, d); }\n    private static Solution.Node f(int v) { return new Solution.Node(v, null, null); }\n\n    //        4\n    //      2   6\n    //     1 3 5 7\n    private static final Solution.Node T = n(4, n(2, f(1), f(3)), n(6, f(5), f(7)));\n\n    @Test void preEPos() {\n        assertEquals(List.of(4, 2, 1, 3, 6, 5, 7), Solution.preOrdem(T));\n        assertEquals(List.of(1, 3, 2, 5, 7, 6, 4), Solution.posOrdem(T));\n    }\n\n    @Test void emOrdem() {\n        assertEquals(List.of(1, 2, 3, 4, 5, 6, 7), Solution.emOrdemIterativa(T));\n        assertEquals(List.of(), Solution.emOrdemIterativa(null));\n    }\n\n    @Test void niveis() {\n        assertEquals(List.of(List.of(4), List.of(2, 6), List.of(1, 3, 5, 7)), Solution.porNiveis(T));\n        assertEquals(List.of(), Solution.porNiveis(null));\n    }\n\n    @Test void degeneradaNaoEstouraAPilha() {\n        Solution.Node raiz = null;\n        for (int i = 0; i < 100_000; i++) raiz = n(i, raiz, null); // tudo à esquerda\n        List<Integer> r = Solution.emOrdemIterativa(raiz);\n        assertEquals(100_000, r.size());\n        assertEquals(0, r.get(0));\n        assertEquals(99_999, r.get(99_999));\n    }\n}\n",
+    "hints": [
+      "Em ordem iterativa: empilhe descendo à esquerda; desempilhe, visite, vá para a direita.",
+      "Por níveis: BFS, processando fila.size() nós por rodada."
+    ]
+  },
+  {
+    "slug": "atv-ed-trav-r1",
+    "kind": "reflection",
+    "title": "Escolha a travessia certa para: copiar a árvore, apagar a árvore, listar em ordem, achar a menor profundidade."
+  },
+  {
+    "slug": "atv-ed-trav-r2",
+    "kind": "reflection",
+    "title": "Explique por que uma árvore degenerada estoura a pilha na recursão."
+  },
+  {
+    "slug": "atv-ed-trav-r3",
+    "kind": "reflection",
+    "title": "Compare o espaço de DFS (O(h)) e BFS (O(largura)) numa árvore cheia."
+  }
+]

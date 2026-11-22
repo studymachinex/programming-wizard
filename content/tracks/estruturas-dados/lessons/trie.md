@@ -169,14 +169,6 @@ A memória é o fator decisivo. Se o alfabeto é grande ou os nós são esparsos
 - **Fazer autocomplete sem limite.** Um prefixo vazio em um dicionário grande materializa milhões de strings; pagine ou limite.
 - **Ignorar a memória.** 1 milhão de nós com array de 26 pode passar de 100 MB; meça antes de embarcar em um serviço com muitos dicionários.
 
-## Checklist de domínio
-
-- [ ] Você implementa `inserir`, `contem` e `comecaCom` do zero
-- [ ] Você explica por que `fim` é necessário
-- [ ] Você coleta autocomplete com DFS e `StringBuilder`
-- [ ] Você remove podando nós sem filhos
-- [ ] Você estima memória e escolhe entre array, mapa e radix tree
-
 ## Para ir além
 
 - [LeetCode — Implement Trie (Prefix Tree)](https://leetcode.com/problems/implement-trie-prefix-tree/): o exercício canônico.

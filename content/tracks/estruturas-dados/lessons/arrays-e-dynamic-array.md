@@ -167,13 +167,6 @@ Em Java, `ArrayList` usa um `Object[]` e, portanto, guarda referências. Para mi
 - **Confundir tamanho com capacidade.** `size()` é quantos elementos existem; `dados.length` é o buffer. Expor capacidade na API raramente é necessário.
 - **Ignorar o custo de cópia em arrays grandes.** `Arrays.copyOf` de 100 milhões de inteiros copia 400 MB; isso aparece no perfil como pausa, não como CPU.
 
-## Checklist de domínio
-
-- [ ] Você implementa add, get, set e remove com validação de índices
-- [ ] Você explica por que inserir no início é O(n) e no fim é O(1) amortizado
-- [ ] Você sabe por que `System.arraycopy` é preferível a um loop de deslocamento
-- [ ] Você reconhece o efeito de localidade em matrizes e listas de objetos
-
 ## Para ir além
 
 - [OpenJDK — ArrayList](https://github.com/openjdk/jdk/blob/master/src/java.base/share/classes/java/util/ArrayList.java): implementação real, com `grow` e `System.arraycopy`.

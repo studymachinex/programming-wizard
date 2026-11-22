@@ -1,0 +1,39 @@
+[
+  {
+    "slug": "atv-ed-lower-upper-bound",
+    "kind": "code",
+    "title": "lower_bound, upper_bound e primeira/última ocorrência",
+    "statement": "Implemente as buscas no intervalo meio aberto `[lo, hi)`:\n\n- `lowerBound(a, x)`: primeiro índice com `a[i] >= x` (ou `a.length`).\n- `upperBound(a, x)`: primeiro índice com `a[i] > x` (ou `a.length`).\n- `faixa(a, x)`: `[primeira, última]` ocorrência de `x`, ou `[-1, -1]`.\n\n## Restrições\n\n- O(log n) cada; sem varrer o array depois de achar.",
+    "starterCode": "public class Solution {\n    static int lowerBound(int[] a, int x) { throw new UnsupportedOperationException(\"TODO\"); }\n    static int upperBound(int[] a, int x) { throw new UnsupportedOperationException(\"TODO\"); }\n    static int[] faixa(int[] a, int x) { throw new UnsupportedOperationException(\"TODO\"); }\n}\n",
+    "solutionCode": "public class Solution {\n    // Invariante: tudo em [0, lo) é < x e tudo em [hi, n) é >= x.\n    static int lowerBound(int[] a, int x) {\n        int lo = 0, hi = a.length;\n        while (lo < hi) {\n            int mid = (lo + hi) >>> 1;\n            if (a[mid] < x) lo = mid + 1;\n            else hi = mid;\n        }\n        return lo;\n    }\n\n    static int upperBound(int[] a, int x) {\n        int lo = 0, hi = a.length;\n        while (lo < hi) {\n            int mid = (lo + hi) >>> 1;\n            if (a[mid] <= x) lo = mid + 1;\n            else hi = mid;\n        }\n        return lo;\n    }\n\n    static int[] faixa(int[] a, int x) {\n        int l = lowerBound(a, x);\n        if (l == a.length || a[l] != x) return new int[]{-1, -1};\n        return new int[]{l, upperBound(a, x) - 1};\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nclass SolutionTest {\n    private static final int[] A = {1, 2, 2, 2, 5, 7};\n\n    @Test void lower() {\n        assertEquals(1, Solution.lowerBound(A, 2));\n        assertEquals(4, Solution.lowerBound(A, 3));\n        assertEquals(0, Solution.lowerBound(A, -9));\n        assertEquals(6, Solution.lowerBound(A, 99));\n    }\n\n    @Test void upper() {\n        assertEquals(4, Solution.upperBound(A, 2));\n        assertEquals(6, Solution.upperBound(A, 7));\n        assertEquals(0, Solution.upperBound(A, 0));\n    }\n\n    @Test void faixa() {\n        assertArrayEquals(new int[]{1, 3}, Solution.faixa(A, 2));\n        assertArrayEquals(new int[]{5, 5}, Solution.faixa(A, 7));\n        assertArrayEquals(new int[]{-1, -1}, Solution.faixa(A, 3));\n        assertArrayEquals(new int[]{-1, -1}, Solution.faixa(new int[]{}, 3));\n    }\n\n    @Test void grandeComExtremos() {\n        int[] a = new int[1 << 20];\n        java.util.Arrays.fill(a, Integer.MAX_VALUE);\n        assertEquals(0, Solution.lowerBound(a, Integer.MAX_VALUE));\n        assertEquals(a.length, Solution.upperBound(a, Integer.MAX_VALUE));\n    }\n}\n",
+    "hints": [
+      "Use lo = 0, hi = n e o laço while (lo < hi).",
+      "lower: a[mid] < x → lo = mid + 1, senão hi = mid. upper: troque < por <=.",
+      "Última ocorrência = upperBound − 1."
+    ]
+  },
+  {
+    "slug": "atv-ed-busca-rotacionado",
+    "kind": "code",
+    "title": "Busca em array rotacionado",
+    "statement": "Um array ordenado **sem duplicatas** foi rotacionado (ex.: `[4, 5, 6, 7, 0, 1, 2]`). Devolva o índice\nde `x`, ou `-1`.\n\n## Contrato\n\n```java\nstatic int buscar(int[] a, int x)\n```\n\n## Restrições\n\n- O(log n): em cada passo, uma das metades está ordenada; decida se `x` está nela.",
+    "starterCode": "public class Solution {\n    static int buscar(int[] a, int x) {\n        throw new UnsupportedOperationException(\"TODO\");\n    }\n}\n",
+    "solutionCode": "public class Solution {\n    static int buscar(int[] a, int x) {\n        int lo = 0, hi = a.length - 1;\n        while (lo <= hi) {\n            int mid = (lo + hi) >>> 1;\n            if (a[mid] == x) return mid;\n            if (a[lo] <= a[mid]) { // metade esquerda ordenada\n                if (a[lo] <= x && x < a[mid]) hi = mid - 1;\n                else lo = mid + 1;\n            } else {               // metade direita ordenada\n                if (a[mid] < x && x <= a[hi]) lo = mid + 1;\n                else hi = mid - 1;\n            }\n        }\n        return -1;\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nclass SolutionTest {\n    @Test void exemplos() {\n        int[] a = {4, 5, 6, 7, 0, 1, 2};\n        assertEquals(4, Solution.buscar(a, 0));\n        assertEquals(0, Solution.buscar(a, 4));\n        assertEquals(6, Solution.buscar(a, 2));\n        assertEquals(-1, Solution.buscar(a, 3));\n    }\n\n    @Test void semRotacaoEPequenos() {\n        assertEquals(2, Solution.buscar(new int[]{1, 2, 3, 4}, 3));\n        assertEquals(-1, Solution.buscar(new int[]{}, 1));\n        assertEquals(1, Solution.buscar(new int[]{3, 1}, 1));\n    }\n\n    @Test void todasAsRotacoes() {\n        int n = 50;\n        for (int r = 0; r < n; r++) {\n            int[] a = new int[n];\n            for (int i = 0; i < n; i++) a[i] = ((i + r) % n) * 2;\n            for (int i = 0; i < n; i++) assertEquals(i, Solution.buscar(a, a[i]), \"rotação \" + r);\n            assertEquals(-1, Solution.buscar(a, 7));\n        }\n    }\n}\n",
+    "hints": [
+      "Compare a[lo] com a[mid] para saber qual metade está ordenada.",
+      "Se x cabe no intervalo da metade ordenada, vá para ela; senão, para a outra."
+    ]
+  },
+  {
+    "slug": "atv-ed-bs-r1",
+    "kind": "reflection",
+    "title": "Reconheça um problema de \"menor capacidade viável\" e escreva o predicado monotônico que ele busca."
+  },
+  {
+    "slug": "atv-ed-bs-r2",
+    "kind": "reflection",
+    "title": "Explique por que o array rotacionado com duplicatas pode exigir O(n) no pior caso."
+  }
+]

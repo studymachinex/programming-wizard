@@ -1,0 +1,39 @@
+[
+  {
+    "slug": "atv-ed-daily-temperatures",
+    "kind": "code",
+    "title": "Daily temperatures com pilha monotônica",
+    "statement": "Para cada dia, quantos dias até uma temperatura **maior**? 0 se não houver.\n\n## Contrato\n\n```java\nstatic int[] diasAteEsquentar(int[] temps)\n```\n\n## Exemplos\n\n```\n[73, 74, 75, 71, 69, 72, 76, 73]  ->  [1, 1, 4, 2, 1, 1, 0, 0]\n```\n\n## Restrições\n\n- O(n): cada índice entra e sai da pilha no máximo uma vez. Até 100 mil dias.",
+    "starterCode": "import java.util.ArrayDeque;\n\npublic class Solution {\n    static int[] diasAteEsquentar(int[] temps) {\n        throw new UnsupportedOperationException(\"TODO\");\n    }\n}\n",
+    "solutionCode": "import java.util.ArrayDeque;\n\npublic class Solution {\n    // Pilha de índices com temperaturas decrescentes; um dia mais quente resolve os topos menores.\n    static int[] diasAteEsquentar(int[] temps) {\n        int[] resp = new int[temps.length];\n        ArrayDeque<Integer> pilha = new ArrayDeque<>();\n        for (int i = 0; i < temps.length; i++) {\n            while (!pilha.isEmpty() && temps[pilha.peek()] < temps[i]) {\n                int j = pilha.pop();\n                resp[j] = i - j;\n            }\n            pilha.push(i);\n        }\n        return resp;\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nclass SolutionTest {\n    @Test void exemplo() {\n        assertArrayEquals(new int[]{1, 1, 4, 2, 1, 1, 0, 0}, Solution.diasAteEsquentar(new int[]{73, 74, 75, 71, 69, 72, 76, 73}));\n    }\n\n    @Test void iguaisNaoContam() {\n        assertArrayEquals(new int[]{0, 0, 0}, Solution.diasAteEsquentar(new int[]{50, 50, 50}));\n    }\n\n    @Test void decrescenteGrande() {\n        int n = 100_000;\n        int[] t = new int[n];\n        for (int i = 0; i < n; i++) t[i] = n - i;\n        t[n - 1] = n + 1;\n        int[] r = Solution.diasAteEsquentar(t);\n        assertEquals(n - 1, r[0]);\n        assertEquals(1, r[n - 2]);\n    }\n}\n",
+    "hints": [
+      "Guarde índices na pilha, não temperaturas.",
+      "Enquanto o topo for mais frio que hoje, desempilhe e grave a distância."
+    ]
+  },
+  {
+    "slug": "atv-ed-maior-retangulo",
+    "kind": "code",
+    "title": "Maior retângulo no histograma",
+    "statement": "Dadas as alturas das barras (largura 1), devolva a área do maior retângulo.\n\n## Contrato\n\n```java\nstatic long maiorRetangulo(int[] alturas)\n```\n\n## Exemplos\n\n```\n[2, 1, 5, 6, 2, 3]  ->  10   (barras 5 e 6, altura 5, largura 2)\n```\n\n## Restrições\n\n- O(n) com pilha crescente; até 100 mil barras; a área pode passar de `int`.",
+    "starterCode": "public class Solution {\n    static long maiorRetangulo(int[] alturas) {\n        throw new UnsupportedOperationException(\"TODO\");\n    }\n}\n",
+    "solutionCode": "import java.util.ArrayDeque;\n\npublic class Solution {\n    // Pilha crescente; ao desempilhar a barra h, a largura vai do novo topo + 1 até i - 1. O(n).\n    static long maiorRetangulo(int[] alturas) {\n        ArrayDeque<Integer> pilha = new ArrayDeque<>();\n        long melhor = 0;\n        for (int i = 0; i <= alturas.length; i++) {\n            int h = i == alturas.length ? 0 : alturas[i]; // sentinela de altura 0 esvazia a pilha\n            while (!pilha.isEmpty() && alturas[pilha.peek()] >= h) {\n                int altura = alturas[pilha.pop()];\n                int esquerda = pilha.isEmpty() ? -1 : pilha.peek();\n                melhor = Math.max(melhor, (long) altura * (i - esquerda - 1));\n            }\n            pilha.push(i);\n        }\n        return melhor;\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nclass SolutionTest {\n    @Test void exemplo() {\n        assertEquals(10, Solution.maiorRetangulo(new int[]{2, 1, 5, 6, 2, 3}));\n    }\n\n    @Test void bordas() {\n        assertEquals(0, Solution.maiorRetangulo(new int[]{}));\n        assertEquals(7, Solution.maiorRetangulo(new int[]{7}));\n        assertEquals(12, Solution.maiorRetangulo(new int[]{3, 3, 3, 3}));\n    }\n\n    @Test void areaGrande() {\n        int[] a = new int[100_000];\n        java.util.Arrays.fill(a, 100_000);\n        assertEquals(10_000_000_000L, Solution.maiorRetangulo(a));\n    }\n}\n",
+    "hints": [
+      "Pilha de índices com alturas crescentes.",
+      "Ao desempilhar, a largura vai do índice abaixo dele na pilha (+1) até i − 1.",
+      "Uma barra fictícia de altura 0 no fim esvazia a pilha."
+    ]
+  },
+  {
+    "slug": "atv-ed-ms-r1",
+    "kind": "reflection",
+    "title": "Escolha entre pilha crescente e decrescente a partir do enunciado e justifique."
+  },
+  {
+    "slug": "atv-ed-ms-r2",
+    "kind": "reflection",
+    "title": "Explique por que o algoritmo é O(n) apesar do laço interno."
+  }
+]

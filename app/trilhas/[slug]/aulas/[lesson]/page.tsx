@@ -16,6 +16,7 @@ import { cn, pct } from "@/lib/utils";
 import { Markdown, extractHeadings } from "@/components/markdown";
 import { LessonActions } from "@/components/lesson-actions";
 import { LessonQuiz } from "@/components/lesson-quiz";
+import { LessonActivities, type LessonActivityView } from "@/components/lesson-activities";
 import { NotesPanel } from "@/components/notes-panel";
 import { MiniRing } from "@/components/progress-ring";
 import { Breadcrumb, ProgressBar, TrackIcon, accentOf } from "@/components/ui";
@@ -91,7 +92,27 @@ export default async function LessonPage({
   const progress = lesson.progress[0];
   const currentModule = track.modules.find((m) => m.id === lesson.moduleId)!;
   const a = accentOf(track.accent);
-  const headings = extractHeadings(lesson.content);
+  const activityRows = await prisma.lessonActivity.findMany({
+    where: { lessonId: lesson.id },
+    orderBy: { order: "asc" },
+    include: { progress: { where: { profileId: PROFILE_ID } } },
+  });
+  const activities: LessonActivityView[] = activityRows.map((a) => ({
+    id: a.id,
+    kind: a.kind,
+    title: a.title,
+    statement: a.statement,
+    starterCode: a.starterCode,
+    solutionCode: a.solutionCode,
+    hints: a.hints,
+    code: a.progress[0]?.code ?? "",
+    done: a.progress[0]?.status === "done",
+    attempts: a.progress[0]?.attempts ?? 0,
+  }));
+  const headings = [
+    ...extractHeadings(lesson.content),
+    ...(activities.length ? [{ id: "atividades", text: "Atividades", level: 2 }] : []),
+  ];
   const quiz = (lesson.quiz as Quiz | null) ?? [];
 
   return (
@@ -153,6 +174,8 @@ export default async function LessonPage({
           <div className="mt-8">
             <Markdown content={lesson.content} />
           </div>
+
+          <LessonActivities activities={activities} />
 
           <div className="mt-9 rounded-2xl border border-arcane-400/15 bg-gradient-to-br from-arcane-500/[0.07] to-transparent p-5 sm:p-6">
             <div className="mb-3 flex items-center gap-2">

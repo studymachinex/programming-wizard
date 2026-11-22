@@ -126,13 +126,6 @@ Cuidado com chaves mutáveis: se um campo usado no `hashCode` muda depois do `pu
 - **Confundir `HashMap` com `Hashtable`.** `Hashtable` é sincronizada e não aceita null; para concorrência, use `ConcurrentHashMap`.
 - **Confiar em ordem de iteração.** `HashMap` não promete ordem; se precisa de ordem de inserção, use `LinkedHashMap`; se precisa ordenada por chave, `TreeMap`.
 
-## Checklist de domínio
-
-- [ ] Você explica o caminho hashCode → spread → índice → bucket
-- [ ] Você implementa `equals` e `hashCode` consistentes
-- [ ] Você sabe o que o load factor controla e por que 0,75 é o padrão
-- [ ] Você reconhece colisões normais e ataques de hash flooding
-
 ## Para ir além
 
 - [Oracle — HashMap (Java 21)](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/HashMap.html): contrato, load factor e notas de implementação.

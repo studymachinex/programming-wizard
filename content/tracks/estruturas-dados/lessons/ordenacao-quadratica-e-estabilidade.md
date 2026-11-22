@@ -56,14 +56,6 @@ Quick sort é excelente para arrays em memória, mas o pior caso O(n²) aparece 
 - `Comparator` que subtrai inteiros e sofre overflow (`a - b`).
 - Ordenar dentro de loop sem necessidade.
 
-## Checklist de domínio
-
-- [ ] Sei os cinco sorts e suas complexidades.
-- [ ] Implemento insertion e merge sem consultar.
-- [ ] Explico estabilidade com um exemplo concreto.
-- [ ] Sei o que o JDK usa em cada caso.
-- [ ] Evito comparadores com overflow e inconsistência.
-
 ## Para ir além
 
 Leia o javadoc de `Arrays.sort` e `Comparator`. Depois ordene 50 elementos quase ordenados com insertion e com `Arrays.sort`, medindo a diferença.

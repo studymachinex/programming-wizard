@@ -157,13 +157,6 @@ Deque (double-ended queue) generaliza a fila: você pode inserir e remover nas d
 - **Confundir BFS com caminho mínimo em grafos ponderados.** BFS minimiza número de arestas. Com pesos diferentes, use Dijkstra.
 - **`head`/`tail` sem módulo.** Ao chegar ao fim do array, o índice precisa voltar a zero; sem isso, você estoura o array ou deixa slots inutilizados.
 
-## Checklist de domínio
-
-- [ ] Você implementa uma fila circular com contador e testa cheia/vazia
-- [ ] Você explica por que BFS usa fila e garante distância mínima em arestas
-- [ ] Você marca visitados no enfileiramento, não no desenfileiramento
-- [ ] Você sabe quando um deque resolve melhor que uma fila simples
-
 ## Para ir além
 
 - [Oracle — ArrayDeque](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/ArrayDeque.html): implementação e contrato de deque.

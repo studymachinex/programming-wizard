@@ -1,6 +1,7 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import {
+  activitiesFileSchema,
   exerciseSchema,
   problemsFileSchema,
   projectsFileSchema,
@@ -33,6 +34,8 @@ async function main() {
     .map((d) => d.name);
 
   const exerciseSlugs = new Set<string>();
+  const activitySlugs = new Set<string>();
+  let totalActivities = 0;
   const problemSlugs = new Map<string, string>();
   let totalLessons = 0;
   let totalExercises = 0;
@@ -72,6 +75,16 @@ async function main() {
           if (!/```java/.test(content)) warn(`${dir}/${lesson.slug}: sem bloco Java`);
         } catch {
           fail(`${dir}: aula ausente ${lesson.file}`);
+        }
+        try {
+          const activities = activitiesFileSchema.parse(await readJson(path.join(base, "activities", `${lesson.slug}.json`)));
+          for (const a of activities) {
+            if (activitySlugs.has(a.slug)) fail(`atividade duplicada global: ${a.slug}`);
+            activitySlugs.add(a.slug);
+            totalActivities += 1;
+          }
+        } catch (e) {
+          if ((e as NodeJS.ErrnoException).code !== "ENOENT") fail(`${dir}/${lesson.slug}: atividades inválidas — ${(e as Error).message}`);
         }
         for (const [qi, q] of (lesson.quiz ?? []).entries()) {
           if (q.answer < 0 || q.answer >= q.options.length) {
@@ -124,7 +137,7 @@ async function main() {
   }
 
   console.log(
-    `\n📚 ${dirs.length} trilhas · ${totalLessons} aulas · ${totalExercises} exercícios · ${totalProblems} problemas · ~${Math.round(
+    `\n📚 ${dirs.length} trilhas · ${totalLessons} aulas · ${totalExercises} exercícios · ${totalActivities} atividades · ${totalProblems} problemas · ~${Math.round(
       totalWords / 1000
     )}k palavras`
   );

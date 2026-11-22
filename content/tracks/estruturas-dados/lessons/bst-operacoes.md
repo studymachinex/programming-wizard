@@ -149,14 +149,6 @@ A BST simples é aceitável com dados aleatórios e volume moderado. Com dados o
 - **Inserir dados ordenados.** A altura vira n e a busca degrada para O(n); a recursão pode estourar a pilha antes disso.
 - **Usar `==` para comparar objetos.** `Integer` acima de 127 não é idêntico; em chaves genéricas, use `compareTo` ou `equals`.
 
-## Checklist de domínio
-
-- [ ] Você implementa `inserir`, `buscar` e `remover` do zero
-- [ ] Você trata os três casos de remoção sem perder subárvores
-- [ ] Você explica por que a altura é O(n) no pior caso e ~O(log n) no caso médio
-- [ ] Você valida uma BST com limites, não apenas com os filhos imediatos
-- [ ] Você escolhe entre BST, `HashMap` e `TreeMap` por requisito
-
 ## Para ir além
 
 - [LeetCode — Validate Binary Search Tree](https://leetcode.com/problems/validate-binary-search-tree/): teste a validação por intervalos.

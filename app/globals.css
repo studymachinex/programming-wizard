@@ -339,3 +339,16 @@ body::after {
     scroll-behavior: auto !important;
   }
 }
+
+/* Enunciados de atividades: a mesma tipografia das aulas, mais compacta. */
+.lesson-prose-compact {
+  font-size: 0.92rem;
+  line-height: 1.7;
+}
+.lesson-prose-compact h2 {
+  font-size: 1.05rem;
+  margin-top: 1.4rem;
+}
+.lesson-prose-compact h2:first-child {
+  margin-top: 0;
+}

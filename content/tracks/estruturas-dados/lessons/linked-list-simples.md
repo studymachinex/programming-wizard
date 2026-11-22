@@ -161,13 +161,6 @@ Em produção, linked lists aparecem onde o custo de mover elementos é proibiti
 - **Achar que `LinkedList.get(i)` é barato.** A JDK percorre do início ou do fim, o que for mais perto: O(n). Um loop com `get(i)` é O(n²).
 - **Vazar memória ao remover.** Em Java, remova a referência do nó anterior; em C/C++, libere o nó. Em uma lista circular, um nó esquecido mantém o ciclo inteiro vivo.
 
-## Checklist de domínio
-
-- [ ] Você inverte uma lista simples iterativamente sem consultar
-- [ ] Você detecta ciclo e encontra o meio com dois ponteiros
-- [ ] Você explica por que a linked list perde em localidade para o array
-- [ ] Você reconhece quando um nó sentinela elimina casos especiais
-
 ## Para ir além
 
 - [OpenJDK — LinkedList](https://github.com/openjdk/jdk/blob/master/src/java.base/share/classes/java/util/LinkedList.java): implementação com nós e `get` que percorre a partir da ponta mais próxima.

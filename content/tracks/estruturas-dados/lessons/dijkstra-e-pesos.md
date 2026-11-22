@@ -55,14 +55,6 @@ Em sistemas reais, latência muda o tempo todo. Dijkstra estático não resolve 
 - Overflow em `d + peso`.
 - Confundir "menor número de arestas" com "menor custo".
 
-## Checklist de domínio
-
-- [ ] Implemento Dijkstra com `PriorityQueue`.
-- [ ] Explico por que pesos negativos quebram a invariante.
-- [ ] Reconstruo o caminho mínimo.
-- [ ] Trato overflow e nós inalcançáveis.
-- [ ] Sei quando Bellman-Ford ou BFS são necessários.
-
 ## Para ir além
 
 Leia o capítulo de Dijkstra em cp-algorithms.com e compare com Bellman-Ford. Depois resolva Network Delay Time no LeetCode com a implementação acima.

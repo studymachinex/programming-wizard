@@ -1,0 +1,39 @@
+[
+  {
+    "slug": "atv-ed-parenteses",
+    "kind": "code",
+    "title": "Validar parênteses com uma pilha",
+    "statement": "`s` tem só os caracteres `()[]{}`. Diga se está balanceada: cada fechamento casa com a abertura\nmais recente ainda aberta.\n\n## Contrato\n\n```java\nstatic boolean valido(String s)\n```\n\n## Exemplos\n\n```\n\"{[()()]}\" -> true     \"([)]\" -> false     \"((\" -> false     \"\" -> true\n```\n\n## Restrições\n\n- Use `ArrayDeque<Character>` (ou um array) como pilha — não `Stack`.",
+    "starterCode": "import java.util.ArrayDeque;\nimport java.util.Deque;\n\npublic class Solution {\n    static boolean valido(String s) {\n        throw new UnsupportedOperationException(\"TODO\");\n    }\n}\n",
+    "solutionCode": "import java.util.ArrayDeque;\nimport java.util.Deque;\n\npublic class Solution {\n    // O topo é sempre a abertura mais recente: é ela que o próximo fechamento precisa casar. O(n).\n    static boolean valido(String s) {\n        Deque<Character> pilha = new ArrayDeque<>();\n        for (char c : s.toCharArray()) {\n            switch (c) {\n                case '(' -> pilha.push(')');\n                case '[' -> pilha.push(']');\n                case '{' -> pilha.push('}');\n                default -> {\n                    if (pilha.isEmpty() || pilha.pop() != c) return false;\n                }\n            }\n        }\n        return pilha.isEmpty();\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nclass SolutionTest {\n    @Test void validos() {\n        assertTrue(Solution.valido(\"{[()()]}\"));\n        assertTrue(Solution.valido(\"()[]{}\"));\n        assertTrue(Solution.valido(\"\"));\n    }\n\n    @Test void invalidos() {\n        assertFalse(Solution.valido(\"([)]\"));\n        assertFalse(Solution.valido(\"((\"));\n        assertFalse(Solution.valido(\"))\"));\n        assertFalse(Solution.valido(\"]\"));\n    }\n\n    @Test void profundo() {\n        String s = \"(\".repeat(100_000) + \")\".repeat(100_000);\n        assertTrue(Solution.valido(s));\n        assertFalse(Solution.valido(s + \"(\"));\n    }\n}\n",
+    "hints": [
+      "Empilhe as aberturas (ou o fechamento esperado).",
+      "Num fechamento, a pilha vazia ou um topo diferente já invalida.",
+      "No fim, a pilha precisa estar vazia."
+    ]
+  },
+  {
+    "slug": "atv-ed-rpn",
+    "kind": "code",
+    "title": "Avaliar expressão em notação polonesa reversa",
+    "statement": "Avalie uma expressão RPN com inteiros e `+ - * /` (divisão inteira truncada para zero).\n\n## Contrato\n\n```java\nstatic int avaliarRPN(String[] tokens)\n```\n\n## Exemplos\n\n```\n[\"2\", \"1\", \"+\", \"3\", \"*\"]   ->  9\n[\"4\", \"13\", \"5\", \"/\", \"+\"]  ->  6\n```\n\n## Restrições\n\n- A ordem dos operandos importa: em `a b -`, o resultado é `a - b`.\n- Expressão malformada (falta operando ou sobra número) lança `IllegalArgumentException`.",
+    "starterCode": "import java.util.ArrayDeque;\nimport java.util.Deque;\n\npublic class Solution {\n    static int avaliarRPN(String[] tokens) {\n        throw new UnsupportedOperationException(\"TODO\");\n    }\n}\n",
+    "solutionCode": "import java.util.ArrayDeque;\nimport java.util.Deque;\n\npublic class Solution {\n    // Números empilham; operadores desempilham b (topo) e depois a. O(n).\n    static int avaliarRPN(String[] tokens) {\n        Deque<Integer> pilha = new ArrayDeque<>();\n        for (String t : tokens) {\n            if (t.length() == 1 && \"+-*/\".contains(t)) {\n                if (pilha.size() < 2) throw new IllegalArgumentException(\"faltam operandos para \" + t);\n                int b = pilha.pop(), a = pilha.pop();\n                pilha.push(switch (t) {\n                    case \"+\" -> a + b;\n                    case \"-\" -> a - b;\n                    case \"*\" -> a * b;\n                    default -> a / b;\n                });\n            } else {\n                pilha.push(Integer.parseInt(t));\n            }\n        }\n        if (pilha.size() != 1) throw new IllegalArgumentException(\"expressão malformada\");\n        return pilha.pop();\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nclass SolutionTest {\n    @Test void exemplos() {\n        assertEquals(9, Solution.avaliarRPN(new String[]{\"2\", \"1\", \"+\", \"3\", \"*\"}));\n        assertEquals(6, Solution.avaliarRPN(new String[]{\"4\", \"13\", \"5\", \"/\", \"+\"}));\n    }\n\n    @Test void ordemDosOperandos() {\n        assertEquals(3, Solution.avaliarRPN(new String[]{\"5\", \"2\", \"-\"}));\n        assertEquals(-2, Solution.avaliarRPN(new String[]{\"-7\", \"3\", \"/\"}));\n    }\n\n    @Test void malformada() {\n        assertThrows(IllegalArgumentException.class, () -> Solution.avaliarRPN(new String[]{\"1\", \"+\"}));\n        assertThrows(IllegalArgumentException.class, () -> Solution.avaliarRPN(new String[]{\"1\", \"2\"}));\n    }\n}\n",
+    "hints": [
+      "Cuidado: \"-7\" é número, \"-\" é operador.",
+      "Desempilhe b primeiro, depois a: o resultado é a op b."
+    ]
+  },
+  {
+    "slug": "atv-ed-st-r1",
+    "kind": "reflection",
+    "title": "Explique por que o topo da pilha é sempre o par certo para o próximo fechamento."
+  },
+  {
+    "slug": "atv-ed-st-r2",
+    "kind": "reflection",
+    "title": "Explique por que `ArrayDeque` substitui `Stack` em código novo."
+  }
+]

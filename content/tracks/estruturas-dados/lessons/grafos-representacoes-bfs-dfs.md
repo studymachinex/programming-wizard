@@ -124,13 +124,6 @@ A escolha BFS versus DFS segue a pergunta. Distância mínima sem pesos, menor n
 - **Detectar ciclo em grafo não direcionado sem o pai.** A aresta de volta para o pai parece ciclo; carregue o vértice anterior ou remova a aresta ao descer.
 - **Usar matriz para grafo esparso.** `int[100_000][100_000]` são 40 GB; a lista usa O(V + E).
 
-## Checklist de domínio
-
-- [ ] Você escolhe matriz, lista ou CSR justificando espaço e operação
-- [ ] Você implementa BFS com distâncias e marcação no enfileiramento
-- [ ] Você conta componentes sem duplicar trabalho
-- [ ] Você detecta ciclo com três cores e explica o papel do cinza
-
 ## Para ir além
 
 - [cp-algorithms — BFS](https://cp-algorithms.com/graph/breadth-first-search.html): prova da distância mínima e variantes.

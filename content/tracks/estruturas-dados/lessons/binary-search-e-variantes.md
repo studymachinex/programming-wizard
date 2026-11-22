@@ -101,13 +101,6 @@ A busca clássica é `O(log n)` e não aloca. On answer, cada passo paga `O(n)` 
 - **Rotacionado sem tratar duplicatas.** `[2, 2, 2, 0, 2]` não revela qual metade está ordenada sem encolher as pontas.
 - **Predicado não monotônico no answer space.** Se viável em `k` não implica viável em `k+1`, a busca descarta a resposta.
 
-## Checklist de domínio
-
-- [ ] Você escreve lower/upper bound de memória e explica o invariante `[lo, hi)`
-- [ ] Você extrai primeira e última ocorrência sem varrer o array
-- [ ] Você resolve array rotacionado com e sem duplicatas
-- [ ] Você reconhece um problema de "menor capacidade viável" e define o predicado
-
 ## Para ir além
 
 - [cp-algorithms — Binary Search](https://cp-algorithms.com/num_methods/binary_search.html): variantes e provas.

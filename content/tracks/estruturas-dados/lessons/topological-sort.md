@@ -59,14 +59,6 @@ Em builds, a ordem não é única; use desempate estável (nome, prioridade) par
 - Ordem não determinística quebrando cache de build.
 - Confundir grau de entrada com grau de saída.
 
-## Checklist de domínio
-
-- [ ] Implemento Kahn e DFS iterativo/recursivo.
-- [ ] Detecto ciclo pelas duas abordagens.
-- [ ] Sei paralelizar por níveis.
-- [ ] Produzo ordem determinística.
-- [ ] Testo grafos desconexos e com auto-loop.
-
 ## Para ir além
 
 Leia o capítulo de topological sort em cp-algorithms.com. Depois modele as dependências do seu projeto e gere a ordem de build.

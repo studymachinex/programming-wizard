@@ -167,14 +167,6 @@ Se a árvore é profunda e você não controla a entrada, prefira a versão iter
 - **Confundir altura com número de nós.** Uma árvore com 1 milhão de nós pode ter altura 20 ou 1 milhão; o custo da recursão depende da altura.
 - **Modificar a árvore durante o traversal.** Remover ou inserir nós invalida a pilha implícita e pode pular elementos.
 
-## Checklist de domínio
-
-- [ ] Você escolhe a travessia pela pergunta do problema
-- [ ] Você implementa as quatro travessias sem consultar
-- [ ] Você escreve em ordem iterativo com pilha explícita
-- [ ] Você explica por que uma árvore degenerada estoura a pilha
-- [ ] Você compara o espaço de DFS e BFS
-
 ## Para ir além
 
 - [LeetCode — Binary Tree Inorder Traversal](https://leetcode.com/problems/binary-tree-inorder-traversal/): pratique a versão iterativa.

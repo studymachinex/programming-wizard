@@ -130,14 +130,6 @@ Use `int[]` quando o domínio for pequeno e fechado: letras, dígitos, notas de 
 - **Usar objeto mutável como chave.** Se um campo do `hashCode` mudar após a inserção, a entrada fica no bucket errado e "desaparece".
 - **Comparar `Integer` com `==`.** Acima de 127, a comparação vira identidade; use `equals` ou `intValue()`.
 
-## Checklist de domínio
-
-- [ ] Você troca um loop aninhado de contagem por um mapa em O(n)
-- [ ] Você escolhe entre `int[]`, `HashMap` e `TreeMap` justificando memória e ordem
-- [ ] Você usa `merge` e `computeIfAbsent` sem efeitos colaterais
-- [ ] Você constrói uma chave canônica para anagramas e explica por que funciona
-- [ ] Você resolve top-k com min-heap e sabe quando ordenar é melhor
-
 ## Para ir além
 
 - [Oracle — Map (Java 21)](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html): contrato de `merge`, `compute` e `computeIfAbsent`.

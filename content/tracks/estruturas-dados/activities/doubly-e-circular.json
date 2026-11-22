@@ -1,0 +1,31 @@
+[
+  {
+    "slug": "atv-ed-remover-no-o1",
+    "kind": "code",
+    "title": "Lista dupla com sentinelas: remover um nó em O(1)",
+    "statement": "Implemente uma lista duplamente ligada com sentinelas `head` e `tail`. `addLast` devolve o nó criado;\ncom ele, `remove(no)` é O(1), sem procurar o anterior.\n\n## Contrato\n\n```java\nstatic class DList {\n    Node addFirst(int v);\n    Node addLast(int v);\n    void remove(Node n);\n    int size();\n    java.util.List<Integer> toList();       // do início ao fim\n    java.util.List<Integer> toListReverso(); // do fim ao início (testa os prev)\n}\n```\n\n## Restrições\n\n- Sem `if` especial para lista vazia ou para a cabeça: as sentinelas resolvem.",
+    "starterCode": "import java.util.ArrayList;\nimport java.util.List;\n\npublic class Solution {\n    static class Node {\n        int val;\n        Node prev, next;\n        Node(int val) { this.val = val; }\n    }\n\n    static class DList {\n        private final Node head = new Node(0), tail = new Node(0);\n        private int size;\n\n        DList() { head.next = tail; tail.prev = head; }\n\n        Node addFirst(int v) { throw new UnsupportedOperationException(\"TODO\"); }\n        Node addLast(int v) { throw new UnsupportedOperationException(\"TODO\"); }\n        void remove(Node n) { throw new UnsupportedOperationException(\"TODO\"); }\n        int size() { return size; }\n\n        List<Integer> toList() {\n            List<Integer> out = new ArrayList<>();\n            for (Node n = head.next; n != tail; n = n.next) out.add(n.val);\n            return out;\n        }\n\n        List<Integer> toListReverso() {\n            List<Integer> out = new ArrayList<>();\n            for (Node n = tail.prev; n != head; n = n.prev) out.add(n.val);\n            return out;\n        }\n    }\n}\n",
+    "solutionCode": "import java.util.ArrayList;\nimport java.util.List;\n\npublic class Solution {\n    static class Node {\n        int val;\n        Node prev, next;\n        Node(int val) { this.val = val; }\n    }\n\n    static class DList {\n        private final Node head = new Node(0), tail = new Node(0);\n        private int size;\n\n        DList() { head.next = tail; tail.prev = head; }\n\n        private Node insertAfter(Node anterior, int v) {\n            Node n = new Node(v);\n            n.prev = anterior;\n            n.next = anterior.next;\n            anterior.next.prev = n;\n            anterior.next = n;\n            size++;\n            return n;\n        }\n\n        Node addFirst(int v) { return insertAfter(head, v); }\n        Node addLast(int v) { return insertAfter(tail.prev, v); }\n\n        // O(1): religa os vizinhos; as sentinelas garantem que prev e next existem.\n        void remove(Node n) {\n            n.prev.next = n.next;\n            n.next.prev = n.prev;\n            n.prev = n.next = null;\n            size--;\n        }\n\n        int size() { return size; }\n\n        List<Integer> toList() {\n            List<Integer> out = new ArrayList<>();\n            for (Node n = head.next; n != tail; n = n.next) out.add(n.val);\n            return out;\n        }\n\n        List<Integer> toListReverso() {\n            List<Integer> out = new ArrayList<>();\n            for (Node n = tail.prev; n != head; n = n.prev) out.add(n.val);\n            return out;\n        }\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nimport java.util.List;\n\nclass SolutionTest {\n    @Test void adicionaNasDuasPontas() {\n        var l = new Solution.DList();\n        l.addLast(2); l.addLast(3); l.addFirst(1);\n        assertEquals(List.of(1, 2, 3), l.toList());\n        assertEquals(List.of(3, 2, 1), l.toListReverso());\n        assertEquals(3, l.size());\n    }\n\n    @Test void removeMeioPontasEUnico() {\n        var l = new Solution.DList();\n        var a = l.addLast(1); var b = l.addLast(2); var c = l.addLast(3);\n        l.remove(b);\n        assertEquals(List.of(1, 3), l.toList());\n        l.remove(a);\n        l.remove(c);\n        assertEquals(List.of(), l.toList());\n        assertEquals(List.of(), l.toListReverso());\n        assertEquals(0, l.size());\n    }\n\n    @Test void removerEmMassaEhRapido() {\n        var l = new Solution.DList();\n        var nos = new Solution.Node[200_000];\n        for (int i = 0; i < nos.length; i++) nos[i] = l.addLast(i);\n        for (int i = 0; i < nos.length; i += 2) l.remove(nos[i]);\n        assertEquals(100_000, l.size());\n        assertEquals(1, l.toList().get(0));\n    }\n}\n",
+    "hints": [
+      "Escreva um insertAfter(anterior, v) e use-o nos dois add.",
+      "remove: n.prev.next = n.next; n.next.prev = n.prev.",
+      "Com sentinelas, prev e next nunca são null para nós reais."
+    ]
+  },
+  {
+    "slug": "atv-ed-dl-r1",
+    "kind": "reflection",
+    "title": "Explique o papel das sentinelas e por que elas simplificam o código."
+  },
+  {
+    "slug": "atv-ed-dl-r2",
+    "kind": "reflection",
+    "title": "Explique por que um laço em lista circular não pode parar testando `null`."
+  },
+  {
+    "slug": "atv-ed-dl-r3",
+    "kind": "reflection",
+    "title": "Decida entre lista dupla e `ArrayDeque` para um requisito com remoções no meio."
+  }
+]

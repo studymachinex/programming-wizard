@@ -78,14 +78,6 @@ Implemente AVL pelo menos uma vez para entender rotações; em produção, prefi
 - Usar árvore balanceada para dados que só precisam de hash.
 - Iterar e modificar a árvore ao mesmo tempo.
 
-## Checklist de domínio
-
-- [ ] Explico as quatro rotações AVL.
-- [ ] Sei as invariantes Red-Black.
-- [ ] Implemento busca, inserção e remoção balanceadas.
-- [ ] Conheço `TreeMap` e `ConcurrentSkipListMap`.
-- [ ] Meço altura e latência com dados ordenados.
-
 ## Para ir além
 
 Leia o capítulo de árvores balanceadas em visualgo.net e o código-fonte de `java.util.TreeMap`. Depois insira 10 mil chaves ordenadas em uma BST e em uma AVL e compare a altura.

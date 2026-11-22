@@ -184,13 +184,6 @@ Três decisões que você deve saber justificar:
 - **Deixar `size` errado após resize.** Se você zera o contador, some com o tamanho; se não zera, conta duas vezes. Escolha uma estratégia e teste `size()` após cada operação.
 - **Aceitar `null` sem tratar.** `key.hashCode()` estoura. Se quiser suportar null, use um bucket especial para índice 0, como a JDK.
 
-## Checklist de domínio
-
-- [ ] Você implementa get, put e remove com encadeamento e resize
-- [ ] Você explica por que a capacidade é potência de dois
-- [ ] Você trata remoção de cabeça e de meio de cadeia
-- [ ] Você sabe quando a treeificação da JDK entra e por que ela existe
-
 ## Para ir além
 
 - [OpenJDK — HashMap](https://github.com/openjdk/jdk/blob/master/src/java.base/share/classes/java/util/HashMap.java): `putVal`, `resize` e `treeifyBin`.

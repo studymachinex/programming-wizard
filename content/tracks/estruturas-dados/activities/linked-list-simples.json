@@ -1,0 +1,26 @@
+[
+  {
+    "slug": "atv-ed-ciclo-e-meio",
+    "kind": "code",
+    "title": "Ciclo e meio da lista com dois ponteiros",
+    "statement": "Com ponteiros lento (1 passo) e rápido (2 passos):\n\n- `temCiclo(head)`: a lista tem ciclo? (algoritmo de Floyd)\n- `meio(head)`: o nó do meio; com tamanho par, o **segundo** do meio.\n\n## Contrato\n\n```java\nstatic class Node { int val; Node next; }\nstatic boolean temCiclo(Node head)\nstatic Node meio(Node head)   // null para lista vazia\n```\n\n## Restrições\n\n- O(n) de tempo e **O(1) de memória**: nada de `HashSet` de nós visitados.",
+    "starterCode": "public class Solution {\n    static class Node {\n        int val;\n        Node next;\n        Node(int val) { this.val = val; }\n    }\n\n    static boolean temCiclo(Node head) {\n        throw new UnsupportedOperationException(\"TODO\");\n    }\n\n    static Node meio(Node head) {\n        throw new UnsupportedOperationException(\"TODO\");\n    }\n}\n",
+    "solutionCode": "public class Solution {\n    static class Node {\n        int val;\n        Node next;\n        Node(int val) { this.val = val; }\n    }\n\n    // Floyd: se há ciclo, o rápido alcança o lento dentro dele. O(n), O(1).\n    static boolean temCiclo(Node head) {\n        Node lento = head, rapido = head;\n        while (rapido != null && rapido.next != null) {\n            lento = lento.next;\n            rapido = rapido.next.next;\n            if (lento == rapido) return true;\n        }\n        return false;\n    }\n\n    // Quando o rápido chega ao fim, o lento está no meio. O(n), O(1).\n    static Node meio(Node head) {\n        Node lento = head, rapido = head;\n        while (rapido != null && rapido.next != null) {\n            lento = lento.next;\n            rapido = rapido.next.next;\n        }\n        return lento;\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nclass SolutionTest {\n    private static Solution.Node lista(int... vals) {\n        Solution.Node head = null, tail = null;\n        for (int v : vals) {\n            var n = new Solution.Node(v);\n            if (head == null) head = n; else tail.next = n;\n            tail = n;\n        }\n        return head;\n    }\n\n    @Test void semCiclo() {\n        assertFalse(Solution.temCiclo(null));\n        assertFalse(Solution.temCiclo(lista(1)));\n        assertFalse(Solution.temCiclo(lista(1, 2, 3, 4)));\n    }\n\n    @Test void comCiclo() {\n        var head = lista(1, 2, 3, 4, 5);\n        head.next.next.next.next.next = head.next.next; // 5 -> 3\n        assertTrue(Solution.temCiclo(head));\n        var um = lista(7);\n        um.next = um;\n        assertTrue(Solution.temCiclo(um));\n    }\n\n    @Test void meioImparEPar() {\n        assertEquals(3, Solution.meio(lista(1, 2, 3, 4, 5)).val);\n        assertEquals(4, Solution.meio(lista(1, 2, 3, 4, 5, 6)).val);\n        assertEquals(9, Solution.meio(lista(9)).val);\n        assertNull(Solution.meio(null));\n    }\n\n    @Test void listaGrandeComCicloLongo() {\n        var head = lista(java.util.stream.IntStream.range(0, 200_000).toArray());\n        var fim = head;\n        while (fim.next != null) fim = fim.next;\n        fim.next = head;\n        assertTrue(Solution.temCiclo(head));\n    }\n}\n",
+    "hints": [
+      "Avance o lento 1 nó e o rápido 2 nós por iteração.",
+      "Se o rápido chegar a null, não há ciclo; se os dois se encontrarem, há.",
+      "Para o meio, a mesma corrida: quando o rápido termina, o lento está no meio."
+    ]
+  },
+  {
+    "slug": "atv-ed-ll-r1",
+    "kind": "reflection",
+    "title": "Explique por que a linked list perde em localidade de cache para o array."
+  },
+  {
+    "slug": "atv-ed-ll-r2",
+    "kind": "reflection",
+    "title": "Mostre um caso em que um nó sentinela elimina um if especial para a cabeça."
+  }
+]

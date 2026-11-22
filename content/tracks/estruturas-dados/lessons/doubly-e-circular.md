@@ -169,13 +169,6 @@ O custo de memória é concreto: em uma JVM 64-bit com compressed oops, cada ref
 - **Comparar valores em vez de nós.** Para remover, você precisa da referência exata; `equals` de valor pode remover o nó errado se houver duplicatas.
 - **Usar lista dupla onde um array bastava.** Dois ponteiros por nó e baixa localidade raramente compensam para menos de alguns milhares de elementos.
 
-## Checklist de domínio
-
-- [ ] Você remove um nó conhecido em O(1) sem buscar o anterior
-- [ ] Você explica o papel das sentinelas e por que elas simplificam o código
-- [ ] Você sabe por que um loop em lista circular não pode testar `null`
-- [ ] Você decide entre lista dupla e `ArrayDeque` a partir do requisito de remoção
-
 ## Para ir além
 
 - [OpenJDK — LinkedList](https://github.com/openjdk/jdk/blob/master/src/java.base/share/classes/java/util/LinkedList.java): lista dupla com sentinela? A JDK usa first/last e nós; vale comparar.

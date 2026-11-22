@@ -1,0 +1,36 @@
+[
+  {
+    "slug": "atv-ed-builder-amortizado",
+    "kind": "code",
+    "title": "Um StringBuilder com crescimento amortizado",
+    "statement": "Implemente um builder de texto que guarda os caracteres num `char[]` e **dobra** a capacidade quando\nenche. Ele conta quantos caracteres já foram copiados em redimensionamentos — a aula prova que esse\ntotal fica abaixo de 2n.\n\n## Contrato\n\n```java\nstatic class Builder {\n    Builder();                 // capacidade inicial 1\n    Builder append(char c);\n    Builder append(String s);\n    int length();\n    long copias();             // caracteres copiados em todos os resizes\n    String toString();\n}\n```\n\n## Restrições\n\n- Não use `StringBuilder` nem `Arrays.copyOf` com crescimento diferente de dobrar.\n- Depois de n appends, `copias()` deve ser menor que 2n.",
+    "starterCode": "public class Solution {\n    static class Builder {\n        private char[] dados = new char[1];\n        private int tamanho;\n        private long copias;\n\n        Builder append(char c) {\n            throw new UnsupportedOperationException(\"TODO\");\n        }\n\n        Builder append(String s) {\n            for (int i = 0; i < s.length(); i++) append(s.charAt(i));\n            return this;\n        }\n\n        int length() { return tamanho; }\n        long copias() { return copias; }\n\n        @Override public String toString() { return new String(dados, 0, tamanho); }\n    }\n}\n",
+    "solutionCode": "public class Solution {\n    static class Builder {\n        private char[] dados = new char[1];\n        private int tamanho;\n        private long copias;\n\n        // O(1) amortizado: a cópia O(n) acontece só quando o array dobra.\n        Builder append(char c) {\n            if (tamanho == dados.length) {\n                char[] maior = new char[dados.length * 2];\n                System.arraycopy(dados, 0, maior, 0, tamanho);\n                copias += tamanho;\n                dados = maior;\n            }\n            dados[tamanho++] = c;\n            return this;\n        }\n\n        Builder append(String s) {\n            for (int i = 0; i < s.length(); i++) append(s.charAt(i));\n            return this;\n        }\n\n        int length() { return tamanho; }\n        long copias() { return copias; }\n\n        @Override public String toString() { return new String(dados, 0, tamanho); }\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nclass SolutionTest {\n    @Test void montaTexto() {\n        var b = new Solution.Builder();\n        b.append(\"ola\").append(' ').append(\"mundo\");\n        assertEquals(\"ola mundo\", b.toString());\n        assertEquals(9, b.length());\n    }\n\n    @Test void copiasAbaixoDe2n() {\n        var b = new Solution.Builder();\n        int n = 1_000_000;\n        for (int i = 0; i < n; i++) b.append('x');\n        assertEquals(n, b.length());\n        assertTrue(b.copias() < 2L * n, \"cópias = \" + b.copias());\n        assertTrue(b.copias() > 0, \"o array precisa ter crescido\");\n    }\n\n    @Test void dobraACadaEnchimento() {\n        var b = new Solution.Builder();\n        for (int i = 0; i < 9; i++) b.append('a');\n        // capacidades 1→2→4→8→16: cópias 1 + 2 + 4 + 8 = 15\n        assertEquals(15, b.copias());\n    }\n}\n",
+    "hints": [
+      "Só redimensione quando tamanho == capacidade.",
+      "Ao dobrar, some ao contador quantos caracteres foram copiados.",
+      "System.arraycopy copia o bloco de uma vez."
+    ]
+  },
+  {
+    "slug": "atv-ed-amort-r1",
+    "kind": "reflection",
+    "title": "Prove, somando 1 + 2 + 4 + ..., que as cópias de um array que dobra ficam abaixo de 2n."
+  },
+  {
+    "slug": "atv-ed-amort-r2",
+    "kind": "reflection",
+    "title": "Explique por que `String +=` em loop é O(n²) e `StringBuilder` é O(n)."
+  },
+  {
+    "slug": "atv-ed-amort-r3",
+    "kind": "reflection",
+    "title": "Diga um cenário em que o pior caso de uma operação amortizada ainda é um problema (ex.: latência p99)."
+  },
+  {
+    "slug": "atv-ed-amort-r4",
+    "kind": "reflection",
+    "title": "Meça uma operação com warmup e várias repetições (ou JMH) em vez de confiar numa execução só."
+  }
+]

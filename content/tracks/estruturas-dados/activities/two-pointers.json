@@ -1,0 +1,39 @@
+[
+  {
+    "slug": "atv-ed-remove-duplicatas",
+    "kind": "code",
+    "title": "Remover duplicatas in-place",
+    "statement": "`nums` está ordenado. Remova as duplicatas **no próprio array** e devolva `k`, a quantidade de\nvalores distintos; as `k` primeiras posições devem conter os distintos, em ordem.\n\n## Contrato\n\n```java\nstatic int removerDuplicatas(int[] nums)\n```\n\n## Exemplos\n\n```\n[1, 1, 2, 3, 3, 3, 4]  ->  k = 4, nums começa com [1, 2, 3, 4]\n```\n\n## Restrições\n\n- O(n) de tempo e O(1) de memória extra (não aloque outro array).",
+    "starterCode": "public class Solution {\n    static int removerDuplicatas(int[] nums) {\n        throw new UnsupportedOperationException(\"TODO\");\n    }\n}\n",
+    "solutionCode": "public class Solution {\n    // Leitor r e escritor w no mesmo sentido. O(n), O(1).\n    static int removerDuplicatas(int[] nums) {\n        if (nums.length == 0) return 0;\n        int w = 1;\n        for (int r = 1; r < nums.length; r++) {\n            if (nums[r] != nums[w - 1]) nums[w++] = nums[r];\n        }\n        return w;\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nclass SolutionTest {\n    @Test void exemplo() {\n        int[] a = {1, 1, 2, 3, 3, 3, 4};\n        int k = Solution.removerDuplicatas(a);\n        assertEquals(4, k);\n        assertArrayEquals(new int[]{1, 2, 3, 4}, java.util.Arrays.copyOf(a, k));\n    }\n\n    @Test void bordas() {\n        assertEquals(0, Solution.removerDuplicatas(new int[]{}));\n        int[] um = {5};\n        assertEquals(1, Solution.removerDuplicatas(um));\n        int[] iguais = {2, 2, 2, 2};\n        assertEquals(1, Solution.removerDuplicatas(iguais));\n        assertEquals(2, iguais[0]);\n    }\n\n    @Test void semDuplicatas() {\n        int[] a = {-3, 0, 4, 9};\n        assertEquals(4, Solution.removerDuplicatas(a));\n        assertArrayEquals(new int[]{-3, 0, 4, 9}, a);\n    }\n}\n",
+    "hints": [
+      "Um ponteiro lê, outro marca onde escrever o próximo distinto.",
+      "Compare nums[r] com o último escrito, nums[w - 1]."
+    ]
+  },
+  {
+    "slug": "atv-ed-3sum",
+    "kind": "code",
+    "title": "3Sum sem triplas repetidas",
+    "statement": "Devolva todas as triplas **distintas** `[a, b, c]` de valores de `nums` com `a + b + c == 0`. Cada\ntripla em ordem crescente; a lista de triplas em ordem lexicográfica.\n\n## Contrato\n\n```java\nstatic List<List<Integer>> threeSum(int[] nums)\n```\n\n## Exemplos\n\n```\n[-1, 0, 1, 2, -1, -4]  ->  [[-1, -1, 2], [-1, 0, 1]]\n```\n\n## Restrições\n\n- O(n²): ordene e use dois ponteiros para cada primeiro elemento; pule duplicatas sem usar `Set`.\n- Até 3000 elementos.",
+    "starterCode": "import java.util.*;\n\npublic class Solution {\n    static List<List<Integer>> threeSum(int[] nums) {\n        throw new UnsupportedOperationException(\"TODO\");\n    }\n}\n",
+    "solutionCode": "import java.util.*;\n\npublic class Solution {\n    // Ordena + dois ponteiros por pivô: O(n²). Pula valores repetidos nas três posições.\n    static List<List<Integer>> threeSum(int[] nums) {\n        int[] a = nums.clone();\n        Arrays.sort(a);\n        List<List<Integer>> out = new ArrayList<>();\n        for (int i = 0; i < a.length - 2; i++) {\n            if (i > 0 && a[i] == a[i - 1]) continue;\n            int l = i + 1, r = a.length - 1;\n            while (l < r) {\n                int s = a[i] + a[l] + a[r];\n                if (s < 0) l++;\n                else if (s > 0) r--;\n                else {\n                    out.add(List.of(a[i], a[l], a[r]));\n                    while (l < r && a[l] == a[l + 1]) l++;\n                    while (l < r && a[r] == a[r - 1]) r--;\n                    l++;\n                    r--;\n                }\n            }\n        }\n        return out;\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nimport java.util.*;\n\nclass SolutionTest {\n    @Test void exemplo() {\n        assertEquals(List.of(List.of(-1, -1, 2), List.of(-1, 0, 1)), Solution.threeSum(new int[]{-1, 0, 1, 2, -1, -4}));\n    }\n\n    @Test void zerosRepetidos() {\n        assertEquals(List.of(List.of(0, 0, 0)), Solution.threeSum(new int[]{0, 0, 0, 0, 0}));\n    }\n\n    @Test void nenhuma() {\n        assertEquals(List.of(), Solution.threeSum(new int[]{1, 2, 3}));\n        assertEquals(List.of(), Solution.threeSum(new int[]{}));\n    }\n\n    @Test void muitasDuplicatas() {\n        assertEquals(List.of(List.of(-2, 0, 2), List.of(-2, 1, 1), List.of(-1, -1, 2), List.of(-1, 0, 1)),\n            Solution.threeSum(new int[]{-2, -2, -1, -1, 0, 0, 1, 1, 2, 2}));\n    }\n\n    @Test void grande() {\n        int[] a = new int[3000];\n        for (int i = 0; i < a.length; i++) a[i] = (i % 61) - 30;\n        assertEquals(Solution.threeSum(a).size(), new HashSet<>(Solution.threeSum(a)).size());\n    }\n}\n",
+    "hints": [
+      "Ordene primeiro; para cada i, procure o par em [i+1, n) com dois ponteiros.",
+      "Pule a[i] repetido antes do laço interno.",
+      "Ao achar uma tripla, avance l e r passando por todos os iguais."
+    ]
+  },
+  {
+    "slug": "atv-ed-tp-r1",
+    "kind": "reflection",
+    "title": "Explique o invariante do two sum ordenado e por que descartar um lado é seguro."
+  },
+  {
+    "slug": "atv-ed-tp-r2",
+    "kind": "reflection",
+    "title": "Reconheça um problema em que o padrão é rápido/lento e não ponteiros opostos."
+  }
+]

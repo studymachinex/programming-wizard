@@ -1,0 +1,38 @@
+[
+  {
+    "slug": "atv-ed-componentes",
+    "kind": "code",
+    "title": "Contar componentes conexas",
+    "statement": "Grafo não dirigido com `n` vértices e uma lista de arestas. Conte as componentes conexas.\n\n## Contrato\n\n```java\nstatic int componentes(int n, int[][] arestas)\n```\n\n## Restrições\n\n- O(V + E), visitando cada vértice uma vez. Até 200 mil vértices — use DFS **iterativa** ou BFS.",
+    "starterCode": "import java.util.*;\n\npublic class Solution {\n    static int componentes(int n, int[][] arestas) {\n        throw new UnsupportedOperationException(\"TODO\");\n    }\n}\n",
+    "solutionCode": "import java.util.*;\n\npublic class Solution {\n    static int componentes(int n, int[][] arestas) {\n        List<List<Integer>> adj = new ArrayList<>();\n        for (int i = 0; i < n; i++) adj.add(new ArrayList<>());\n        for (int[] e : arestas) {\n            adj.get(e[0]).add(e[1]);\n            adj.get(e[1]).add(e[0]);\n        }\n        boolean[] visto = new boolean[n];\n        int total = 0;\n        ArrayDeque<Integer> pilha = new ArrayDeque<>();\n        for (int s = 0; s < n; s++) {\n            if (visto[s]) continue;\n            total++;\n            visto[s] = true;\n            pilha.push(s);\n            while (!pilha.isEmpty()) {\n                int u = pilha.pop();\n                for (int v : adj.get(u)) {\n                    if (!visto[v]) {\n                        visto[v] = true;\n                        pilha.push(v);\n                    }\n                }\n            }\n        }\n        return total;\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nclass SolutionTest {\n    @Test void exemplos() {\n        assertEquals(2, Solution.componentes(5, new int[][]{{0, 1}, {1, 2}, {3, 4}}));\n        assertEquals(5, Solution.componentes(5, new int[][]{}));\n        assertEquals(1, Solution.componentes(3, new int[][]{{0, 1}, {1, 2}, {2, 0}}));\n    }\n\n    @Test void lacosEArestasRepetidas() {\n        assertEquals(2, Solution.componentes(3, new int[][]{{0, 0}, {1, 2}, {2, 1}}));\n    }\n\n    @Test void caminhoGigante() {\n        int n = 200_000;\n        int[][] e = new int[n - 1][];\n        for (int i = 0; i + 1 < n; i++) e[i] = new int[]{i, i + 1};\n        assertEquals(1, Solution.componentes(n, e));\n    }\n}\n",
+    "hints": [
+      "Para cada vértice ainda não visto, conte uma componente e visite tudo o que ele alcança.",
+      "Recursão estoura com 200 mil vértices em fila: use pilha explícita ou BFS."
+    ]
+  },
+  {
+    "slug": "atv-ed-ciclo-tres-cores",
+    "kind": "code",
+    "title": "Detectar ciclo em grafo dirigido (três cores)",
+    "statement": "Diga se o grafo **dirigido** tem ciclo, com DFS e três cores: branco (não visitado), cinza (na\npilha atual) e preto (terminado). Uma aresta para um vértice cinza fecha um ciclo.\n\n## Contrato\n\n```java\nstatic boolean temCiclo(int n, int[][] arestas)  // aresta [u, v] = u → v\n```",
+    "starterCode": "import java.util.*;\n\npublic class Solution {\n    static boolean temCiclo(int n, int[][] arestas) {\n        throw new UnsupportedOperationException(\"TODO\");\n    }\n}\n",
+    "solutionCode": "import java.util.*;\n\npublic class Solution {\n    private static final int BRANCO = 0, CINZA = 1, PRETO = 2;\n\n    static boolean temCiclo(int n, int[][] arestas) {\n        List<List<Integer>> adj = new ArrayList<>();\n        for (int i = 0; i < n; i++) adj.add(new ArrayList<>());\n        for (int[] e : arestas) adj.get(e[0]).add(e[1]);\n        int[] cor = new int[n];\n        for (int s = 0; s < n; s++) if (cor[s] == BRANCO && dfs(s, adj, cor)) return true;\n        return false;\n    }\n\n    // Cinza = ainda na pilha de recursão. Aresta para cinza = aresta de retorno = ciclo.\n    private static boolean dfs(int u, List<List<Integer>> adj, int[] cor) {\n        cor[u] = CINZA;\n        for (int v : adj.get(u)) {\n            if (cor[v] == CINZA) return true;\n            if (cor[v] == BRANCO && dfs(v, adj, cor)) return true;\n        }\n        cor[u] = PRETO;\n        return false;\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nclass SolutionTest {\n    @Test void comCiclo() {\n        assertTrue(Solution.temCiclo(3, new int[][]{{0, 1}, {1, 2}, {2, 0}}));\n        assertTrue(Solution.temCiclo(1, new int[][]{{0, 0}}));\n    }\n\n    @Test void diamanteNaoEhCiclo() {\n        // 0→1, 0→2, 1→3, 2→3: o 3 é revisitado já preto, não cinza.\n        assertFalse(Solution.temCiclo(4, new int[][]{{0, 1}, {0, 2}, {1, 3}, {2, 3}}));\n    }\n\n    @Test void desconexo() {\n        assertFalse(Solution.temCiclo(4, new int[][]{{0, 1}, {2, 3}}));\n        assertTrue(Solution.temCiclo(5, new int[][]{{0, 1}, {2, 3}, {3, 4}, {4, 2}}));\n    }\n\n    @Test void arestaDeIdaEVolta() {\n        assertTrue(Solution.temCiclo(2, new int[][]{{0, 1}, {1, 0}}));\n    }\n}\n",
+    "hints": [
+      "Pinte de cinza ao entrar e de preto ao sair.",
+      "Uma aresta para preto não é ciclo (diamante); para cinza é."
+    ]
+  },
+  {
+    "slug": "atv-ed-graf-r1",
+    "kind": "reflection",
+    "title": "Escolha matriz, lista de adjacência ou CSR para três grafos (denso, esparso, estático gigante) e justifique."
+  },
+  {
+    "slug": "atv-ed-graf-r2",
+    "kind": "reflection",
+    "title": "Explique por que, no grafo dirigido, dois estados (visitado/não) não bastam para detectar ciclo."
+  }
+]

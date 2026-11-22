@@ -1,0 +1,31 @@
+[
+  {
+    "slug": "atv-ed-insert-remove-meio",
+    "kind": "code",
+    "title": "Inserir e remover no meio com System.arraycopy",
+    "statement": "Complete uma lista de inteiros sobre `int[]` com inserção e remoção em qualquer posição, deslocando\nos elementos com `System.arraycopy` e validando índices.\n\n## Contrato\n\n```java\nstatic class IntList {\n    void add(int value);               // no fim\n    void add(int index, int value);    // 0 <= index <= size\n    int remove(int index);             // 0 <= index < size; devolve o removido\n    int get(int index);\n    int size();\n}\n```\n\n## Restrições\n\n- Índice inválido lança `IndexOutOfBoundsException`.\n- A capacidade dobra quando enche.",
+    "starterCode": "import java.util.Arrays;\n\npublic class Solution {\n    static class IntList {\n        private int[] dados = new int[2];\n        private int tamanho;\n\n        void add(int value) { add(tamanho, value); }\n\n        void add(int index, int value) {\n            throw new UnsupportedOperationException(\"TODO\");\n        }\n\n        int remove(int index) {\n            throw new UnsupportedOperationException(\"TODO\");\n        }\n\n        int get(int index) {\n            if (index < 0 || index >= tamanho) throw new IndexOutOfBoundsException(index);\n            return dados[index];\n        }\n\n        int size() { return tamanho; }\n    }\n}\n",
+    "solutionCode": "import java.util.Arrays;\n\npublic class Solution {\n    static class IntList {\n        private int[] dados = new int[2];\n        private int tamanho;\n\n        void add(int value) { add(tamanho, value); }\n\n        // O(n - index): desloca a cauda uma casa para a direita.\n        void add(int index, int value) {\n            if (index < 0 || index > tamanho) throw new IndexOutOfBoundsException(index);\n            if (tamanho == dados.length) dados = Arrays.copyOf(dados, dados.length * 2);\n            System.arraycopy(dados, index, dados, index + 1, tamanho - index);\n            dados[index] = value;\n            tamanho++;\n        }\n\n        // O(n - index): desloca a cauda uma casa para a esquerda.\n        int remove(int index) {\n            if (index < 0 || index >= tamanho) throw new IndexOutOfBoundsException(index);\n            int removido = dados[index];\n            System.arraycopy(dados, index + 1, dados, index, tamanho - index - 1);\n            tamanho--;\n            return removido;\n        }\n\n        int get(int index) {\n            if (index < 0 || index >= tamanho) throw new IndexOutOfBoundsException(index);\n            return dados[index];\n        }\n\n        int size() { return tamanho; }\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nclass SolutionTest {\n    private static int[] conteudo(Solution.IntList l) {\n        int[] r = new int[l.size()];\n        for (int i = 0; i < r.length; i++) r[i] = l.get(i);\n        return r;\n    }\n\n    @Test void insereNoMeioENoInicio() {\n        var l = new Solution.IntList();\n        l.add(10); l.add(30);\n        l.add(1, 20);\n        l.add(0, 5);\n        assertArrayEquals(new int[]{5, 10, 20, 30}, conteudo(l));\n    }\n\n    @Test void removeDevolveEDesloca() {\n        var l = new Solution.IntList();\n        for (int i = 1; i <= 5; i++) l.add(i);\n        assertEquals(3, l.remove(2));\n        assertEquals(1, l.remove(0));\n        assertArrayEquals(new int[]{2, 4, 5}, conteudo(l));\n    }\n\n    @Test void cresceAlemDaCapacidade() {\n        var l = new Solution.IntList();\n        for (int i = 0; i < 1000; i++) l.add(0, i);\n        assertEquals(1000, l.size());\n        assertEquals(999, l.get(0));\n        assertEquals(0, l.get(999));\n    }\n\n    @Test void indicesInvalidos() {\n        var l = new Solution.IntList();\n        l.add(1);\n        assertThrows(IndexOutOfBoundsException.class, () -> l.add(3, 9));\n        assertThrows(IndexOutOfBoundsException.class, () -> l.remove(1));\n        assertThrows(IndexOutOfBoundsException.class, () -> l.add(-1, 9));\n    }\n}\n",
+    "hints": [
+      "Para inserir em index, desloque [index, tamanho) uma casa para a direita.",
+      "System.arraycopy(origem, de, destino, para, quantos) funciona mesmo com sobreposição.",
+      "Valide o índice antes de crescer o array."
+    ]
+  },
+  {
+    "slug": "atv-ed-arr-r1",
+    "kind": "reflection",
+    "title": "Explique por que inserir no início é O(n) e no fim é O(1) amortizado."
+  },
+  {
+    "slug": "atv-ed-arr-r2",
+    "kind": "reflection",
+    "title": "Explique por que `System.arraycopy` é preferível a um laço de deslocamento."
+  },
+  {
+    "slug": "atv-ed-arr-r3",
+    "kind": "reflection",
+    "title": "Descreva o efeito de localidade de cache ao percorrer uma matriz por linhas versus por colunas."
+  }
+]

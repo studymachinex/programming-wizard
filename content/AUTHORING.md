@@ -9,6 +9,8 @@ content/tracks/java-fundamentos/
     01-como-java-executa.md
   exercises/
     hello-java.json
+  activities/
+    01-como-java-executa.json   # opcional, mesmo nome da aula
 content/problems/java-fundamentos.json
 content/projects.json
 ```
@@ -103,6 +105,8 @@ Exemplo aplicado, trade-offs, quando usar e quando NÃO usar.
 
 ## Checklist de domínio
 
+(Nas trilhas de algoritmos, esta seção não existe: use as atividades da aula, seção 3.1.)
+
 - [ ] Você consegue explicar X sem consultar
 - [ ] Você consegue implementar Y do zero
 - [ ] Você reconhece Z em um problema novo
@@ -146,6 +150,34 @@ Regras:
 - Solução tem comentário de complexidade de tempo/espaço.
 - Exercícios de DSA: implementar estrutura/algoritmo, não apenas usar `Collections`.
 - Exercícios de backend/Kafka/SQL podem ser desafios de modelagem/design com solução em Java/SQL, mas sempre com entregável verificável.
+
+## 3.1 Atividades da aula (`activities/<aula>.json`)
+
+Aparecem no fim da aula, na seção **Atividades**. Nas trilhas de algoritmos, substituem o checklist de domínio.
+São um array com dois tipos de item:
+
+```json
+[
+  {
+    "slug": "atv-ed-remove-duplicatas",
+    "kind": "code",
+    "title": "Remover duplicatas in-place",
+    "statement": "Markdown com ## Contrato, ## Exemplos e ## Restrições",
+    "starterCode": "public class Solution { ... throw new UnsupportedOperationException(\"TODO\"); }",
+    "solutionCode": "public class Solution { ... }",
+    "tests": "import org.junit.jupiter.api.Test; ... class SolutionTest { ... }",
+    "hints": ["Dica 1", "Dica 2"]
+  },
+  { "slug": "atv-ed-tp-r1", "kind": "reflection", "title": "Explique o invariante do two sum ordenado." }
+]
+```
+
+Regras:
+- `code`: o aluno resolve no editor da plataforma e os testes rodam no runner (`/api/run`). Passar em todos
+  os testes conclui a atividade. Valem as mesmas regras do exercício local (classe `Solution`, JUnit 5).
+- `reflection`: itens de explicar, comparar ou reconhecer, sem validador. O aluno marca sozinho.
+- Os slugs são únicos em todo o conteúdo. Inclua um teste grande quando a complexidade importa.
+- `npx tsx scripts/check-exercises.ts <filtro>` verifica que a solução passa e que o starter compila e falha.
 
 ## 4. Problemas externos (`content/problems/<track>.json`)
 

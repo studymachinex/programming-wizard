@@ -1,0 +1,30 @@
+[
+  {
+    "slug": "atv-ed-equals-hashcode",
+    "kind": "code",
+    "title": "equals e hashCode consistentes",
+    "statement": "`Ponto` é usado como chave de `HashSet`/`HashMap`. Implemente `equals` e `hashCode` de forma\nconsistente: pontos com as mesmas coordenadas são iguais e têm o mesmo hash.\n\n## Contrato\n\n```java\nstatic final class Ponto {\n    Ponto(int x, int y);\n    @Override public boolean equals(Object o);\n    @Override public int hashCode();\n}\n```\n\n## Restrições\n\n- `equals` reflexivo, simétrico e com `null`/outros tipos devolvendo `false`.\n- O hash precisa espalhar: os 10 mil pontos de uma grade 100 × 100 devem gerar muitos hashes\n  distintos — pelo menos 3000 (um `hashCode` que soma `x + y` gera só 199).\n- Não use `record` nem `Objects.hash` — escreva a combinação.",
+    "starterCode": "public class Solution {\n    static final class Ponto {\n        final int x, y;\n        Ponto(int x, int y) { this.x = x; this.y = y; }\n\n        @Override public boolean equals(Object o) {\n            throw new UnsupportedOperationException(\"TODO\");\n        }\n\n        @Override public int hashCode() {\n            throw new UnsupportedOperationException(\"TODO\");\n        }\n    }\n}\n",
+    "solutionCode": "public class Solution {\n    static final class Ponto {\n        final int x, y;\n        Ponto(int x, int y) { this.x = x; this.y = y; }\n\n        @Override public boolean equals(Object o) {\n            if (this == o) return true;\n            if (!(o instanceof Ponto p)) return false;\n            return x == p.x && y == p.y;\n        }\n\n        // 31 * h + campo: o mesmo esquema de String.hashCode, espalha bem combinações pequenas.\n        @Override public int hashCode() {\n            return 31 * x + y;\n        }\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nimport java.util.*;\n\nclass SolutionTest {\n    @Test void iguaisPorValor() {\n        var a = new Solution.Ponto(1, 2);\n        var b = new Solution.Ponto(1, 2);\n        assertEquals(a, b);\n        assertEquals(b, a);\n        assertEquals(a.hashCode(), b.hashCode());\n        assertNotEquals(a, new Solution.Ponto(2, 1));\n        assertNotEquals(a, null);\n        assertNotEquals(a, \"ponto\");\n    }\n\n    @Test void funcionaComoChave() {\n        Set<Solution.Ponto> s = new HashSet<>();\n        s.add(new Solution.Ponto(3, 4));\n        assertTrue(s.contains(new Solution.Ponto(3, 4)));\n        Map<Solution.Ponto, String> m = new HashMap<>();\n        m.put(new Solution.Ponto(0, 0), \"origem\");\n        assertEquals(\"origem\", m.get(new Solution.Ponto(0, 0)));\n    }\n\n    @Test void hashEspalha() {\n        Set<Integer> hashes = new HashSet<>();\n        for (int x = 0; x < 100; x++) for (int y = 0; y < 100; y++) hashes.add(new Solution.Ponto(x, y).hashCode());\n        assertTrue(hashes.size() >= 3000, \"só \" + hashes.size() + \" hashes distintos\");\n    }\n}\n",
+    "hints": [
+      "equals: mesma referência → true; tipo diferente → false; compare os campos.",
+      "hashCode: combine os campos com um multiplicador primo, como 31 * x + y."
+    ]
+  },
+  {
+    "slug": "atv-ed-hash-r1",
+    "kind": "reflection",
+    "title": "Explique o caminho hashCode → spread → índice → bucket do HashMap."
+  },
+  {
+    "slug": "atv-ed-hash-r2",
+    "kind": "reflection",
+    "title": "Explique o que o load factor controla e por que 0,75 é o padrão."
+  },
+  {
+    "slug": "atv-ed-hash-r3",
+    "kind": "reflection",
+    "title": "Diferencie colisões normais de um ataque de hash flooding e como a JDK se defende."
+  }
+]

@@ -1,0 +1,43 @@
+[
+  {
+    "slug": "atv-ed-insertion-estavel",
+    "kind": "code",
+    "title": "Insertion sort estável com comparator",
+    "statement": "Ordene a lista **no lugar** com insertion sort, usando o comparator dado. Elementos iguais mantêm\na ordem original (estabilidade).\n\n## Contrato\n\n```java\nstatic <T> void insertionSort(List<T> lista, Comparator<? super T> cmp)\n```\n\n## Restrições\n\n- Sem `Collections.sort`/`List.sort`. Use `set` para deslocar.",
+    "starterCode": "import java.util.*;\n\npublic class Solution {\n    static <T> void insertionSort(List<T> lista, Comparator<? super T> cmp) {\n        throw new UnsupportedOperationException(\"TODO\");\n    }\n}\n",
+    "solutionCode": "import java.util.*;\n\npublic class Solution {\n    // Desloca só enquanto o anterior é ESTRITAMENTE maior: iguais não se cruzam → estável.\n    static <T> void insertionSort(List<T> lista, Comparator<? super T> cmp) {\n        for (int i = 1; i < lista.size(); i++) {\n            T x = lista.get(i);\n            int j = i - 1;\n            while (j >= 0 && cmp.compare(lista.get(j), x) > 0) {\n                lista.set(j + 1, lista.get(j));\n                j--;\n            }\n            lista.set(j + 1, x);\n        }\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nimport java.util.*;\n\nclass SolutionTest {\n    record Pedido(String cliente, int valor) {}\n\n    @Test void ordenaInteiros() {\n        List<Integer> l = new ArrayList<>(List.of(5, 2, 9, 1, 5, 6));\n        Solution.insertionSort(l, Comparator.naturalOrder());\n        assertEquals(List.of(1, 2, 5, 5, 6, 9), l);\n    }\n\n    @Test void estavel() {\n        List<Pedido> l = new ArrayList<>(List.of(\n            new Pedido(\"ana\", 30), new Pedido(\"bia\", 10), new Pedido(\"caio\", 30), new Pedido(\"davi\", 10), new Pedido(\"eva\", 20)));\n        Solution.insertionSort(l, Comparator.comparingInt(Pedido::valor));\n        assertEquals(List.of(\"bia\", \"davi\", \"eva\", \"ana\", \"caio\"), l.stream().map(Pedido::cliente).toList());\n    }\n\n    @Test void bordas() {\n        List<Integer> vazia = new ArrayList<>();\n        Solution.insertionSort(vazia, Comparator.naturalOrder());\n        assertEquals(List.of(), vazia);\n        List<Integer> desc = new ArrayList<>(List.of(3, 2, 1));\n        Solution.insertionSort(desc, Comparator.reverseOrder());\n        assertEquals(List.of(3, 2, 1), desc);\n    }\n}\n",
+    "hints": [
+      "Guarde o elemento i e desloque os maiores uma casa para a direita.",
+      "Use > 0, não >= 0: parar em iguais preserva a ordem original."
+    ]
+  },
+  {
+    "slug": "atv-ed-comparator-overflow",
+    "kind": "code",
+    "title": "Comparators sem overflow",
+    "statement": "Os comparators abaixo usam subtração e quebram com valores extremos. Reescreva-os.\n\n## Contrato\n\n```java\nstatic final Comparator<Integer> CRESCENTE;\nstatic final Comparator<Long> DECRESCENTE_LONG;\nstatic final Comparator<int[]> POR_X_DEPOIS_Y;   // par [x, y]: x crescente; empate → y crescente\n```\n\n## Restrições\n\n- Use `Integer.compare`/`Long.compare` (ou `Comparator.comparingInt(...).thenComparingInt(...)`).",
+    "starterCode": "import java.util.*;\n\npublic class Solution {\n    static final Comparator<Integer> CRESCENTE = (a, b) -> a - b;\n    static final Comparator<Long> DECRESCENTE_LONG = (a, b) -> (int) (b - a);\n    static final Comparator<int[]> POR_X_DEPOIS_Y = (p, q) -> p[0] != q[0] ? p[0] - q[0] : p[1] - q[1];\n}\n",
+    "solutionCode": "import java.util.*;\n\npublic class Solution {\n    static final Comparator<Integer> CRESCENTE = Integer::compare;\n    static final Comparator<Long> DECRESCENTE_LONG = (a, b) -> Long.compare(b, a);\n    static final Comparator<int[]> POR_X_DEPOIS_Y = Comparator.<int[]>comparingInt(p -> p[0]).thenComparingInt(p -> p[1]);\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nimport java.util.*;\n\nclass SolutionTest {\n    @Test void crescenteComExtremos() {\n        List<Integer> l = new ArrayList<>(List.of(Integer.MAX_VALUE, -1, Integer.MIN_VALUE, 0));\n        l.sort(Solution.CRESCENTE);\n        assertEquals(List.of(Integer.MIN_VALUE, -1, 0, Integer.MAX_VALUE), l);\n    }\n\n    @Test void decrescenteLong() {\n        List<Long> l = new ArrayList<>(List.of(1L, 5_000_000_000L, -5_000_000_000L));\n        l.sort(Solution.DECRESCENTE_LONG);\n        assertEquals(List.of(5_000_000_000L, 1L, -5_000_000_000L), l);\n    }\n\n    @Test void paresComExtremos() {\n        List<int[]> l = new ArrayList<>(List.of(new int[]{1, Integer.MAX_VALUE}, new int[]{1, Integer.MIN_VALUE}, new int[]{Integer.MIN_VALUE, 0}));\n        l.sort(Solution.POR_X_DEPOIS_Y);\n        assertArrayEquals(new int[]{Integer.MIN_VALUE, 0}, l.get(0));\n        assertArrayEquals(new int[]{1, Integer.MIN_VALUE}, l.get(1));\n        assertArrayEquals(new int[]{1, Integer.MAX_VALUE}, l.get(2));\n    }\n}\n",
+    "hints": [
+      "a − b estoura quando os sinais são opostos e os valores são grandes.",
+      "Integer.compare(a, b) devolve só −1, 0 ou 1, sem aritmética."
+    ]
+  },
+  {
+    "slug": "atv-ed-ord-r1",
+    "kind": "reflection",
+    "title": "Liste os cinco sorts da aula com melhor, médio e pior caso, e quais são estáveis."
+  },
+  {
+    "slug": "atv-ed-ord-r2",
+    "kind": "reflection",
+    "title": "Explique estabilidade com um exemplo concreto (ordenar pedidos por valor mantendo a ordem de chegada)."
+  },
+  {
+    "slug": "atv-ed-ord-r3",
+    "kind": "reflection",
+    "title": "Diga o que o JDK usa em `Arrays.sort(int[])` e em `Arrays.sort(Object[])`, e por quê."
+  }
+]

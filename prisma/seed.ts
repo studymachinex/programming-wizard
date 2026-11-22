@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import {
+  activitiesFileSchema,
   exerciseSchema,
   problemsFileSchema,
   projectsFileSchema,
@@ -50,6 +51,8 @@ async function main() {
     .sort();
 
   const exerciseSlugs = new Set<string>();
+  const activitySlugs = new Set<string>();
+  let activityTotal = 0;
   const problemIds = new Set<string>();
   const projectIds = new Set<string>();
   const lessonCounters: { counter: number; total: number }[] = [];
@@ -179,6 +182,7 @@ async function main() {
             quiz: lesson.quiz ?? undefined,
           },
         });
+        activityTotal += await seedActivities(trackDir, lessonId, lesson.slug, activitySlugs);
         lessonOrder += 1;
         lessonTotal += 1;
       }
@@ -339,7 +343,7 @@ async function main() {
   }
 
   console.log(
-    `\n✅ Concluído: ${trackCount} trilhas · ${moduleCount} módulos · ${lessonTotal} aulas · ${exerciseTotal} exercícios · ${problemTotal} problemas externos.`
+    `\n✅ Concluído: ${trackCount} trilhas · ${moduleCount} módulos · ${lessonTotal} aulas · ${exerciseTotal} exercícios · ${activityTotal} atividades de aula · ${problemTotal} problemas externos.`
   );
 
   const [staleTracks, staleProblems, staleProjects] = await Promise.all([
@@ -353,6 +357,47 @@ async function main() {
       `🧹 Poda: ${staleTracks.count} trilha(s), ${staleProblems.count} problema(s) e ${staleProjects.count} projeto(s) removidos.`
     );
   }
+}
+
+/** Atividades do fim da aula: content/tracks/<trilha>/activities/<aula>.json (opcional). */
+async function seedActivities(trackDir: string, lessonId: string, lessonSlug: string, seen: Set<string>): Promise<number> {
+  const file = path.join(trackDir, "activities", `${lessonSlug}.json`);
+  let raw: unknown;
+  try {
+    raw = await readJson(file);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+    await prisma.lessonActivity.deleteMany({ where: { lessonId } });
+    return 0;
+  }
+  const parsed = activitiesFileSchema.safeParse(raw);
+  if (!parsed.success) {
+    console.error(`❌ ${file}`);
+    console.error(parsed.error.issues.map((i) => `   ${i.path.join(".")}: ${i.message}`).join("\n"));
+    throw new Error(`Atividades inválidas: ${file}`);
+  }
+  const ids: string[] = [];
+  for (const [order, activity] of parsed.data.entries()) {
+    if (seen.has(activity.slug)) throw new Error(`Slug de atividade duplicado: ${activity.slug} (${file})`);
+    seen.add(activity.slug);
+    const activityId = id("a", activity.slug);
+    ids.push(activityId);
+    const data = {
+      lessonId,
+      slug: activity.slug,
+      kind: activity.kind,
+      title: activity.title,
+      statement: activity.kind === "code" ? activity.statement : "",
+      starterCode: activity.kind === "code" ? activity.starterCode : "",
+      solutionCode: activity.kind === "code" ? activity.solutionCode : "",
+      tests: activity.kind === "code" ? activity.tests : "",
+      hints: activity.kind === "code" ? activity.hints : [],
+      order,
+    };
+    await prisma.lessonActivity.upsert({ where: { id: activityId }, update: data, create: { id: activityId, ...data } });
+  }
+  await prisma.lessonActivity.deleteMany({ where: { lessonId, id: { notIn: ids } } });
+  return ids.length;
 }
 
 main()

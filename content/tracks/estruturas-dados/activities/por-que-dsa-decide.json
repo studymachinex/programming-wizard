@@ -1,0 +1,30 @@
+[
+  {
+    "slug": "atv-ed-remover-vistos",
+    "kind": "code",
+    "title": "Remover os vistos dos comprados em O(n + m)",
+    "statement": "O exemplo da aula: dada a lista de produtos `comprados` e a lista de `vistos`, devolva os comprados\nque **não** foram vistos, na ordem original. A versão com `List.contains` dentro do laço é O(n·m);\na sua precisa ser O(n + m).\n\n## Contrato\n\n```java\nstatic List<Long> naoVistos(List<Long> comprados, List<Long> vistos)\n```\n\n## Exemplos\n\n```\ncomprados = [10, 20, 30, 40], vistos = [30, 99, 10]  ->  [20, 40]\n```\n\n## Restrições\n\n- Até 200 mil elementos em cada lista (o teste grande falha por tempo se a solução for quadrática).\n- Preserve a ordem e as repetições de `comprados`.",
+    "starterCode": "import java.util.*;\n\npublic class Solution {\n    static List<Long> naoVistos(List<Long> comprados, List<Long> vistos) {\n        throw new UnsupportedOperationException(\"TODO\");\n    }\n}\n",
+    "solutionCode": "import java.util.*;\n\npublic class Solution {\n    // O(n + m): HashSet com os vistos, uma passada pelos comprados.\n    static List<Long> naoVistos(List<Long> comprados, List<Long> vistos) {\n        Set<Long> visto = new HashSet<>(vistos);\n        List<Long> out = new ArrayList<>();\n        for (Long id : comprados) if (!visto.contains(id)) out.add(id);\n        return out;\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nimport java.util.*;\n\nclass SolutionTest {\n    @Test void exemploDaAula() {\n        assertEquals(List.of(20L, 40L), Solution.naoVistos(List.of(10L, 20L, 30L, 40L), List.of(30L, 99L, 10L)));\n    }\n\n    @Test void preservaOrdemERepeticoes() {\n        assertEquals(List.of(5L, 7L, 5L), Solution.naoVistos(List.of(5L, 1L, 7L, 5L), List.of(1L)));\n    }\n\n    @Test void listasVazias() {\n        assertEquals(List.of(), Solution.naoVistos(List.of(), List.of(1L)));\n        assertEquals(List.of(3L), Solution.naoVistos(List.of(3L), List.of()));\n    }\n\n    @Test void grandeEmTempoLinear() {\n        List<Long> comprados = new ArrayList<>();\n        List<Long> vistos = new ArrayList<>();\n        for (long i = 0; i < 200_000; i++) {\n            comprados.add(i);\n            if (i % 2 == 0) vistos.add(i);\n        }\n        List<Long> r = Solution.naoVistos(comprados, vistos);\n        assertEquals(100_000, r.size());\n        assertEquals(1L, r.get(0));\n    }\n}\n",
+    "hints": [
+      "Qual estrutura responde \"isto está aqui?\" em O(1)?",
+      "Monte um HashSet com os vistos uma vez só, fora do laço."
+    ]
+  },
+  {
+    "slug": "atv-ed-dsa-r1",
+    "kind": "reflection",
+    "title": "Explique por que `ArrayList.contains` dentro de um loop é O(n²), sem consultar."
+  },
+  {
+    "slug": "atv-ed-dsa-r2",
+    "kind": "reflection",
+    "title": "Escolha entre `HashSet`, `TreeSet` e array ordenado para três requisitos diferentes e justifique."
+  },
+  {
+    "slug": "atv-ed-dsa-r3",
+    "kind": "reflection",
+    "title": "Estime quando um array de primitivos vence uma `ArrayList<Integer>` (memória e cache)."
+  }
+]

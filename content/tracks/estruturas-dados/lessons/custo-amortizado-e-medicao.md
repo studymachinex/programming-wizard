@@ -120,13 +120,6 @@ Para medir de verdade, use JMH (Java Microbenchmark Harness) quando a decisão f
 - **Medir uma vez e concluir.** O JIT interpreta nas primeiras execuções; sem warmup, você mede o interpretador, não o código compilado.
 - **Otimizar a cópia e ignorar o GC.** Em cargas grandes, o custo de alocação e coleta pode dominar o custo de cópia.
 
-## Checklist de domínio
-
-- [ ] Você prova que a soma das cópias de um array que dobra é menor que 2n
-- [ ] Você explica por que `String +=` em loop é O(n²) e `StringBuilder` é O(n)
-- [ ] Você sabe quando o pior caso de uma operação amortizada ainda é um problema
-- [ ] Você mede com warmup e repetição em vez de confiar em uma execução
-
 ## Para ir além
 
 - [OpenJDK — ArrayList](https://github.com/openjdk/jdk/blob/master/src/java.base/share/classes/java/util/ArrayList.java): veja `grow()` e a política de 1,5x no código real.

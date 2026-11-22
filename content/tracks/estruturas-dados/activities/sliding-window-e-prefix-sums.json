@@ -1,0 +1,39 @@
+[
+  {
+    "slug": "atv-ed-menor-janela",
+    "kind": "code",
+    "title": "Menor subarray com soma ≥ alvo (janela variável)",
+    "statement": "Com valores **positivos**, encontre o tamanho do menor subarray contíguo com soma `>= alvo`\n(0 se não existir).\n\n## Contrato\n\n```java\nstatic int menorJanela(int alvo, int[] nums)\n```\n\n## Exemplos\n\n```\nalvo = 7, nums = [2, 3, 1, 2, 4, 3]  ->  2   ([4, 3])\n```\n\n## Restrições\n\n- `nums[i] >= 1`; até 100 mil elementos. O(n).",
+    "starterCode": "public class Solution {\n    static int menorJanela(int alvo, int[] nums) {\n        throw new UnsupportedOperationException(\"TODO\");\n    }\n}\n",
+    "solutionCode": "public class Solution {\n    // Expande com R; enquanto a soma atende, encolhe com L. Cada índice entra e sai uma vez: O(n).\n    static int menorJanela(int alvo, int[] nums) {\n        int melhor = Integer.MAX_VALUE;\n        long soma = 0;\n        int l = 0;\n        for (int r = 0; r < nums.length; r++) {\n            soma += nums[r];\n            while (soma >= alvo) {\n                melhor = Math.min(melhor, r - l + 1);\n                soma -= nums[l++];\n            }\n        }\n        return melhor == Integer.MAX_VALUE ? 0 : melhor;\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nclass SolutionTest {\n    @Test void exemplo() {\n        assertEquals(2, Solution.menorJanela(7, new int[]{2, 3, 1, 2, 4, 3}));\n    }\n\n    @Test void umElementoBasta() {\n        assertEquals(1, Solution.menorJanela(4, new int[]{1, 4, 4}));\n    }\n\n    @Test void impossivel() {\n        assertEquals(0, Solution.menorJanela(100, new int[]{1, 2, 3}));\n        assertEquals(0, Solution.menorJanela(1, new int[]{}));\n    }\n\n    @Test void grande() {\n        int[] a = new int[100_000];\n        java.util.Arrays.fill(a, 1);\n        a[50_000] = 1000;\n        assertEquals(1, Solution.menorJanela(1000, a));\n        assertEquals(100_000, Solution.menorJanela(100_999, a));\n    }\n}\n",
+    "hints": [
+      "Some ao entrar pela direita; enquanto a soma atender, registre o tamanho e tire pela esquerda.",
+      "Encolher só faz sentido porque os valores são positivos."
+    ]
+  },
+  {
+    "slug": "atv-ed-subarray-soma-k",
+    "kind": "code",
+    "title": "Subarrays com soma k (com negativos)",
+    "statement": "Conte quantos subarrays contíguos somam exatamente `k`. Os valores podem ser **negativos**, então a\njanela deslizante não funciona: use prefix sums com um mapa de frequências.\n\n## Contrato\n\n```java\nstatic long contarSubarrays(int[] nums, int k)\n```\n\n## Exemplos\n\n```\n[1, 1, 1], k = 2        ->  2\n[1, -1, 1, -1], k = 0   ->  4\n```\n\n## Restrições\n\n- Até 100 mil elementos; O(n). Use `long` para as somas.",
+    "starterCode": "public class Solution {\n    static long contarSubarrays(int[] nums, int k) {\n        throw new UnsupportedOperationException(\"TODO\");\n    }\n}\n",
+    "solutionCode": "import java.util.HashMap;\nimport java.util.Map;\n\npublic class Solution {\n    // soma(i..j) = pre[j+1] - pre[i]: conte quantos prefixos anteriores valem pre - k. O(n).\n    static long contarSubarrays(int[] nums, int k) {\n        Map<Long, Long> freq = new HashMap<>();\n        freq.put(0L, 1L);\n        long pre = 0, total = 0;\n        for (int x : nums) {\n            pre += x;\n            total += freq.getOrDefault(pre - k, 0L);\n            freq.merge(pre, 1L, Long::sum);\n        }\n        return total;\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nclass SolutionTest {\n    @Test void exemplos() {\n        assertEquals(2, Solution.contarSubarrays(new int[]{1, 1, 1}, 2));\n        assertEquals(4, Solution.contarSubarrays(new int[]{1, -1, 1, -1}, 0));\n    }\n\n    @Test void negativos() {\n        assertEquals(4, Solution.contarSubarrays(new int[]{3, 4, 7, 2, -3, 1, 4, 2}, 7));\n    }\n\n    @Test void vazioEUnico() {\n        assertEquals(0, Solution.contarSubarrays(new int[]{}, 0));\n        assertEquals(1, Solution.contarSubarrays(new int[]{5}, 5));\n    }\n\n    @Test void grandeDeZeros() {\n        int[] a = new int[100_000];\n        assertEquals(100_000L * 100_001 / 2, Solution.contarSubarrays(a, 0));\n    }\n}\n",
+    "hints": [
+      "soma(i..j) = prefixo(j) − prefixo(i−1).",
+      "Para cada prefixo atual, quantos prefixos anteriores valem prefixo − k?",
+      "Comece o mapa com {0: 1} — o prefixo vazio."
+    ]
+  },
+  {
+    "slug": "atv-ed-sw-r1",
+    "kind": "reflection",
+    "title": "Explique por que a janela deslizante não funciona com valores negativos e o prefix sum funciona."
+  },
+  {
+    "slug": "atv-ed-sw-r2",
+    "kind": "reflection",
+    "title": "Construa prefix sums com `long` e explique por que `int` pode estourar."
+  }
+]

@@ -119,13 +119,6 @@ Outros usos do padrão:
 - **Calcular a largura como `i - topo`.** O topo já foi removido; a largura considera o novo topo (ou -1) e subtrai 1.
 - **Achar que o while é O(n²).** Cada índice sai uma vez; a análise amortizada é O(n).
 
-## Checklist de domínio
-
-- [ ] Você escolhe pilha crescente ou decrescente a partir do enunciado
-- [ ] Você resolve next greater e daily temperatures sem consultar
-- [ ] Você calcula o maior retângulo com a largura correta e sentinela
-- [ ] Você explica por que o algoritmo é O(n) apesar do loop interno
-
 ## Para ir além
 
 - [LeetCode — Daily Temperatures](https://leetcode.com/problems/daily-temperatures/): o padrão em versão direta.

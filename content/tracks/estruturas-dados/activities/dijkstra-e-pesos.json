@@ -1,0 +1,26 @@
+[
+  {
+    "slug": "atv-ed-dijkstra-caminho",
+    "kind": "code",
+    "title": "Dijkstra com reconstrução do caminho",
+    "statement": "Grafo dirigido com pesos **não negativos**. Devolva o caminho mínimo de `origem` a `destino` como lista\nde vértices, ou lista vazia se inalcançável. Também exponha as distâncias.\n\n## Contrato\n\n```java\nstatic long[] distancias(int n, int[][] arestas, int origem)       // Long.MAX_VALUE = inalcançável\nstatic List<Integer> caminho(int n, int[][] arestas, int origem, int destino)\n```\n\n`arestas[i] = [u, v, peso]`.\n\n## Restrições\n\n- `PriorityQueue` com entradas `long[]{dist, vértice}` e descarte de entradas obsoletas.\n- Pesos até 10⁹ e caminhos longos: some em `long`.",
+    "starterCode": "import java.util.*;\n\npublic class Solution {\n    static long[] distancias(int n, int[][] arestas, int origem) {\n        throw new UnsupportedOperationException(\"TODO\");\n    }\n\n    static List<Integer> caminho(int n, int[][] arestas, int origem, int destino) {\n        throw new UnsupportedOperationException(\"TODO\");\n    }\n}\n",
+    "solutionCode": "import java.util.*;\n\npublic class Solution {\n    private static long[] dist;\n    private static int[] pai;\n\n    private static void rodar(int n, int[][] arestas, int origem) {\n        List<List<int[]>> adj = new ArrayList<>();\n        for (int i = 0; i < n; i++) adj.add(new ArrayList<>());\n        for (int[] e : arestas) adj.get(e[0]).add(new int[]{e[1], e[2]});\n        dist = new long[n];\n        pai = new int[n];\n        Arrays.fill(dist, Long.MAX_VALUE);\n        Arrays.fill(pai, -1);\n        dist[origem] = 0;\n        PriorityQueue<long[]> pq = new PriorityQueue<>(Comparator.comparingLong(x -> x[0]));\n        pq.add(new long[]{0, origem});\n        while (!pq.isEmpty()) {\n            long[] top = pq.poll();\n            int u = (int) top[1];\n            if (top[0] > dist[u]) continue; // entrada obsoleta\n            for (int[] e : adj.get(u)) {\n                long nd = dist[u] + e[1];\n                if (nd < dist[e[0]]) {\n                    dist[e[0]] = nd;\n                    pai[e[0]] = u;\n                    pq.add(new long[]{nd, e[0]});\n                }\n            }\n        }\n    }\n\n    static long[] distancias(int n, int[][] arestas, int origem) {\n        rodar(n, arestas, origem);\n        return dist;\n    }\n\n    static List<Integer> caminho(int n, int[][] arestas, int origem, int destino) {\n        rodar(n, arestas, origem);\n        if (dist[destino] == Long.MAX_VALUE) return List.of();\n        LinkedList<Integer> out = new LinkedList<>();\n        for (int v = destino; v != -1; v = pai[v]) out.addFirst(v);\n        return out;\n    }\n}\n",
+    "tests": "import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.*;\n\nimport java.util.*;\n\nclass SolutionTest {\n    private static final int[][] G = {{0, 1, 4}, {0, 2, 1}, {2, 1, 2}, {1, 3, 1}, {2, 3, 5}, {3, 4, 3}};\n\n    @Test void distancias() {\n        assertArrayEquals(new long[]{0, 3, 1, 4, 7}, Solution.distancias(5, G, 0));\n    }\n\n    @Test void caminho() {\n        assertEquals(List.of(0, 2, 1, 3, 4), Solution.caminho(5, G, 0, 4));\n        assertEquals(List.of(0), Solution.caminho(5, G, 0, 0));\n    }\n\n    @Test void inalcancavel() {\n        assertEquals(List.of(), Solution.caminho(3, new int[][]{{0, 1, 1}}, 0, 2));\n        assertEquals(Long.MAX_VALUE, Solution.distancias(3, new int[][]{{0, 1, 1}}, 0)[2]);\n    }\n\n    @Test void pesosGrandesSemOverflow() {\n        int n = 10;\n        int[][] e = new int[n - 1][];\n        for (int i = 0; i + 1 < n; i++) e[i] = new int[]{i, i + 1, 1_000_000_000};\n        assertEquals(9_000_000_000L, Solution.distancias(n, e, 0)[n - 1]);\n    }\n\n    @Test void grandeAleatorio() {\n        var rnd = new Random(6);\n        int n = 50_000;\n        int[][] e = new int[200_000][];\n        for (int i = 0; i < e.length; i++) e[i] = new int[]{rnd.nextInt(n), rnd.nextInt(n), rnd.nextInt(1000)};\n        long[] d = Solution.distancias(n, e, 0);\n        for (int[] a : e) if (d[a[0]] != Long.MAX_VALUE) assertTrue(d[a[1]] <= d[a[0]] + a[2]);\n    }\n}\n",
+    "hints": [
+      "Guarde pai[v] sempre que relaxar dist[v].",
+      "Ao tirar da fila uma entrada com distância maior que dist[u], ignore-a.",
+      "Reconstrua do destino para trás seguindo pai[] e inverta."
+    ]
+  },
+  {
+    "slug": "atv-ed-dij-r1",
+    "kind": "reflection",
+    "title": "Explique por que pesos negativos quebram a invariante de Dijkstra (um vértice fechado ainda pode melhorar)."
+  },
+  {
+    "slug": "atv-ed-dij-r2",
+    "kind": "reflection",
+    "title": "Diga quando BFS, BFS 0-1 ou Bellman-Ford são a escolha certa no lugar de Dijkstra."
+  }
+]
