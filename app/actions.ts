@@ -182,6 +182,44 @@ export async function setExerciseSolved(exerciseId: string, solved: boolean) {
   return { ok: true };
 }
 
+/** Atividade de aula concluída (código aprovado pelos testes ou reflexão marcada). */
+export async function setActivityDone(activityId: string, done: boolean) {
+  const activity = await prisma.lessonActivity.findUnique({
+    where: { id: activityId },
+    include: { lesson: { include: { track: true } } },
+  });
+  if (!activity) return { ok: false, error: "Atividade não encontrada" };
+  const existing = await prisma.activityProgress.findUnique({
+    where: { profileId_activityId: { profileId: PROFILE_ID, activityId } },
+  });
+  const wasDone = existing?.status === "done";
+  await prisma.activityProgress.upsert({
+    where: { profileId_activityId: { profileId: PROFILE_ID, activityId } },
+    update: { status: done ? "done" : "todo", completedAt: done ? existing?.completedAt ?? new Date() : null },
+    create: { profileId: PROFILE_ID, activityId, status: done ? "done" : "todo", completedAt: done ? new Date() : null },
+  });
+  if (done && !wasDone && activity.kind === "code") {
+    const href = `/trilhas/${activity.lesson.track.slug}/aulas/${activity.lesson.slug}#atividades`;
+    await bumpSession({ minutes: 10, exercises: 1 });
+    await log("activity", activity.title, href, activity.lesson.title);
+  }
+  await refresh();
+  return { ok: true };
+}
+
+/** Guarda o rascunho de uma atividade de código (sem rodar os testes). */
+export async function saveActivityCode(activityId: string, code: string) {
+  const existing = await prisma.activityProgress.findUnique({
+    where: { profileId_activityId: { profileId: PROFILE_ID, activityId } },
+  });
+  await prisma.activityProgress.upsert({
+    where: { profileId_activityId: { profileId: PROFILE_ID, activityId } },
+    update: { code: code.slice(0, 60000), status: existing?.status === "done" ? "done" : "attempted" },
+    create: { profileId: PROFILE_ID, activityId, code: code.slice(0, 60000), status: "attempted" },
+  });
+  return { ok: true };
+}
+
 export async function setProblemSolved(problemId: string, solved: boolean) {
   const problem = await prisma.externalProblem.findUnique({ where: { id: problemId } });
   if (!problem) return { ok: false, error: "Problema não encontrado" };

@@ -30,7 +30,14 @@
     "cc": "node challenges/engine/cc.mjs"
   },
   "dependencies": {
+    "@codemirror/lang-java": "^6.0.2",
+    "@codemirror/language": "^6.13.1",
+    "@codemirror/lint": "^6.9.8",
+    "@codemirror/state": "^6.7.6",
+    "@codemirror/view": "^6.43.15",
+    "@lezer/highlight": "^1.2.5",
     "@prisma/client": "^6.5.0",
+    "@uiw/react-codemirror": "^4.25.12",
     "clsx": "^2.1.1",
     "highlight.js": "^11.11.1",
     "ioredis": "^5.6.0",

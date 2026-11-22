@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Dependências do runner de exercícios (só as asserções do JUnit 5).
+  Não é um projeto para compilar: o runner usa este pom apenas para copiar os jars:
+    mvn -q -f runner/pom.xml dependency:copy-dependencies -DoutputDirectory=../.runner/lib
+  Isso é feito automaticamente na primeira execução.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>io.programmingwizard</groupId>
+  <artifactId>exercise-runner</artifactId>
+  <version>1.0.0</version>
+  <packaging>pom</packaging>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <version>5.10.5</version>
+    </dependency>
+  </dependencies>
+</project>

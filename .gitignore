@@ -8,3 +8,6 @@ target
 next-env.d.ts
 .DS_Store
 challenges/.workspaces
+
+# runner de exercícios (dependências baixadas e classes compiladas)
+.runner

@@ -26,6 +26,7 @@ export const dynamic = "force-dynamic";
 const activityIcons: Record<string, typeof BookOpen> = {
   lesson: BookOpen,
   exercise: Code2,
+  activity: Code2,
   problem: Trophy,
   review: RotateCcw,
   study: Zap,
