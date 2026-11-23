@@ -97,7 +97,7 @@ Obrigatórios para a plataforma:
 
 Opcionais:
 
-- **Java 21 + Maven** para rodar os desafios CodeCrafters localmente
+- **Java 21 + Maven** para rodar os desafios CodeCrafters localmente e o runner de exercícios
 - **Redis** para cache; sem ele a aplicação continua funcionando
 
 > Se você já tem um PostgreSQL 16 próprio, pule o `npm run db:up`, ajuste a
@@ -186,6 +186,7 @@ O build executa `prisma generate` antes do `next build`.
 | `DATABASE_URL` | sim | `postgresql://wizard:wizard@localhost:5434/programming_wizard?schema=public` | Conexão do Prisma com o PostgreSQL |
 | `REDIS_URL` | não | `redis://localhost:6380` | Cache opcional; se indisponível, o app ignora |
 | `NEXT_TELEMETRY_DISABLED` | não | `1` no `.env.example` | Desativa a telemetria anônima do Next.js |
+| `CODE_RUNNER` | não | ligado | `off` desativa a execução de código Java pela plataforma (`/api/run`) |
 
 ### Portas
 
@@ -248,6 +249,7 @@ cache.
 | `npm run seed` | Importa todo o conteúdo (idempotente) |
 | `npm run setup` | Sobe banco, espera, aplica schema e semeia |
 | `npm run validate:content` | Valida o conteúdo com Zod antes do seed |
+| `npm run check:exercises` | Roda exercícios e atividades no runner: a solução passa e o starter falha |
 | `npm run catalog:sync` | Ressincroniza o catálogo CodeCrafters a partir do site |
 | `npm run challenge:http` | Compila e valida a referência dos 14 stages do HTTP Server |
 | `npm run challenge:git` | Compila e valida a referência dos 7 stages do Git |
@@ -268,8 +270,11 @@ cache.
 1. **Dashboard** (`/`) — sequência de dias, meta diária, próxima aula, revisões e timer.
 2. **Trilhas** (`/trilhas`) — ementa completa por módulo, com progresso por aula e exercício.
 3. **Aula** (`/trilhas/<trilha>/aulas/<aula>`) — texto, código Java, quiz, takeaways, notas
-   e botão de conclusão.
-4. **Exercícios** (`/exercicios`) — editor Java com dicas, testes JUnit e solução de referência.
+   e botão de conclusão. Nas trilhas de algoritmos, cada aula tem um visualizador e termina numa
+   seção **Atividades**, com exercícios validados pelo runner e itens de autoavaliação.
+4. **Exercícios** (`/exercicios`) — editor Java com dicas, solução de referência e botão
+   **Rodar testes**, que executa os testes JUnit na própria plataforma e marca o exercício como
+   resolvido quando todos passam.
 5. **Desafios externos** (`/desafios`) — 147 problemas curados por nível, com link direto e
    controle de resolvido.
 6. **Projetos** (`/projetos`) — 13 capstones e o catálogo CodeCrafters.
@@ -573,6 +578,16 @@ docker-compose.yml   PostgreSQL 16 + Redis 7 com volumes
 - `GET /api/search?q=termo` — busca a partir de 2 caracteres; devolve trilhas, aulas,
   exercícios, problemas e projetos.
 - `GET /api/export` — backup completo do perfil local em JSON.
+- `POST /api/run` — `{ kind: "exercise" | "activity", id, code }`. Compila o código com os testes
+  guardados no banco e devolve o resultado de cada teste.
+
+### Runner de código
+
+O runner compila e executa o código **na sua máquina**, com o JDK do `PATH` (Java 21: `javac` e `java`),
+sem sandbox de container. Cada execução roda num processo separado, com limite de memória e de
+tempo por teste. Na primeira execução, ele baixa a JUnit com o Maven para `.runner/` (que fica
+fora do git). Não exponha a aplicação na rede com o runner ligado; se for preciso, use
+`CODE_RUNNER=off`.
 
 ## Desenvolvimento
 
