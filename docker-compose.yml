@@ -5,10 +5,38 @@ services:
     image: postgres:16-alpine
     container_name: pw-postgres
     restart: unless-stopped
+    shm_size: 256mb
     environment:
       POSTGRES_USER: wizard
       POSTGRES_PASSWORD: wizard
       POSTGRES_DB: programming_wizard
+    # Ajustado para uma instância local de usuário único: menos fsync, mais cache.
+    command:
+      - postgres
+      - -c
+      - shared_buffers=256MB
+      - -c
+      - effective_cache_size=1GB
+      - -c
+      - work_mem=16MB
+      - -c
+      - maintenance_work_mem=128MB
+      - -c
+      - max_connections=100
+      - -c
+      - synchronous_commit=off
+      - -c
+      - wal_compression=on
+      - -c
+      - checkpoint_timeout=15min
+      - -c
+      - max_wal_size=1GB
+      - -c
+      - random_page_cost=1.1
+      - -c
+      - effective_io_concurrency=200
+      - -c
+      - jit=off
     ports:
       - "5434:5432"
     volumes:
@@ -18,16 +46,59 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+      start_period: 10s
+
+  # One-shot: (re)aplica os índices de performance sempre que o stack sobe.
+  indexes:
+    image: postgres:16-alpine
+    container_name: pw-indexes
+    restart: "no"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGPASSWORD: wizard
+    volumes:
+      - ./prisma/sql/indexes.sql:/sql/indexes.sql:ro
+    command:
+      [
+        "psql",
+        "-h",
+        "postgres",
+        "-U",
+        "wizard",
+        "-d",
+        "programming_wizard",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-q",
+        "-f",
+        "/sql/indexes.sql",
+      ]
 
   redis:
     image: redis:7-alpine
     container_name: pw-redis
     restart: unless-stopped
-    command: ["redis-server", "--appendonly", "yes"]
+    # Cache puro: sem AOF/RDB, LRU e limite de memória.
+    command:
+      [
+        "redis-server",
+        "--appendonly",
+        "no",
+        "--save",
+        "",
+        "--maxmemory",
+        "256mb",
+        "--maxmemory-policy",
+        "allkeys-lru",
+        "--tcp-backlog",
+        "511",
+        "--hz",
+        "20",
+      ]
     ports:
       - "6380:6379"
-    volumes:
-      - pw-redis-data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s

@@ -13,8 +13,7 @@ import {
   Terminal,
   Trophy,
 } from "lucide-react";
-import { prisma } from "@/lib/prisma";
-import { PROFILE_ID } from "@/lib/data";
+import { getProjectCatalog } from "@/lib/data";
 import { cn } from "@/lib/utils";
 import { EmptyState, PageHeader, ProgressBar, accentOf } from "@/components/ui";
 import {
@@ -46,10 +45,7 @@ const challengeStyles: Record<string, string> = {
 
 export default async function ProjectsPage() {
   const [projects, codecrafters] = await Promise.all([
-    prisma.project.findMany({
-      orderBy: [{ order: "asc" }],
-      include: { progress: { where: { profileId: PROFILE_ID } } },
-    }),
+    getProjectCatalog(),
     Promise.resolve(getCodecraftersOverview()),
   ]);
   const done = projects.filter((p) => p.progress[0]?.status === "done").length;

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { cached } from "@/lib/redis";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +16,12 @@ export async function GET(request: Request) {
   const q = (searchParams.get("q") ?? "").trim();
   if (q.length < 2) return NextResponse.json({ results: [] as SearchResult[] });
 
+  // A paleta repete buscas enquanto o usuário digita; o cache evita 5 full scans.
+  const results = await cached(`pw:search:v3:${q.toLowerCase()}`, 120, () => searchAll(q));
+  return NextResponse.json({ results });
+}
+
+async function searchAll(q: string): Promise<SearchResult[]> {
   const take = 6;
 
   const [tracks, lessons, exercises, problems, projects] = await Promise.all([
@@ -85,7 +92,7 @@ export async function GET(request: Request) {
     }),
   ]);
 
-  const results: SearchResult[] = [
+  return [
     ...tracks.map((t) => ({
       type: "Trilha",
       title: t.title,
@@ -117,6 +124,4 @@ export async function GET(request: Request) {
       href: `/projetos/${p.slug}`,
     })),
   ];
-
-  return NextResponse.json({ results });
 }

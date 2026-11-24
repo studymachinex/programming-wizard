@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { PROFILE_ID } from "@/lib/data";
+import { cacheDelPrefix } from "@/lib/redis";
 import { runJavaTests } from "@/lib/runner/java";
 import { setActivityDone, setExerciseSolved } from "@/app/actions";
 
@@ -39,6 +40,7 @@ export async function POST(request: Request) {
       update: { code: body.code, attempts: { increment: 1 }, status: wasSolved ? "solved" : "attempted" },
       create: { profileId: PROFILE_ID, exerciseId: exercise.id, code: body.code, attempts: 1, status: "attempted" },
     });
+    await cacheDelPrefix("pw:exercise:v2:");
     if (result.status === "passed" && !wasSolved) await setExerciseSolved(exercise.id, true);
     return NextResponse.json({ result, solved: wasSolved || result.status === "passed" });
   }
@@ -53,6 +55,7 @@ export async function POST(request: Request) {
     update: { code: body.code, attempts: { increment: 1 }, status: wasDone ? "done" : "attempted" },
     create: { profileId: PROFILE_ID, activityId: activity.id, code: body.code, attempts: 1, status: "attempted" },
   });
+  await cacheDelPrefix("pw:lesson:v2:");
   if (result.status === "passed" && !wasDone) await setActivityDone(activity.id, true);
   return NextResponse.json({ result, solved: wasDone || result.status === "passed" });
 }

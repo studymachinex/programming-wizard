@@ -2,6 +2,8 @@ import Link from "next/link";
 import {
   ArrowUpRight,
   CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
   ExternalLink,
   Filter,
   Layers,
@@ -10,8 +12,7 @@ import {
   Target,
   Trophy,
 } from "lucide-react";
-import { prisma } from "@/lib/prisma";
-import { PROFILE_ID } from "@/lib/data";
+import { getProblemCatalog, getTrackDirectory } from "@/lib/data";
 import { cn, difficultyLabel, difficultyStyles, pct } from "@/lib/utils";
 import { ProblemToggle } from "@/components/problem-toggle";
 import { EmptyState, PageHeader, ProgressBar, TrackIcon, accentOf } from "@/components/ui";
@@ -36,18 +37,13 @@ export default async function ProblemsPage({
     nivel?: string;
     status?: string;
     q?: string;
+    pagina?: string;
   }>;
 }) {
   const params = await searchParams;
   const [problems, tracks] = await Promise.all([
-    prisma.externalProblem.findMany({
-      orderBy: [{ level: "asc" }, { order: "asc" }],
-      include: {
-        track: { select: { title: true, slug: true, accent: true, icon: true } },
-        progress: { where: { profileId: PROFILE_ID }, select: { status: true } },
-      },
-    }),
-    prisma.track.findMany({ orderBy: { order: "asc" }, select: { slug: true, title: true, accent: true, icon: true } }),
+    getProblemCatalog(),
+    getTrackDirectory(),
   ]);
 
   const total = problems.length;
@@ -70,11 +66,16 @@ export default async function ProblemsPage({
 
   function hrefWith(patch: Record<string, string | undefined>) {
     const sp = new URLSearchParams();
-    const merged = { ...params, ...patch };
+    const merged = { ...params, pagina: undefined, ...patch };
     for (const [k, v] of Object.entries(merged)) if (v) sp.set(k, v);
     const qs = sp.toString();
     return `/desafios${qs ? `?${qs}` : ""}`;
   }
+
+  const PAGE_SIZE = 48;
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const currentPage = Math.min(Math.max(1, Number(params.pagina) || 1), totalPages);
+  const pageItems = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   const platforms = [...new Set(problems.map((p) => p.platform))].sort();
   const hasFilters = Boolean(
@@ -245,9 +246,10 @@ export default async function ProblemsPage({
       ) : (
         <div className="space-y-7">
           {levels.map((level) => {
-            const items = filtered.filter((p) => p.level === level.level);
+            const items = pageItems.filter((p) => p.level === level.level);
             if (!items.length) return null;
-            const done = items.filter((p) => p.progress[0]?.status === "solved").length;
+            const levelItems = problems.filter((p) => p.level === level.level);
+            const done = levelItems.filter((p) => p.progress[0]?.status === "solved").length;
             return (
               <section key={level.level}>
                 <div className="mb-2.5 flex items-center gap-3">
@@ -258,9 +260,9 @@ export default async function ProblemsPage({
                   <span className="font-mono text-[9px] uppercase tracking-wider text-zinc-600">{level.hint}</span>
                   <div className="ml-auto flex items-center gap-2">
                     <div className="h-1 w-16 rounded-full bg-white/[0.06]">
-                      <div className="h-full rounded-full bg-arcane-400" style={{ width: `${pct(done, items.length)}%` }} />
+                      <div className="h-full rounded-full bg-arcane-400" style={{ width: `${pct(done, levelItems.length)}%` }} />
                     </div>
-                    <span className="font-mono text-[9px] text-zinc-600">{done}/{items.length}</span>
+                    <span className="font-mono text-[9px] text-zinc-600">{done}/{levelItems.length}</span>
                   </div>
                 </div>
                 <div className="panel divide-y divide-white/[0.04] overflow-hidden">
@@ -311,6 +313,55 @@ export default async function ProblemsPage({
               </section>
             );
           })}
+        </div>
+      )}
+
+      {totalPages > 1 && (
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-white/[0.06] pt-5">
+          <p className="font-mono text-[9.5px] uppercase tracking-wider text-zinc-600">
+            {filtered.length} desafios · página {currentPage} de {totalPages}
+          </p>
+          <div className="flex items-center gap-1.5">
+            {currentPage > 1 ? (
+              <Link
+                href={hrefWith({ pagina: String(currentPage - 1) })}
+                className="inline-flex items-center gap-1 rounded-lg border border-white/[0.08] px-2.5 py-1.5 text-[11px] text-zinc-400 transition-colors hover:border-arcane-400/25 hover:text-arcane-200"
+              >
+                <ChevronLeft className="h-3 w-3" /> anterior
+              </Link>
+            ) : (
+              <span className="inline-flex items-center gap-1 rounded-lg border border-white/[0.04] px-2.5 py-1.5 text-[11px] text-zinc-700">
+                <ChevronLeft className="h-3 w-3" /> anterior
+              </span>
+            )}
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <Link
+                key={page}
+                href={hrefWith({ pagina: page === 1 ? undefined : String(page) })}
+                aria-current={page === currentPage ? "page" : undefined}
+                className={cn(
+                  "grid h-7 w-7 place-items-center rounded-md border font-mono text-[10px] transition-colors",
+                  page === currentPage
+                    ? "border-arcane-400/30 bg-arcane-500/15 text-arcane-100"
+                    : "border-white/[0.07] text-zinc-500 hover:border-arcane-400/25 hover:text-arcane-200"
+                )}
+              >
+                {page}
+              </Link>
+            ))}
+            {currentPage < totalPages ? (
+              <Link
+                href={hrefWith({ pagina: String(currentPage + 1) })}
+                className="inline-flex items-center gap-1 rounded-lg border border-white/[0.08] px-2.5 py-1.5 text-[11px] text-zinc-400 transition-colors hover:border-arcane-400/25 hover:text-arcane-200"
+              >
+                próxima <ChevronRight className="h-3 w-3" />
+              </Link>
+            ) : (
+              <span className="inline-flex items-center gap-1 rounded-lg border border-white/[0.04] px-2.5 py-1.5 text-[11px] text-zinc-700">
+                próxima <ChevronRight className="h-3 w-3" />
+              </span>
+            )}
+          </div>
         </div>
       )}
 

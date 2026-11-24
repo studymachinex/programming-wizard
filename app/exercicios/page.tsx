@@ -10,8 +10,7 @@ import {
   Terminal,
   Trophy,
 } from "lucide-react";
-import { prisma } from "@/lib/prisma";
-import { PROFILE_ID } from "@/lib/data";
+import { getExerciseCatalog, getTrackDirectory } from "@/lib/data";
 import { cn, difficultyLabel, difficultyStyles, pct } from "@/lib/utils";
 import { EmptyState, PageHeader, ProgressBar, TrackIcon, accentOf } from "@/components/ui";
 
@@ -24,17 +23,8 @@ export default async function ExercisesPage({
 }) {
   const params = await searchParams;
   const [exercises, tracks] = await Promise.all([
-    prisma.exercise.findMany({
-      orderBy: [{ trackId: "asc" }, { order: "asc" }],
-      include: {
-        track: { select: { title: true, slug: true, accent: true, icon: true } },
-        progress: { where: { profileId: PROFILE_ID }, select: { status: true, attempts: true } },
-      },
-    }),
-    prisma.track.findMany({
-      orderBy: { order: "asc" },
-      select: { id: true, slug: true, title: true, accent: true, icon: true },
-    }),
+    getExerciseCatalog(),
+    getTrackDirectory(),
   ]);
 
   const total = exercises.length;

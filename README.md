@@ -144,10 +144,15 @@ npm run setup
 
 Esse comando:
 
-1. sobe PostgreSQL e Redis com `docker compose`;
-2. espera alguns segundos pelo banco;
-3. aplica o schema Prisma com `prisma db push`;
+1. sobe PostgreSQL e Redis com `docker compose`, espera o healthcheck e aplica os índices;
+2. aplica o schema Prisma com `prisma db push`;
+3. reaplica os índices de performance (`npm run db:indexes`);
 4. importa trilhas, aulas, exercícios, problemas e projetos com `npm run seed`.
+
+Os índices também são aplicados automaticamente pelo serviço `indexes` do
+`docker-compose.yml` quando o stack sobe com `docker compose up` (mesmo sem rodar o
+`setup`). O SQL é idempotente e fica em `prisma/sql/indexes.sql`; em volume novo ele
+apenas avisa que o schema ainda não existe e o `setup` reaplica após o `db push`.
 
 Se a máquina for lenta e o `db push` não conectar, rode `npm run db:push` novamente.
 
@@ -162,8 +167,9 @@ Abra <http://localhost:3000>.
 ### Passo a passo alternativo
 
 ```bash
-npm run db:up      # docker compose up -d
+npm run db:up      # sobe Postgres/Redis, espera o healthcheck e aplica os índices
 npm run db:push    # prisma db push (também gera o Prisma Client)
+npm run db:indexes # reaplica os índices idempotentes (pg_trgm + compostos)
 npm run seed       # importa todo o conteúdo
 npm run dev
 ```
@@ -242,12 +248,13 @@ cache.
 | `npm run build` | `prisma generate` + build de produção |
 | `npm run start` | Servidor de produção |
 | `npm run typecheck` | Verifica os tipos TypeScript sem gerar arquivos |
-| `npm run db:up` | Sobe PostgreSQL e Redis |
+| `npm run db:up` | Sobe PostgreSQL/Redis, espera o healthcheck e aplica índices |
 | `npm run db:down` | Para os containers (preserva volumes) |
 | `npm run db:push` | Aplica o schema Prisma e gera o client |
+| `npm run db:indexes` | Reaplica os índices de performance de forma idempotente |
 | `npm run db:studio` | Abre o Prisma Studio |
 | `npm run seed` | Importa todo o conteúdo (idempotente) |
-| `npm run setup` | Sobe banco, espera, aplica schema e semeia |
+| `npm run setup` | Sobe banco, aplica schema + índices e semeia |
 | `npm run validate:content` | Valida o conteúdo com Zod antes do seed |
 | `npm run check:exercises` | Roda exercícios e atividades no runner: a solução passa e o starter falha |
 | `npm run catalog:sync` | Ressincroniza o catálogo CodeCrafters a partir do site |
@@ -619,8 +626,8 @@ O catálogo é salvo em `content/codecrafters/catalog.json` e usado pela UI.
 `docker-compose.yml` e no `.env` (lembre de atualizar `DATABASE_URL` e `REDIS_URL`).
 
 **`prisma db push` não conecta.** Confirme `docker ps` e espere o healthcheck do Postgres
-ficar `healthy`. O `npm run setup` espera 12 segundos; em máquinas lentas, rode
-`npm run db:push` novamente.
+ficar `healthy`. O `npm run setup` usa `docker compose up -d --wait postgres redis`; em
+máquinas lentas, rode `npm run db:push` novamente.
 
 **`EPERM ... query_engine-windows.dll.node` no Windows.** O servidor Next em execução
 mantém a DLL do Prisma aberta. Pare `npm run dev`/`npm run start`, rode `npm run db:push`

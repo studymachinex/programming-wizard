@@ -1,13 +1,50 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { cacheDelPrefix } from "@/lib/redis";
+import { cacheDel, cacheDelPrefix } from "@/lib/redis";
 import { PROFILE_ID } from "@/lib/data";
 import { addDays, todayKey } from "@/lib/utils";
 import { revalidatePath } from "next/cache";
 
-async function refresh() {
-  await cacheDelPrefix("pw:");
+type RefreshScope = {
+  trackSlug?: string;
+  lessonSlug?: string;
+  exerciseSlug?: string;
+  projectSlug?: string;
+  profile?: boolean;
+  everything?: boolean;
+};
+
+/**
+ * Invalida só o que mudou. Antes cada ação apagava todas as chaves `pw:*`
+ * e re-renderizava a árvore inteira; agora o cache quente sobrevive.
+ */
+async function refresh(scope: RefreshScope = {}) {
+  if (scope.everything) {
+    await cacheDelPrefix("pw:");
+  } else {
+    const keys = [
+      "pw:stats:v2",
+      "pw:tracks:v2",
+      "pw:today-plan:v2",
+      "pw:review-queue:v2",
+      "pw:track-directory:v2",
+      "pw:catalog:exercises:v2",
+      "pw:catalog:problems:v2",
+      "pw:catalog:projects:v2",
+    ];
+    if (scope.profile) keys.push("pw:profile:v2");
+    if (scope.trackSlug) keys.push(`pw:track-page:v2:${scope.trackSlug}`, `pw:outline:v2:${scope.trackSlug}`);
+    if (scope.trackSlug && scope.lessonSlug) keys.push(`pw:lesson:v2:${scope.trackSlug}:${scope.lessonSlug}`);
+    if (scope.exerciseSlug) keys.push(`pw:exercise:v2:${scope.exerciseSlug}`);
+    if (scope.projectSlug) keys.push(`pw:project:v2:${scope.projectSlug}`);
+
+    await Promise.all([
+      cacheDel(...keys),
+      cacheDelPrefix("pw:heatmap:v2:"),
+      cacheDelPrefix("pw:activity:v2:"),
+    ]);
+  }
   revalidatePath("/", "layout");
 }
 
@@ -99,11 +136,17 @@ export async function setLessonCompletion(lessonId: string, completed: boolean) 
       `/trilhas/${lesson.module.track.slug}/aulas/${lesson.slug}`
     );
   }
-  await refresh();
+  await refresh({ trackSlug: lesson.module.track.slug, lessonSlug: lesson.slug });
   return { ok: true };
 }
 
 export async function toggleLessonBookmark(lessonId: string) {
+  const lesson = await prisma.lesson.findUnique({
+    where: { id: lessonId },
+    select: { slug: true, module: { select: { track: { select: { slug: true } } } } },
+  });
+  if (!lesson) return { ok: false };
+
   const existing = await prisma.lessonProgress.findUnique({
     where: { profileId_lessonId: { profileId: PROFILE_ID, lessonId } },
   });
@@ -113,7 +156,7 @@ export async function toggleLessonBookmark(lessonId: string) {
     update: { bookmarked: next },
     create: { profileId: PROFILE_ID, lessonId, bookmarked: next },
   });
-  await refresh();
+  await refresh({ trackSlug: lesson.module.track.slug, lessonSlug: lesson.slug });
   return { ok: true, bookmarked: next };
 }
 
@@ -123,6 +166,8 @@ export async function saveLessonNotes(lessonId: string, notes: string) {
     update: { notes: notes.slice(0, 20000) },
     create: { profileId: PROFILE_ID, lessonId, notes: notes.slice(0, 20000) },
   });
+  // Só o cache da aula muda; não revalida a árvore inteira a cada tecla.
+  await cacheDelPrefix("pw:lesson:v2:");
   return { ok: true };
 }
 
@@ -145,6 +190,7 @@ export async function saveExerciseCode(exerciseId: string, code: string) {
       status: "attempted",
     },
   });
+  await cacheDelPrefix("pw:exercise:v2:");
   return { ok: true };
 }
 
@@ -178,7 +224,7 @@ export async function setExerciseSolved(exerciseId: string, solved: boolean) {
     await log("exercise", exercise.title, `/exercicios/${exercise.slug}`, exercise.track.title);
     await scheduleReview("exercise", exerciseId, exercise.title, `/exercicios/${exercise.slug}`);
   }
-  await refresh();
+  await refresh({ trackSlug: exercise.track.slug, exerciseSlug: exercise.slug });
   return { ok: true };
 }
 
@@ -203,7 +249,7 @@ export async function setActivityDone(activityId: string, done: boolean) {
     await bumpSession({ minutes: 10, exercises: 1 });
     await log("activity", activity.title, href, activity.lesson.title);
   }
-  await refresh();
+  await refresh({ trackSlug: activity.lesson.track.slug, lessonSlug: activity.lesson.slug });
   return { ok: true };
 }
 
@@ -217,11 +263,15 @@ export async function saveActivityCode(activityId: string, code: string) {
     update: { code: code.slice(0, 60000), status: existing?.status === "done" ? "done" : "attempted" },
     create: { profileId: PROFILE_ID, activityId, code: code.slice(0, 60000), status: "attempted" },
   });
+  await cacheDelPrefix("pw:lesson:v2:");
   return { ok: true };
 }
 
 export async function setProblemSolved(problemId: string, solved: boolean) {
-  const problem = await prisma.externalProblem.findUnique({ where: { id: problemId } });
+  const problem = await prisma.externalProblem.findUnique({
+    where: { id: problemId },
+    include: { track: { select: { slug: true } } },
+  });
   if (!problem) return { ok: false, error: "Problema não encontrado" };
   const existing = await prisma.problemProgress.findUnique({
     where: { profileId_problemId: { profileId: PROFILE_ID, problemId } },
@@ -247,7 +297,7 @@ export async function setProblemSolved(problemId: string, solved: boolean) {
     await log("problem", problem.title, problem.url, problem.platform);
     await scheduleReview("problem", problemId, problem.title, `/desafios?q=${encodeURIComponent(problem.title)}`);
   }
-  await refresh();
+  await refresh({ trackSlug: problem.track?.slug });
   return { ok: true };
 }
 
@@ -287,7 +337,7 @@ export async function saveProjectProgress(input: {
     await bumpSession({ minutes: 45 });
     await log("project", project.title, `/projetos/${project.slug}`, "Projeto concluído");
   }
-  await refresh();
+  await refresh({ projectSlug: project.slug });
   return { ok: true };
 }
 
@@ -355,7 +405,7 @@ export async function updateProfile(input: { name: string; dailyGoalMinutes: num
       targetRole: input.targetRole.trim().slice(0, 120) || "Senior Software Engineer",
     },
   });
-  await refresh();
+  await refresh({ profile: true });
   return { ok: true };
 }
 
@@ -377,6 +427,6 @@ export async function resetProgress() {
     prisma.reviewItem.deleteMany({ where: { profileId: PROFILE_ID } }),
     prisma.activityLog.deleteMany({ where: { profileId: PROFILE_ID } }),
   ]);
-  await refresh();
+  await refresh({ everything: true });
   return { ok: true };
 }

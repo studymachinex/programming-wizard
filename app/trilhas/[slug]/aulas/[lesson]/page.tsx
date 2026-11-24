@@ -10,10 +10,8 @@ import {
   ListTree,
   Sparkles,
 } from "lucide-react";
-import { prisma } from "@/lib/prisma";
-import { PROFILE_ID } from "@/lib/data";
-import { cn, pct } from "@/lib/utils";
-import { Markdown, extractHeadings } from "@/components/markdown";
+import { getLessonDetail, getTrackOutline } from "@/lib/data";
+import { cn, pct } from "@/lib/utils";import { Markdown, extractHeadings } from "@/components/markdown";
 import { LessonActions } from "@/components/lesson-actions";
 import { LessonQuiz } from "@/components/lesson-quiz";
 import { LessonActivities, type LessonActivityView } from "@/components/lesson-activities";
@@ -33,10 +31,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string; lesson: string }>;
 }) {
   const { slug, lesson } = await params;
-  const data = await prisma.lesson.findFirst({
-    where: { slug: lesson, track: { slug } },
-    select: { title: true, summary: true },
-  });
+  const data = await getLessonDetail(slug, lesson);
   return { title: data?.title ?? "Aula", description: data?.summary };
 }
 
@@ -46,40 +41,11 @@ export default async function LessonPage({
   params: Promise<{ slug: string; lesson: string }>;
 }) {
   const { slug: trackSlug, lesson: lessonSlug } = await params;
-  const track = await prisma.track.findFirst({
-    where: { slug: trackSlug },
-    include: {
-      modules: {
-        orderBy: { order: "asc" },
-        include: {
-          lessons: {
-            orderBy: { order: "asc" },
-            select: {
-              id: true,
-              slug: true,
-              title: true,
-              estimatedMinutes: true,
-              summary: true,
-              progress: {
-                where: { profileId: PROFILE_ID },
-                select: { status: true },
-              },
-            },
-          },
-        },
-      },
-    },
-  });
-  if (!track) notFound();
-
-  const lesson = await prisma.lesson.findFirst({
-    where: { trackId: track.id, slug: lessonSlug },
-    include: {
-      module: true,
-      progress: { where: { profileId: PROFILE_ID } },
-    },
-  });
-  if (!lesson) notFound();
+  const [track, lesson] = await Promise.all([
+    getTrackOutline(trackSlug),
+    getLessonDetail(trackSlug, lessonSlug),
+  ]);
+  if (!track || !lesson) notFound();
 
   const flat = track.modules.flatMap((m) =>
     m.lessons.map((l) => ({ ...l, moduleSlug: m.slug, moduleTitle: m.title })),
@@ -90,24 +56,19 @@ export default async function LessonPage({
   const completedCount = flat.filter((l) => l.progress[0]?.status === "completed").length;
   const percent = pct(completedCount, flat.length);
   const progress = lesson.progress[0];
-  const currentModule = track.modules.find((m) => m.id === lesson.moduleId)!;
-  const a = accentOf(track.accent);
-  const activityRows = await prisma.lessonActivity.findMany({
-    where: { lessonId: lesson.id },
-    orderBy: { order: "asc" },
-    include: { progress: { where: { profileId: PROFILE_ID } } },
-  });
-  const activities: LessonActivityView[] = activityRows.map((a) => ({
-    id: a.id,
-    kind: a.kind,
-    title: a.title,
-    statement: a.statement,
-    starterCode: a.starterCode,
-    solutionCode: a.solutionCode,
-    hints: a.hints,
-    code: a.progress[0]?.code ?? "",
-    done: a.progress[0]?.status === "done",
-    attempts: a.progress[0]?.attempts ?? 0,
+  const currentModule = track.modules.find((m) => m.id === lesson.module.id)!;
+  const accent = accentOf(track.accent);
+  const activities: LessonActivityView[] = lesson.activities.map((activity) => ({
+    id: activity.id,
+    kind: activity.kind,
+    title: activity.title,
+    statement: activity.statement,
+    starterCode: activity.starterCode,
+    solutionCode: activity.solutionCode,
+    hints: activity.hints,
+    code: activity.progress[0]?.code ?? "",
+    done: activity.progress[0]?.status === "done",
+    attempts: activity.progress[0]?.attempts ?? 0,
   }));
   const headings = [
     ...extractHeadings(lesson.content),
@@ -129,10 +90,10 @@ export default async function LessonPage({
         <article className="min-w-0">
           {/* Header */}
           <header className="relative overflow-hidden rounded-2xl border border-white/[0.07] bg-ink-850/60 p-6 sm:p-7">
-            <div className={cn("pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b opacity-60", a.soft)} />
+            <div className={cn("pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b opacity-60", accent.soft)} />
             <div className="relative">
               <div className="mb-3 flex flex-wrap items-center gap-2">
-                <span className={cn("inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 font-mono text-[9.5px] uppercase tracking-wider", a.bg, a.border, a.text)}>
+                <span className={cn("inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 font-mono text-[9.5px] uppercase tracking-wider", accent.bg, accent.border, accent.text)}>
                   <TrackIcon icon={track.icon} className="h-2.5 w-2.5" />
                   {track.title}
                 </span>
@@ -258,7 +219,7 @@ export default async function LessonPage({
                 </div>
               </div>
               <div className="mt-3">
-                <ProgressBar value={percent} gradient={a.gradient} />
+                <ProgressBar value={percent} gradient={accent.gradient} />
               </div>
               <div className="mt-4 border-t border-white/[0.06] pt-3">
                 <p className="mb-2 font-mono text-[8.5px] uppercase tracking-[0.15em] text-zinc-600">{currentModule.title}</p>

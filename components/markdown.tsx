@@ -19,7 +19,7 @@ export function Markdown({ content, className }: { content: string; className?: 
     <div className={`lesson-prose ${className ?? ""}`}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
-        rehypePlugins={[[rehypeHighlight, { detect: true, ignoreMissing: true }]]}
+        rehypePlugins={[[rehypeHighlight, { detect: false, ignoreMissing: true }]]}
         components={{
           pre: ({ children }) => <CodeBlock>{children}</CodeBlock>,
           h1: ({ children }) => (

@@ -23,7 +23,12 @@ import {
 } from "lucide-react";
 import { cn, pct } from "@/lib/utils";
 import type { GlobalStats } from "@/lib/data";
-import { CommandPalette } from "@/components/command-palette";
+import dynamic from "next/dynamic";
+
+const CommandPalette = dynamic(
+  () => import("@/components/command-palette").then((mod) => mod.CommandPalette),
+  { ssr: false }
+);
 
 const nav = [
   {
@@ -83,7 +88,9 @@ export function AppShell({
 
   return (
     <div className="min-h-screen">
-      <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
+      {paletteOpen && (
+        <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
+      )}
 
       {/* Mobile overlay */}
       {mobileOpen && (

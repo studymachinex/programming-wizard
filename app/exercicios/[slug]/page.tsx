@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight, CheckCircle2, Clock, ExternalLink, Terminal } from "lucide-react";
-import { prisma } from "@/lib/prisma";
-import { PROFILE_ID } from "@/lib/data";
+import { getExerciseDetail } from "@/lib/data";
 import { cn, difficultyLabel, difficultyStyles } from "@/lib/utils";
 import { Markdown } from "@/components/markdown";
 import { ExerciseWorkspace } from "@/components/exercise-workspace";
@@ -12,28 +11,15 @@ export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const exercise = await prisma.exercise.findUnique({ where: { slug }, select: { title: true } });
-  return { title: exercise?.title ?? "Exercício" };
+  const data = await getExerciseDetail(slug);
+  return { title: data?.exercise.title ?? "Exercício" };
 }
 
 export default async function ExercisePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const exercise = await prisma.exercise.findUnique({
-    where: { slug },
-    include: {
-      track: { select: { title: true, slug: true, accent: true, icon: true } },
-      module: { select: { title: true, slug: true } },
-      progress: { where: { profileId: PROFILE_ID } },
-    },
-  });
-  if (!exercise) notFound();
-
-  const related = await prisma.exercise.findMany({
-    where: { trackId: exercise.trackId, id: { not: exercise.id } },
-    orderBy: { order: "asc" },
-    take: 4,
-    include: { progress: { where: { profileId: PROFILE_ID }, select: { status: true } } },
-  });
+  const data = await getExerciseDetail(slug);
+  if (!data) notFound();
+  const { exercise, related } = data;
 
   const progress = exercise.progress[0];
   const solved = progress?.status === "solved";

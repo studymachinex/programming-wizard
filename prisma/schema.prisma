@@ -45,6 +45,8 @@ model Track {
   exercises Exercise[]
   problems  ExternalProblem[]
   projects  Project[]
+
+  @@index([order])
 }
 
 model Project {
@@ -64,6 +66,9 @@ model Project {
 
   track    Track?            @relation(fields: [trackId], references: [id], onDelete: SetNull)
   progress ProjectProgress[]
+
+  @@index([order])
+  @@index([trackId])
 }
 
 model ProjectProgress {
@@ -80,6 +85,7 @@ model ProjectProgress {
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@unique([profileId, projectId])
+  @@index([profileId, status])
 }
 
 model Module {
@@ -96,7 +102,7 @@ model Module {
   exercises Exercise[]
 
   @@unique([trackId, slug])
-  @@index([trackId])
+  @@index([trackId, order])
 }
 
 model Lesson {
@@ -119,8 +125,9 @@ model Lesson {
   activities LessonActivity[]
 
   @@unique([moduleId, slug])
-  @@index([trackId])
-  @@index([moduleId])
+  @@index([slug])
+  @@index([trackId, order])
+  @@index([moduleId, order])
 }
 
 model Exercise {
@@ -145,8 +152,9 @@ model Exercise {
   module   Module             @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   progress ExerciseProgress[]
 
-  @@index([trackId])
-  @@index([moduleId])
+  @@index([trackId, order])
+  @@index([moduleId, order])
+  @@index([difficulty])
 }
 
 model ExternalProblem {
@@ -166,9 +174,9 @@ model ExternalProblem {
   track    Track?            @relation(fields: [trackId], references: [id], onDelete: SetNull)
   progress ProblemProgress[]
 
-  @@index([trackId])
+  @@index([trackId, order])
   @@index([platform])
-  @@index([level])
+  @@index([level, order])
 }
 
 model LessonProgress {
@@ -187,7 +195,9 @@ model LessonProgress {
   lesson  Lesson  @relation(fields: [lessonId], references: [id], onDelete: Cascade)
 
   @@unique([profileId, lessonId])
-  @@index([status])
+  @@index([profileId, status])
+  @@index([profileId, updatedAt])
+  @@index([profileId, bookmarked, updatedAt])
 }
 
 model ExerciseProgress {
@@ -206,7 +216,7 @@ model ExerciseProgress {
   exercise Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
 
   @@unique([profileId, exerciseId])
-  @@index([status])
+  @@index([profileId, status])
 }
 
 model ProblemProgress {
@@ -222,7 +232,7 @@ model ProblemProgress {
   problem ExternalProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
 
   @@unique([profileId, problemId])
-  @@index([status])
+  @@index([profileId, status])
 }
 
 model StudySession {
@@ -258,7 +268,7 @@ model ReviewItem {
   profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
 
   @@unique([profileId, kind, refId])
-  @@index([dueAt])
+  @@index([profileId, dueAt])
 }
 
 model ActivityLog {
@@ -272,7 +282,7 @@ model ActivityLog {
 
   profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
 
-  @@index([createdAt])
+  @@index([profileId, createdAt])
 }
 
 /// Atividade no fim da aula: código validado por testes ("code") ou autoavaliação ("reflection").
@@ -292,7 +302,7 @@ model LessonActivity {
   lesson   Lesson             @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   progress ActivityProgress[]
 
-  @@index([lessonId])
+  @@index([lessonId, order])
 }
 
 model ActivityProgress {
@@ -310,4 +320,5 @@ model ActivityProgress {
   activity LessonActivity @relation(fields: [activityId], references: [id], onDelete: Cascade)
 
   @@unique([profileId, activityId])
+  @@index([profileId, status])
 }

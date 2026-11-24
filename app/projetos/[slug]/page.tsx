@@ -12,8 +12,7 @@ import {
   Rocket,
   Sparkles,
 } from "lucide-react";
-import { prisma } from "@/lib/prisma";
-import { PROFILE_ID } from "@/lib/data";
+import { getProjectDetail } from "@/lib/data";
 import { cn } from "@/lib/utils";
 import { ProjectForm } from "@/components/project-form";
 import { Breadcrumb, LevelBadge } from "@/components/ui";
@@ -22,16 +21,13 @@ export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const project = await prisma.project.findUnique({ where: { slug }, select: { title: true } });
+  const project = await getProjectDetail(slug);
   return { title: project?.title ?? "Projeto" };
 }
 
 export default async function ProjectPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const project = await prisma.project.findUnique({
-    where: { slug },
-    include: { progress: { where: { profileId: PROFILE_ID } }, track: true },
-  });
+  const project = await getProjectDetail(slug);
   if (!project) notFound();
   const progress = project.progress[0];
 

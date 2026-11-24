@@ -14,8 +14,7 @@ import {
   Star,
   Trophy,
 } from "lucide-react";
-import { prisma } from "@/lib/prisma";
-import { PROFILE_ID } from "@/lib/data";
+import { getTrackPageData } from "@/lib/data";
 import { cn, difficultyStyles, difficultyLabel, pct } from "@/lib/utils";
 import { ProblemToggle } from "@/components/problem-toggle";
 import {
@@ -30,61 +29,13 @@ export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const track = await prisma.track.findUnique({ where: { slug }, select: { title: true, subtitle: true } });
+  const track = await getTrackPageData(slug);
   return { title: track?.title ?? "Trilha", description: track?.subtitle };
 }
 
 export default async function TrackPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const track = await prisma.track.findUnique({
-    where: { slug },
-    include: {
-      modules: {
-        orderBy: { order: "asc" },
-        include: {
-          lessons: {
-            orderBy: { order: "asc" },
-            select: {
-              id: true,
-              slug: true,
-              title: true,
-              summary: true,
-              estimatedMinutes: true,
-              progress: {
-                where: { profileId: PROFILE_ID },
-                select: { status: true, bookmarked: true },
-              },
-            },
-          },
-          exercises: {
-            orderBy: { order: "asc" },
-            select: {
-              id: true,
-              slug: true,
-              title: true,
-              difficulty: true,
-              estimatedMinutes: true,
-              progress: { where: { profileId: PROFILE_ID }, select: { status: true } },
-            },
-          },
-        },
-      },
-      problems: {
-        orderBy: [{ level: "asc" }, { order: "asc" }],
-        select: {
-          id: true,
-          slug: true,
-          title: true,
-          platform: true,
-          url: true,
-          difficulty: true,
-          level: true,
-          topic: true,
-          progress: { where: { profileId: PROFILE_ID }, select: { status: true } },
-        },
-      },
-    },
-  });
+  const track = await getTrackPageData(slug);
   if (!track) notFound();
 
   const allLessons = track.modules.flatMap((m) => m.lessons);

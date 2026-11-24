@@ -142,14 +142,19 @@ function readJson<T>(file: string): T | null {
   }
 }
 
+let catalogCache: { at: number; value: Catalog } | null = null;
+
 export function getCatalog(): Catalog {
-  return (
+  const now = Date.now();
+  if (catalogCache && now - catalogCache.at < 30_000) return catalogCache.value;
+  const value =
     readJson<Catalog>(path.join(CONTENT_DIR, "catalog.json")) ?? {
       source: "https://app.codecrafters.io/catalog",
       syncedAt: new Date(0).toISOString(),
       challenges: [],
-    }
-  );
+    };
+  catalogCache = { at: now, value };
+  return value;
 }
 
 export function getChallengeMeta(slug: string): CatalogChallenge | null {
@@ -244,7 +249,22 @@ export function getChallengeCards(): ChallengeCard[] {
   });
 }
 
-export function getCodecraftersOverview() {
+export type CodecraftersOverview = {
+  totalChallenges: number;
+  totalStages: number;
+  completedStages: number;
+  completedChallenges: number;
+  inProgress: number;
+  available: number;
+  cards: ChallengeCard[];
+};
+
+let overviewCache: { at: number; value: CodecraftersOverview } | null = null;
+
+export function getCodecraftersOverview(): CodecraftersOverview {
+  const now = Date.now();
+  if (overviewCache && now - overviewCache.at < 30_000) return overviewCache.value;
+
   const catalog = getCatalog();
   const cards = getChallengeCards();
   const priority: Record<ChallengeCard["status"], number> = {
@@ -260,7 +280,7 @@ export function getCodecraftersOverview() {
   const inProgress = cards.filter((card) => card.status === "in_progress").length;
   const available = cards.filter((card) => card.available).length;
 
-  return {
+  const value = {
     totalChallenges: catalog.challenges.length,
     totalStages,
     completedStages,
@@ -269,6 +289,8 @@ export function getCodecraftersOverview() {
     available,
     cards,
   };
+  overviewCache = { at: now, value };
+  return value;
 }
 
 export function progressPercent(completed: number, total: number) {

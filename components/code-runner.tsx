@@ -1,9 +1,18 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 import { AlertTriangle, CheckCircle2, ChevronDown, Clock, Loader2, Play, RotateCcw, Save, XCircle } from "lucide-react";
-import { CodeEditor, type EditorDiagnostic } from "@/components/code-editor";
+import type { EditorDiagnostic } from "@/components/code-editor";
 import { cn } from "@/lib/utils";
+
+const CodeEditor = dynamic(
+  () => import("@/components/code-editor").then((mod) => mod.CodeEditor),
+  {
+    ssr: false,
+    loading: () => <div className="h-[420px] animate-pulse bg-white/[0.02]" />,
+  }
+);
 
 type TestResult = {
   name: string;
