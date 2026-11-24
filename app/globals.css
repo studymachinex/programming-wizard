@@ -17,10 +17,6 @@
   border-color: var(--line);
 }
 
-html {
-  scroll-behavior: smooth;
-}
-
 body {
   background-color: var(--bg);
   color: var(--text);
