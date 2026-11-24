@@ -120,7 +120,7 @@ export function CodeRunner({
             </span>
           )}
         </div>
-        <span className="font-mono text-[9px] text-zinc-600">Ctrl+Enter roda · Ctrl+S salva</span>
+        <span className="font-mono text-[9px] text-zinc-600">Ctrl+Espaço sugere · Ctrl+Enter roda · Ctrl+S salva</span>
       </div>
 
       <CodeEditor value={code} onChange={setCode} onRun={run} onSave={onSave ? save : undefined} diagnostics={diagnostics} height={editorHeight} />
