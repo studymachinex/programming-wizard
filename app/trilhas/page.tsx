@@ -230,7 +230,8 @@ function TrackCard({ track }: { track: Awaited<ReturnType<typeof getTrackSummari
     <Link
       href={`/trilhas/${track.slug}`}
       prefetch={false}
-      className="panel glass-hover group relative flex flex-col overflow-hidden p-5"
+      draggable={false}
+      className="panel glass-hover group relative flex select-none flex-col overflow-hidden p-5"
     >
       <div className={cn("pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b opacity-60", a.soft)} />
       <div className="relative flex items-start justify-between gap-3">
