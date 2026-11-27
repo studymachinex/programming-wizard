@@ -510,6 +510,135 @@
       "exercises": [
         "exercises/redes-calculadora-cidr.json"
       ]
+    },
+    {
+      "slug": "udp",
+      "title": "UDP",
+      "description": "Datagramas sem conexão, o que o UDP não garante e como escrever um servidor e um cliente UDP robustos em Java, com timeout, retentativa e deduplicação.",
+      "estimatedHours": 3,
+      "exercises": [
+        "exercises/redes-buffer-de-jitter.json"
+      ],
+      "lessons": [
+        {
+          "slug": "udp-datagramas",
+          "title": "UDP: datagrama, prós e contras",
+          "summary": "O cabeçalho de 8 bytes, perda e reordenação sem aviso, fronteiras de mensagem, o limite do MTU e quando UDP é a escolha certa.",
+          "minutes": 40,
+          "file": "lessons/09-udp-datagramas.md",
+          "takeaways": [
+            "Descrever o cabeçalho UDP de 8 bytes e o que o checksum cobre",
+            "Listar o que o UDP não garante: entrega, ordem, deduplicação e controle de congestionamento",
+            "Usar número de sequência e prazo na aplicação para reordenar e declarar perdas",
+            "Manter datagramas abaixo do MTU (1.472 bytes de dados) para evitar fragmentação"
+          ],
+          "quiz": [
+            {
+              "question": "Qual é o maior payload UDP que cabe num pacote IPv4 com MTU 1500 sem fragmentar?",
+              "options": [
+                "1500 bytes",
+                "1480 bytes",
+                "1472 bytes",
+                "1460 bytes"
+              ],
+              "answer": 2,
+              "explanation": "1500 de MTU menos 20 bytes de cabeçalho IP e 8 de cabeçalho UDP dá 1472. Acima disso o IP fragmenta, e a perda de um fragmento descarta o datagrama inteiro."
+            },
+            {
+              "question": "Um cliente UDP chama send() e não recebe nenhuma exceção. O que isso garante?",
+              "options": [
+                "Que o servidor recebeu o datagrama",
+                "Que o datagrama chegou íntegro e em ordem",
+                "Apenas que o datagrama foi entregue à pilha de rede local",
+                "Que o servidor vai responder"
+              ],
+              "answer": 2,
+              "explanation": "Em UDP não há confirmação. O sucesso de send() só diz que o datagrama saiu do processo; o destino pode nunca recebê-lo, e ninguém será avisado."
+            },
+            {
+              "question": "O cliente faz três send() de 100, 200 e 50 bytes para o mesmo servidor UDP. Quantos receive() o servidor faz para ler tudo?",
+              "options": [
+                "1, os bytes são concatenados",
+                "Depende do buffer, como no TCP",
+                "3, um por datagrama",
+                "2, porque o IP agrupa os menores"
+              ],
+              "answer": 2,
+              "explanation": "UDP preserva as fronteiras de mensagem: cada send() vira um datagrama e cada receive() devolve exatamente um. No TCP, que é um fluxo de bytes, a divisão dependeria da rede e dos buffers."
+            },
+            {
+              "question": "Um receptor lê com buffer de 16 bytes um datagrama de 42 bytes. O que acontece?",
+              "options": [
+                "receive() lança exceção",
+                "Os 16 primeiros bytes são lidos e o resto é descartado sem erro",
+                "Os 26 bytes restantes ficam para o próximo receive()",
+                "O kernel fragmenta o datagrama em três"
+              ],
+              "answer": 1,
+              "explanation": "O excedente é perdido em silêncio: o datagrama é uma unidade e não pode ser lido em partes. Use um buffer do tamanho do maior datagrama esperado e confira getLength()."
+            }
+          ]
+        },
+        {
+          "slug": "servidor-udp-em-java",
+          "title": "Servidor UDP em Java com DatagramChannel",
+          "summary": "Um socket para todos os clientes, timeout, nova tentativa com backoff e jitter, deduplicação por id e o descarte silencioso por buffer cheio.",
+          "minutes": 45,
+          "file": "lessons/10-servidor-udp-em-java.md",
+          "takeaways": [
+            "Escrever um servidor com DatagramChannel que responde ao remetente de cada datagrama",
+            "Aplicar timeout, backoff exponencial com jitter e limite de tentativas no cliente",
+            "Deduplicar requisições por (remetente, id) para que a retentativa não repita a operação",
+            "Diagnosticar descarte por buffer de recepção cheio com ss -lun e UdpRcvbufErrors"
+          ],
+          "quiz": [
+            {
+              "question": "Por que todo receive() de um cliente UDP precisa de timeout?",
+              "options": [
+                "Porque o UDP fecha a conexão após alguns segundos",
+                "Porque, se a resposta se perder, o receive() bloqueia para sempre e prende a thread",
+                "Porque o kernel exige um timeout para liberar a porta",
+                "Porque sem timeout o datagrama chega duplicado"
+              ],
+              "answer": 1,
+              "explanation": "Em UDP ninguém avisa que um datagrama se perdeu. Sem timeout, a espera é infinita. Com setSoTimeout, o receive() lança SocketTimeoutException e o cliente decide: tentar de novo ou desistir."
+            },
+            {
+              "question": "A resposta de uma requisição 'debitar 10' se perde e o cliente reenvia. O que evita o débito em dobro?",
+              "options": [
+                "Um timeout maior no cliente",
+                "Aumentar o buffer de recepção do servidor",
+                "Um id por requisição e um cache (remetente, id) → resposta que o servidor reenvia sem executar de novo",
+                "Trocar DatagramChannel por DatagramSocket"
+              ],
+              "answer": 2,
+              "explanation": "A requisição original já foi executada; só a resposta se perdeu. O servidor precisa reconhecer a repetição pelo id e reenviar a resposta guardada. Operações idempotentes também resolveriam."
+            },
+            {
+              "question": "Para que serve o jitter no backoff exponencial?",
+              "options": [
+                "Para reduzir o tamanho dos datagramas",
+                "Para espalhar as retentativas e evitar que muitos clientes tentem ao mesmo tempo",
+                "Para criptografar o id da requisição",
+                "Para evitar que o timeout seja maior que 1 s"
+              ],
+              "answer": 1,
+              "explanation": "Sem aleatoriedade, clientes que falharam juntos repetem juntos e sobrecarregam o servidor no pior momento. Somar uma fração aleatória à espera desfaz o sincronismo."
+            },
+            {
+              "question": "O contador UdpRcvbufErrors do nstat cresce durante um pico. O que isso indica?",
+              "options": [
+                "Datagramas corrompidos descartados por checksum inválido",
+                "O buffer de recepção do socket encheu e o kernel descartou datagramas novos",
+                "O cliente está usando portas efêmeras demais",
+                "O MTU do caminho é menor que o esperado"
+              ],
+              "answer": 1,
+              "explanation": "O servidor não chama receive() rápido o bastante e o SO_RCVBUF transborda. Receba depressa, processe em outras threads (virtuais, por exemplo) e, se necessário, aumente o buffer, respeitando net.core.rmem_max."
+            }
+          ]
+        }
+      ]
     }
   ]
 }

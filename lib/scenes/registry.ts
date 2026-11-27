@@ -21,6 +21,8 @@ const LOADERS: Record<string, Loader> = {
   "redes-backend/arp-icmp-ping-traceroute": () => import("./redes/ip").then((m) => m.arpEIcmp),
   "redes-backend/roteamento-e-gateway": () => import("./redes/ip").then((m) => m.roteamento),
   "redes-backend/nat-e-ip-publico": () => import("./redes/ip").then((m) => m.nat),
+  "redes-backend/udp-datagramas": () => import("./redes/udp").then((m) => m.udpDatagramas),
+  "redes-backend/servidor-udp-em-java": () => import("./redes/udp").then((m) => m.servidorUdp),
 };
 
 export function hasScene(track: string, lesson: string): boolean {

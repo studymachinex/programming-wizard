@@ -31,5 +31,38 @@
     "topic": "Trie",
     "moduleSlug": "ip",
     "description": "A trie é a estrutura por trás do longest prefix match das tabelas de rotas: implemente inserção e busca por prefixo e compare com a trie binária da aula de roteamento."
+  },
+  {
+    "slug": "redes-number-of-recent-calls",
+    "title": "Number of Recent Calls",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/number-of-recent-calls/",
+    "difficulty": "facil",
+    "level": 1,
+    "topic": "Janela de tempo",
+    "moduleSlug": "udp",
+    "description": "Conte as requisições dos últimos 3000 ms com uma fila de instantes: a mesma janela deslizante de um rate limiter ou de uma métrica de pacotes por segundo, e um aquecimento para o relógio injetado do buffer de jitter."
+  },
+  {
+    "slug": "redes-design-circular-queue",
+    "title": "Design Circular Queue",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/design-circular-queue/",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "Buffer circular",
+    "moduleSlug": "udp",
+    "description": "Implemente uma fila circular de capacidade fixa com índices de cabeça e cauda. É a estrutura dos anéis de recepção das placas de rede e dos buffers de áudio, em que, ao encher, o que chega precisa ser recusado ou sobrescrito."
+  },
+  {
+    "slug": "redes-data-stream-as-disjoint-intervals",
+    "title": "Data Stream as Disjoint Intervals",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/data-stream-as-disjoint-intervals/",
+    "difficulty": "dificil",
+    "level": 4,
+    "topic": "Intervalos",
+    "moduleSlug": "udp",
+    "description": "Números chegam fora de ordem e o resumo precisa ser uma lista de intervalos disjuntos. É o raciocínio por trás de acks seletivos e de buffers de reordenação: o que já chegou é uma união de faixas, e o que falta são as lacunas entre elas."
   }
 ]
