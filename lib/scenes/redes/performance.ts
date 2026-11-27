@@ -105,7 +105,7 @@ export const mtuMssPmtud: SceneDef = {
         mode: "layers",
         stacks: [
           nest("cli", "Cliente 198.51.100.7", [ethL(), ipL("1500 B · DF = 1"), tcpL("20 B"), dadosL("1460 B")]),
-          nest("tun", "Roteador do túnel (MTU 1400)", [ipL("1500 > 1400 e DF = 1", { status: "warn" })]),
+          nest("tun", "Roteador (MTU 1400)", [ipL("1500 > 1400 e DF = 1", { status: "warn" })]),
         ],
         wires: [{ from: "cli", to: "tun", label: "1500 B" }],
       },
@@ -124,7 +124,7 @@ export const mtuMssPmtud: SceneDef = {
         mode: "layers",
         stacks: [
           nest("cli", "Cliente 198.51.100.7", [ipL("1500 B descartado", { status: "bad" })]),
-          nest("tun", "Roteador do túnel (MTU 1400)", [ipL("192.0.2.9 → 198.51.100.7"), { id: "icmp", label: "ICMP", sub: "tipo 3, código 4 · MTU do próximo salto: 1400", tone: "rose", status: "new" }]),
+          nest("tun", "Roteador (MTU 1400)", [ipL("192.0.2.9 → 198.51.100.7"), { id: "icmp", label: "ICMP", sub: "tipo 3, código 4 · MTU do próximo salto: 1400", tone: "rose", status: "new" }]),
         ],
         wires: [{ from: "tun", to: "cli", label: "ICMP 3/4", kind: "data" }],
       },
@@ -143,7 +143,7 @@ export const mtuMssPmtud: SceneDef = {
         mode: "layers",
         stacks: [
           nest("cli", "Cliente 198.51.100.7", [ethL(), ipL("1400 B · DF = 1", { status: "ok" }), tcpL("20 B"), dadosL("1360 B", { status: "ok" })]),
-          nest("tun", "Roteador do túnel (MTU 1400)", [ipL("1400 ≤ 1400: cabe", { status: "ok" })]),
+          nest("tun", "Roteador (MTU 1400)", [ipL("1400 ≤ 1400: cabe", { status: "ok" })]),
         ],
         wires: [{ from: "cli", to: "tun", label: "1400 B" }],
       },
@@ -163,7 +163,7 @@ export const mtuMssPmtud: SceneDef = {
         mode: "layers",
         stacks: [
           nest("cli", "Cliente 198.51.100.7", [ipL("1500 B · DF = 1", { status: "bad" }), tcpL("retransmite: nada confirma", { status: "warn" })]),
-          nest("tun", "Roteador do túnel (MTU 1400)", [ipL("descarta 1500 B", { status: "warn" })]),
+          nest("tun", "Roteador (MTU 1400)", [ipL("descarta 1500 B", { status: "warn" })]),
           nest("fw", "Firewall", [{ id: "icmp", label: "ICMP", sub: "tipo 3 código 4 descartado", tone: "rose", status: "dead" }]),
         ],
         wires: [{ from: "cli", to: "tun", label: "1500 B", kind: "bad" }, { from: "tun", to: "fw", label: "ICMP 3/4", kind: "bad" }],
