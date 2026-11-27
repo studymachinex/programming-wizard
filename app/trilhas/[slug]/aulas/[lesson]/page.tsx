@@ -169,7 +169,7 @@ export default async function LessonPage({
 
           <div className="mt-8 grid gap-3 sm:grid-cols-2">
             {prev ? (
-              <Link href={`/trilhas/${track.slug}/aulas/${prev.slug}`} className="panel glass-hover group flex items-start gap-3 p-4">
+              <Link href={`/trilhas/${track.slug}/aulas/${prev.slug}`} className="panel glass-hover group flex min-w-0 items-start gap-3 p-4">
                 <ArrowLeft className="mt-0.5 h-4 w-4 shrink-0 text-zinc-600 transition-colors group-hover:text-arcane-300" />
                 <span className="min-w-0">
                   <span className="font-mono text-[9px] uppercase tracking-wider text-zinc-600">anterior</span>
@@ -180,7 +180,7 @@ export default async function LessonPage({
               <div />
             )}
             {next ? (
-              <Link href={`/trilhas/${track.slug}/aulas/${next.slug}`} className="panel glass-hover group flex items-start justify-end gap-3 p-4 text-right">
+              <Link href={`/trilhas/${track.slug}/aulas/${next.slug}`} className="panel glass-hover group flex min-w-0 items-start justify-end gap-3 p-4 text-right">
                 <span className="min-w-0">
                   <span className="font-mono text-[9px] uppercase tracking-wider text-zinc-600">próxima aula</span>
                   <span className="mt-0.5 block truncate text-[12.5px] text-zinc-300">{next.title}</span>
