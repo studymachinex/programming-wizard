@@ -484,7 +484,7 @@ export const cliqueNumLink: SceneDef = {
 // Cena 30: incidentes de rede reais (iso)
 // =====================================================================================
 
-const P30 = (i: number) => rowXY(i, 5.0);
+const P30 = (i: number) => rowXY(i, 3.6);
 
 type Q30 = {
   conn?: Status; connBadge?: string; app?: Status; appLabel?: string; appBadge?: string; nat?: Status; natBadge?: string; db?: Status;
@@ -502,8 +502,8 @@ function incidente(q: Q30 = {}): IsoEntity[] {
           zone("pool", cx - 2.3, cy - 2.3, 4.6, 4.6, { label: "pool de conexões", tone: "sky" }),
           ...cs.map(([x, y], i) => box(`c${i + 1}`, x, y, "database", `conexão ${i + 1}`, { parent: "pool", size: "sm", tone: "arcane", status: q.conn, badges: i === 1 && q.connBadge ? [{ text: q.connBadge, tone: q.conn === "bad" || q.conn === "dead" ? "bad" : "info" }] : undefined })),
         ]),
-    box("nat", ...P30(2.6), "shield", "NAT Gateway", { size: "md", tone: "ember", status: q.nat, badges: q.natBadge ? [{ text: q.natBadge, tone: q.nat === "bad" ? "bad" : "info" }] : undefined }),
-    box("db", ...P30(3.6), "database", "Postgres", { size: "md", tone: "arcane", status: q.db }),
+    box("nat", ...P30(2.75), "shield", "NAT Gateway", { size: "md", tone: "ember", status: q.nat, badges: q.natBadge ? [{ text: q.natBadge, tone: q.nat === "bad" ? "bad" : "info" }] : undefined }),
+    box("db", ...P30(3.75), "database", "Postgres externo", { size: "md", tone: "arcane", status: q.db }),
   ];
 }
 const links30 = (noPool = false) => (noPool ? [link("app", "ports"), link("ports", "nat"), link("nat", "db")] : [link("app", "pool"), link("pool", "nat"), link("nat", "db")]);
@@ -512,15 +512,15 @@ const m30 = (a: string, b: string, tb?: "ok" | "warn" | "bad"): Metric[] => [{ i
 const SS_O = "ss -tno state established '( dport = :5432 )'";
 const SS_O_OUT = [
   "Recv-Q Send-Q    Local Address:Port    Peer Address:Port",
-  "0      0            192.0.2.15:49832   198.51.100.20:5432",
-  "0      0            192.0.2.15:49833   198.51.100.20:5432",
-  "0      0            192.0.2.15:49834   198.51.100.20:5432",
+  "0      0             10.0.2.15:49832   198.51.100.20:5432",
+  "0      0             10.0.2.15:49833   198.51.100.20:5432",
+  "0      0             10.0.2.15:49834   198.51.100.20:5432",
 ].join("\n");
 const RST_CMD = "sudo tcpdump -nn -i eth0 'tcp port 5432 and tcp[tcpflags] & tcp-rst != 0'";
 const RST_OUT = [
   "tcpdump: verbose output suppressed, use -v[v]... for full protocol decode",
   "listening on eth0, link-type EN10MB (Ethernet), snapshot length 262144 bytes",
-  "06:02:14.371208 IP 198.51.100.20.5432 > 192.0.2.15.49832: Flags [R], seq 2294110417, win 0, length 0",
+  "06:02:14.371208 IP 198.51.100.20.5432 > 10.0.2.15.49832: Flags [R], seq 2294110417, win 0, length 0",
 ].join("\n");
 const KEEP_CMD = "sysctl net.ipv4.tcp_keepalive_time net.ipv4.tcp_keepalive_intvl net.ipv4.tcp_keepalive_probes";
 const KEEP_OUT = ["net.ipv4.tcp_keepalive_time = 7200", "net.ipv4.tcp_keepalive_intvl = 75", "net.ipv4.tcp_keepalive_probes = 9"].join("\n");
@@ -568,7 +568,7 @@ export const incidentesDeRede: SceneDef = {
       nav: "Pool saudável",
       title: "Um serviço com um pool de 3 conexões para o Postgres",
       body: [
-        "O serviço mantém um pool de conexões com o banco, que fica numa subnet privada: o tráfego passa pelo **NAT Gateway** (aula 8). Durante o dia, as conexões são usadas sem parar.",
+        "O serviço roda numa subnet privada e mantém um pool de conexões com um Postgres gerenciado **fora da VPC** (outro provedor, acessado pelo IP público): toda conexão de saída passa pelo **NAT Gateway** (aula 8). Durante o dia, as conexões são usadas sem parar.",
         "Tudo funciona. O incidente nasce **quando o serviço fica ocioso**.",
       ],
       metrics: m30("0 s", "3", "ok"),
