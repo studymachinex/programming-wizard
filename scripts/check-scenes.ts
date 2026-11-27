@@ -15,7 +15,7 @@ import { resolveCommand } from "../lib/scenes/terminal";
 import type { IsoStage, LayersStage, SceneDef, SceneStep, SeqMessage, SequenceStage } from "../lib/scenes/types";
 
 /** Trilhas cujas aulas todas precisam ter cena: "redes-backend" (Fase 1), "docker" (Fase 2), "kubernetes" (Fase 3). */
-const REQUIRED_TRACKS: string[] = [];
+const REQUIRED_TRACKS: string[] = ["redes-backend"];
 
 const TRACKS_DIR = path.join(process.cwd(), "content", "tracks");
 
