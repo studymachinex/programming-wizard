@@ -23,6 +23,12 @@ const LOADERS: Record<string, Loader> = {
   "redes-backend/nat-e-ip-publico": () => import("./redes/ip").then((m) => m.nat),
   "redes-backend/udp-datagramas": () => import("./redes/udp").then((m) => m.udpDatagramas),
   "redes-backend/servidor-udp-em-java": () => import("./redes/udp").then((m) => m.servidorUdp),
+  "redes-backend/tcp-segmento-e-handshake": () => import("./redes/tcp").then((m) => m.handshakeTcp),
+  "redes-backend/estados-e-fechamento-tcp": () => import("./redes/tcp").then((m) => m.estadosTcp),
+  "redes-backend/controle-de-fluxo": () => import("./redes/tcp").then((m) => m.controleDeFluxo),
+  "redes-backend/controle-de-congestionamento": () => import("./redes/tcp").then((m) => m.congestionamento),
+  "redes-backend/sockets-e-filas-do-kernel": () => import("./redes/tcp").then((m) => m.filasDoKernel),
+  "redes-backend/servidor-tcp-em-java": () => import("./redes/tcp").then((m) => m.servidorTcp),
 };
 
 export function hasScene(track: string, lesson: string): boolean {

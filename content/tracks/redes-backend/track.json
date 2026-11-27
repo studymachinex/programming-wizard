@@ -639,6 +639,372 @@
           ]
         }
       ]
+    },
+    {
+      "slug": "tcp",
+      "title": "TCP por dentro",
+      "description": "Handshake e segmentos, estados do fechamento, controle de fluxo e de congestionamento, as filas do kernel no listen e servidores TCP em Java com threads virtuais e NIO.",
+      "estimatedHours": 8,
+      "exercises": [
+        "exercises/redes-maquina-de-estados-tcp.json",
+        "exercises/redes-janela-de-congestionamento.json"
+      ],
+      "lessons": [
+        {
+          "slug": "tcp-segmento-e-handshake",
+          "title": "Segmento TCP e o three-way handshake",
+          "summary": "Os campos do segmento, SYN, SYN-ACK e ACK com seq e ack reais, as opções negociadas, o SYN perdido e por que são três vias.",
+          "minutes": 50,
+          "file": "lessons/11-tcp-segmento-e-handshake.md",
+          "takeaways": [
+            "Ler seq e ack: o ack é o próximo byte esperado, e SYN e FIN consomem 1 número de sequência",
+            "Descrever os três segmentos do handshake e o custo de 1 RTT",
+            "Explicar as opções do SYN: MSS, SACK, escala de janela e timestamps",
+            "Calcular o tempo de um SYN perdido (≈ 127 s) e usar timeout de conexão em Java"
+          ],
+          "quiz": [
+            {
+              "question": "O cliente envia um SYN com seq=1000. Que ack deve levar o SYN-ACK do servidor?",
+              "options": [
+                "1000",
+                "1001",
+                "1460",
+                "0"
+              ],
+              "answer": 1,
+              "explanation": "O SYN consome um número de sequência, então o próximo byte esperado do cliente é 1001. O ack é sempre o próximo byte que quem confirma espera receber."
+            },
+            {
+              "question": "Por que o número de sequência inicial (ISN) é aleatório?",
+              "options": [
+                "Para o servidor distinguir clientes pelo ISN",
+                "Para reduzir o tamanho do cabeçalho",
+                "Para segmentos antigos não serem confundidos com os de uma conexão nova e dificultar a forja de segmentos",
+                "Porque o TCP usa o ISN como porta de origem"
+              ],
+              "answer": 2,
+              "explanation": "Um ISN previsível permitiria a um atacante forjar segmentos aceitáveis e faria segmentos atrasados de uma conexão antiga parecerem válidos numa nova com a mesma quádrupla."
+            },
+            {
+              "question": "Um host não responde ao SYN. Com tcp_syn_retries=6 no Linux, depois de aproximadamente quanto tempo o connect() desiste?",
+              "options": [
+                "3 segundos",
+                "21 segundos",
+                "127 segundos",
+                "10 minutos"
+              ],
+              "answer": 2,
+              "explanation": "O RTO inicial é 1 s e dobra a cada tentativa: 1+2+4+8+16+32+64 = 127 s. Por isso toda chamada precisa de um timeout de conexão próprio (socket.connect(addr, timeoutMs))."
+            },
+            {
+              "question": "Qual opção do SYN só pode ser combinada durante o handshake e multiplica o campo de janela de 16 bits?",
+              "options": [
+                "MSS",
+                "SACK permitido",
+                "Escala de janela",
+                "Timestamps"
+              ],
+              "answer": 2,
+              "explanation": "A escala de janela (RFC 7323) é fixada no SYN e vale para a conexão toda. Sem ela, a janela máxima é 65.535 bytes, o que limita a vazão em RTTs altos."
+            }
+          ]
+        },
+        {
+          "slug": "estados-e-fechamento-tcp",
+          "title": "Estados da conexão: FIN, TIME_WAIT e CLOSE_WAIT",
+          "summary": "O fechamento em quatro vias, os estados de cada lado, o TIME_WAIT de 2×MSL, o CLOSE_WAIT acumulando por bug e o RST.",
+          "minutes": 50,
+          "file": "lessons/12-estados-e-fechamento-tcp.md",
+          "takeaways": [
+            "Seguir FIN, ACK, FIN, ACK e os estados do lado ativo e do passivo",
+            "Explicar por que o TIME_WAIT existe, quanto dura (60 s no Linux) e quem o paga",
+            "Diagnosticar CLOSE_WAIT acumulando como close() ausente na aplicação",
+            "Usar shutdownOutput() para half-close e try-with-resources para fechar sempre"
+          ],
+          "quiz": [
+            {
+              "question": "Qual lado fica em TIME_WAIT depois do fechamento?",
+              "options": [
+                "O que fechou por último",
+                "O que fechou primeiro (fechamento ativo)",
+                "Sempre o servidor",
+                "Os dois lados"
+              ],
+              "answer": 1,
+              "explanation": "Quem envia o primeiro FIN espera 2×MSL ao final, para reenviar o ACK final se preciso e deixar morrerem segmentos atrasados. Se o servidor fecha primeiro, é ele quem acumula TIME_WAIT."
+            },
+            {
+              "question": "O servidor tem 4.000 conexões em CLOSE_WAIT e crescendo. Qual é a causa mais provável?",
+              "options": [
+                "A rede está perdendo o ACK final",
+                "O backlog do listen é pequeno demais",
+                "A aplicação recebeu o FIN dos clientes e não chama close() nos sockets",
+                "O tcp_fin_timeout está alto demais"
+              ],
+              "answer": 2,
+              "explanation": "O kernel já confirmou o FIN e espera a aplicação fechar o seu lado. CLOSE_WAIT não expira: só some com close(). O conserto está no código (finally, try-with-resources)."
+            },
+            {
+              "question": "O que significa read() devolver -1 em um Socket Java?",
+              "options": [
+                "Houve um timeout",
+                "O par enviou RST",
+                "O par terminou o seu envio (FIN): fim do fluxo",
+                "O buffer está vazio por enquanto"
+              ],
+              "answer": 2,
+              "explanation": "É o EOF: o outro lado fechou o seu sentido de envio. A aplicação deve terminar o que faz e chamar close(), caso contrário a conexão fica em CLOSE_WAIT."
+            },
+            {
+              "question": "Quanto dura o TIME_WAIT no Linux?",
+              "options": [
+                "Configurável por tcp_fin_timeout",
+                "60 segundos, valor fixo",
+                "2 segundos",
+                "Até o cliente reconectar"
+              ],
+              "answer": 1,
+              "explanation": "É 2×MSL com um valor fixo de 60 s no kernel; o tcp_fin_timeout controla outro estado (FIN_WAIT_2 de sockets órfãos). Para quem abre muitas conexões, a solução é reaproveitá-las."
+            }
+          ]
+        },
+        {
+          "slug": "controle-de-fluxo",
+          "title": "Controle de fluxo e janela deslizante",
+          "summary": "A janela de recepção em cada ACK, janela zero e sondas, a escala de janela, o BDP e a diferença entre rwnd e cwnd.",
+          "minutes": 45,
+          "file": "lessons/13-controle-de-fluxo.md",
+          "takeaways": [
+            "Entender que cada ACK anuncia a janela de recepção (rwnd) e o remetente respeita esse limite",
+            "Reconhecer janela zero, sondas e atualização de janela como pausa do receptor, e não falha de rede",
+            "Calcular vazão máxima de uma janela e o produto banda × atraso",
+            "Distinguir rwnd (receptor) de cwnd (rede): o envio é min(rwnd, cwnd)"
+          ],
+          "quiz": [
+            {
+              "question": "Qual é o envio efetivo de uma conexão TCP?",
+              "options": [
+                "Sempre a cwnd",
+                "Sempre a rwnd",
+                "min(rwnd, cwnd)",
+                "rwnd + cwnd"
+              ],
+              "answer": 2,
+              "explanation": "A rwnd protege o receptor e a cwnd protege a rede. O remetente respeita as duas ao mesmo tempo, então vale o menor valor."
+            },
+            {
+              "question": "Uma conexão está ESTABLISHED, sem perdas, mas parada: Send-Q alto no remetente e Recv-Q alto no receptor. Qual é a causa mais provável?",
+              "options": [
+                "Congestionamento na rede",
+                "A aplicação do receptor parou de ler o socket e a janela chegou a zero",
+                "O MSS é grande demais",
+                "O firewall removeu o SYN"
+              ],
+              "answer": 1,
+              "explanation": "O buffer de recepção encheu, o receptor anunciou win=0 e o remetente parou. A investigação deve ir à thread que deixou de ler, e não à rede."
+            },
+            {
+              "question": "Para que serve a sonda de janela zero?",
+              "options": [
+                "Medir o RTT da conexão",
+                "Descobrir que a janela reabriu caso o aviso de atualização se perca",
+                "Testar o MTU do caminho",
+                "Reiniciar a conexão"
+              ],
+              "answer": 1,
+              "explanation": "Sem a sonda, um aviso de janela perdido deixaria os dois lados esperando para sempre. O temporizador de persistência a envia em intervalos crescentes até a janela reabrir."
+            },
+            {
+              "question": "Com janela de 65.535 bytes (sem escala) e RTT de 100 ms, qual é a vazão máxima aproximada?",
+              "options": [
+                "52 Mbit/s",
+                "5,2 Mbit/s",
+                "520 kbit/s",
+                "65 Mbit/s"
+              ],
+              "answer": 1,
+              "explanation": "No máximo 65.535 bytes (524.280 bits) por RTT: 524.280 / 0,1 s ≈ 5,2 Mbit/s, qualquer que seja a velocidade do enlace. A escala de janela corrige isso."
+            }
+          ]
+        },
+        {
+          "slug": "controle-de-congestionamento",
+          "title": "Congestionamento: slow start, AIMD e perdas",
+          "summary": "A cwnd no slow start, na congestion avoidance e nas perdas por ACKs duplicados e por timeout, o AIMD, o CUBIC e o BBR.",
+          "minutes": 55,
+          "file": "lessons/14-controle-de-congestionamento.md",
+          "takeaways": [
+            "Descrever slow start (dobra por RTT), congestion avoidance (+1 MSS por RTT) e o ssthresh",
+            "Aplicar a reação do Reno: 3 ACKs duplicados cortam à metade, timeout volta a 1 MSS",
+            "Explicar o AIMD e o dente de serra como mecanismo de divisão justa de banda",
+            "Citar CUBIC como padrão do Linux e BBR como alternativa, e explicar por que conexões novas são lentas"
+          ],
+          "quiz": [
+            {
+              "question": "Uma conexão começa com IW10 (cwnd = 10) e está em slow start, sem perdas. Qual é a cwnd depois de 3 RTTs?",
+              "options": [
+                "13",
+                "30",
+                "80",
+                "1000"
+              ],
+              "answer": 2,
+              "explanation": "O slow start dobra a cwnd por RTT: 10, 20, 40 e 80 ao fim do terceiro RTT (supondo ssthresh acima disso)."
+            },
+            {
+              "question": "No Reno, cwnd = 44 e chegam 3 ACKs duplicados. Quais são o ssthresh e a cwnd depois da recuperação?",
+              "options": [
+                "ssthresh 22 e cwnd 22",
+                "ssthresh 44 e cwnd 1",
+                "ssthresh 22 e cwnd 1",
+                "ssthresh 11 e cwnd 11"
+              ],
+              "answer": 0,
+              "explanation": "O fast retransmit seguido de fast recovery corta tudo à metade: ssthresh = 22 e cwnd volta a 22 (durante a recuperação, vale ssthresh + 3, inflando a cada duplicado)."
+            },
+            {
+              "question": "Um timeout de retransmissão expira com cwnd = 26. O que o Reno faz?",
+              "options": [
+                "cwnd = 13 e continua em congestion avoidance",
+                "cwnd = 1 MSS, ssthresh = 13 e recomeça o slow start",
+                "cwnd = 26, mas dobra o RTO",
+                "cwnd = 0 até o receptor responder"
+              ],
+              "answer": 1,
+              "explanation": "Sem nenhum ACK, o TCP não tem informação sobre a rede: assume o pior, volta a 1 MSS e recomeça o slow start até o novo ssthresh (13). É por isso que o timeout custa muito mais que 3 ACKs duplicados."
+            },
+            {
+              "question": "Qual afirmação sobre algoritmos de congestionamento no Linux é correta?",
+              "options": [
+                "O Reno é o padrão e o CUBIC é experimental",
+                "O CUBIC é o padrão; o BBR é uma alternativa que estima a banda do gargalo e o RTT mínimo em vez de reagir a perdas",
+                "O BBR é o padrão e não pode ser desligado",
+                "Todos têm o mesmo gráfico de cwnd"
+              ],
+              "answer": 1,
+              "explanation": "O Linux usa CUBIC por padrão. O BBR é um modelo diferente: regula o ritmo pela banda e pelo RTT estimados, o que ajuda em caminhos com perdas que não são congestionamento."
+            }
+          ]
+        },
+        {
+          "slug": "sockets-e-filas-do-kernel",
+          "title": "Sockets, backlog, SYN queue e accept queue",
+          "summary": "As duas filas do listen, o backlog limitado por somaxconn, accept queue cheia e SYN descartado, SYN flood e SYN cookies.",
+          "minutes": 50,
+          "file": "lessons/15-sockets-e-filas-do-kernel.md",
+          "takeaways": [
+            "Diferenciar a SYN queue (handshakes incompletos) da accept queue (conexões prontas)",
+            "Calcular o backlog efetivo: min(backlog do listen, net.core.somaxconn) e conhecer o padrão de 50 do Java",
+            "Ler Recv-Q e Send-Q de um socket em LISTEN e reconhecer accept queue cheia (1 s, 3 s, 7 s)",
+            "Manter o laço de aceitação só com accept() e delegar o atendimento"
+          ],
+          "quiz": [
+            {
+              "question": "No ss -ltn, o que significam Recv-Q e Send-Q para um socket em LISTEN?",
+              "options": [
+                "Bytes recebidos e enviados na última hora",
+                "Recv-Q é o número de conexões na accept queue agora; Send-Q é o backlog máximo",
+                "Recv-Q é o tamanho da SYN queue; Send-Q é o MSS",
+                "Os buffers de recepção e envio do socket"
+              ],
+              "answer": 1,
+              "explanation": "Para sockets em LISTEN, o ss mostra a ocupação atual da accept queue em Recv-Q e o seu limite em Send-Q. Recv-Q perto de Send-Q significa que a aplicação não está aceitando a tempo."
+            },
+            {
+              "question": "Clientes relatam conexões que demoram 1 s, 3 s ou 7 s, e o contador ListenOverflows sobe. Qual é a causa mais provável?",
+              "options": [
+                "O DNS está lento",
+                "A accept queue está cheia e o kernel descarta SYNs, que o cliente retransmite em 1 s, 2 s, 4 s",
+                "O TLS está falhando",
+                "O MTU do caminho é menor que o esperado"
+              ],
+              "answer": 1,
+              "explanation": "Com a accept queue cheia, o Linux ignora SYNs novos. O cliente retransmite após 1 s, mais 2 s (3 s acumulados), mais 4 s (7 s). A aplicação não está chamando accept() rápido o bastante."
+            },
+            {
+              "question": "Uma aplicação Java abre new ServerSocket(8080) e o somaxconn do sistema é 4096. Qual é o tamanho aproximado da accept queue?",
+              "options": [
+                "4096",
+                "128",
+                "50",
+                "Ilimitado"
+              ],
+              "answer": 2,
+              "explanation": "O backlog efetivo é min(backlog do listen, somaxconn). O ServerSocket usa 50 por padrão, então a fila fica em torno de 50, mesmo com o somaxconn alto. Passe um backlog explícito."
+            },
+            {
+              "question": "Para que servem os SYN cookies?",
+              "options": [
+                "Para criptografar o handshake",
+                "Para o servidor não guardar estado na SYN queue durante um SYN flood, codificando-o no número de sequência",
+                "Para acelerar conexões repetidas do mesmo cliente",
+                "Para aumentar o backlog automaticamente"
+              ],
+              "answer": 1,
+              "explanation": "Com a SYN queue cheia, o kernel responde SYN-ACK sem guardar a entrada: o estado vai embutido no ISN. Só quem devolve o ACK correto vira conexão, e atacantes que forjam IPs não ocupam memória."
+            }
+          ]
+        },
+        {
+          "slug": "servidor-tcp-em-java",
+          "title": "Servidor TCP em Java: bloqueante, threads virtuais e NIO",
+          "summary": "Thread por conexão, threads virtuais (Java 21+) e o Selector do NIO, com um servidor completo, timeouts, pinning e encerramento ordenado.",
+          "minutes": 55,
+          "file": "lessons/16-servidor-tcp-em-java.md",
+          "takeaways": [
+            "Comparar thread por conexão, threads virtuais e Selector em threads do SO, código e densidade",
+            "Escrever um servidor com accept(), newVirtualThreadPerTaskExecutor(), setSoTimeout e try-with-resources",
+            "Conhecer os limites das threads virtuais: pinning, sem pool, Semaphore para recursos escassos",
+            "Encerrar com ordem: fechar o ServerSocket e esperar o executor"
+          ],
+          "quiz": [
+            {
+              "question": "Como uma thread virtual escala melhor que uma thread de plataforma por conexão?",
+              "options": [
+                "Ela roda em outro processador dedicado",
+                "Num read() que bloqueia, é desmontada do carrier, que fica livre para outras threads virtuais; a pilha é pequena",
+                "Ela usa I/O não bloqueante no código da aplicação",
+                "Ela ignora o escalonador do kernel e nunca é interrompida"
+              ],
+              "answer": 1,
+              "explanation": "O código continua bloqueante, mas a JVM estaciona a thread virtual e reutiliza o carrier (uma thread do SO) para outra. Milhares de conexões ociosas custam pouca memória e poucas threads do SO."
+            },
+            {
+              "question": "Há 10.000 threads virtuais disputando um pool de 20 conexões de banco. Como limitar a concorrência corretamente?",
+              "options": [
+                "Criar um pool de 20 threads virtuais",
+                "Aumentar o número de carriers para 10.000",
+                "Usar um Semaphore de 20 permissões em volta do acesso ao banco, ou o próprio limite do pool de conexões",
+                "Não é preciso: a JVM limita sozinha"
+              ],
+              "answer": 2,
+              "explanation": "Threads virtuais são baratas e devem ser criadas uma por tarefa, e nunca colocadas em pool. O limite de concorrência de um recurso escasso se impõe nele, com um Semaphore ou o pool de conexões."
+            },
+            {
+              "question": "Qual é o risco de aceitar um Socket e nunca definir setSoTimeout?",
+              "options": [
+                "O socket usa mais memória",
+                "Um cliente que conecta e não envia nada segura a conexão e a tarefa para sempre (slowloris)",
+                "O backlog diminui",
+                "O TCP deixa de usar o handshake"
+              ],
+              "answer": 1,
+              "explanation": "Sem timeout, um read() sem dados espera indefinidamente. Mesmo com thread virtual, isso acumula descritores, memória e tarefas. Defina um timeout por conexão e limite as conexões por cliente."
+            },
+            {
+              "question": "O que muda no código ao trocar o modelo bloqueante por um Selector (NIO)?",
+              "options": [
+                "Nada: a API é idêntica",
+                "O código passa a ser uma máquina de estados: o estado de cada conexão fica guardado fora da pilha (por exemplo, anexado à SelectionKey)",
+                "Precisa-se de uma thread por conexão",
+                "O accept() deixa de existir no TCP"
+              ],
+              "answer": 1,
+              "explanation": "Num canal não bloqueante nada espera dentro de um método: lê-se o que houver e volta-se ao select(). Por isso cada conexão precisa de estado próprio (buffers, posição no protocolo)."
+            }
+          ]
+        }
+      ]
     }
   ]
 }

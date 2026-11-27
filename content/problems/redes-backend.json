@@ -64,5 +64,38 @@
     "topic": "Intervalos",
     "moduleSlug": "udp",
     "description": "Números chegam fora de ordem e o resumo precisa ser uma lista de intervalos disjuntos. É o raciocínio por trás de acks seletivos e de buffers de reordenação: o que já chegou é uma união de faixas, e o que falta são as lacunas entre elas."
+  },
+  {
+    "slug": "redes-network-delay-time",
+    "title": "Network Delay Time",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/network-delay-time/",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "Grafos",
+    "moduleSlug": "tcp",
+    "description": "Calcule o tempo para um sinal alcançar todos os nós de uma rede com Dijkstra: a mesma ideia do RTT acumulado salto a salto que o traceroute revela e que o handshake paga uma vez por ida e volta."
+  },
+  {
+    "slug": "redes-merge-intervals",
+    "title": "Merge Intervals",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/merge-intervals/",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "Intervalos",
+    "moduleSlug": "tcp",
+    "description": "Una intervalos sobrepostos depois de ordená-los. É o raciocínio do SACK: o receptor informa os blocos de bytes que já chegaram, o remetente calcula as lacunas e retransmite só o que falta."
+  },
+  {
+    "slug": "redes-sliding-window-maximum",
+    "title": "Sliding Window Maximum",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/sliding-window-maximum/",
+    "difficulty": "dificil",
+    "level": 4,
+    "topic": "Janela deslizante",
+    "moduleSlug": "tcp",
+    "description": "Encontre o máximo de cada janela deslizante em O(n) com uma deque monotônica. A janela que avança e recua com os ACKs do TCP é o mesmo modelo, e a estrutura serve para medir picos de vazão ou de RTT por janela."
   }
 ]
