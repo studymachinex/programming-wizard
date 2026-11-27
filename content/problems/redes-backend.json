@@ -207,5 +207,38 @@
     "topic": "Conjunto com sorteio",
     "moduleSlug": "proxies",
     "description": "Um conjunto onde entrar, sair e sortear um elemento custam O(1): a estrutura de um balanceador que adiciona e remove backends da rotação e sorteia um entre os saudáveis."
+  },
+  {
+    "slug": "redes-exclusive-time-of-functions",
+    "title": "Exclusive Time of Functions",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/exclusive-time-of-functions/",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "Análise de logs",
+    "moduleSlug": "diagnostico",
+    "description": "Leia um log de eventos com horário (início e fim de funções) e calcule o tempo exclusivo de cada uma com uma pilha: o mesmo raciocínio de ler uma captura e separar o tempo da rede do tempo da aplicação."
+  },
+  {
+    "slug": "redes-tweet-counts-per-frequency",
+    "title": "Tweet Counts Per Frequency",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/tweet-counts-per-frequency/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Janelas de tempo",
+    "moduleSlug": "diagnostico",
+    "description": "Agrupe eventos com horário em intervalos de minuto, hora ou dia: a agregação por janela que se faz ao contar pacotes, erros ou conexões por intervalo numa investigação de incidente."
+  },
+  {
+    "slug": "redes-reformat-date",
+    "title": "Reformat Date",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/reformat-date/",
+    "difficulty": "facil",
+    "level": 1,
+    "topic": "Parsing de texto",
+    "moduleSlug": "diagnostico",
+    "description": "Converta datas de um formato textual para outro: o parsing de campos de data e hora que qualquer script de análise de logs e de capturas precisa fazer."
   }
 ]

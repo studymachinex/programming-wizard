@@ -40,6 +40,9 @@ const LOADERS: Record<string, Loader> = {
   "redes-backend/proxy-e-reverse-proxy": () => import("./redes/proxies").then((m) => m.proxyEReverseProxy),
   "redes-backend/load-balancer-l4-vs-l7": () => import("./redes/proxies").then((m) => m.balanceamentoL4L7),
   "redes-backend/acesso-de-rede-ao-banco": () => import("./redes/proxies").then((m) => m.acessoAoBanco),
+  "redes-backend/tcpdump-e-wireshark": () => import("./redes/diagnostico").then((m) => m.tcpdumpEWireshark),
+  "redes-backend/o-que-acontece-ao-clicar-num-link": () => import("./redes/diagnostico").then((m) => m.cliqueNumLink),
+  "redes-backend/incidentes-de-rede-reais": () => import("./redes/diagnostico").then((m) => m.incidentesDeRede),
 };
 
 export function hasScene(track: string, lesson: string): boolean {

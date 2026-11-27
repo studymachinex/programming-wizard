@@ -1654,6 +1654,170 @@
           ]
         }
       ]
+    },
+    {
+      "slug": "diagnostico",
+      "title": "Diagnóstico",
+      "description": "Leitura de capturas com tcpdump e Wireshark, a linha do tempo completa de um clique num link, e os incidentes reais: conexões mortas por firewall e portas esgotadas.",
+      "estimatedHours": 3,
+      "exercises": [],
+      "lessons": [
+        {
+          "slug": "tcpdump-e-wireshark",
+          "title": "Lendo pacotes com tcpdump e Wireshark",
+          "summary": "Captura com filtros BPF, flags e números de sequência, RTT e tempo do servidor a partir dos horários, sintomas de retransmissão e RST, Wireshark e o TLS.",
+          "minutes": 55,
+          "file": "lessons/28-tcpdump-e-wireshark.md",
+          "takeaways": [
+            "Capturar com tcpdump -i <iface> -nn e um filtro BPF, e gravar um arquivo com -w para o Wireshark",
+            "Ler as flags [S], [S.], [.], [P.], [F.] e [R], e distinguir números de sequência relativos de absolutos (-S)",
+            "Calcular o RTT (do SYN ao SYN-ACK) e o tempo da aplicação (pedido até resposta menos um RTT) a partir dos horários",
+            "Saber que em TLS só os metadados aparecem, a menos que a chave da sessão seja exportada com SSLKEYLOGFILE"
+          ],
+          "quiz": [
+            {
+              "question": "Numa captura, o [S] sai às 14:02:11.100001 e o [S.] chega às 14:02:11.112310. O que isso mede?",
+              "options": [
+                "O tempo de processamento do servidor",
+                "Cerca de 1 RTT: 12,3 ms",
+                "O TTL do pacote",
+                "O tempo de TLS"
+              ],
+              "answer": 1,
+              "explanation": "O SYN-ACK responde ao SYN sem passar pela aplicação, então o intervalo entre eles é uma ida e volta de rede, medido no ponto de captura."
+            },
+            {
+              "question": "O que significa a linha 'Flags [P.], seq 1:84, ack 1, length 83'?",
+              "options": [
+                "Um RST de 83 bytes",
+                "Dados (PUSH + ACK) dos bytes 1 a 83, confirmando o que chegou até o byte 0 do outro lado",
+                "Um SYN com 83 bytes",
+                "Um fechamento de conexão"
+              ],
+              "answer": 1,
+              "explanation": "[P.] é PUSH com ACK: o segmento leva dados. seq 1:84 cobre os bytes de 1 a 83, e ack 1 indica o próximo byte esperado do outro lado."
+            },
+            {
+              "question": "Um SYN com o mesmo seq aparece de novo 1 s e depois 3 s após o primeiro, sem nenhum SYN-ACK. Qual é a leitura?",
+              "options": [
+                "A porta está fechada: alguém respondeu com RST",
+                "Ninguém respondeu: algo descartou o SYN (firewall, rota ou fila cheia)",
+                "O servidor está lento na aplicação",
+                "A conexão foi fechada normalmente"
+              ],
+              "answer": 1,
+              "explanation": "A retransmissão do mesmo SYN sem resposta indica descarte. Porta fechada geraria um [R.] imediato."
+            },
+            {
+              "question": "Você captura uma sessão HTTPS e quer ver o conteúdo das requisições na sua máquina de teste. O que ajuda?",
+              "options": [
+                "Usar -nn",
+                "Exportar os segredos da sessão com SSLKEYLOGFILE e apontar o Wireshark para o arquivo",
+                "Aumentar o snaplen",
+                "Capturar em outra interface"
+              ],
+              "answer": 1,
+              "explanation": "O conteúdo está cifrado; sem as chaves, só aparecem os metadados (endereços, tempos, tamanhos e o SNI). O SSLKEYLOGFILE é uma técnica de depuração local."
+            }
+          ]
+        },
+        {
+          "slug": "o-que-acontece-ao-clicar-num-link",
+          "title": "O que acontece quando você clica num link",
+          "summary": "A cadeia de DNS, TCP, TLS 1.3 e HTTP com o tempo de cada fase, o que muda na visita quente e a otimização certa para cada fase.",
+          "minutes": 45,
+          "file": "lessons/29-o-que-acontece-ao-clicar-num-link.md",
+          "takeaways": [
+            "Ordenar as fases de uma visita fria: caches, DNS, handshake TCP, handshake TLS, requisição e resposta",
+            "Somar os tempos e contar os três RTTs de rede antes do primeiro byte útil",
+            "Explicar o que desaparece numa visita quente: DNS em cache e conexão reaproveitada",
+            "Escolher a otimização por fase e medir com curl -w, lembrando que os campos são acumulados"
+          ],
+          "quiz": [
+            {
+              "question": "Com RTT de 30 ms, DNS de 40 ms, TLS 1.3 e 20 ms de servidor, quanto leva uma visita fria até o primeiro byte da resposta?",
+              "options": [
+                "90 ms",
+                "120 ms",
+                "150 ms",
+                "190 ms"
+              ],
+              "answer": 2,
+              "explanation": "DNS 40 + TCP 30 + TLS 30 + (RTT 30 + 20 de servidor) = 150 ms até o primeiro byte. O restante do HTML soma mais alguns milissegundos."
+            },
+            {
+              "question": "No curl -w, qual é a leitura correta de time_appconnect?",
+              "options": [
+                "Só o tempo do handshake TLS",
+                "O tempo acumulado desde o início até o fim do handshake TLS, incluindo DNS e TCP",
+                "O tempo do servidor",
+                "O tempo de download"
+              ],
+              "answer": 1,
+              "explanation": "Os campos do curl são acumulados. Subtraindo time_connect de time_appconnect obtém-se a duração do handshake TLS."
+            },
+            {
+              "question": "Qual mudança elimina três fases da conta no segundo clique no mesmo site?",
+              "options": [
+                "Trocar o algoritmo de congestionamento",
+                "DNS em cache e conexão HTTP aberta e reaproveitada",
+                "Aumentar o MTU",
+                "Desligar o TLS"
+              ],
+              "answer": 1,
+              "explanation": "Com o IP em cache e a conexão aberta, não há DNS, SYN nem handshake TLS: sobram a requisição e a resposta."
+            }
+          ]
+        },
+        {
+          "slug": "incidentes-de-rede-reais",
+          "title": "Incidentes reais: firewall matando conexões ociosas e portas esgotadas",
+          "summary": "O NAT que esquece conexões ociosas (350 s), o erro só na próxima query, a cura com keepaliveTime, TCP keepalive e maxLifetime, e o esgotamento de portas como método sintoma, diagnóstico e correção.",
+          "minutes": 50,
+          "file": "lessons/30-incidentes-de-rede-reais.md",
+          "takeaways": [
+            "Explicar como um NAT ou firewall esquece conexões ociosas sem enviar FIN nem RST, e o limite de 350 s do NAT Gateway da AWS",
+            "Reconhecer o padrão: erro na primeira query depois de ociosidade, só em baixo tráfego",
+            "Curar com keepaliveTime e TCP keepalive abaixo do idle timeout, mais maxLifetime",
+            "Aplicar o método sintoma, diagnóstico com comandos e correção também ao esgotamento de portas"
+          ],
+          "quiz": [
+            {
+              "question": "Toda manhã a primeira query de cada serviço falha com Connection reset, e as seguintes funcionam. O pool tem conexões e o banco está saudável. Qual é a causa mais provável?",
+              "options": [
+                "O banco reinicia à noite",
+                "Um firewall ou NAT esqueceu as conexões ociosas, e o pool entregou uma morta",
+                "O DNS expirou",
+                "O MTU está errado"
+              ],
+              "answer": 1,
+              "explanation": "Sem tráfego por mais que o idle timeout (350 s no NAT Gateway), a entrada some sem aviso. O erro aparece só quando a conexão é usada, e o pool depois a substitui."
+            },
+            {
+              "question": "O NAT tem idle timeout de 350 s. Qual configuração do pool é coerente?",
+              "options": [
+                "keepaliveTime de 10 minutos",
+                "keepaliveTime de 2 minutos",
+                "keepaliveTime desligado e timeout de leitura maior",
+                "maxLifetime de 2 horas e nada mais"
+              ],
+              "answer": 1,
+              "explanation": "O intervalo de keepalive precisa ser menor que o idle timeout, para o tráfego renovar a entrada antes que ela seja esquecida."
+            },
+            {
+              "question": "Por que o TCP keepalive padrão do Linux não resolve o problema do NAT sozinho?",
+              "options": [
+                "Porque o keepalive não existe no Linux",
+                "O padrão de tcp_keepalive_time é 7200 s, muito acima de 350 s, e o SO_KEEPALIVE precisa estar ligado no socket",
+                "Porque o NAT bloqueia o keepalive",
+                "Porque o TCP keepalive só vale para UDP"
+              ],
+              "answer": 1,
+              "explanation": "A primeira sonda só sai após 7200 s ociosos, tarde demais. É preciso ligar SO_KEEPALIVE e reduzir o tempo abaixo do idle timeout, ou usar o keepaliveTime do pool."
+            }
+          ]
+        }
+      ]
     }
   ]
 }
