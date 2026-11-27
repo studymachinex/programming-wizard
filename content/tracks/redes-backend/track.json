@@ -1477,6 +1477,183 @@
           ]
         }
       ]
+    },
+    {
+      "slug": "proxies",
+      "title": "Proxies e balanceamento",
+      "description": "Forward proxy e reverse proxy, o IP do cliente atrás de intermediários, balanceamento L4 contra L7 e o desenho de rede que mantém o banco de dados fora da internet.",
+      "estimatedHours": 3,
+      "exercises": [
+        "exercises/redes-balanceador-l7.json"
+      ],
+      "lessons": [
+        {
+          "slug": "proxy-e-reverse-proxy",
+          "title": "Proxy, reverse proxy e o que cada um enxerga",
+          "summary": "Forward proxy e CONNECT, reverse proxy, a perda do IP do cliente, X-Forwarded-For, Forwarded, PROXY protocol e em quem confiar.",
+          "minutes": 45,
+          "file": "lessons/25-proxy-e-reverse-proxy.md",
+          "takeaways": [
+            "Distinguir forward proxy (o cliente o configura) de reverse proxy (o servidor o configura) e dizer quem enxerga o quê",
+            "Explicar o método CONNECT: o proxy abre um túnel TCP e não lê o HTTPS",
+            "Recuperar o IP do cliente atrás de um proxy com X-Forwarded-For, Forwarded ou PROXY protocol",
+            "Confiar só no que os seus próprios proxies acrescentaram ao X-Forwarded-For"
+          ],
+          "quiz": [
+            {
+              "question": "Atrás de um reverse proxy, todos os acessos aparecem nos logs do backend com o mesmo IP. Qual é a causa?",
+              "options": [
+                "O DNS está errado",
+                "A conexão que chega ao backend vem do proxy; o IP do cliente precisa viajar em X-Forwarded-For ou Forwarded",
+                "O backend usa IPv6",
+                "O TLS está desligado"
+              ],
+              "answer": 1,
+              "explanation": "O IP de origem da conexão TCP é o do proxy. O IP original só chega por cabeçalho (ou pelo PROXY protocol em L4), e a aplicação precisa lê-lo."
+            },
+            {
+              "question": "A lista X-Forwarded-For chegou como '203.0.113.99, 198.51.100.7' e o seu proxy acrescentou o último item. Qual é o IP do cliente em que você pode confiar?",
+              "options": [
+                "203.0.113.99, o primeiro",
+                "198.51.100.7, o que o seu proxy acrescentou",
+                "Nenhum dos dois",
+                "O IP do proxy"
+              ],
+              "answer": 1,
+              "explanation": "Qualquer cliente pode escrever o cabeçalho. O primeiro item pode ser forjado; confie no que foi acrescentado pelos seus proxies, contando a partir da direita."
+            },
+            {
+              "question": "O que o método CONNECT faz num forward proxy?",
+              "options": [
+                "Descriptografa o HTTPS para inspecionar",
+                "Pede ao proxy um túnel TCP até o destino, por onde o TLS passa de ponta a ponta",
+                "Troca o IP do cliente",
+                "Cria uma conexão UDP"
+              ],
+              "answer": 1,
+              "explanation": "O proxy responde 200 e copia bytes nos dois sentidos, vendo só o destino e o volume. Inspecionar o conteúdo exige interceptação deliberada de TLS."
+            }
+          ]
+        },
+        {
+          "slug": "load-balancer-l4-vs-l7",
+          "title": "Balanceamento L4 vs L7",
+          "summary": "O que o L4 e o L7 enxergam, o desequilíbrio de HTTP/2 atrás de L4, roteamento e health check em L7, algoritmos e NLB contra ALB.",
+          "minutes": 45,
+          "file": "lessons/26-load-balancer-l4-vs-l7.md",
+          "takeaways": [
+            "Dizer que o L4 distribui conexões sem ver o HTTP, e o L7 distribui requisições depois de terminar o TLS",
+            "Explicar por que HTTP/2 e gRPC ficam desequilibrados atrás de um L4 e três saídas",
+            "Listar o que o L7 permite: roteamento por host, caminho e cabeçalho, health check HTTP e retry",
+            "Escolher entre round robin, ponderado, least connections, least outstanding requests e hash consistente"
+          ],
+          "quiz": [
+            {
+              "question": "Clientes gRPC mantêm uma conexão longa cada. Atrás de um balanceador L4, uma réplica está a 90% de CPU e a outra a 10%. Qual é a causa e uma saída?",
+              "options": [
+                "O L4 balanceou conexões, e cada conexão leva muitas requisições; use L7, balanceamento no cliente ou rotação de conexões",
+                "Falta CPU nas réplicas; escale verticalmente",
+                "O algoritmo é round robin; troque por random",
+                "O TLS está lento"
+              ],
+              "answer": 0,
+              "explanation": "O L4 distribui conexões, não vê as requisições dentro delas. Um L7 reparte as requisições; o balanceamento no cliente ou o MAX_CONNECTION_AGE também redistribuem."
+            },
+            {
+              "question": "Qual recurso só um balanceador L7 oferece?",
+              "options": [
+                "Rotear /api e /static para grupos diferentes",
+                "Encaminhar pacotes TCP",
+                "Escolher backend por IP de origem",
+                "Passar TLS sem terminar"
+              ],
+              "answer": 0,
+              "explanation": "Rotear por caminho, host ou cabeçalho exige ler a requisição HTTP, o que o L4 não faz."
+            },
+            {
+              "question": "Um backend tem a porta aberta, mas a aplicação responde 500 em /healthz. Qual tipo de health check o tira da rotação?",
+              "options": [
+                "Health check de TCP",
+                "Health check de HTTP esperando 200",
+                "Nenhum, ele continua saudável",
+                "Ping ICMP"
+              ],
+              "answer": 1,
+              "explanation": "O check TCP só confirma que a porta aceita conexões. O HTTP exercita a aplicação e vê o 500."
+            },
+            {
+              "question": "Por que o hash consistente é usado para afinidade?",
+              "options": [
+                "Distribui sempre de forma perfeitamente igual",
+                "A mesma chave vai ao mesmo backend e, ao entrar ou sair um nó, só uma fração das chaves muda de lugar",
+                "Dispensa health check",
+                "Funciona só em L4"
+              ],
+              "answer": 1,
+              "explanation": "Com hash simples módulo N, quase todas as chaves mudam quando N muda. O anel de hash consistente limita o movimento às chaves do nó afetado."
+            }
+          ]
+        },
+        {
+          "slug": "acesso-de-rede-ao-banco",
+          "title": "Acesso de rede ao banco: subnets privadas, firewall e security groups",
+          "summary": "Banco sem IP público numa subnet privada, security group por referência, NACL stateless, acesso humano por SSM, bastion ou túnel, TLS verify-full e o diagnóstico de timeout contra recusa.",
+          "minutes": 45,
+          "file": "lessons/27-acesso-de-rede-ao-banco.md",
+          "takeaways": [
+            "Desenhar as três camadas: subnet pública, privada de aplicação e privada de dados, com o banco sem IP público",
+            "Escrever a regra do banco: TCP 5432 com origem no security group da aplicação",
+            "Distinguir security group (stateful) de NACL (stateless, exige as portas efêmeras na volta)",
+            "Diferenciar connect timed out (algo descartou) de connection refused (chegou, nada escuta) e seguir o roteiro"
+          ],
+          "quiz": [
+            {
+              "question": "Qual é a regra de entrada mais segura para o security group de um Postgres?",
+              "options": [
+                "TCP 5432 de 0.0.0.0/0",
+                "TCP 5432 com origem no security group da aplicação",
+                "Todo o tráfego da VPC",
+                "TCP 22 de qualquer origem"
+              ],
+              "answer": 1,
+              "explanation": "Referenciar o security group de origem acompanha as instâncias da aplicação e nega todo o resto, sem expor a porta."
+            },
+            {
+              "question": "A NACL libera a entrada na 5432, mas as conexões não completam. O que provavelmente falta?",
+              "options": [
+                "Uma regra de saída para as portas efêmeras (1024 a 65535), pois a NACL é stateless",
+                "Um IP público",
+                "Um NAT Gateway",
+                "Aumentar o MTU"
+              ],
+              "answer": 0,
+              "explanation": "A NACL não lembra de conexões: a resposta precisa de regra própria nas portas efêmeras do cliente. O security group, por ser stateful, não exige isso."
+            },
+            {
+              "question": "A aplicação recebe 'connect timed out' ao falar com o banco. O que isso sugere?",
+              "options": [
+                "O banco recusou a conexão",
+                "Um firewall, security group ou rota está descartando os pacotes em silêncio",
+                "A senha está errada",
+                "O banco está com o disco cheio"
+              ],
+              "answer": 1,
+              "explanation": "Recusa (connection refused) é uma resposta RST: a rede está livre. Timeout é a ausência de resposta, típica de filtro de rede ou rota ausente."
+            },
+            {
+              "question": "Qual valor de sslmode cifra a conexão e também valida o certificado e o nome do servidor?",
+              "options": [
+                "disable",
+                "prefer",
+                "require",
+                "verify-full"
+              ],
+              "answer": 3,
+              "explanation": "require cifra, mas não confere quem está do outro lado. verify-full valida a cadeia e o nome, impedindo que um intermediário se passe pelo banco."
+            }
+          ]
+        }
+      ]
     }
   ]
 }

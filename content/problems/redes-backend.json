@@ -174,5 +174,38 @@
     "topic": "Pool e heap",
     "moduleSlug": "performance",
     "description": "Reserve sempre o menor assento livre e devolva assentos ao conjunto: a mesma ideia de alocar a menor porta efêmera disponível e liberá-la ao fim do TIME_WAIT."
+  },
+  {
+    "slug": "redes-find-servers-that-handled-most-number-of-requests",
+    "title": "Find Servers That Handled Most Number of Requests",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/find-servers-that-handled-most-number-of-requests/",
+    "difficulty": "dificil",
+    "level": 4,
+    "topic": "Balanceamento de carga",
+    "moduleSlug": "proxies",
+    "description": "Distribua requisições entre servidores que ficam ocupados por um tempo, pulando os indisponíveis a partir de uma posição de rodízio: um balanceador round robin com saúde, escrito com TreeSet."
+  },
+  {
+    "slug": "redes-random-pick-with-weight",
+    "title": "Random Pick with Weight",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/random-pick-with-weight/",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "Balanceamento ponderado",
+    "moduleSlug": "proxies",
+    "description": "Escolha um índice com probabilidade proporcional ao peso, com soma de prefixos e busca binária: é a seleção ponderada de backends de um balanceador."
+  },
+  {
+    "slug": "redes-insert-delete-getrandom-o1",
+    "title": "Insert Delete GetRandom O(1)",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/insert-delete-getrandom-o1/",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "Conjunto com sorteio",
+    "moduleSlug": "proxies",
+    "description": "Um conjunto onde entrar, sair e sortear um elemento custam O(1): a estrutura de um balanceador que adiciona e remove backends da rotação e sorteia um entre os saudáveis."
   }
 ]

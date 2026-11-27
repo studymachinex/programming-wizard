@@ -37,6 +37,9 @@ const LOADERS: Record<string, Loader> = {
   "redes-backend/nagle-e-delayed-ack": () => import("./redes/performance").then((m) => m.nagleEDelayedAck),
   "redes-backend/custo-de-conexao-e-pooling": () => import("./redes/performance").then((m) => m.custoDeConexao),
   "redes-backend/portas-efemeras-e-time-wait": () => import("./redes/performance").then((m) => m.portasEfemeras),
+  "redes-backend/proxy-e-reverse-proxy": () => import("./redes/proxies").then((m) => m.proxyEReverseProxy),
+  "redes-backend/load-balancer-l4-vs-l7": () => import("./redes/proxies").then((m) => m.balanceamentoL4L7),
+  "redes-backend/acesso-de-rede-ao-banco": () => import("./redes/proxies").then((m) => m.acessoAoBanco),
 };
 
 export function hasScene(track: string, lesson: string): boolean {
