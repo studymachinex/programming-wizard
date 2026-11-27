@@ -759,14 +759,15 @@
       "lessons": [
         {
           "slug": "uber-matching-geospatial",
-          "title": "Uber: matching em tempo real e indexação geospatial",
-          "summary": "Como indexar milhões de motoristas, casar passageiro e motorista em segundos e evitar dupla alocação.",
-          "minutes": 45,
+          "title": "Uber e Uber Eats: matching em tempo real, geohash e surge",
+          "summary": "Como indexar milhões de motoristas, casar passageiro e motorista sem dupla alocação e, no Uber Eats, alinhar dispatch ao preparo, calcular surge e escolher banco por tipo de dado.",
+          "minutes": 55,
           "file": "lessons/16-uber-matching-geospatial.md",
           "takeaways": [
             "Indexar localização com geohash, H3 ou S2 e consultar células vizinhas",
             "Projetar matching com lease, idempotência e expiração para evitar dupla alocação",
-            "Dimensionar ingestão de localização e separar ETA de dispatch"
+            "Dimensionar ingestão de localização e separar ETA de dispatch",
+            "No Uber Eats, buscar restaurantes por célula H3, despachar no tempo do preparo e suavizar o surge pricing"
           ],
           "quiz": [
             {
@@ -801,6 +802,100 @@
               ],
               "answer": 1,
               "explanation": "Dispatch é um caminho crítico de segundos. ETA pode usar distância em linha reta, cache por célula ou cálculo assíncrono; bloquear o match em roteamento completo derruba o throughput."
+            },
+            {
+              "question": "No Uber Eats, por que não despachar o entregador assim que o pedido é aceito?",
+              "options": [
+                "Porque o restaurante ainda não tem endereço",
+                "Porque ele chegaria antes do fim do preparo e ficaria parado no balcão; o dispatch deve alinhar chegada e fim do preparo",
+                "Porque o pagamento ainda não foi feito",
+                "Porque o surge ainda não foi calculado"
+              ],
+              "answer": 1,
+              "explanation": "O dispatch do Eats tem duas pontas. Oferecer a corrida quando o tempo de preparo restante for próximo do tempo de deslocamento reduz a espera do entregador e a comida fria."
+            }
+          ]
+        },
+        {
+          "slug": "airbnb-reservas",
+          "title": "Airbnb: busca, disponibilidade e zero double booking",
+          "summary": "Busca eventualmente consistente na frente de reservas fortemente consistentes, com restrição no banco, reserva pendente com expiração e idempotência.",
+          "minutes": 50,
+          "file": "lessons/21-airbnb-reservas.md",
+          "takeaways": [
+            "Separar busca eventualmente consistente de reserva fortemente consistente",
+            "Garantir não sobreposição com chave única por noite ou exclusion constraint",
+            "Tratar pagamento lento com reserva pendente, expiração e chave de idempotência"
+          ],
+          "quiz": [
+            {
+              "question": "Por que SELECT para checar disponibilidade e depois INSERT não evita double booking?",
+              "options": [
+                "Porque SELECT é lento",
+                "Porque duas transações podem checar ao mesmo tempo, ver a noite livre e inserir as duas",
+                "Porque INSERT não funciona com datas",
+                "Porque o índice de busca está desatualizado"
+              ],
+              "answer": 1,
+              "explanation": "É uma condição de corrida clássica de check-then-act. A garantia precisa estar numa restrição do banco (chave única ou exclusion constraint), que rejeita a segunda escrita."
+            },
+            {
+              "question": "A busca mostrou um anúncio que acabou de ser reservado. Isso é um bug grave?",
+              "options": [
+                "Sim, a busca deve consultar o banco transacional a cada requisição",
+                "Não. A busca é eventualmente consistente e a reserva confere a fonte da verdade; o custo é um \"indisponível\" ocasional",
+                "Sim, é preciso travar o anúncio durante a busca",
+                "Não, porque o anfitrião aceita duas reservas"
+              ],
+              "answer": 1,
+              "explanation": "Consultar o banco transacional em cada busca derruba o banco no pico. Aceita-se um atraso curto no índice e monitora-se a taxa de indisponível na reserva."
+            },
+            {
+              "question": "Para que serve a reserva PENDENTE com expira_em?",
+              "options": [
+                "Para o anfitrião decidir depois",
+                "Para ocupar as noites durante o pagamento e liberá-las sozinha se o pagamento não confirmar",
+                "Para cobrar taxa extra",
+                "Para acelerar a busca"
+              ],
+              "answer": 1,
+              "explanation": "O pagamento leva segundos e pode falhar. O hold impede que outro hóspede pegue as noites nesse meio-tempo e não as prende para sempre."
+            }
+          ]
+        },
+        {
+          "slug": "doordash-rastreamento",
+          "title": "DoorDash: rastreamento de entregas em tempo real",
+          "summary": "Ingestão de 125 mil localizações por segundo, última posição em memória, fan-out só para quem está olhando, pontos fora de ordem e ETA estável.",
+          "minutes": 50,
+          "file": "lessons/22-doordash-rastreamento.md",
+          "takeaways": [
+            "Dimensionar a ingestão de localização e perceber que a maioria das escritas não tem leitor",
+            "Separar última posição, histórico e fan-out seletivo por assinatura",
+            "Descartar pontos fora de ordem por sequência e manter o ETA estável"
+          ],
+          "quiz": [
+            {
+              "question": "Por que cada ponto de localização carrega um número de sequência gerado no celular?",
+              "options": [
+                "Para economizar bateria",
+                "Para descartar pontos atrasados ou duplicados que a rede móvel reentrega fora de ordem",
+                "Para calcular o preço",
+                "Porque o Kafka exige"
+              ],
+              "answer": 1,
+              "explanation": "Sem sequência, um ponto antigo que chega depois sobrescreve a posição nova e o entregador \"volta\" no mapa."
+            },
+            {
+              "question": "Qual é a principal otimização do fan-out de localização?",
+              "options": [
+                "Enviar todas as posições para todos os clientes",
+                "Publicar só para pedidos com a tela de rastreamento aberta, usando um mapa de assinaturas",
+                "Fazer polling a cada segundo",
+                "Guardar tudo no banco relacional"
+              ],
+              "answer": 1,
+              "explanation": "A maioria dos entregadores não tem ninguém olhando naquele instante. Fan-out seletivo corta a maior parte do tráfego de saída."
             }
           ]
         },
