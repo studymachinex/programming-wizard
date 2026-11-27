@@ -1005,6 +1005,253 @@
           ]
         }
       ]
+    },
+    {
+      "slug": "protocolos",
+      "title": "DNS, TLS e HTTP",
+      "description": "Resolução de nomes com cache e TTL, o handshake TLS 1.2, 1.3 e 0-RTT, certificados, cadeia de confiança e SNI, e a evolução do HTTP/1.1 ao HTTP/3.",
+      "estimatedHours": 5,
+      "exercises": [
+        "exercises/redes-resolver-dns-com-cache.json"
+      ],
+      "lessons": [
+        {
+          "slug": "dns-resolucao-e-cache",
+          "title": "DNS: resolução recursiva, registros e TTL",
+          "summary": "Registros A, AAAA, CNAME, NS e MX, a cadeia de CNAME, o TTL decrescente, o cache negativo (NXDOMAIN) e o cache da JVM.",
+          "minutes": 50,
+          "file": "lessons/17-dns-resolucao-e-cache.md",
+          "takeaways": [
+            "Distinguir A, AAAA, CNAME, NS e MX e saber por que o domínio raiz não pode ser CNAME",
+            "Entender que cada registro tem o seu TTL, que ele desce no cache e que o TTL efetivo da cadeia é o menor",
+            "Explicar o cache negativo (NXDOMAIN + SOA) e o problema de criar um registro depois de consultá-lo",
+            "Conhecer os caches da JVM (networkaddress.cache.ttl e negative.ttl) e planejar migrações com TTL baixo antecipado"
+          ],
+          "quiz": [
+            {
+              "question": "www.loja.com.br é um CNAME (TTL 600) para um CNAME (TTL 300) para um A (TTL 60). Qual é o TTL efetivo da resposta no cache?",
+              "options": [
+                "600 s",
+                "300 s",
+                "60 s",
+                "960 s"
+              ],
+              "answer": 2,
+              "explanation": "Cada registro expira por conta própria, e quem reutiliza a resposta pode usá-la pelo menor TTL da cadeia. O A de 60 s manda: o IP final pode mudar em um minuto, mesmo com CNAMEs longos."
+            },
+            {
+              "question": "O A de uma cadeia (60 s) expirou, mas os dois CNAMEs (600 s e 300 s) ainda valem. Quantas consultas de rede o resolver faz?",
+              "options": [
+                "Nenhuma",
+                "Uma: só o A",
+                "Duas: os CNAMEs",
+                "Três: toda a cadeia"
+              ],
+              "answer": 1,
+              "explanation": "O cache guarda cada registro com o seu prazo. Só o vencido é perguntado de novo: a consulta é uma, e a cadeia inteira não é refeita."
+            },
+            {
+              "question": "Alguém consulta api.loja.com.br antes de o registro existir (NXDOMAIN, TTL negativo de 300 s). Dois minutos depois o time o cria. O que o resolver responde ao próximo cliente?",
+              "options": [
+                "O IP novo, porque o autoritativo mudou",
+                "NXDOMAIN, até o TTL negativo acabar",
+                "Um erro de timeout",
+                "O IP de outro registro do mesmo domínio"
+              ],
+              "answer": 1,
+              "explanation": "O resolver guardou a ausência do nome (RFC 2308) e responde NXDOMAIN do cache por até 300 s. Crie o registro antes de qualquer consulta ou espere o TTL negativo."
+            },
+            {
+              "question": "Uma aplicação Java usa DNS para failover, com TTL de 30 s na zona. Qual configuração da JVM pode invalidar esse plano?",
+              "options": [
+                "-Xmx muito alto",
+                "networkaddress.cache.ttl, que define o cache próprio da JVM e não lê o TTL do DNS",
+                "java.net.preferIPv4Stack",
+                "O número de threads do executor"
+              ],
+              "answer": 1,
+              "explanation": "A JVM guarda os endereços resolvidos com a sua própria regra (30 s por padrão quando não definido; -1 é para sempre), ignorando o TTL do DNS. Em ambientes de failover por DNS, ajuste esse valor."
+            }
+          ]
+        },
+        {
+          "slug": "tls-handshake",
+          "title": "TLS 1.2 vs 1.3: handshake, chaves e 0-RTT",
+          "summary": "Os RTTs do handshake no TLS 1.2 e 1.3, chaves efêmeras e forward secrecy, retomada por ticket e o risco de replay do 0-RTT.",
+          "minutes": 50,
+          "file": "lessons/18-tls-handshake.md",
+          "takeaways": [
+            "Contar os RTTs até a resposta: 4 no TLS 1.2, 3 no TLS 1.3 e 2 com 0-RTT, numa conexão TCP nova",
+            "Explicar por que o TLS 1.3 fecha em 1 RTT: a key_share já vai no ClientHello",
+            "Descrever forward secrecy e a retomada por ticket, que dispensa o certificado",
+            "Reconhecer o risco de replay do 0-RTT e restringi-lo a requisições idempotentes"
+          ],
+          "quiz": [
+            {
+              "question": "Numa conexão nova, quantos RTTs, no total, passam até a resposta HTTP chegar com TLS 1.2 (contando o handshake TCP)?",
+              "options": [
+                "2",
+                "3",
+                "4",
+                "5"
+              ],
+              "answer": 2,
+              "explanation": "1 RTT do TCP, 2 RTTs do handshake TLS 1.2 e 1 RTT da requisição com a resposta: 4. O TLS 1.3 reduz o TLS a 1 RTT e o total a 3."
+            },
+            {
+              "question": "Como o TLS 1.3 consegue terminar o handshake em 1 RTT?",
+              "options": [
+                "Elimina a autenticação do servidor",
+                "O cliente adivinha o grupo de chaves e já envia a sua key_share no ClientHello, e o servidor responde com o resto do handshake já criptografado",
+                "Usa UDP em vez de TCP",
+                "Reaproveita sempre a chave da conexão anterior"
+              ],
+              "answer": 1,
+              "explanation": "A aposta no grupo (x25519, quase universal) permite combinar a chave na primeira resposta do servidor. O certificado e o Finished já vêm criptografados nessa mesma volta."
+            },
+            {
+              "question": "Por que o 0-RTT só deve ser usado com requisições idempotentes?",
+              "options": [
+                "Porque o 0-RTT não é criptografado",
+                "Porque os dados do primeiro voo não têm proteção contra repetição: um atacante pode reenviá-los e a operação roda duas vezes",
+                "Porque só funciona com o método GET",
+                "Porque desabilita o certificado do servidor"
+              ],
+              "answer": 1,
+              "explanation": "O early data é criptografado, mas pode ser repetido por quem capturar o pacote. Em operações sem efeito colateral (um GET de leitura) isso é inofensivo; em um POST de pagamento, não."
+            },
+            {
+              "question": "O que o forward secrecy do TLS 1.3 garante?",
+              "options": [
+                "Que o certificado nunca expira",
+                "Que a chave privada do certificado, se vazar no futuro, não decifra o tráfego já gravado, pois as chaves da sessão eram efêmeras",
+                "Que o SNI fica criptografado",
+                "Que o servidor não precisa de certificado"
+              ],
+              "answer": 1,
+              "explanation": "O segredo da sessão vem de chaves efêmeras (ECDHE) descartadas ao fim. O certificado só assina o handshake; roubá-lo depois não permite reconstruir o segredo de conexões antigas."
+            }
+          ]
+        },
+        {
+          "slug": "https-certificados-e-sni",
+          "title": "HTTPS: certificados, cadeia de confiança e SNI",
+          "summary": "A cadeia folha, intermediária e raiz, o que o cliente valida, o SNI em claro e o ECH, a intermediária ausente e o truststore da JVM.",
+          "minutes": 50,
+          "file": "lessons/19-https-certificados-e-sni.md",
+          "takeaways": [
+            "Descrever a cadeia folha, intermediária e raiz e o papel do truststore",
+            "Listar o que o cliente valida: assinaturas, validade, SAN e revogação",
+            "Explicar por que o SNI existe, que viaja em claro e o que o ECH propõe",
+            "Diagnosticar intermediária ausente e certificado a vencer sem desligar a verificação"
+          ],
+          "quiz": [
+            {
+              "question": "Por que o servidor precisa do SNI para servir vários domínios HTTPS num mesmo IP?",
+              "options": [
+                "Porque o TCP não permite várias portas",
+                "Porque o cabeçalho Host só chega depois do handshake TLS, quando o servidor já precisa escolher o certificado",
+                "Porque o certificado é escolhido pelo endereço MAC",
+                "Porque o DNS só devolve um nome por IP"
+              ],
+              "answer": 1,
+              "explanation": "O TLS acontece antes do HTTP. O SNI coloca o nome do domínio no ClientHello para o servidor escolher o certificado certo antes de qualquer cabeçalho HTTP existir."
+            },
+            {
+              "question": "Um cliente Java falha com PKIX path building failed, mas o navegador abre o site. Qual é a causa mais provável?",
+              "options": [
+                "O servidor não enviou a CA intermediária, e o navegador a obteve por cache ou AIA",
+                "O site usa HTTP/3",
+                "A porta 443 está fechada",
+                "O certificado foi emitido com SAN em vez de CN"
+              ],
+              "answer": 0,
+              "explanation": "O cliente tem a raiz e recebeu a folha, mas falta o elo intermediário. Navegadores costumam preencher a lacuna sozinhos. A correção é o servidor enviar o bundle completo."
+            },
+            {
+              "question": "Que informação o SNI revela a quem observa o tráfego de rede?",
+              "options": [
+                "O conteúdo da requisição",
+                "O caminho e os cabeçalhos HTTP",
+                "O domínio que está sendo acessado",
+                "A senha do usuário"
+              ],
+              "answer": 2,
+              "explanation": "O SNI vai em claro no ClientHello, antes de existirem chaves. Quem observa a rede lê o domínio (mas não o caminho nem o conteúdo). O ECH propõe cifrar o ClientHello para esconder isso."
+            },
+            {
+              "question": "Qual campo do certificado os clientes modernos usam para conferir o nome do site acessado?",
+              "options": [
+                "O CN do subject",
+                "O Subject Alternative Name (SAN)",
+                "O emissor (Issuer)",
+                "O número de série"
+              ],
+              "answer": 1,
+              "explanation": "O SAN lista os nomes válidos (inclusive curingas). O CN é ignorado para esse fim em clientes modernos: um certificado sem o nome no SAN falha mesmo com o CN correto."
+            }
+          ]
+        },
+        {
+          "slug": "http1-http2-http3",
+          "title": "HTTP/1.1, HTTP/2 e HTTP/3: multiplexação e head-of-line blocking",
+          "summary": "Seis conexões no HTTP/1.1, streams numa conexão TCP no HTTP/2, o HOL do TCP, o QUIC no HTTP/3 e o efeito sobre balanceamento e clientes Java.",
+          "minutes": 50,
+          "file": "lessons/20-http1-http2-http3.md",
+          "takeaways": [
+            "Explicar por que o HTTP/1.1 abre várias conexões e o custo de cada uma",
+            "Descrever streams, frames e a negociação por ALPN no HTTP/2",
+            "Explicar o head-of-line blocking do TCP e como o QUIC o evita no HTTP/3",
+            "Reconhecer o desbalanceamento de conexões HTTP/2 atrás de um balanceador L4 e reaproveitar o HttpClient"
+          ],
+          "quiz": [
+            {
+              "question": "Numa conexão HTTP/2, um segmento TCP com dados do stream 3 se perde. O que acontece com os streams 1 e 5, cujos dados já chegaram?",
+              "options": [
+                "Seguem normalmente: streams são independentes",
+                "Ficam retidos no kernel até a retransmissão, porque o TCP entrega os bytes em ordem",
+                "São cancelados com erro",
+                "São reenviados por QUIC"
+              ],
+              "answer": 1,
+              "explanation": "É o head-of-line blocking do TCP: ele não conhece streams e só entrega bytes em ordem. Por isso a perda de um pacote atrasa a conexão HTTP/2 inteira."
+            },
+            {
+              "question": "Por que o HTTP/3 evita esse bloqueio?",
+              "options": [
+                "Porque usa mais conexões TCP",
+                "Porque o QUIC, sobre UDP, conhece os streams: cada um é recuperado de forma independente",
+                "Porque desativa a retransmissão",
+                "Porque envia cada requisição em um datagrama único"
+              ],
+              "answer": 1,
+              "explanation": "No QUIC a ordem e a retransmissão são por stream. A perda de um pacote do stream 4 atrasa só o stream 4; os demais são entregues na hora."
+            },
+            {
+              "question": "Dois servidores atrás de um balanceador L4 recebem gRPC (HTTP/2) de poucos clientes, e um deles fica quase ocioso. Por quê?",
+              "options": [
+                "O gRPC não funciona com mais de um servidor",
+                "O L4 distribui conexões, e uma conexão HTTP/2 longa leva todos os seus streams ao mesmo servidor",
+                "O servidor ocioso está com a porta fechada",
+                "O gRPC usa UDP"
+              ],
+              "answer": 1,
+              "explanation": "Poucas conexões longas, cada uma com muitos streams, viram poucas decisões do balanceador. A saída é L7, balanceamento no cliente ou renovar as conexões periodicamente."
+            },
+            {
+              "question": "Como um navegador descobre que um servidor oferece HTTP/3?",
+              "options": [
+                "Tentando QUIC em todos os servidores na primeira visita",
+                "Pelo cabeçalho Alt-Svc (ou um registro DNS HTTPS) recebido numa conexão anterior, com fallback para TCP se o UDP falhar",
+                "O DNS devolve sempre um IP exclusivo do HTTP/3",
+                "Pelo número da porta 8443"
+              ],
+              "answer": 1,
+              "explanation": "A primeira visita costuma usar TCP com ALPN h2; a resposta anuncia h3 por Alt-Svc. Nas seguintes, o navegador tenta QUIC e volta ao TCP se o UDP estiver bloqueado."
+            }
+          ]
+        }
+      ]
     }
   ]
 }

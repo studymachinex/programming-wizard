@@ -97,5 +97,49 @@
     "topic": "Janela deslizante",
     "moduleSlug": "tcp",
     "description": "Encontre o máximo de cada janela deslizante em O(n) com uma deque monotônica. A janela que avança e recua com os ACKs do TCP é o mesmo modelo, e a estrutura serve para medir picos de vazão ou de RTT por janela."
+  },
+  {
+    "slug": "redes-time-based-key-value-store",
+    "title": "Time Based Key-Value Store",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/time-based-key-value-store/",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "Cache com tempo",
+    "moduleSlug": "protocolos",
+    "description": "Guarde valores por chave e instante e recupere o mais recente até um dado timestamp, com busca binária. É o raciocínio de um cache que precisa saber o que valia em cada momento, como o TTL do resolvedor DNS do exercício."
+  },
+  {
+    "slug": "redes-subdomain-visit-count",
+    "title": "Subdomain Visit Count",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/subdomain-visit-count/",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "Domínios",
+    "moduleSlug": "protocolos",
+    "description": "Conte visitas por domínio e por todos os seus sufixos (loja.com.br, com.br, br). Treina a hierarquia de nomes do DNS (raiz, TLD, domínio) e o parse de nomes, como a normalização do resolvedor."
+  },
+  {
+    "slug": "redes-linked-list-cycle",
+    "title": "Linked List Cycle",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/linked-list-cycle/",
+    "difficulty": "facil",
+    "level": 1,
+    "topic": "Detecção de ciclos",
+    "moduleSlug": "protocolos",
+    "description": "Detecte um ciclo numa lista encadeada com um conjunto de visitados ou com dois ponteiros. É a mesma ideia da detecção de laços em cadeias de CNAME (a CNAME b, b CNAME a) do exercício do módulo."
+  },
+  {
+    "slug": "redes-lru-cache",
+    "title": "LRU Cache",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/lru-cache/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Cache",
+    "moduleSlug": "protocolos",
+    "description": "Implemente um cache de capacidade fixa com get e put em O(1), usando mapa e lista duplamente encadeada. Caches de DNS, de sessões TLS e de respostas HTTP precisam de um limite, e despejar o menos usado é a política mais comum."
   }
 ]

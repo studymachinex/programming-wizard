@@ -29,6 +29,10 @@ const LOADERS: Record<string, Loader> = {
   "redes-backend/controle-de-congestionamento": () => import("./redes/tcp").then((m) => m.congestionamento),
   "redes-backend/sockets-e-filas-do-kernel": () => import("./redes/tcp").then((m) => m.filasDoKernel),
   "redes-backend/servidor-tcp-em-java": () => import("./redes/tcp").then((m) => m.servidorTcp),
+  "redes-backend/dns-resolucao-e-cache": () => import("./redes/protocolos").then((m) => m.dnsResolucaoECache),
+  "redes-backend/tls-handshake": () => import("./redes/protocolos").then((m) => m.tlsHandshake),
+  "redes-backend/https-certificados-e-sni": () => import("./redes/protocolos").then((m) => m.httpsECertificados),
+  "redes-backend/http1-http2-http3": () => import("./redes/protocolos").then((m) => m.http123),
 };
 
 export function hasScene(track: string, lesson: string): boolean {
