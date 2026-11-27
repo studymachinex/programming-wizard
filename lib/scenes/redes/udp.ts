@@ -176,7 +176,7 @@ export const udpDatagramas: SceneDef = {
       title: "O limite é o MTU, não os 65 KB",
       body: [
         "Em teoria, um datagrama UDP carrega até 65.507 bytes (65.535 menos 20 de IP e 8 de UDP). Na prática, com MTU 1500, **1.472 bytes de dados** cabem num pacote sem fragmentar. Acima disso, o IP fragmenta.",
-        "Um datagrama de 3.000 bytes vira 3 fragmentos (1.480 + 1.480 + 48 de dados UDP). Se um fragmento se perde, o datagrama inteiro se perde. O DNS, por isso, limita as respostas em UDP a cerca de 1.232 bytes.",
+        "Um datagrama com 3.000 bytes de dados (3.008 com o cabeçalho UDP) vira 3 fragmentos IP de 1.480, 1.480 e 48 bytes. Se um fragmento se perde, o datagrama inteiro se perde. O DNS, por isso, limita as respostas em UDP a cerca de 1.232 bytes.",
       ],
       callout: { kind: "atencao", text: "Mantenha cada datagrama abaixo de ~1.400 bytes de payload para não depender de fragmentação." },
       metrics: m9("3 fragmentos", "0", { id: "mtu", label: "Perda efetiva", value: "datagrama inteiro", tone: "bad" }),

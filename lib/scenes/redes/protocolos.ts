@@ -893,7 +893,7 @@ export const http123: SceneDef = {
       title: "O handshake do QUIC junta transporte e TLS",
       body: [
         "Com TCP + TLS 1.3, são 2 RTTs antes da requisição: 1 do TCP, 1 do TLS. No **QUIC**, o handshake de transporte e o de TLS 1.3 viajam **juntos**: o primeiro RTT já conclui as duas coisas, e a requisição vai logo depois.",
-        "Para servidores já conhecidos, o **0-RTT** envia a requisição junto do primeiro pacote (com o risco de replay da aula de TLS). O QUIC também elimina o TIME_WAIT e o limite de portas do TCP, mas move a complexidade para a biblioteca.",
+        "Para servidores já conhecidos, o **0-RTT** envia a requisição junto do primeiro pacote (com o risco de replay da aula de TLS). O estado da conexão (inclusive o equivalente ao TIME_WAIT) sai do kernel e passa para a biblioteca QUIC, que leva a complexidade junto.",
       ],
       changes: ["transporte + TLS em 1 RTT"],
       metrics: m20("1 (QUIC)", "1", { id: "rtt", label: "Antes da requisição", value: "1 RTT (TCP+TLS: 2)", tone: "ok" }),
