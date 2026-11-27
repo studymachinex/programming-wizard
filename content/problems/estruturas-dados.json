@@ -121,6 +121,61 @@
     "description": "Flood fill em grid com BFS ou DFS. Treine visitados, limites e o custo de recursão em grids grandes. Depois resolva com union-find e compare quando cada abordagem é mais natural."
   },
   {
+    "slug": "dsa-top-k-frequent-elements",
+    "title": "Top K Frequent Elements",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/top-k-frequent-elements/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Frequency Map / Heap / Bucket Sort",
+    "moduleSlug": "hash-maps-e-sets",
+    "description": "Conte com HashMap e resolva de dois jeitos: min-heap de tamanho k em O(n log k) e bucket sort por frequência em O(n). Na entrevista, comece pelo heap e ofereça o bucket como otimização."
+  },
+  {
+    "slug": "dsa-insert-delete-getrandom",
+    "title": "Insert Delete GetRandom O(1)",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/insert-delete-getrandom-o1/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Design / HashMap + Array",
+    "moduleSlug": "hash-maps-e-sets",
+    "description": "HashMap de valor para índice mais ArrayList dos valores. O truque do remove em O(1) é trocar o elemento com o último e remover do fim. Esqueça de atualizar o índice do elemento movido e o bug aparece só no teste grande."
+  },
+  {
+    "slug": "dsa-course-schedule-ii",
+    "title": "Course Schedule II",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/course-schedule-ii/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Topological Sort / Cycle Detection",
+    "moduleSlug": "grafos",
+    "description": "Agora devolva a ordem e não só se é possível. Com Kahn, se a ordem tiver menos que n cursos, existe ciclo. Follow-up comum: devolva os cursos do ciclo, usando DFS com cores (branco, cinza, preto) e a pilha de recursão."
+  },
+  {
+    "slug": "dsa-task-scheduler",
+    "title": "Task Scheduler",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/task-scheduler/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Heap / Greedy / Scheduling",
+    "moduleSlug": "arvores-e-heaps",
+    "description": "Simule com max-heap das contagens e uma fila de espera para o cooldown. Depois descubra a fórmula fechada com a tarefa mais frequente. Saber as duas é o que diferencia a resposta."
+  },
+  {
+    "slug": "dsa-minimum-platforms",
+    "title": "Minimum Platforms (agendamento de trens)",
+    "platform": "Outro",
+    "url": "https://www.geeksforgeeks.org/problems/minimum-platforms-1587115620/1",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Heap / Intervals / Scheduling",
+    "moduleSlug": "arvores-e-heaps",
+    "description": "O \"train scheduling\" das entrevistas da Uber: ordene por chegada e mantenha um min-heap com os horários de partida dos trens na estação. O tamanho máximo do heap é a resposta. É o mesmo padrão do Meeting Rooms II."
+  },
+  {
     "slug": "dsa-lru-cache",
     "title": "LRU Cache",
     "platform": "LeetCode",
@@ -163,5 +218,27 @@
     "topic": "Trees / Design",
     "moduleSlug": "arvores-e-heaps",
     "description": "Escolha um formato (pré-ordem com nulls, BFS por níveis ou length-prefix) e prove que ele reconstrói a árvore. O foco é contrato, versionamento e o custo de strings — não só passar no teste."
+  },
+  {
+    "slug": "dsa-single-threaded-cpu",
+    "title": "Single-Threaded CPU",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/single-threaded-cpu/",
+    "difficulty": "medio",
+    "level": 4,
+    "topic": "Heap / Scheduling",
+    "moduleSlug": "arvores-e-heaps",
+    "description": "Escalonador com dois critérios: tarefas ordenadas por chegada e um min-heap por (duração, índice) das disponíveis. Cuidado com o tempo ocioso: se o heap esvaziar, pule o relógio para a próxima chegada. Use long para o tempo."
+  },
+  {
+    "slug": "dsa-word-ladder",
+    "title": "Word Ladder",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/word-ladder/",
+    "difficulty": "dificil",
+    "level": 4,
+    "topic": "BFS / Implicit Graph",
+    "moduleSlug": "grafos",
+    "description": "Grafo implícito: cada palavra é um nó, e as arestas são palavras a uma letra de distância. BFS dá o menor caminho. Gere vizinhos trocando cada posição por a–z em vez de comparar todos os pares, e mencione o BFS bidirecional como otimização."
   }
 ]
