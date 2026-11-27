@@ -30,7 +30,7 @@ const stages = [
     label: "Fase 02 · Engenharia",
     title: "Java de produção, dados e backend",
     description: "O nível em que você para de 'fazer funcionar' e começa a projetar sistemas que aguentam tráfego, mudanças e incidentes.",
-    slugs: ["java-avancado", "sql-postgres", "quarkus-backend"],
+    slugs: ["java-avancado", "sql-postgres", "redes-backend", "quarkus-backend"],
   },
   {
     id: "escala",

@@ -13,6 +13,7 @@ import {
   Server,
   Sparkles,
   Target,
+  Waypoints,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -31,6 +32,7 @@ const icons: Record<string, LucideIcon> = {
   compass: Compass,
   target: Target,
   sparkles: Sparkles,
+  waypoints: Waypoints,
 };
 
 export function TrackIcon({ icon, className }: { icon: string; className?: string }) {

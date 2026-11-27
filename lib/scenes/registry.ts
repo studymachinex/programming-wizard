@@ -11,6 +11,16 @@ const LOADERS: Record<string, Loader> = {
   "system-design-interview/load-balancer-cdn-dns": () => import("./system-design/building-blocks").then((m) => m.resolucaoDns),
   "cloud-devops/imagens-layers-dockerfile": () => import("./docker/imagens").then((m) => m.camadasEOverlayfs),
   "cloud-devops/services-ingress-dns": () => import("./kubernetes/services").then((m) => m.serviceEIngress),
+
+  // Fase 1: trilha Redes para Backend.
+  "redes-backend/cliente-servidor-e-requisicao": () => import("./redes/fundamentos").then((m) => m.caminhoDaRequisicao),
+  "redes-backend/modelo-osi-e-encapsulamento": () => import("./redes/fundamentos").then((m) => m.encapsulamento),
+  "redes-backend/comunicacao-host-a-host": () => import("./redes/fundamentos").then((m) => m.redeLocal),
+  "redes-backend/pacote-ip-ttl-e-fragmentacao": () => import("./redes/ip").then((m) => m.pacoteIp),
+  "redes-backend/subredes-e-cidr": () => import("./redes/ip").then((m) => m.subredesECidr),
+  "redes-backend/arp-icmp-ping-traceroute": () => import("./redes/ip").then((m) => m.arpEIcmp),
+  "redes-backend/roteamento-e-gateway": () => import("./redes/ip").then((m) => m.roteamento),
+  "redes-backend/nat-e-ip-publico": () => import("./redes/ip").then((m) => m.nat),
 };
 
 export function hasScene(track: string, lesson: string): boolean {

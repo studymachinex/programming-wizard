@@ -1,0 +1,515 @@
+{
+  "slug": "redes-backend",
+  "title": "Redes para Backend",
+  "subtitle": "Do pacote ao load balancer: a rede que todo backend Java precisa dominar",
+  "description": "Uma trilha de redes pensada para quem escreve serviços: como uma requisição atravessa a rede, como IP, TCP, UDP, DNS, TLS e HTTP funcionam por dentro, como Java se encaixa em sockets e conexões, e como diagnosticar lentidão e incidentes de rede com ferramentas reais. Cada aula abre com uma cena interativa passo a passo, depois aprofunda com números reais, código e armadilhas de produção.",
+  "level": "intermediario",
+  "icon": "waypoints",
+  "accent": "rune",
+  "estimatedHours": 30,
+  "isCore": true,
+  "outcomes": [
+    "Explicar o caminho de uma requisição do cliente ao servidor e separar latência de rede da latência da aplicação",
+    "Aplicar o encapsulamento TCP/IP e dizer o que cada camada, switch e roteador acrescenta, troca ou preserva",
+    "Calcular sub-redes CIDR, planejar blocos sem sobreposição e escolher rotas por longest prefix match",
+    "Diagnosticar problemas de conectividade com ping, traceroute, curl, ip route, tcpdump e Wireshark",
+    "Descrever TCP e UDP por dentro: handshake, estados, janela, congestionamento, filas do kernel e datagramas",
+    "Escrever servidores e clientes TCP e UDP em Java conhecendo timeouts, backlog e modelos de concorrência",
+    "Entender DNS, TLS, HTTP/1.1, HTTP/2 e HTTP/3, proxies e balanceadores L4 e L7",
+    "Prevenir incidentes clássicos: MTU e MSS, Nagle e delayed ACK, esgotamento de portas efêmeras e conexões mortas por firewall"
+  ],
+  "modules": [
+    {
+      "slug": "fundamentos",
+      "title": "Do clique ao pacote",
+      "description": "O caminho de uma requisição, o modelo em camadas e como os quadros circulam dentro de uma rede local com switches.",
+      "estimatedHours": 3,
+      "lessons": [
+        {
+          "slug": "cliente-servidor-e-requisicao",
+          "title": "Cliente, servidor e o caminho de uma requisição",
+          "summary": "Como uma requisição atravessa Wi-Fi, provedor, internet e data center, e como separar a latência de rede da do servidor.",
+          "minutes": 40,
+          "file": "lessons/01-cliente-servidor-e-requisicao.md",
+          "takeaways": [
+            "Dividir a latência em propagação, transmissão, fila e processamento",
+            "Diferenciar latência (RTT) de banda e saber qual limita cada caso",
+            "Contar o custo de DNS, TCP, TLS e HTTP em idas e voltas",
+            "Medir as fases de uma requisição com curl -w antes de otimizar"
+          ],
+          "quiz": [
+            {
+              "question": "O servidor processa uma requisição em 26 ms, mas o usuário espera 146 ms. Qual é a explicação mais provável?",
+              "options": [
+                "O banco de dados está sem índice",
+                "Cerca de 120 ms são de rede (RTT), por causa da distância até o servidor",
+                "O JSON da resposta está mal formatado",
+                "O navegador do usuário está desatualizado"
+              ],
+              "answer": 1,
+              "explanation": "26 ms de aplicação mais um RTT de ~120 ms dá os 146 ms. Distância é física: nenhum índice ou otimização de código reduz a ida e volta de um sinal por milhares de quilômetros."
+            },
+            {
+              "question": "Qual é a diferença entre latência e banda?",
+              "options": [
+                "Latência é quantos bits por segundo cabem no enlace; banda é o tempo de um bit",
+                "Latência é o tempo que um bit leva para atravessar o caminho; banda é quantos bits por segundo cabem no enlace",
+                "São o mesmo conceito com nomes diferentes",
+                "Banda só importa em Wi-Fi e latência só em fibra"
+              ],
+              "answer": 1,
+              "explanation": "Latência é tempo (ms); banda é taxa (bit/s). Uma resposta pequena não fica mais rápida com um link maior, porque quase todo o tempo é propagação e espera, não transmissão."
+            },
+            {
+              "question": "Quantos RTTs, no mínimo, uma requisição HTTPS com TLS 1.3 em conexão nova gasta até receber a resposta (sem contar o DNS)?",
+              "options": [
+                "1: o HTTPS manda tudo junto",
+                "2: TLS e HTTP",
+                "3: handshake TCP, handshake TLS 1.3 e a requisição HTTP",
+                "5: um para cada camada do OSI"
+              ],
+              "answer": 2,
+              "explanation": "TCP usa 1 RTT, TLS 1.3 usa mais 1 e a requisição com a resposta usa o terceiro. Com TLS 1.2 seriam 4. É por isso que reaproveitar conexões é tão valioso."
+            },
+            {
+              "question": "Por que um ping de 34 ms ao servidor não garante que a API responderá em 34 ms?",
+              "options": [
+                "Porque o ping usa uma rede diferente da API",
+                "Porque o ping mede só a rede (ICMP), sem o handshake TCP/TLS nem o tempo de processamento da aplicação",
+                "Porque o ping sempre mede o dobro do valor real",
+                "Porque a API só responde em horário comercial"
+              ],
+              "answer": 1,
+              "explanation": "O ping isola o RTT de rede. A requisição real soma handshakes e o trabalho do servidor. Por isso se mede cada fase (DNS, TCP, TLS, primeiro byte) separadamente."
+            }
+          ]
+        },
+        {
+          "slug": "modelo-osi-e-encapsulamento",
+          "title": "Modelo OSI, TCP/IP e encapsulamento",
+          "summary": "As camadas do TCP/IP, o que cada cabeçalho acrescenta e o que o roteador troca ou preserva a cada salto.",
+          "minutes": 45,
+          "file": "lessons/02-modelo-osi-e-encapsulamento.md",
+          "takeaways": [
+            "Mapear as 4 camadas do TCP/IP para as 7 do OSI e usar L2, L3, L4 e L7 com precisão",
+            "Somar os cabeçalhos de TCP, IP e Ethernet de uma mensagem",
+            "Saber que o roteador troca o Ethernet e o TTL mas preserva IP, TCP e dados",
+            "Ler campos binários em Java respeitando a ordem de rede (big-endian)"
+          ],
+          "quiz": [
+            {
+              "question": "O que um roteador faz com o quadro Ethernet ao encaminhar um pacote?",
+              "options": [
+                "Repassa o mesmo quadro, sem mudar nada",
+                "Descarta o cabeçalho Ethernet recebido, decrementa o TTL e cria um Ethernet novo para o próximo salto",
+                "Troca os endereços IP de origem e destino",
+                "Remove o TCP e recalcula as portas"
+              ],
+              "answer": 1,
+              "explanation": "O MAC só vale dentro de um enlace. O roteador recebe o quadro, descarta o Ethernet, olha o IP, baixa o TTL e monta outro quadro com os MACs do próximo enlace. IP e TCP seguem intactos (salvo NAT)."
+            },
+            {
+              "question": "Em que camada decide um balanceador L4?",
+              "options": [
+                "Aplicação: lê o caminho e os cabeçalhos HTTP",
+                "Transporte: usa IP e porta (e protocolo) sem ler o conteúdo",
+                "Enlace: usa o endereço MAC",
+                "Física: usa o sinal elétrico"
+              ],
+              "answer": 1,
+              "explanation": "L4 é a camada de transporte: decide por IP, porta e protocolo. O balanceador L7 abre a mensagem HTTP e pode rotear por path, host ou cabeçalho."
+            },
+            {
+              "question": "Uma mensagem HTTP de 81 bytes vira um quadro Ethernet (sem FCS) de quantos bytes?",
+              "options": [
+                "95 bytes",
+                "121 bytes",
+                "135 bytes",
+                "149 bytes"
+              ],
+              "answer": 2,
+              "explanation": "81 de HTTP + 20 de TCP + 20 de IP + 14 de Ethernet = 135 bytes. Mais 4 bytes de FCS no fim dão 139 no fio."
+            },
+            {
+              "question": "Que campo diz à Ethernet que o conteúdo do quadro é um pacote IPv4?",
+              "options": [
+                "O campo Protocolo do IP",
+                "O EtherType, com o valor 0x0800",
+                "A porta de destino do TCP",
+                "O TTL"
+              ],
+              "answer": 1,
+              "explanation": "O EtherType identifica o protocolo da camada acima (0x0800 IPv4, 0x86DD IPv6, 0x0806 ARP). O campo Protocolo do IP faz o mesmo papel um nível acima (6 TCP, 17 UDP, 1 ICMP)."
+            }
+          ]
+        },
+        {
+          "slug": "comunicacao-host-a-host",
+          "title": "MAC, switch e a rede local",
+          "summary": "Endereços MAC, a tabela que o switch aprende pela porta de origem, flooding, broadcast e a saída da rede pelo gateway.",
+          "minutes": 40,
+          "file": "lessons/03-comunicacao-host-a-host.md",
+          "takeaways": [
+            "Explicar que o switch aprende pela porta e pelo MAC de origem e decide pelo destino",
+            "Diferenciar unicast, flooding de destino desconhecido e broadcast",
+            "Entender por que um quadro para fora da rede leva o MAC do gateway",
+            "Reconhecer laços de camada 2 e o papel do STP"
+          ],
+          "quiz": [
+            {
+              "question": "Um switch recebe pela porta 1 um quadro de A para B, e B ainda não está na tabela. O que ele faz?",
+              "options": [
+                "Descarta o quadro",
+                "Aprende que A está na porta 1 e envia o quadro por todas as outras portas",
+                "Envia só para a porta 1",
+                "Pergunta a B por ARP"
+              ],
+              "answer": 1,
+              "explanation": "A origem prova onde A está, então ela é aprendida. Como o destino é desconhecido, o switch faz flooding por todas as portas, exceto a de entrada. Só B aceita o quadro."
+            },
+            {
+              "question": "Ao falar com 203.0.113.10, que está fora da rede local, qual MAC o host usa como destino do quadro?",
+              "options": [
+                "O MAC do servidor 203.0.113.10",
+                "ff:ff:ff:ff:ff:ff",
+                "O MAC do gateway padrão",
+                "O MAC do switch"
+              ],
+              "answer": 2,
+              "explanation": "O quadro só alcança o próximo salto. O IP de destino continua o do servidor, dentro do pacote, e o MAC de destino é o do gateway, que reencaminha."
+            },
+            {
+              "question": "Por que dois switches ligados em anel, sem STP, derrubam a rede?",
+              "options": [
+                "Porque o Ethernet não tem TTL: broadcasts circulam para sempre e crescem até saturar os enlaces",
+                "Porque a tabela MAC não aceita dois switches",
+                "Porque o IP muda de endereço",
+                "Porque o switch reinicia a cada broadcast"
+              ],
+              "answer": 0,
+              "explanation": "Na camada 2 não existe contador de saltos. Um broadcast em laço é copiado a cada volta. O STP bloqueia portas redundantes para quebrar o laço."
+            },
+            {
+              "question": "Quais máquinas recebem um quadro com destino ff:ff:ff:ff:ff:ff?",
+              "options": [
+                "Apenas o gateway",
+                "Apenas a máquina que enviou",
+                "Todas as máquinas do mesmo domínio de broadcast, menos a que enviou",
+                "Todas as máquinas da internet"
+              ],
+              "answer": 2,
+              "explanation": "O switch repete o broadcast por todas as portas. O roteador é a fronteira do domínio, então ele não atravessa para outras redes."
+            }
+          ]
+        }
+      ],
+      "exercises": []
+    },
+    {
+      "slug": "ip",
+      "title": "IP: endereços, roteamento e NAT",
+      "description": "O pacote IP e o TTL, sub-redes e CIDR, ARP e ICMP, tabelas de rotas com longest prefix match e a tradução de endereços do NAT.",
+      "estimatedHours": 6,
+      "lessons": [
+        {
+          "slug": "pacote-ip-ttl-e-fragmentacao",
+          "title": "O pacote IP: cabeçalho, TTL e fragmentação",
+          "summary": "Os campos do cabeçalho IPv4, o TTL, a fragmentação com MTU 1500, o bit DF e o Path MTU Discovery.",
+          "minutes": 45,
+          "file": "lessons/04-pacote-ip-ttl-e-fragmentacao.md",
+          "takeaways": [
+            "Nomear os campos do cabeçalho IPv4 e seus tamanhos",
+            "Explicar por que o TTL existe e o que acontece quando chega a 0",
+            "Calcular fragmentos, offsets (em blocos de 8 bytes) e a flag MF",
+            "Entender DF, ICMP fragmentation needed e o Path MTU Discovery"
+          ],
+          "quiz": [
+            {
+              "question": "Um roteador recebe um pacote com TTL 1. O que acontece?",
+              "options": [
+                "Encaminha normalmente e zera o TTL no destino",
+                "Subtrai 1, chega a 0, descarta o pacote e envia ICMP Time Exceeded à origem",
+                "Devolve o pacote ao remetente sem avisar",
+                "Espera o TTL ser renovado"
+              ],
+              "answer": 1,
+              "explanation": "Cada roteador subtrai 1. Se o resultado for 0, o pacote é descartado e o roteador avisa com ICMP tipo 11. É isso que impede laços infinitos e que o traceroute explora."
+            },
+            {
+              "question": "Um pacote IP de 4000 bytes (20 de cabeçalho e 3980 de dados) passa por um enlace de MTU 1500, com DF=0. Quantos fragmentos saem e qual o offset do terceiro?",
+              "options": [
+                "2 fragmentos, offset 185",
+                "3 fragmentos, offset 370",
+                "3 fragmentos, offset 2960",
+                "4 fragmentos, offset 555"
+              ],
+              "answer": 1,
+              "explanation": "Cada fragmento leva até 1480 bytes de dados (múltiplo de 8): 1480 + 1480 + 1020. O offset é contado em blocos de 8 bytes: 0, 185 e 370 (2960 ÷ 8)."
+            },
+            {
+              "question": "Com DF=1, um pacote não cabe no MTU de um enlace do caminho. O que o roteador faz?",
+              "options": [
+                "Fragmenta mesmo assim",
+                "Descarta e devolve ICMP tipo 3 código 4 (fragmentation needed) com o MTU",
+                "Reduz o pacote cortando os dados",
+                "Encaminha por outra rota sem avisar"
+              ],
+              "answer": 1,
+              "explanation": "DF proíbe fragmentar. O roteador descarta e informa o MTU, e a origem reduz o tamanho (Path MTU Discovery). Se um firewall bloqueia esse ICMP, a conexão trava com pacotes grandes."
+            },
+            {
+              "question": "Por que cada roteador recalcula o checksum do cabeçalho IP ao encaminhar?",
+              "options": [
+                "Porque o checksum cobre os dados do TCP",
+                "Porque o TTL muda a cada salto, e o checksum cobre o cabeçalho",
+                "Porque os endereços IP mudam a cada salto",
+                "Porque o MTU muda a cada salto"
+              ],
+              "answer": 1,
+              "explanation": "O checksum do IPv4 protege só o cabeçalho. Ao baixar o TTL, o cabeçalho muda e o valor antigo ficaria inválido. Os endereços não mudam (exceto com NAT)."
+            }
+          ]
+        },
+        {
+          "slug": "subredes-e-cidr",
+          "title": "Sub-redes, CIDR e IPs privados",
+          "summary": "Notação CIDR, máscara bit a bit, hosts úteis por prefixo, blocos RFC 1918 e como evitar sobreposição entre redes.",
+          "minutes": 45,
+          "file": "lessons/05-subredes-e-cidr.md",
+          "takeaways": [
+            "Converter entre /n e máscara e calcular rede, broadcast e hosts úteis",
+            "Usar IP AND máscara para decidir entre falar direto e usar o gateway",
+            "Conhecer os blocos RFC 1918, CGNAT, link-local e as exceções /31 e /32",
+            "Planejar blocos sem sobreposição entre VPCs, regiões e filiais"
+          ],
+          "quiz": [
+            {
+              "question": "Quantos endereços de host úteis tem a rede 10.0.2.0/26?",
+              "options": [
+                "64",
+                "62",
+                "30",
+                "254"
+              ],
+              "answer": 1,
+              "explanation": "/26 deixa 6 bits de host: 2^6 = 64 endereços, menos a rede e o broadcast = 62 hosts úteis."
+            },
+            {
+              "question": "A que rede pertence o host 10.0.2.37/24?",
+              "options": [
+                "10.0.0.0",
+                "10.0.2.0",
+                "10.0.2.32",
+                "10.0.2.255"
+              ],
+              "answer": 1,
+              "explanation": "O AND bit a bit com 255.255.255.0 zera o último octeto e preserva os três primeiros: 10.0.2.0. O 10.0.2.255 seria o broadcast."
+            },
+            {
+              "question": "Qual destes blocos NÃO é privado segundo a RFC 1918?",
+              "options": [
+                "10.0.0.0/8",
+                "172.16.0.0/12",
+                "192.168.0.0/16",
+                "172.32.0.0/16"
+              ],
+              "answer": 3,
+              "explanation": "O bloco privado do 172 é o /12: de 172.16.0.0 a 172.31.255.255. O 172.32.0.0 já é endereço público."
+            },
+            {
+              "question": "Por que um /31 se comporta diferente de um /30?",
+              "options": [
+                "Porque /31 tem 4 hosts úteis",
+                "Porque em enlaces ponto a ponto (RFC 3021) os dois endereços são usáveis, sem rede nem broadcast reservados",
+                "Porque /31 não existe",
+                "Porque /31 só funciona em IPv6"
+              ],
+              "answer": 1,
+              "explanation": "A regra de reservar rede e broadcast desperdiçaria metade de um enlace de 2 pontas. O RFC 3021 permite usar os 2 endereços de um /31."
+            }
+          ]
+        },
+        {
+          "slug": "arp-icmp-ping-traceroute",
+          "title": "ARP, ICMP, ping e traceroute",
+          "summary": "Como o ARP resolve IP em MAC, o que o ICMP carrega e como o traceroute usa o TTL para descobrir cada salto.",
+          "minutes": 45,
+          "file": "lessons/06-arp-icmp-ping-traceroute.md",
+          "takeaways": [
+            "Explicar o ARP: pergunta em broadcast, resposta em unicast, cache de vizinhos",
+            "Ler um ping e deduzir o número de roteadores a partir do TTL",
+            "Descrever como o traceroute usa TTL crescente e ICMP Time Exceeded",
+            "Interpretar * * * e ICMP bloqueado sem concluir que o serviço caiu"
+          ],
+          "quiz": [
+            {
+              "question": "Como funciona a troca do ARP?",
+              "options": [
+                "Request em unicast e reply em broadcast",
+                "Request em broadcast (ff:ff:ff:ff:ff:ff) e reply em unicast ao solicitante",
+                "Os dois em broadcast",
+                "Os dois em unicast"
+              ],
+              "answer": 1,
+              "explanation": "Quem pergunta não sabe o MAC do destino, então usa broadcast. O dono do IP responde direto ao MAC de quem perguntou."
+            },
+            {
+              "question": "O traceroute mostra * * * no salto 5, mas o salto 6 responde normalmente. O que isso indica?",
+              "options": [
+                "O caminho está cortado no salto 5",
+                "O roteador do salto 5 não responde (ou limita) ICMP, mas encaminha o tráfego normalmente",
+                "O destino está fora do ar",
+                "O traceroute está com erro"
+              ],
+              "answer": 1,
+              "explanation": "Se o salto seguinte responde, as sondas passaram pelo salto 5. Ele só não gerou o ICMP Time Exceeded, por política ou limite de taxa."
+            },
+            {
+              "question": "Um ping mostra ttl=57. Assumindo TTL inicial 64 no servidor, o que isso sugere?",
+              "options": [
+                "O servidor está a 57 km de distância",
+                "A resposta atravessou cerca de 7 roteadores no caminho de volta",
+                "O pacote levou 57 ms",
+                "O servidor reiniciou 57 vezes"
+              ],
+              "answer": 1,
+              "explanation": "O ttl exibido é o do echo reply: 64 menos um por roteador atravessado. 64 - 57 = 7 roteadores no caminho de volta."
+            },
+            {
+              "question": "No traceroute padrão do Linux (sondas UDP), o que sinaliza que a sonda chegou ao destino?",
+              "options": [
+                "ICMP Time Exceeded vindo do destino",
+                "ICMP Port Unreachable vindo do destino",
+                "Um TCP SYN-ACK",
+                "Um ARP reply"
+              ],
+              "answer": 1,
+              "explanation": "As sondas usam portas UDP altas que ninguém escuta. O destino responde ICMP tipo 3 código 3 (port unreachable), e o traceroute encerra."
+            }
+          ]
+        },
+        {
+          "slug": "roteamento-e-gateway",
+          "title": "Roteamento: tabela, gateway padrão e longest prefix match",
+          "summary": "Como um roteador escolhe a rota quando vários prefixos casam, o papel da rota padrão e como diagnosticar rotas ausentes.",
+          "minutes": 45,
+          "file": "lessons/07-roteamento-e-gateway.md",
+          "takeaways": [
+            "Ler uma tabela de rotas e distinguir rotas diretas, estáticas e a padrão",
+            "Aplicar o longest prefix match e justificar a rota escolhida",
+            "Diagnosticar rota ausente e rota de volta ausente com ip route get e traceroute",
+            "Implementar a busca de rotas com varredura e com trie binária em Java"
+          ],
+          "quiz": [
+            {
+              "question": "A tabela tem 0.0.0.0/0, 10.0.0.0/16 e 10.0.5.0/24. Para o destino 10.0.5.20, qual rota é escolhida?",
+              "options": [
+                "0.0.0.0/0, por ser a primeira da lista",
+                "10.0.0.0/16, por ser mais antiga",
+                "10.0.5.0/24, por ter o maior prefixo (mais específica)",
+                "Nenhuma: o conflito derruba o pacote"
+              ],
+              "answer": 2,
+              "explanation": "As três casam. O longest prefix match escolhe o /24, que descreve o destino com mais precisão. A ordem da tabela não importa."
+            },
+            {
+              "question": "O que o roteador faz quando nenhuma rota casa e não existe rota padrão?",
+              "options": [
+                "Encaminha para o gateway mais próximo",
+                "Descarta o pacote e responde ICMP Destination Unreachable (net unreachable) à origem",
+                "Segura o pacote até aparecer uma rota",
+                "Fragmenta o pacote"
+              ],
+              "answer": 1,
+              "explanation": "Sem rota, o pacote é descartado e o roteador avisa a origem com ICMP tipo 3, código 0."
+            },
+            {
+              "question": "O que significa a rota 0.0.0.0/0?",
+              "options": [
+                "Bloqueia todo o tráfego",
+                "É a rota padrão: tem prefixo zero, casa com qualquer destino e só vence se nenhuma outra casar",
+                "Aponta para o próprio host",
+                "Representa a rede de broadcast"
+              ],
+              "answer": 1,
+              "explanation": "Com zero bits fixos, 0.0.0.0/0 casa com qualquer endereço, mas é a menos específica, então perde para qualquer outra rota que também case."
+            },
+            {
+              "question": "Qual comando mostra qual rota o kernel Linux usaria para chegar a 10.0.5.20?",
+              "options": [
+                "ip addr show 10.0.5.20",
+                "ip route get 10.0.5.20",
+                "arp -n 10.0.5.20",
+                "ping -t 10.0.5.20"
+              ],
+              "answer": 1,
+              "explanation": "O ip route get faz a consulta à tabela e imprime o próximo salto, a interface e o IP de origem que seriam usados."
+            }
+          ]
+        },
+        {
+          "slug": "nat-e-ip-publico",
+          "title": "NAT: como dez celulares saem por um IP",
+          "summary": "O NAPT reescreve IP e porta de origem, guarda a tabela de tradução e desfaz na volta; limites de estado, timeouts, portas e CGNAT.",
+          "minutes": 45,
+          "file": "lessons/08-nat-e-ip-publico.md",
+          "takeaways": [
+            "Descrever o NAT de saída: reescreve IP e porta de origem e guarda a tradução",
+            "Explicar por que a porta é essencial e como duas origens iguais são distinguidas",
+            "Entender por que o NAT é com estado, tem timeouts e esgota portas",
+            "Tratar IP de origem, rate limit e X-Forwarded-For corretamente atrás de NAT"
+          ],
+          "quiz": [
+            {
+              "question": "O que o NAT (NAPT) reescreve num pacote que sai da rede privada?",
+              "options": [
+                "Só o IP de destino",
+                "O IP e a porta de origem",
+                "O MAC de origem apenas",
+                "O protocolo da camada de transporte"
+              ],
+              "answer": 1,
+              "explanation": "O roteador troca a origem privada por seu IP público e por uma porta própria, e guarda isso na tabela para desfazer a troca na resposta."
+            },
+            {
+              "question": "Dois aparelhos da mesma casa usam a mesma porta de origem (51514) para o mesmo servidor. Como o NAT diferencia as conexões?",
+              "options": [
+                "Bloqueia o segundo aparelho",
+                "Atribui a cada conversa uma porta externa distinta (por exemplo 40001 e 40002) e registra na tabela",
+                "Usa o MAC dos aparelhos no pacote IP",
+                "Pede ao servidor que troque de porta"
+              ],
+              "answer": 1,
+              "explanation": "É a porta externa que identifica a conversa lá fora. Na volta, o roteador consulta a tabela e reescreve o destino para o aparelho certo."
+            },
+            {
+              "question": "Um pacote de fora chega a 203.0.113.45:8080, sem nenhuma entrada correspondente na tabela do NAT. O que acontece?",
+              "options": [
+                "É entregue ao primeiro aparelho da rede",
+                "É descartado, porque ninguém iniciou aquela conversa de dentro (mas isso não faz do NAT um firewall)",
+                "O roteador cria uma entrada nova automaticamente",
+                "É devolvido ao remetente com TTL 0"
+              ],
+              "answer": 1,
+              "explanation": "Sem entrada, o roteador não sabe a quem entregar. É um efeito colateral protetor, mas NAT não filtra o tráfego de saída nem substitui regras de firewall."
+            },
+            {
+              "question": "Um serviço Java abre uma conexão nova para a mesma API a cada chamada e, em carga, começa a ter timeouts intermitentes atrás de um NAT gateway. Qual a causa mais provável e a melhor correção?",
+              "options": [
+                "Falta de memória no gateway; aumentar o heap",
+                "Esgotamento de portas do NAT; reaproveitar conexões com keep-alive e pool",
+                "O DNS está lento; trocar o resolver",
+                "O TTL está baixo; aumentar o TTL"
+              ],
+              "answer": 1,
+              "explanation": "Cada conexão consome uma porta externa para aquele destino, e o espaço é finito (cerca de 55 mil na AWS por destino). Reusar conexões reduz o consumo drasticamente."
+            }
+          ]
+        }
+      ],
+      "exercises": [
+        "exercises/redes-calculadora-cidr.json"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+[
+  {
+    "slug": "redes-validate-ip-address",
+    "title": "Validate IP Address",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/validate-ip-address/",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "Endereços IP",
+    "moduleSlug": "ip",
+    "description": "Valide IPv4 e IPv6 com as regras de octetos, zeros à esquerda e grupos hexadecimais: o mesmo rigor de parse do exercício da calculadora CIDR."
+  },
+  {
+    "slug": "redes-restore-ip-addresses",
+    "title": "Restore IP Addresses",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/restore-ip-addresses/",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "Endereços IP",
+    "moduleSlug": "ip",
+    "description": "Gere todos os endereços IPv4 válidos a partir de uma sequência de dígitos com backtracking, respeitando a faixa de 0 a 255 e a regra de zeros à esquerda."
+  },
+  {
+    "slug": "redes-implement-trie",
+    "title": "Implement Trie (Prefix Tree)",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/implement-trie-prefix-tree/",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "Trie",
+    "moduleSlug": "ip",
+    "description": "A trie é a estrutura por trás do longest prefix match das tabelas de rotas: implemente inserção e busca por prefixo e compare com a trie binária da aula de roteamento."
+  }
+]

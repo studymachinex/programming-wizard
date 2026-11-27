@@ -67,7 +67,7 @@ const phases = [
     title: "Backend, mensageria e distribuídos",
     hours: "15h/semana",
     focus: "Construir sistemas que aguentam o mundo real",
-    tracks: ["quarkus-backend", "kafka-streaming", "mongodb-redis", "sistemas-distribuidos"],
+    tracks: ["redes-backend", "quarkus-backend", "kafka-streaming", "mongodb-redis", "sistemas-distribuidos"],
     details: [
       "Construa uma API Quarkus com Postgres, Redis, Kafka e testes de integração.",
       "Aprenda outbox, saga e idempotência implementando — não só lendo.",
