@@ -62,6 +62,7 @@ async function main() {
   let lessonTotal = 0;
   let exerciseTotal = 0;
   let problemTotal = 0;
+  const pruned = { modules: 0, lessons: 0, exercises: 0 };
 
   for (const dir of trackDirs) {
     const trackDir = path.join(TRACKS_DIR, dir);
@@ -120,9 +121,14 @@ async function main() {
 
     let lessonOrder = 0;
     let exerciseOrder = 0;
+    // Ids gerados nesta trilha: o que sobrar no banco deixou de existir no conteúdo e é podado no fim.
+    const moduleIds: string[] = [];
+    const lessonIds: string[] = [];
+    const exerciseIds: string[] = [];
 
     for (const [moduleIndex, mod] of track.modules.entries()) {
       const moduleId = id("m", track.slug, mod.slug);
+      moduleIds.push(moduleId);
       await prisma.module.upsert({
         where: { id: moduleId },
         update: {
@@ -156,6 +162,7 @@ async function main() {
           throw new Error(`Aula muito curta: ${lesson.file}`);
         }
         const lessonId = id("l", track.slug, mod.slug, lesson.slug);
+        lessonIds.push(lessonId);
         await prisma.lesson.upsert({
           where: { id: lessonId },
           update: {
@@ -202,6 +209,7 @@ async function main() {
         }
         exerciseSlugs.add(ex.slug);
         const exerciseId = id("e", ex.slug);
+        exerciseIds.push(exerciseId);
         await prisma.exercise.upsert({
           where: { id: exerciseId },
           update: {
@@ -241,6 +249,15 @@ async function main() {
         exerciseTotal += 1;
       }
     }
+
+    // Poda: módulos removidos do manifesto levam junto aulas, exercícios e progresso (cascade);
+    // depois, aulas e exercícios que saíram de módulos que continuam existindo.
+    const staleModules = await prisma.module.deleteMany({ where: { trackId, id: { notIn: moduleIds } } });
+    const staleLessons = await prisma.lesson.deleteMany({ where: { trackId, id: { notIn: lessonIds } } });
+    const staleExercises = await prisma.exercise.deleteMany({ where: { trackId, id: { notIn: exerciseIds } } });
+    pruned.modules += staleModules.count;
+    pruned.lessons += staleLessons.count;
+    pruned.exercises += staleExercises.count;
 
     // External problems for this track (optional file)
     const problemsFile = path.join(PROBLEMS_DIR, `${track.slug}.json`);
@@ -351,10 +368,21 @@ async function main() {
     prisma.externalProblem.deleteMany({ where: { id: { notIn: [...problemIds] } } }),
     prisma.project.deleteMany({ where: { id: { notIn: [...projectIds] } } }),
   ]);
-  const removed = staleTracks.count + staleProblems.count + staleProjects.count;
+  // Itens de revisão que apontam para aulas ou exercícios que não existem mais.
+  const [liveLessons, liveExercises] = await Promise.all([
+    prisma.lesson.findMany({ select: { id: true } }),
+    prisma.exercise.findMany({ select: { id: true } }),
+  ]);
+  const [staleLessonReviews, staleExerciseReviews] = await Promise.all([
+    prisma.reviewItem.deleteMany({ where: { kind: "lesson", refId: { notIn: liveLessons.map((l) => l.id) } } }),
+    prisma.reviewItem.deleteMany({ where: { kind: "exercise", refId: { notIn: liveExercises.map((e) => e.id) } } }),
+  ]);
+  const reviewsPruned = staleLessonReviews.count + staleExerciseReviews.count;
+
+  const removed = staleTracks.count + staleProblems.count + staleProjects.count + pruned.modules + pruned.lessons + pruned.exercises + reviewsPruned;
   if (removed > 0) {
     console.log(
-      `🧹 Poda: ${staleTracks.count} trilha(s), ${staleProblems.count} problema(s) e ${staleProjects.count} projeto(s) removidos.`
+      `🧹 Poda: ${staleTracks.count} trilha(s), ${pruned.modules} módulo(s), ${pruned.lessons} aula(s), ${pruned.exercises} exercício(s), ${reviewsPruned} item(ns) de revisão, ${staleProblems.count} problema(s) e ${staleProjects.count} projeto(s) removidos.`
     );
   }
 }

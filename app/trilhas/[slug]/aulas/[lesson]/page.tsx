@@ -18,7 +18,9 @@ import { LessonActivities, type LessonActivityView } from "@/components/lesson-a
 import { NotesPanel } from "@/components/notes-panel";
 import { MiniRing } from "@/components/progress-ring";
 import { Breadcrumb, ProgressBar, TrackIcon, accentOf } from "@/components/ui";
+import { LessonScene } from "@/components/scenes/lesson-scene";
 import { LessonVisualizer } from "@/components/visualizer/lesson-visualizer";
+import { hasScene } from "@/lib/scenes/registry";
 import { hasVisualizer } from "@/lib/visualizers/registry";
 
 export const dynamic = "force-dynamic";
@@ -130,9 +132,11 @@ export default async function LessonPage({
             </div>
           </header>
 
+          {hasScene(track.slug, lesson.slug) && <LessonScene track={track.slug} lesson={lesson.slug} />}
+
           {hasVisualizer(track.slug, lesson.slug) && <LessonVisualizer track={track.slug} lesson={lesson.slug} />}
 
-          <div className="mt-8">
+          <div id="conteudo-aula" className="mt-8 scroll-mt-24">
             <Markdown content={lesson.content} />
           </div>
 

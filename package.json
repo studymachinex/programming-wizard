@@ -15,6 +15,7 @@
     "seed": "tsx prisma/seed.ts",
     "setup": "npm run db:up && npm run db:push && npm run db:indexes && npm run seed",
     "validate:content": "tsx scripts/validate-content.ts",
+    "check:scenes": "tsx scripts/check-scenes.ts",
     "check:exercises": "tsx scripts/check-exercises.ts",
     "catalog:sync": "node scripts/sync-codecrafters-catalog.mjs",
     "challenge:http": "node challenges/http-server/tests/run-stages.mjs",
