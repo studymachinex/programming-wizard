@@ -1050,6 +1050,53 @@
           ]
         },
         {
+          "slug": "quatro-perguntas-comportamentais",
+          "title": "As quatro perguntas comportamentais que mais caem",
+          "summary": "Projeto a fundo, trade-off que mudou um design, falha que você assumiu e desacordo com o time: o sinal de cada uma e como responder com resultado primeiro.",
+          "minutes": 45,
+          "file": "lessons/23-quatro-perguntas-comportamentais.md",
+          "takeaways": [
+            "Responder com resultado primeiro, contexto mínimo e 60% do tempo nas suas decisões",
+            "Saber o sinal que cada uma das quatro perguntas procura",
+            "Montar um banco de quatro a seis histórias com números, mapeadas para as perguntas"
+          ],
+          "quiz": [
+            {
+              "question": "Na pergunta sobre uma falha que você assumiu, o que mais gera sinal positivo?",
+              "options": [
+                "Escolher uma falha pequena, para não se expor",
+                "Impacto real, mitigação rápida, causa raiz e uma mudança sistêmica que impediu a repetição",
+                "Mostrar que a culpa foi de outro time",
+                "Dizer que nunca teve falhas"
+              ],
+              "answer": 1,
+              "explanation": "A pergunta mede ownership e aprendizado. Uma falha sem impacto não gera sinal, e culpar outros gera sinal negativo."
+            },
+            {
+              "question": "Na pergunta sobre desacordo com o time, a melhor história é sempre aquela em que você venceu?",
+              "options": [
+                "Sim, mostra que você estava certo",
+                "Não. Discordar com dados, se comprometer com a decisão final e ajudar a fazer dar certo é um sinal forte",
+                "Sim, senão parece fraqueza",
+                "Não importa o final"
+              ],
+              "answer": 1,
+              "explanation": "O sinal é colaboração sob conflito. Disagree and commit, com uma revisão posterior baseada em dados, mostra maturidade."
+            },
+            {
+              "question": "Por que começar a resposta pelo resultado em vez de seguir o STAR na ordem?",
+              "options": [
+                "Porque é mais curto",
+                "Porque, se o entrevistador interromper, ele já tem o impacto, e o resto vira aprofundamento",
+                "Porque o STAR está errado",
+                "Porque o entrevistador não liga para contexto"
+              ],
+              "answer": 1,
+              "explanation": "Muita gente gasta dois minutos de contexto e nunca chega ao resultado. Resultado primeiro garante o sinal mais importante logo de início."
+            }
+          ]
+        },
+        {
           "slug": "negociacao-e-loop-completo",
           "title": "Negociação e o loop completo: coding, design e behavioral",
           "summary": "Como o comitê decide, o que cada entrevista mede e como negociar nível, equity e prazo com informação assimétrica.",
