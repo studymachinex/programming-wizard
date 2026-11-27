@@ -229,7 +229,6 @@ function TrackCard({ track }: { track: Awaited<ReturnType<typeof getTrackSummari
   return (
     <Link
       href={`/trilhas/${track.slug}`}
-      prefetch={false}
       draggable={false}
       className="panel glass-hover group relative flex select-none flex-col overflow-hidden p-5"
     >
