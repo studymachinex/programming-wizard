@@ -33,6 +33,10 @@ const LOADERS: Record<string, Loader> = {
   "redes-backend/tls-handshake": () => import("./redes/protocolos").then((m) => m.tlsHandshake),
   "redes-backend/https-certificados-e-sni": () => import("./redes/protocolos").then((m) => m.httpsECertificados),
   "redes-backend/http1-http2-http3": () => import("./redes/protocolos").then((m) => m.http123),
+  "redes-backend/mtu-mss-e-pmtud": () => import("./redes/performance").then((m) => m.mtuMssPmtud),
+  "redes-backend/nagle-e-delayed-ack": () => import("./redes/performance").then((m) => m.nagleEDelayedAck),
+  "redes-backend/custo-de-conexao-e-pooling": () => import("./redes/performance").then((m) => m.custoDeConexao),
+  "redes-backend/portas-efemeras-e-time-wait": () => import("./redes/performance").then((m) => m.portasEfemeras),
 };
 
 export function hasScene(track: string, lesson: string): boolean {

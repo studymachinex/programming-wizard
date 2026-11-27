@@ -141,5 +141,38 @@
     "topic": "Cache",
     "moduleSlug": "protocolos",
     "description": "Implemente um cache de capacidade fixa com get e put em O(1), usando mapa e lista duplamente encadeada. Caches de DNS, de sessões TLS e de respostas HTTP precisam de um limite, e despejar o menos usado é a política mais comum."
+  },
+  {
+    "slug": "redes-design-authentication-manager",
+    "title": "Design Authentication Manager",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/design-authentication-manager/",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "Expiração por tempo",
+    "moduleSlug": "performance",
+    "description": "Tokens com prazo de validade que podem ser renovados: o mesmo raciocínio do maxLifetime e do idleTimeout de um pool, em que a expiração se verifica na leitura contra o relógio."
+  },
+  {
+    "slug": "redes-process-tasks-using-servers",
+    "title": "Process Tasks Using Servers",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/process-tasks-using-servers/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Pool e heap",
+    "moduleSlug": "performance",
+    "description": "Tarefas chegam, servidores ficam ocupados por um tempo e voltam a ficar livres: empréstimo e devolução de recursos limitados com duas filas de prioridade, a espinha de um pool."
+  },
+  {
+    "slug": "redes-seat-reservation-manager",
+    "title": "Seat Reservation Manager",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/seat-reservation-manager/",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "Pool e heap",
+    "moduleSlug": "performance",
+    "description": "Reserve sempre o menor assento livre e devolva assentos ao conjunto: a mesma ideia de alocar a menor porta efêmera disponível e liberá-la ao fim do TIME_WAIT."
   }
 ]

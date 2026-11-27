@@ -1252,6 +1252,231 @@
           ]
         }
       ]
+    },
+    {
+      "slug": "performance",
+      "title": "Performance de rede no backend",
+      "description": "MTU, MSS e o buraco negro do PMTUD, a interação entre Nagle e delayed ACK, o custo de uma conexão e o connection pooling, e o esgotamento de portas efêmeras com TIME_WAIT.",
+      "estimatedHours": 4,
+      "exercises": [
+        "exercises/redes-pool-de-conexoes.json"
+      ],
+      "lessons": [
+        {
+          "slug": "mtu-mss-e-pmtud",
+          "title": "MTU, MSS e Path MTU Discovery",
+          "summary": "Do MTU de 1500 ao MSS de 1460 (1448 com timestamps), o ICMP do PMTUD, o buraco negro quando ele é bloqueado e as curas: MSS clamping e PLPMTUD.",
+          "minutes": 45,
+          "file": "lessons/21-mtu-mss-e-pmtud.md",
+          "takeaways": [
+            "Calcular o MSS a partir do MTU (1500 - 40 = 1460, e 1448 com timestamps) e distinguir os dois conceitos",
+            "Descrever o PMTUD: DF ligado, ICMP tipo 3 código 4 (ou ICMPv6 Packet Too Big) e o reenvio com segmentos menores",
+            "Reconhecer o buraco negro: conecta, requisição pequena passa e resposta grande trava quando o ICMP é bloqueado",
+            "Medir o path MTU com ping -M do e tracepath, e aplicar MSS clamping, PLPMTUD ou liberar o ICMP"
+          ],
+          "quiz": [
+            {
+              "question": "Com MTU de 1500 e IPv4 sem opções, qual é o MSS anunciado, e quantos bytes de dados cabem por segmento quando os timestamps estão ligados?",
+              "options": [
+                "1500 e 1488",
+                "1460 e 1448",
+                "1480 e 1468",
+                "1440 e 1428"
+              ],
+              "answer": 1,
+              "explanation": "MSS = MTU - 20 (IP) - 20 (TCP) = 1460. Os timestamps acrescentam 12 bytes de opções TCP a cada segmento, deixando 1448 bytes de dados."
+            },
+            {
+              "question": "Depois de ligar uma VPN, o login funciona e as páginas pequenas carregam, mas o download de um relatório grande trava sem erro. O ping responde normalmente. Qual é a hipótese mais forte?",
+              "options": [
+                "O DNS está resolvendo para o IP errado",
+                "Um buraco negro de PMTUD: o túnel tem MTU menor e o ICMP 3/4 é bloqueado",
+                "O servidor está sem memória",
+                "O TTL dos pacotes é baixo demais"
+              ],
+              "answer": 1,
+              "explanation": "O handshake e as respostas curtas cabem em pacotes pequenos. Os segmentos cheios de 1500 bytes são descartados pelo túnel, e o ICMP que avisaria o remetente não volta. O ping padrão é pequeno demais para revelar isso."
+            },
+            {
+              "question": "Qual comando testa se o caminho aceita pacotes de 1500 bytes sem fragmentar?",
+              "options": [
+                "ping -s 1500 host",
+                "ping -M do -s 1472 host",
+                "ping -M do -s 1500 host",
+                "traceroute -m 1500 host"
+              ],
+              "answer": 1,
+              "explanation": "O payload do ping soma 8 bytes de ICMP e 20 de IP: 1472 + 28 = 1500. A opção -M do liga o bit DF para que o pacote não seja fragmentado."
+            },
+            {
+              "question": "O que faz o MSS clamping em um gateway de túnel?",
+              "options": [
+                "Fragmenta os pacotes grandes no gateway",
+                "Reescreve a opção MSS dos SYNs que passam, para as pontas montarem segmentos que cabem no túnel",
+                "Aumenta o MTU do túnel",
+                "Desliga o bit DF dos pacotes"
+              ],
+              "answer": 1,
+              "explanation": "Com o MSS reduzido no SYN (por exemplo, 1360), nenhuma ponta monta segmentos maiores que o túnel suporta, e a conexão deixa de depender do ICMP do PMTUD."
+            }
+          ]
+        },
+        {
+          "slug": "nagle-e-delayed-ack",
+          "title": "Nagle e delayed ACK: os 40 ms misteriosos",
+          "summary": "A regra do Nagle, o ACK atrasado, o impasse do padrão write-write-read e as curas: TCP_NODELAY e juntar as escritas.",
+          "minutes": 40,
+          "file": "lessons/22-nagle-e-delayed-ack.md",
+          "takeaways": [
+            "Explicar o Nagle: segura segmentos pequenos enquanto há dado não confirmado",
+            "Explicar o delayed ACK e os valores típicos: mínimo de 40 ms no Linux e 200 ms no Windows",
+            "Reconhecer o padrão write-write-read e a pausa constante que ele produz, independente do RTT",
+            "Curar juntando as escritas ou com setTcpNoDelay(true), evitando tinygrams"
+          ],
+          "quiz": [
+            {
+              "question": "Um cliente faz dois write() seguidos e depois read(). Toda chamada leva 40 ms, mesmo com RTT de 0,5 ms. O que explica o número?",
+              "options": [
+                "O handshake TCP",
+                "O Nagle segura o 2º write até o ACK do 1º, e o ACK do servidor é atrasado pelo delayed ACK",
+                "A janela de congestionamento está em 1 MSS",
+                "O servidor demora 40 ms para processar"
+              ],
+              "answer": 1,
+              "explanation": "Cada lado espera pelo outro: o cliente espera o ACK para enviar o resto, e o servidor espera o resto (ou o timer) para confirmar. A pausa é o atraso do ACK, não a rede."
+            },
+            {
+              "question": "Qual é a melhor cura quando você controla o código do cliente?",
+              "options": [
+                "Aumentar o RTT",
+                "Montar a mensagem inteira e fazer uma única escrita, ligando TCP_NODELAY por segurança",
+                "Reduzir o MSS",
+                "Fazer mais write() menores"
+              ],
+              "answer": 1,
+              "explanation": "Uma escrita só envia um segmento sem esperar ACK e sem desperdiçar cabeçalhos. TCP_NODELAY garante que o que sobrar de pequeno saia na hora."
+            },
+            {
+              "question": "Qual é o risco de ligar TCP_NODELAY e continuar escrevendo 1 byte por write()?",
+              "options": [
+                "A conexão cai",
+                "Cada byte vira um pacote com cerca de 40 bytes de cabeçalho: os tinygrams que o Nagle evitava",
+                "O delayed ACK passa a valer 200 ms",
+                "O cliente perde a ordem dos bytes"
+              ],
+              "answer": 1,
+              "explanation": "Sem o Nagle, nada agrupa as escritas minúsculas. Agrupar antes de enviar resolve a pausa e evita o overhead."
+            }
+          ]
+        },
+        {
+          "slug": "custo-de-conexao-e-pooling",
+          "title": "Custo de conexão, keep-alive e connection pooling",
+          "summary": "Os RTTs de TCP e TLS, a cwnd aquecida, o empréstimo e o esgotamento de um pool, e os parâmetros do HikariCP: maxLifetime, keepaliveTime e o tamanho.",
+          "minutes": 50,
+          "file": "lessons/23-custo-de-conexao-e-pooling.md",
+          "takeaways": [
+            "Somar os RTTs de uma conexão nova (TCP, TLS 1.3 e requisição) e compará-los com os da conexão reaproveitada",
+            "Entender que a conexão aquecida também tem a cwnd já crescida",
+            "Descrever o ciclo do pool: criação preguiçosa, empréstimo, espera com timeout e devolução",
+            "Configurar maxLifetime abaixo dos limites da infraestrutura e dimensionar o pool por medição"
+          ],
+          "quiz": [
+            {
+              "question": "Com RTT de 20 ms, HTTPS sobre TLS 1.3 e uma conexão nova por chamada, quanto de rede cada chamada custa, e quanto custa numa conexão reaproveitada?",
+              "options": [
+                "20 ms e 20 ms",
+                "60 ms e 20 ms",
+                "40 ms e 20 ms",
+                "80 ms e 40 ms"
+              ],
+              "answer": 1,
+              "explanation": "TCP (1 RTT) + TLS 1.3 (1 RTT) + requisição (1 RTT) = 3 RTTs = 60 ms. Reaproveitada, paga só a requisição: 1 RTT = 20 ms."
+            },
+            {
+              "question": "Por que o maxLifetime de um pool de conexões deve ser menor que o timeout de conexões do firewall ou do banco?",
+              "options": [
+                "Para economizar memória no pool",
+                "Para o pool renovar a conexão antes de a infraestrutura matá-la, e não entregar conexões já mortas",
+                "Porque o Hikari exige",
+                "Para reduzir o número de threads"
+              ],
+              "answer": 1,
+              "explanation": "Se a conexão vive mais que o limite da infraestrutura, ela pode já ter sido descartada sem o pool saber, e o erro só aparece na próxima query."
+            },
+            {
+              "question": "Um serviço tem 40 threads e um banco com 8 núcleos. Qual abordagem para o pool tende a funcionar melhor?",
+              "options": [
+                "Um pool de 40 conexões, uma por thread",
+                "Um pool pequeno (algumas dezenas no máximo), dimensionado por teste de carga, deixando o excesso esperar",
+                "Uma conexão nova por consulta",
+                "Um pool de 500 conexões"
+              ],
+              "answer": 1,
+              "explanation": "O banco só executa em paralelo o que os núcleos e discos permitem. Conexões demais criam contenção. Pools pequenos e medidos costumam vencer."
+            },
+            {
+              "question": "Um serviço com HttpClient novo criado a cada requisição observa 20 conexões distintas no servidor para 20 requisições. Qual é o erro?",
+              "options": [
+                "O servidor não suporta keep-alive",
+                "Cada HttpClient tem o seu pool; criá-lo por requisição descarta a conexão e repete o handshake",
+                "O HTTP/1.1 não permite reaproveitar conexões",
+                "O timeout de leitura está curto"
+              ],
+              "answer": 1,
+              "explanation": "O pool vive dentro do HttpClient. Crie um único cliente e o compartilhe, e as requisições seguintes reaproveitam a conexão."
+            }
+          ]
+        },
+        {
+          "slug": "portas-efemeras-e-time-wait",
+          "title": "Esgotamento de portas efêmeras",
+          "summary": "A faixa de 28.232 portas, o limite por destino, os 60 s de TIME_WAIT, a conta do esgotamento, o diagnóstico com ss e as curas, sem tcp_tw_recycle.",
+          "minutes": 45,
+          "file": "lessons/24-portas-efemeras-e-time-wait.md",
+          "takeaways": [
+            "Saber a faixa padrão do Linux (32768 a 60999, 28.232 portas) e que o limite vale por quádrupla",
+            "Explicar o TIME_WAIT: quem fecha primeiro, 60 s, e a conta conexões por segundo vezes 60",
+            "Reconhecer Cannot assign requested address e diagnosticar com ss -s",
+            "Curar reaproveitando conexões, e saber que tcp_tw_recycle foi removido no Linux 4.12 e nunca deve ser usado"
+          ],
+          "quiz": [
+            {
+              "question": "Um cliente abre e fecha 500 conexões por segundo para o mesmo IP e porta de destino. Em quanto tempo, aproximadamente, a faixa padrão do Linux (28.232 portas) se esgota?",
+              "options": [
+                "Em 5 s",
+                "Em cerca de 56 s",
+                "Em 10 min",
+                "Nunca, porque o limite é global e enorme"
+              ],
+              "answer": 1,
+              "explanation": "Cada conexão fechada deixa a porta em TIME_WAIT por 60 s. 28.232 / 500 é aproximadamente 56 s. Depois disso, connect() falha com Cannot assign requested address."
+            },
+            {
+              "question": "Um serviço fala com 10 APIs distintas, cada uma em seu IP. O limite de 28 mil portas efêmeras vale...",
+              "options": [
+                "No total: 28 mil conexões somadas",
+                "Por destino (IP e porta): cerca de 28 mil para cada um, pois a quádrupla é que identifica a conexão",
+                "Só para conexões de entrada",
+                "Por processo"
+              ],
+              "answer": 1,
+              "explanation": "A mesma porta local pode servir a conexões com destinos diferentes, pois a quádrupla (IP e porta de origem e de destino) continua única."
+            },
+            {
+              "question": "Qual é a cura que ataca a causa do esgotamento de portas?",
+              "options": [
+                "Ativar net.ipv4.tcp_tw_recycle",
+                "Reaproveitar conexões com pool e keep-alive",
+                "Usar SO_REUSEADDR nos clientes",
+                "Reduzir o tcp_fin_timeout"
+              ],
+              "answer": 1,
+              "explanation": "A causa é abrir uma conexão por chamada. tcp_tw_recycle foi removido no Linux 4.12 e quebrava clientes atrás de NAT; SO_REUSEADDR é do bind de servidores; tcp_fin_timeout não encurta o TIME_WAIT."
+            }
+          ]
+        }
+      ]
     }
   ]
 }
