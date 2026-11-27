@@ -1,0 +1,366 @@
+{
+  "slug": "machine-coding-lld",
+  "title": "Machine Coding & LLD em Java",
+  "subtitle": "Código rodando em 75 minutos: o round de LLD de Uber, DoorDash e Airbnb",
+  "description": "Uma trilha para a rodada de machine coding, em que você implementa um sistema pequeno e extensível em Java, com testes, e defende as decisões de design ao vivo. Cobre os seis problemas que mais caem (KV store com TTL, cache LRU, rate limiter, estacionamento, Splitwise e framework de logging) e os follow-ups de concorrência que fecham a entrevista.",
+  "level": "avancado",
+  "icon": "boxes",
+  "accent": "ember",
+  "estimatedHours": 24,
+  "isCore": true,
+  "outcomes": [
+    "Conduzir uma rodada de machine coding em quatro fases, de requisitos a extensões, dentro de 75 minutos",
+    "Implementar KV store com TTL, cache LRU e rate limiter com a complexidade certa e justificar a estrutura de dados",
+    "Modelar domínios como estacionamento e Splitwise com Strategy onde há variação real e dinheiro em centavos",
+    "Desenhar um framework de logging com hierarquia de níveis, additivity e isolamento de falhas",
+    "Tornar qualquer uma dessas classes thread-safe escolhendo a granularidade de lock pelo invariante"
+  ],
+  "modules": [
+    {
+      "slug": "metodo-machine-coding",
+      "title": "O método do machine coding",
+      "description": "Como a rodada é avaliada, como dividir o tempo e o primeiro problema clássico: um key-value store com expiração.",
+      "estimatedHours": 5,
+      "lessons": [
+        {
+          "slug": "roteiro-machine-coding",
+          "title": "O roteiro da rodada de machine coding",
+          "summary": "As quatro fases da rodada, o que o entrevistador anota e como decidir onde vale uma interface.",
+          "minutes": 30,
+          "file": "lessons/01-roteiro-machine-coding.md",
+          "takeaways": [
+            "Dividir 75 minutos em requisitos, modelo, código e extensões",
+            "Criar interface só onde existe uma segunda implementação plausível",
+            "Injetar relógio e geradores de id para tornar o código testável"
+          ],
+          "quiz": [
+            {
+              "question": "Quando vale criar uma interface no modelo de um machine coding?",
+              "options": [
+                "Para toda classe, por boa prática",
+                "Quando existe uma segunda implementação plausível do comportamento",
+                "Só quando o entrevistador pedir",
+                "Nunca, porque interfaces deixam o código lento"
+              ],
+              "answer": 1,
+              "explanation": "Interface sem variação real é cerimônia que custa tempo. A regra prática é: existe uma segunda implementação plausível, como outra tarifa ou outro algoritmo de limite? Então vale."
+            },
+            {
+              "question": "Por que injetar o relógio (LongSupplier) em vez de chamar System.currentTimeMillis()?",
+              "options": [
+                "Porque System.currentTimeMillis() é depreciado",
+                "Para os testes controlarem o tempo sem Thread.sleep e com resultado determinístico",
+                "Porque LongSupplier é mais rápido",
+                "Para usar fuso horário local"
+              ],
+              "answer": 1,
+              "explanation": "Regras com TTL, tarifa ou janela de tempo só são testáveis de forma rápida e determinística se o teste puder avançar o relógio à vontade."
+            },
+            {
+              "question": "O entrevistador pede uma extensão. Qual é a melhor primeira resposta?",
+              "options": [
+                "Começar a reescrever a classe principal",
+                "Dizer onde a mudança entra no modelo e só então escrever",
+                "Pedir mais tempo",
+                "Dizer que o modelo não suporta"
+              ],
+              "answer": 1,
+              "explanation": "Apontar a fronteira em que a mudança entra (\"é uma nova implementação de Tarifa\") mostra que o modelo foi pensado para variar. Depois, você escreve."
+            }
+          ]
+        },
+        {
+          "slug": "kv-store-com-ttl",
+          "title": "Key-value store em memória com TTL",
+          "summary": "Expiração preguiçosa mais varredura ativa com heap, e o bug do agendamento obsoleto quando a chave é regravada.",
+          "minutes": 40,
+          "file": "lessons/02-kv-store-ttl.md",
+          "takeaways": [
+            "Combinar expiração preguiçosa e ativa para controlar memória e latência",
+            "Usar um heap de expirações com lazy deletion de agendamentos obsoletos",
+            "Definir e testar a semântica de sobrescrita de TTL"
+          ],
+          "quiz": [
+            {
+              "question": "Qual é o problema de usar só a expiração preguiçosa (conferir no get)?",
+              "options": [
+                "O get fica O(n)",
+                "Chaves vencidas que ninguém mais lê ficam na memória para sempre",
+                "Valores vencidos são devolvidos",
+                "Não funciona com String"
+              ],
+              "answer": 1,
+              "explanation": "A expiração preguiçosa garante que nada vencido é devolvido, mas não libera memória de chaves abandonadas. Por isso é preciso uma varredura ativa."
+            },
+            {
+              "question": "A chave a é gravada com TTL 100 em t=0 e de novo com TTL 100 em t=50. O que a varredura deve fazer em t=120?",
+              "options": [
+                "Remover a, porque o primeiro agendamento venceu",
+                "Ignorar o agendamento de t=100, porque ele não descreve mais a versão atual da chave",
+                "Lançar exceção",
+                "Remover os dois agendamentos e a chave"
+              ],
+              "answer": 1,
+              "explanation": "O heap pode ter agendamentos obsoletos. Ao tirar um do topo, confira se o expiraEm ainda bate com o da entrada atual. Se não bater, descarte só o agendamento."
+            }
+          ]
+        }
+      ],
+      "exercises": ["exercises/lld-kv-store-ttl.json"]
+    },
+    {
+      "slug": "estruturas-em-memoria",
+      "title": "Estruturas em memória",
+      "description": "Cache LRU com pontos de extensão e métricas, e rate limiters com a justificativa de memória, precisão e rajada.",
+      "estimatedHours": 6,
+      "lessons": [
+        {
+          "slug": "cache-lru-com-eviction",
+          "title": "Cache LRU genérico com eviction e métricas",
+          "summary": "HashMap com lista duplamente ligada, listener de eviction chamado na hora certa e hit rate como métrica obrigatória.",
+          "minutes": 40,
+          "file": "lessons/03-cache-lru-eviction.md",
+          "takeaways": [
+            "Implementar LRU genérico em O(1) com nós sentinela",
+            "Chamar o listener de eviction só depois de o estado estar consistente",
+            "Expor hits, misses e evictions e saber o que eles indicam"
+          ],
+          "quiz": [
+            {
+              "question": "Por que o listener de eviction deve ser chamado por último no put?",
+              "options": [
+                "Por desempenho",
+                "Porque ele é código externo: se lançar exceção, o cache já precisa estar consistente",
+                "Porque o Java exige",
+                "Para o listener ver o valor novo"
+              ],
+              "answer": 1,
+              "explanation": "Se o listener rodar antes de o nó sair do índice e da lista, uma exceção deixa o índice apontando para um nó que não está mais na lista."
+            },
+            {
+              "question": "Remover uma chave explicitamente com remove() deve chamar o listener de eviction?",
+              "options": [
+                "Sim, sempre",
+                "Não. Remoção explícita não é eviction, e misturar as duas confunde métricas e efeitos colaterais",
+                "Só se o cache estiver cheio",
+                "Só para chaves antigas"
+              ],
+              "answer": 1,
+              "explanation": "Eviction é a política do cache despejando algo. Remoção é decisão do usuário. Um listener que grava em disco no evict não deve gravar o que o usuário apagou de propósito."
+            }
+          ]
+        },
+        {
+          "slug": "rate-limiter-em-codigo",
+          "title": "Rate limiter: token bucket e sliding window em código",
+          "summary": "Os quatro algoritmos clássicos comparados em memória, precisão e rajada, com token bucket e sliding window log implementados.",
+          "minutes": 45,
+          "file": "lessons/04-rate-limiter-lld.md",
+          "takeaways": [
+            "Comparar janela fixa, sliding log, sliding counter e token bucket",
+            "Implementar token bucket sem timer, recalculando sob demanda",
+            "Justificar a escolha pelo requisito e estimar a memória com números"
+          ],
+          "quiz": [
+            {
+              "question": "Com limite de 1.000 req/min por janela fixa, qual é o pior caso em dois segundos?",
+              "options": [
+                "1.000 requisições",
+                "2.000 requisições, metade no último segundo de uma janela e metade no primeiro da seguinte",
+                "500 requisições",
+                "Ilimitado"
+              ],
+              "answer": 1,
+              "explanation": "A janela fixa zera o contador na fronteira. Um cliente pode usar o limite inteiro no fim de uma janela e de novo no começo da próxima."
+            },
+            {
+              "question": "Por que o token bucket não precisa de uma thread de recarga?",
+              "options": [
+                "Porque os tokens nunca acabam",
+                "Porque os tokens podem ser recalculados a partir do tempo decorrido desde a última chamada",
+                "Porque usa o garbage collector",
+                "Porque o Java recarrega sozinho"
+              ],
+              "answer": 1,
+              "explanation": "tokens = min(capacidade, tokens + decorrido * taxa). Basta guardar o instante da última recarga, sem custo para clientes inativos."
+            },
+            {
+              "question": "Qual algoritmo é mais adequado para limitar tentativas de login a 5 a cada 15 minutos?",
+              "options": [
+                "Janela fixa",
+                "Sliding window log, que é exato e custa só 5 timestamps por usuário",
+                "Nenhum limite",
+                "Token bucket com capacidade de 1.000"
+              ],
+              "answer": 1,
+              "explanation": "Com limite baixo, a memória do log é pequena, e a precisão importa: não se quer permitir 10 tentativas em segundos na fronteira de uma janela."
+            }
+          ]
+        }
+      ],
+      "exercises": ["exercises/lld-cache-lru-eviction.json", "exercises/lld-rate-limiter.json"]
+    },
+    {
+      "slug": "modelagem-de-dominio",
+      "title": "Modelagem de domínio",
+      "description": "Os dois LLDs de domínio mais pedidos: estacionamento com alocação eficiente e tarifa plugável, e Splitwise com dinheiro exato e simplificação de dívidas.",
+      "estimatedHours": 7,
+      "lessons": [
+        {
+          "slug": "estacionamento",
+          "title": "Estacionamento: código rodando, não diagrama",
+          "summary": "Enums onde não há comportamento, Strategy para a tarifa e alocação de vagas em O(log n) com conjuntos ordenados.",
+          "minutes": 45,
+          "file": "lessons/05-estacionamento.md",
+          "takeaways": [
+            "Fechar os requisitos do estacionamento com as perguntas que mudam o modelo",
+            "Alocar a menor vaga compatível em O(log n) com TreeSet por tamanho",
+            "Isolar a regra de preço numa Strategy e tratar erros de domínio"
+          ],
+          "quiz": [
+            {
+              "question": "Qual estrutura entrega a próxima vaga livre de menor andar e índice em O(log n)?",
+              "options": [
+                "ArrayList percorrida do início",
+                "TreeSet de vagas livres por tamanho, ordenado por (andar, índice), com pollFirst()",
+                "HashSet de vagas",
+                "Uma matriz andar x vaga"
+              ],
+              "answer": 1,
+              "explanation": "O conjunto ordenado mantém só as vagas livres. pollFirst() remove e devolve a melhor em O(log n), e a saída devolve a vaga com add()."
+            },
+            {
+              "question": "Por que TipoVeiculo carrega o tamanho mínimo de vaga como atributo do enum?",
+              "options": [
+                "Para economizar memória",
+                "Para a alocação comparar tamanhos sem um if por tipo de veículo",
+                "Porque enums não podem ter métodos",
+                "Para o ticket ficar menor"
+              ],
+              "answer": 1,
+              "explanation": "Com o mínimo no enum, a alocação só compara ordinais. Um tipo novo de veículo é uma linha no enum, e não um if novo em cada método."
+            }
+          ]
+        },
+        {
+          "slug": "splitwise",
+          "title": "Splitwise: grupos, despesas e simplificação de dívidas",
+          "summary": "Dinheiro em centavos, saldo líquido por pessoa, três tipos de divisão num núcleo único e simplificação gulosa com dois heaps.",
+          "minutes": 50,
+          "file": "lessons/06-splitwise.md",
+          "takeaways": [
+            "Representar dinheiro em centavos e definir para onde vai o resto da divisão",
+            "Modelar o grupo com saldo líquido e testar o invariante da soma zero",
+            "Simplificar dívidas com o guloso e explicar por que ele não é ótimo"
+          ],
+          "quiz": [
+            {
+              "question": "R$ 10,00 divididos igualmente entre 3 pessoas. O que a implementação deve fazer?",
+              "options": [
+                "Cobrar R$ 3,33 de cada e ignorar o centavo",
+                "Cobrar R$ 3,34 de uma pessoa e R$ 3,33 das outras duas, por uma regra fixa e documentada",
+                "Usar double e arredondar no fim",
+                "Recusar a despesa"
+              ],
+              "answer": 1,
+              "explanation": "A soma das partes precisa ser igual ao total. O centavo que sobra vai para alguém por uma regra determinística, como os primeiros da lista."
+            },
+            {
+              "question": "O algoritmo guloso (maior devedor paga ao maior credor) garante o mínimo de transferências?",
+              "options": [
+                "Sim, sempre",
+                "Não. O mínimo é NP-difícil, e o guloso garante no máximo n − 1 transferências",
+                "Sim, se os valores forem inteiros",
+                "Não funciona com mais de 3 pessoas"
+              ],
+              "answer": 1,
+              "explanation": "Minimizar transferências equivale a particionar o grupo no maior número de subconjuntos de soma zero. O guloso é a heurística prática."
+            }
+          ]
+        }
+      ],
+      "exercises": ["exercises/lld-estacionamento.json", "exercises/lld-splitwise.json"]
+    },
+    {
+      "slug": "frameworks-e-concorrencia",
+      "title": "Frameworks extensíveis e concorrência",
+      "description": "Um framework de logging com hierarquia e appenders, e os follow-ups de concorrência que fecham quase toda rodada de machine coding.",
+      "estimatedHours": 6,
+      "lessons": [
+        {
+          "slug": "framework-de-logging",
+          "title": "Framework de logging: níveis, appenders e additivity",
+          "summary": "Loggers hierárquicos com nível efetivo herdado, appenders que recebem eventos dos filhos, formatação preguiçosa e falhas isoladas.",
+          "minutes": 45,
+          "file": "lessons/07-framework-de-logging.md",
+          "takeaways": [
+            "Calcular o nível efetivo subindo a hierarquia por segmentos de nome",
+            "Explicar additivity e por que um appender duplicado imprime duas vezes",
+            "Garantir que log desligado não formate mensagem e que appender quebrado não derrube a aplicação"
+          ],
+          "quiz": [
+            {
+              "question": "Por que log.debug(\"pedido \" + pedido) é pior que log.debug(\"pedido {}\", pedido) com DEBUG desligado?",
+              "options": [
+                "Não há diferença",
+                "A concatenação chama toString e aloca a string antes de o método checar o nível",
+                "O placeholder é mais legível, só isso",
+                "A concatenação não compila"
+              ],
+              "answer": 1,
+              "explanation": "Os argumentos de um método são avaliados antes da chamada. Com placeholder, o framework checa o nível primeiro e só formata se for publicar."
+            },
+            {
+              "question": "O logger \"application\" herda o nível configurado para \"app\"?",
+              "options": [
+                "Sim, porque começa com app",
+                "Não. A hierarquia é por segmentos separados por ponto, e o pai de application é a raiz",
+                "Só se o nível for DEBUG",
+                "Depende do appender"
+              ],
+              "answer": 1,
+              "explanation": "Usar startsWith faria application herdar de app. O pai é calculado cortando no último ponto."
+            }
+          ]
+        },
+        {
+          "slug": "concorrencia-e-follow-ups",
+          "title": "Concorrência: o follow-up que fecha a rodada",
+          "summary": "Como escolher lock global, lock por chave, estrutura concorrente ou striping a partir do invariante de cada classe.",
+          "minutes": 40,
+          "file": "lessons/08-concorrencia-e-follow-ups.md",
+          "takeaways": [
+            "Identificar o invariante antes de escolher a sincronização",
+            "Usar compute do ConcurrentHashMap para estado por chave sem lock global",
+            "Evitar check-then-act e chamadas a código externo segurando lock"
+          ],
+          "quiz": [
+            {
+              "question": "Por que trocar HashMap por ConcurrentHashMap não torna um cache LRU thread-safe?",
+              "options": [
+                "Porque ConcurrentHashMap é lento",
+                "Porque o invariante envolve o mapa e a lista ligada juntos, e cada operação mexe nos dois",
+                "Porque ConcurrentHashMap não aceita genéricos",
+                "Porque o LRU não tem estado"
+              ],
+              "answer": 1,
+              "explanation": "Entre atualizar o índice e mover o nó na lista, outra thread pode ver os dois fora de sincronia. É preciso tornar a operação composta atômica."
+            },
+            {
+              "question": "Por que um ReadWriteLock não ajuda num cache LRU?",
+              "options": [
+                "Porque não existe ReadWriteLock em Java",
+                "Porque o get também altera a ordem de recência, então não há leitura pura",
+                "Porque é mais lento que synchronized em qualquer caso",
+                "Porque o put não precisa de lock"
+              ],
+              "answer": 1,
+              "explanation": "Cada get move o nó para a frente da lista. Todas as operações são escritas, e o lock de leitura compartilhada nunca é usado."
+            }
+          ]
+        }
+      ],
+      "exercises": ["exercises/lld-framework-de-logging.json"]
+    }
+  ]
+}

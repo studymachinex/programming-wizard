@@ -1,0 +1,167 @@
+[
+  {
+    "slug": "lld-awesome-low-level-design",
+    "title": "Awesome Low Level Design (catálogo de problemas)",
+    "platform": "Outro",
+    "url": "https://github.com/ashishps1/awesome-low-level-design",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "Método",
+    "moduleSlug": "metodo-machine-coding",
+    "description": "Catálogo de LLDs com requisitos e soluções em Java. Escolha um problema por semana, resolva em 75 minutos cronometrados e só depois compare com a referência."
+  },
+  {
+    "slug": "lld-snapshot-array",
+    "title": "Snapshot Array",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/snapshot-array/",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "Key-value versionado",
+    "moduleSlug": "metodo-machine-coding",
+    "description": "Um KV com versões: guarde só as mudanças por índice e use busca binária na leitura. É o mesmo raciocínio de não copiar tudo a cada snapshot."
+  },
+  {
+    "slug": "lld-lfu-cache",
+    "title": "LFU Cache",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/lfu-cache/",
+    "difficulty": "dificil",
+    "level": 4,
+    "topic": "Cache",
+    "moduleSlug": "estruturas-em-memoria",
+    "description": "O follow-up \"e se trocássemos LRU por LFU?\" resolvido em O(1): mapa de frequência para lista e ponteiro para a menor frequência."
+  },
+  {
+    "slug": "lld-all-oone-data-structure",
+    "title": "All O`one Data Structure",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/all-oone-data-structure/",
+    "difficulty": "dificil",
+    "level": 4,
+    "topic": "Cache",
+    "moduleSlug": "estruturas-em-memoria",
+    "description": "Contadores com máximo e mínimo em O(1): lista duplamente ligada de baldes por contagem. Treina a mesma mecânica de nós do LRU e do LFU."
+  },
+  {
+    "slug": "lld-stock-price-fluctuation",
+    "title": "Stock Price Fluctuation",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/stock-price-fluctuation/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Heap com lazy deletion",
+    "moduleSlug": "estruturas-em-memoria",
+    "description": "Correções de preço deixam entradas obsoletas no heap, exatamente como no KV com TTL. Descarte-as ao chegar no topo."
+  },
+  {
+    "slug": "lld-my-calendar-i",
+    "title": "My Calendar I",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/my-calendar-i/",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "Reservas",
+    "moduleSlug": "modelagem-de-dominio",
+    "description": "Reserva sem sobreposição com TreeMap (floorKey/ceilingKey). É o núcleo do \"zero double booking\" do Airbnb."
+  },
+  {
+    "slug": "lld-seat-reservation-manager",
+    "title": "Seat Reservation Manager",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/seat-reservation-manager/",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "Alocação de recursos",
+    "moduleSlug": "modelagem-de-dominio",
+    "description": "Sempre o menor assento livre: a mesma ideia da vaga de menor andar e índice no estacionamento, com min-heap."
+  },
+  {
+    "slug": "lld-simple-bank-system",
+    "title": "Simple Bank System",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/simple-bank-system/",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "Dinheiro e validação",
+    "moduleSlug": "modelagem-de-dominio",
+    "description": "Transferências que validam tudo antes de mutar. Treine a disciplina do Splitwise: nenhuma operação aplicada pela metade."
+  },
+  {
+    "slug": "lld-design-an-atm-machine",
+    "title": "Design an ATM Machine",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/design-an-atm-machine/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Dinheiro e validação",
+    "moduleSlug": "modelagem-de-dominio",
+    "description": "Saque guloso por cédula, com rollback se não fechar o valor. Clássico de LLD com uma regra de negócio que parece simples e não é."
+  },
+  {
+    "slug": "lld-design-a-food-rating-system",
+    "title": "Design a Food Rating System",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/design-a-food-rating-system/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Índices múltiplos",
+    "moduleSlug": "modelagem-de-dominio",
+    "description": "Vários índices sobre os mesmos dados (por culinária, por nota) mantidos consistentes a cada atualização. É o problema do estacionamento com placa e vaga."
+  },
+  {
+    "slug": "lld-design-movie-rental-system",
+    "title": "Design Movie Rental System",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/design-movie-rental-system/",
+    "difficulty": "dificil",
+    "level": 4,
+    "topic": "Índices múltiplos",
+    "moduleSlug": "modelagem-de-dominio",
+    "description": "Alugar e devolver movendo itens entre conjuntos ordenados, com desempates exigidos pelo enunciado. Treina contrato determinístico."
+  },
+  {
+    "slug": "lld-design-memory-allocator",
+    "title": "Design Memory Allocator",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/design-memory-allocator/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Alocação de recursos",
+    "moduleSlug": "modelagem-de-dominio",
+    "description": "Alocação first-fit de blocos contíguos e liberação por id. Bom para discutir fragmentação e a troca entre simplicidade e eficiência."
+  },
+  {
+    "slug": "lld-design-a-number-container-system",
+    "title": "Design a Number Container System",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/design-a-number-container-system/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Heap com lazy deletion",
+    "moduleSlug": "frameworks-e-concorrencia",
+    "description": "Sobrescritas invalidam entradas de heap. Mais uma vez, lazy deletion: confira se a entrada do topo ainda vale antes de responder."
+  },
+  {
+    "slug": "lld-design-task-manager",
+    "title": "Design Task Manager",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/design-task-manager/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Filas de prioridade",
+    "moduleSlug": "frameworks-e-concorrencia",
+    "description": "Fila de tarefas com prioridade editável e execução da mais prioritária. É o mesmo agendador que aparece no escalonamento de jobs."
+  },
+  {
+    "slug": "lld-design-spreadsheet",
+    "title": "Design Spreadsheet",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/design-spreadsheet/",
+    "difficulty": "medio",
+    "level": 3,
+    "topic": "Parsing e modelagem",
+    "moduleSlug": "frameworks-e-concorrencia",
+    "description": "Células, referências e fórmulas simples. Pergunta de follow-up: como você recalcularia dependências sem varrer a planilha inteira?"
+  }
+]

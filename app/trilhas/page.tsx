@@ -42,9 +42,9 @@ const stages = [
   {
     id: "entrevista",
     label: "Fase 04 · Entrevista",
-    title: "Padrões avançados e system design",
+    title: "Padrões avançados, machine coding e system design",
     description: "A reta final: transformar conhecimento em performance de entrevista para Netflix, Uber, Google e afins.",
-    slugs: ["algoritmos-avancados", "system-design-interview"],
+    slugs: ["algoritmos-avancados", "machine-coding-lld", "system-design-interview"],
   },
 ];
 
