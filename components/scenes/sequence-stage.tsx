@@ -92,26 +92,32 @@ export function SequenceStage({
   const endDelay = newMessages.length * STAGGER;
 
   // Rola o palco até a última mensagem nova ficar visível (instantâneo com movimento reduzido).
-  const lastNewAt = newMessages.length ? Math.max(...newMessages.map((m) => m.at + (m.span ?? 0) + 1)) : -1;
+  // Na vertical, até a linha dela; na horizontal (celular, lanes mais largas que o palco), até o meio da seta.
+  const lastNew = newMessages.length ? newMessages.reduce((a, b) => (b.at + (b.span ?? 0) >= a.at + (a.span ?? 0) ? b : a)) : null;
+  const lastNewAt = lastNew ? lastNew.at + (lastNew.span ?? 0) + 1 : -1;
+  const lastNewMidX = lastNew ? (laneX(lastNew.from) + laneX(lastNew.to)) / 2 : -1;
   useEffect(() => {
     const el = wrapRef.current;
     if (!el || fit) return;
     const top = lastNewAt >= 0 ? Math.max(0, HEADER + 24 + lastNewAt * ROW - el.clientHeight + 48) : 0;
-    el.scrollTo({ top, behavior: reduced ? "auto" : "smooth" });
-  }, [lastNewAt, epoch, stage, fit, reduced]);
+    const overflowX = el.scrollWidth > el.clientWidth + 1;
+    const left = overflowX && lastNewMidX >= 0 ? Math.max(0, lastNewMidX * zoom - el.clientWidth / 2) : el.scrollLeft;
+    el.scrollTo({ top, left, behavior: reduced ? "auto" : "smooth" });
+  }, [lastNewAt, lastNewMidX, zoom, epoch, stage, fit, reduced]);
 
   return (
     <div ref={wrapRef} className={fit ? "h-full w-full overflow-auto" : "max-h-[min(62vh,520px)] w-full overflow-auto"}>
+      {/* Cabeçalho das lanes fixo no topo da rolagem vertical (e rolando junto na horizontal),
+          para a pessoa sempre saber de quem para quem vai cada seta. */}
       <svg
-        key={epoch}
-        role="img"
-        aria-label={ariaLabel}
-        viewBox={`0 0 ${totalW} ${H}`}
+        key={`h-${epoch}`}
+        aria-hidden
+        viewBox={`0 0 ${totalW} ${HEADER}`}
         width={totalW * zoom}
-        height={H * zoom}
-        className="mx-auto block max-w-none select-none"
+        height={HEADER * zoom}
+        className="sticky top-0 z-10 mx-auto block max-w-none select-none"
       >
-        {/* lanes */}
+        <rect width={totalW} height={HEADER} fill="#0b0814" fillOpacity={0.96} />
         {stage.lanes.map((lane) => {
           const x = laneX(lane.id);
           const tone = TONE[lane.tone ?? "zinc"];
@@ -121,7 +127,7 @@ export function SequenceStage({
           const sc = state ? NOTE_COLOR[state.tone ?? "info"] : null;
           return (
             <g key={lane.id}>
-              <line x1={x} y1={HEADER - 2} x2={x} y2={H - 12} stroke="#3b3158" strokeWidth={1.3} strokeDasharray="4 5" />
+              <line x1={x} y1={HEADER - 2} x2={x} y2={HEADER} stroke="#3b3158" strokeWidth={1.3} />
               <circle cx={x} cy={22} r={16} fill={tone.right} stroke={tone.stroke} strokeOpacity={0.7} />
               {Icon && <Icon x={x - 8} y={14} width={16} height={16} color="rgba(255,255,255,0.95)" strokeWidth={2} />}
               {lines.slice(0, 2).map((line, i) => (
@@ -140,6 +146,21 @@ export function SequenceStage({
             </g>
           );
         })}
+      </svg>
+
+      <svg
+        key={epoch}
+        role="img"
+        aria-label={ariaLabel}
+        viewBox={`0 ${HEADER} ${totalW} ${H - HEADER}`}
+        width={totalW * zoom}
+        height={(H - HEADER) * zoom}
+        className="mx-auto block max-w-none select-none"
+      >
+        {/* linhas das lanes */}
+        {stage.lanes.map((lane) => (
+          <line key={lane.id} x1={laneX(lane.id)} y1={HEADER} x2={laneX(lane.id)} y2={H - 12} stroke="#3b3158" strokeWidth={1.3} strokeDasharray="4 5" />
+        ))}
 
         {/* colchetes */}
         {(stage.brackets ?? []).map((b) => {

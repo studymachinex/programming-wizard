@@ -303,7 +303,10 @@ elementos com status `bad`, `new` ou `dead`. O texto do passo fica num container
   percorre a seta. `lost`: o traço para em 55% e aparece um X rose.
 - `notes`: caixinha à direita da lane, alinhada à linha. `brackets`: colchete vertical à esquerda do diagrama
   com o label centralizado ("1 RTT").
-- Altura automática pela maior `at + span`.
+- Altura automática pela maior `at + span`, limitada a `min(62vh, 520px)` com rolagem interna; o cabeçalho
+  das lanes fica fixo (`sticky`) e a rolagem acompanha a última mensagem nova nos dois eixos.
+- Linha de 32 px: uma mensagem com `detail` exige **2 linhas** entre o fim dela (`at + span`) e o início da
+  próxima que cruze a mesma faixa de lanes (o checador acusa).
 
 ### 4.2 Camadas (`layers-stage.tsx`)
 
@@ -420,7 +423,9 @@ aula tiver os dois):
 └──────────────────────────────────────────────────────────────────┘
 ```
 
-- As métricas ficam sobrepostas ao canto superior esquerdo do palco; os controles, ao superior direito.
+- As métricas ficam numa faixa acima do palco; os controles (repetir, pausar, tela cheia) ficam sempre no
+  cabeçalho do player, nunca sobre o palco. No iso, `SceneStep.focus` define o enquadramento em telas
+  estreitas (botão "ver tudo / aproximar"); e o checador recusa textos sobrepostos (`isoLayout`).
 - Tela cheia (`⤢`): overlay `fixed inset-0` com palco à esquerda e o texto do passo numa coluna de 360 px à
   direita (abaixo de 1024 px, texto embaixo). `Esc` fecha. Use a Fullscreen API se disponível, com o
   overlay como fallback.

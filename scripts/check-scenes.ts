@@ -12,7 +12,7 @@ import { SCENE_KEYS, loadScene } from "../lib/scenes/registry";
 import { computeChanges } from "../lib/scenes/diff";
 import { bounds, isoLayout, type Box2, type LayoutItem } from "../lib/scenes/iso";
 import { resolveCommand } from "../lib/scenes/terminal";
-import type { IsoStage, LayersStage, SceneDef, SceneStep, SequenceStage } from "../lib/scenes/types";
+import type { IsoStage, LayersStage, SceneDef, SceneStep, SeqMessage, SequenceStage } from "../lib/scenes/types";
 
 /** Trilhas cujas aulas todas precisam ter cena: "redes-backend" (Fase 1), "docker" (Fase 2), "kubernetes" (Fase 3). */
 const REQUIRED_TRACKS: string[] = [];
@@ -103,6 +103,21 @@ function checkSequence(stage: SequenceStage, where: string, errors: string[]) {
     if (m.at < 0) errors.push(`${where}: mensagem "${m.id}" com at negativo`);
   }
   for (const n of stage.notes ?? []) if (!lanes.has(n.lane)) errors.push(`${where}: nota em lane inexistente "${n.lane}"`);
+
+  // Com linhas de 32 px, o `detail` (abaixo da seta) de uma mensagem encosta no label (acima da seta) da
+  // próxima se ela começar só 1 linha depois e as duas cruzarem a mesma faixa horizontal. Exige 2 linhas.
+  const order = new Map(stage.lanes.map((l, i) => [l.id, i]));
+  const span = (m: SeqMessage) => [Math.min(order.get(m.from) ?? 0, order.get(m.to) ?? 0), Math.max(order.get(m.from) ?? 0, order.get(m.to) ?? 0)] as const;
+  for (const a of stage.messages) {
+    if (!a.detail || a.from === a.to) continue;
+    const bottom = a.at + (a.span ?? 0);
+    const [a0, a1] = span(a);
+    for (const b of stage.messages) {
+      if (b === a || b.from === b.to || b.at <= bottom || b.at - bottom >= 2) continue;
+      const [b0, b1] = span(b);
+      if (a0 < b1 && b0 < a1) errors.push(`${where}: o detail de "${a.id}" encosta no label de "${b.id}" (deixe 2 linhas entre o fim de "${a.id}" e o início de "${b.id}")`);
+    }
+  }
 }
 
 function checkLayers(stage: LayersStage, where: string, errors: string[]) {

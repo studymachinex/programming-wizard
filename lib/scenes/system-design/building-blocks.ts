@@ -19,16 +19,16 @@ const M1: SeqMessage = { id: "m1", from: "nav", to: "so", at: 0, label: "qual o 
 const M2: SeqMessage = { id: "m2", from: "so", to: "res", at: 1, label: "loja.com.br?", detail: "resolver do provedor" };
 const M3: SeqMessage = { id: "m3", from: "res", to: "raiz", at: 2, label: "loja.com.br?" };
 const M4: SeqMessage = { id: "m4", from: "raiz", to: "res", at: 3, span: 1, label: "não sei; pergunte ao .br", detail: "NS a.dns.br" };
-const M5: SeqMessage = { id: "m5", from: "res", to: "tld", at: 5, label: "loja.com.br?" };
-const M6: SeqMessage = { id: "m6", from: "tld", to: "res", at: 6, span: 1, label: "pergunte ao autoritativo", detail: "NS ns1.loja.com.br" };
-const M7: SeqMessage = { id: "m7", from: "res", to: "aut", at: 8, label: "loja.com.br?" };
-const M8: SeqMessage = { id: "m8", from: "aut", to: "res", at: 9, span: 1, label: "A 203.0.113.10, TTL 300", tone: "ok" };
-const M9: SeqMessage = { id: "m9", from: "res", to: "so", at: 11, label: "A 203.0.113.10", tone: "ok" };
-const M10: SeqMessage = { id: "m10", from: "so", to: "nav", at: 12, label: "A 203.0.113.10", tone: "ok" };
+const M5: SeqMessage = { id: "m5", from: "res", to: "tld", at: 6, label: "loja.com.br?" };
+const M6: SeqMessage = { id: "m6", from: "tld", to: "res", at: 7, span: 1, label: "pergunte ao autoritativo", detail: "NS ns1.loja.com.br" };
+const M7: SeqMessage = { id: "m7", from: "res", to: "aut", at: 10, label: "loja.com.br?" };
+const M8: SeqMessage = { id: "m8", from: "aut", to: "res", at: 11, span: 1, label: "A 203.0.113.10, TTL 300", tone: "ok" };
+const M9: SeqMessage = { id: "m9", from: "res", to: "so", at: 13, label: "A 203.0.113.10", tone: "ok" };
+const M10: SeqMessage = { id: "m10", from: "so", to: "nav", at: 14, label: "A 203.0.113.10", tone: "ok" };
 
 const N_CACHE: SeqNote = { lane: "so", at: 0, text: "não está em cache", tone: "warn" };
-const N_STORE_RES: SeqNote = { lane: "res", at: 11, text: "guardado por 300 s", tone: "ok" };
-const N_STORE_SO: SeqNote = { lane: "so", at: 12, text: "guardado por 300 s", tone: "ok" };
+const N_STORE_RES: SeqNote = { lane: "res", at: 13, text: "guardado por 300 s", tone: "ok" };
+const N_STORE_SO: SeqNote = { lane: "so", at: 14, text: "guardado por 300 s", tone: "ok" };
 
 function seq(messages: SeqMessage[], extra: Partial<Extract<SceneStep["stage"], { mode: "sequence" }>> = {}): SceneStep["stage"] {
   return { mode: "sequence", lanes: LANES, messages, ...extra };
@@ -151,7 +151,7 @@ export const resolucaoDns: SceneDef = {
         notes: [N_CACHE],
         brackets: [
           { fromAt: 2, toAt: 4, label: "1 RTT ≈ 20 ms" },
-          { fromAt: 5, toAt: 7, label: "1 RTT ≈ 35 ms" },
+          { fromAt: 6, toAt: 8, label: "1 RTT ≈ 35 ms" },
         ],
       }),
     },
@@ -169,8 +169,8 @@ export const resolucaoDns: SceneDef = {
         notes: [N_CACHE],
         brackets: [
           { fromAt: 2, toAt: 4, label: "1 RTT ≈ 20 ms" },
-          { fromAt: 5, toAt: 7, label: "1 RTT ≈ 35 ms" },
-          { fromAt: 8, toAt: 10, label: "1 RTT ≈ 35 ms" },
+          { fromAt: 6, toAt: 8, label: "1 RTT ≈ 35 ms" },
+          { fromAt: 10, toAt: 12, label: "1 RTT ≈ 35 ms" },
         ],
       }),
     },
@@ -186,7 +186,7 @@ export const resolucaoDns: SceneDef = {
       terminal: { suggest: [DIG, SHORT], outputs: FIRST_VISIT },
       stage: seq([M1, M2, M3, M4, M5, M6, M7, M8, M9, M10], {
         notes: [N_CACHE, N_STORE_RES, N_STORE_SO],
-        brackets: [{ fromAt: 0, toAt: 12, label: "total ≈ 110 ms" }],
+        brackets: [{ fromAt: 0, toAt: 14, label: "total ≈ 110 ms" }],
       }),
     },
     {
@@ -249,11 +249,11 @@ export const resolucaoDns: SceneDef = {
       stage: seq(
         [
           { id: "g1", from: "res", to: "aut", at: 0, label: "loja.com.br?", detail: "pergunta vinda de SP" },
-          { id: "g2", from: "aut", to: "res", at: 1, span: 1, label: "A 203.0.113.10", detail: "resolver em SP → edge GRU", tone: "ok" },
-          { id: "g3", from: "res", to: "aut", at: 3, label: "loja.com.br?", detail: "pergunta vinda de Lisboa" },
-          { id: "g4", from: "aut", to: "res", at: 4, span: 1, label: "A 198.51.100.20", detail: "resolver em Lisboa → edge LIS", tone: "data" },
+          { id: "g2", from: "aut", to: "res", at: 2, span: 1, label: "A 203.0.113.10", detail: "resolver em SP → edge GRU", tone: "ok" },
+          { id: "g3", from: "res", to: "aut", at: 5, label: "loja.com.br?", detail: "pergunta vinda de Lisboa" },
+          { id: "g4", from: "aut", to: "res", at: 7, span: 1, label: "A 198.51.100.20", detail: "resolver em Lisboa → edge LIS", tone: "data" },
         ],
-        { notes: [{ lane: "aut", at: 6, text: "mesmo nome, IPs diferentes: GeoDNS", tone: "info" }] },
+        { notes: [{ lane: "aut", at: 9, text: "mesmo nome, IPs diferentes: GeoDNS", tone: "info" }] },
       ),
     },
     {

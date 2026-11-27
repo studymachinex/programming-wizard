@@ -320,7 +320,8 @@ export function ScenePlayer({ def, track, lesson }: { def: SceneDef; track: stri
             <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-arcane-300">Cena</div>
             <h3 className="truncate text-[14px] font-semibold text-white">{def.title}</h3>
           </div>
-          {mode !== "iso" && !fs && <div className="flex shrink-0 gap-1.5">{controls}</div>}
+          {/* Controles sempre no cabeçalho: sobre o palco eles cobriam elementos da cena no celular. */}
+          <div className="flex shrink-0 gap-1.5">{controls}</div>
         </header>
 
         {current.metrics && current.metrics.length > 0 && (
@@ -343,7 +344,6 @@ export function ScenePlayer({ def, track, lesson }: { def: SceneDef; track: stri
           )}
         >
           <div className={fs || mode === "iso" ? "absolute inset-0" : undefined}>{stageNode}</div>
-          {(mode === "iso" || fs) && <div className="absolute right-2 top-2 z-10 flex gap-1.5">{controls}</div>}
         </div>
 
         {current.extra && current.extra.length > 0 && !fs && (
