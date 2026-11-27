@@ -214,7 +214,7 @@ export function anchorOf(r: Resolved): [number, number] {
   return project(r.ax, r.ay, r.az + USERS_PLATFORM_TH + 9);
 }
 
-// ---------- limites ----------
+// ---------- limites e retângulos ----------
 
 export type Rect = { minX: number; minY: number; maxX: number; maxY: number };
 
@@ -229,6 +229,125 @@ export function badgeWidth(text: string) {
   return labelWidth(text, 5.3, 12);
 }
 
+/** Largura da pílula do label de um link e de um fluxo (mesmas contas do renderizador). */
+export const linkLabelWidth = (text: string) => labelWidth(text, 5.4, 10);
+export const flowLabelWidth = (text: string) => labelWidth(text, 5.8, 14);
+
+// ---------- caminhos ----------
+
+export function pathLength(points: [number, number][]) {
+  let total = 0;
+  for (let i = 1; i < points.length; i++) total += Math.hypot(points[i][0] - points[i - 1][0], points[i][1] - points[i - 1][1]);
+  return total;
+}
+
+/** Ponto a `frac` (0–1) do comprimento da polilinha, com o ângulo do segmento. */
+export function pointAt(points: [number, number][], frac: number): { x: number; y: number; angle: number } {
+  const total = pathLength(points) || 1;
+  let target = total * frac;
+  for (let i = 1; i < points.length; i++) {
+    const [x0, y0] = points[i - 1];
+    const [x1, y1] = points[i];
+    const seg = Math.hypot(x1 - x0, y1 - y0);
+    if (target <= seg || i === points.length - 1) {
+      const t = seg === 0 ? 0 : Math.min(1, target / seg);
+      return { x: x0 + (x1 - x0) * t, y: y0 + (y1 - y0) * t, angle: Math.atan2(y1 - y0, x1 - x0) };
+    }
+    target -= seg;
+  }
+  return { x: points[0][0], y: points[0][1], angle: 0 };
+}
+
+// ---------- retângulos de tela ----------
+
+export type Box2 = { x0: number; y0: number; x1: number; y1: number };
+export type LayoutKind = "cube" | "label" | "badge" | "meter" | "zone-label" | "link-label" | "flow-label";
+export type LayoutItem = { kind: LayoutKind; owner: string; text?: string; rect: Box2 };
+
+/** Pílula de texto centrada em (cx, cy): 15 px de altura, como desenhada pelo renderizador. */
+export function pillBox(cx: number, cy: number, w: number): Box2 {
+  return { x0: cx - w / 2, y0: cy - 8, x1: cx + w / 2, y1: cy + 7 };
+}
+
+/** Posições locais (relativas à base do cubo) do label, do medidor e dos badges de uma caixa. */
+export function boxStack(b: IsoBox) {
+  const { edge: s, h } = BOX_SIZE[b.size ?? "md"];
+  let top = -14 * s - h - 6;
+  const meterY = typeof b.meter === "number" ? top - 4 : undefined;
+  if (typeof b.meter === "number") top -= 9;
+  const badgeYs = (b.badges ?? []).map(() => {
+    top -= BADGE_H + BADGE_GAP;
+    return top;
+  });
+  return { labelY: 14 * s + 13, meterY, badgeYs };
+}
+
+export type FlowGeometry = { points: [number, number][]; label?: string; id: string };
+
+/** Âncoras e caminhos dos fluxos do palco (os que referenciam ids inexistentes são ignorados). */
+export function flowGeometries(stage: IsoStage, resolved: Map<string, Resolved>): FlowGeometry[] {
+  return (stage.flows ?? []).flatMap((f) => {
+    const ids = [f.from, ...(f.via ?? []), f.to];
+    const rs = ids.map((id) => resolved.get(id));
+    if (rs.some((r) => !r)) return [];
+    return [{ id: ids.join(">"), points: rs.map((r) => anchorOf(r as Resolved)), label: f.label }];
+  });
+}
+
+/** Todos os retângulos relevantes do palco, em coordenadas de tela. Fonte única para câmera e checador. */
+export function isoLayout(stage: IsoStage): LayoutItem[] {
+  const out: LayoutItem[] = [];
+  const resolved = resolveEntities(stage.entities);
+  for (const r of resolved.values()) {
+    const e = r.ent;
+    const [ox, oy] = originOf(r);
+    if (e.type === "box") {
+      const { edge: s, h } = BOX_SIZE[e.size ?? "md"];
+      out.push({ kind: "cube", owner: e.id, rect: { x0: ox - 28 * s, y0: oy - 14 * s - h, x1: ox + 28 * s, y1: oy + 14 * s } });
+      const st = boxStack(e);
+      out.push({ kind: "label", owner: e.id, text: e.label, rect: pillBox(ox, oy + st.labelY, labelWidth(e.label)) });
+      if (st.meterY !== undefined) out.push({ kind: "meter", owner: e.id, rect: { x0: ox - 18, y0: oy + st.meterY, x1: ox + 18, y1: oy + st.meterY + 4 } });
+      (e.badges ?? []).forEach((b, i) => {
+        const w = badgeWidth(b.text);
+        out.push({ kind: "badge", owner: e.id, text: b.text, rect: { x0: ox - w / 2, y0: oy + st.badgeYs[i], x1: ox + w / 2, y1: oy + st.badgeYs[i] + BADGE_H } });
+      });
+    } else if (e.type === "zone") {
+      if (e.label) {
+        const [lx, ly] = zoneLabelPos(e);
+        out.push({ kind: "zone-label", owner: e.id, text: e.label, rect: pillBox(ox + lx, oy + ly, labelWidth(e.label)) });
+      }
+    } else {
+      const { w, d } = usersLayout(e);
+      const pts = [project(-w / 2, -d / 2), project(w / 2, -d / 2), project(w / 2, d / 2), project(-w / 2, d / 2)];
+      out.push({
+        kind: "cube",
+        owner: e.id,
+        rect: {
+          x0: ox + Math.min(...pts.map((p) => p[0])),
+          x1: ox + Math.max(...pts.map((p) => p[0])),
+          y0: oy + Math.min(...pts.map((p) => p[1])) - USERS_PLATFORM_TH - 24,
+          y1: oy + Math.max(...pts.map((p) => p[1])),
+        },
+      });
+      if (e.label) out.push({ kind: "label", owner: e.id, text: e.label, rect: pillBox(ox, oy + project(w / 2, d / 2)[1] + 14, labelWidth(e.label)) });
+    }
+  }
+  for (const l of stage.links ?? []) {
+    const a = resolved.get(l.from);
+    const b = resolved.get(l.to);
+    if (!a || !b || !l.label) continue;
+    const [ax, ay] = anchorOf(a);
+    const [bx, by] = anchorOf(b);
+    out.push({ kind: "link-label", owner: `${l.from}>${l.to}`, text: l.label, rect: pillBox((ax + bx) / 2, (ay + by) / 2, linkLabelWidth(l.label)) });
+  }
+  for (const f of flowGeometries(stage, resolved)) {
+    if (!f.label) continue;
+    const mid = pointAt(f.points, 0.5);
+    out.push({ kind: "flow-label", owner: f.id, text: f.label, rect: pillBox(mid.x, mid.y - 9, flowLabelWidth(f.label)) });
+  }
+  return out;
+}
+
 /** Retângulo (px, antes da margem) que contém tudo: formas, labels, badges e medidores. */
 export function bounds(stage: IsoStage): Rect {
   const rect: Rect = { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity };
@@ -238,73 +357,69 @@ export function bounds(stage: IsoStage): Rect {
     if (y < rect.minY) rect.minY = y;
     if (y > rect.maxY) rect.maxY = y;
   };
-  const resolved = resolveEntities(stage.entities);
-  for (const r of resolved.values()) {
+  for (const item of isoLayout(stage)) {
+    add(item.rect.x0, item.rect.y0);
+    add(item.rect.x1, item.rect.y1);
+  }
+  for (const r of resolveEntities(stage.entities).values()) {
     const e = r.ent;
+    if (e.type !== "zone") continue;
     const [ox, oy] = originOf(r);
-    if (e.type === "zone") {
-      const th = e.th ?? ZONE_TH;
-      const pts: [number, number][] = [
-        [0, 0],
-        [e.w * (TW / 2), e.w * (TH / 2)],
-        [(e.w - e.d) * (TW / 2), (e.w + e.d) * (TH / 2)],
-        [-e.d * (TW / 2), e.d * (TH / 2)],
-      ];
-      for (const [px, py] of pts) {
-        add(ox + px, oy + py - th);
-        add(ox + px, oy + py);
-      }
-      if (e.label) {
-        const [lx, ly] = zoneLabelPos(e);
-        const fx = ox + lx;
-        const fy = oy + ly;
-        const lw = labelWidth(e.label);
-        add(fx - lw / 2, fy - 8);
-        add(fx + lw / 2, fy + 8);
-      }
-    } else if (e.type === "box") {
-      const { edge, h } = BOX_SIZE[e.size ?? "md"];
-      add(ox, oy - 14 * edge - h);
-      add(ox + 28 * edge, oy - h);
-      add(ox - 28 * edge, oy - h);
-      add(ox, oy + 14 * edge);
-      const lw = labelWidth(e.label);
-      add(ox - lw / 2, oy + 14 * edge + 20);
-      add(ox + lw / 2, oy + 14 * edge + 20);
-      let top = oy - 14 * edge - h - 6;
-      if (typeof e.meter === "number") top -= 9;
-      const badges = e.badges ?? [];
-      for (let i = 0; i < badges.length; i++) {
-        const bw = badgeWidth(badges[i].text);
-        top -= BADGE_H + BADGE_GAP;
-        add(ox - bw / 2, top);
-        add(ox + bw / 2, top + BADGE_H);
-      }
-      add(ox, top);
-    } else {
-      const { w, d } = usersLayout(e);
-      const th = USERS_PLATFORM_TH;
-      for (const [px, py] of [
-        project(-w / 2, -d / 2),
-        project(w / 2, -d / 2),
-        project(w / 2, d / 2),
-        project(-w / 2, d / 2),
-      ]) {
-        add(ox + px, oy + py - th - 24);
-        add(ox + px, oy + py);
-      }
-      if (e.label) {
-        const lw = labelWidth(e.label);
-        const fy = oy + project(w / 2, d / 2)[1] + 14;
-        add(ox - lw / 2, fy - 8);
-        add(ox + lw / 2, fy + 8);
-      }
+    const th = e.th ?? ZONE_TH;
+    const pts: [number, number][] = [
+      [0, 0],
+      [e.w * (TW / 2), e.w * (TH / 2)],
+      [(e.w - e.d) * (TW / 2), (e.w + e.d) * (TH / 2)],
+      [-e.d * (TW / 2), e.d * (TH / 2)],
+    ];
+    for (const [px, py] of pts) {
+      add(ox + px, oy + py - th);
+      add(ox + px, oy + py);
     }
   }
-  if (!Number.isFinite(rect.minX) || !Number.isFinite(rect.maxX) || !Number.isFinite(rect.minY) || !Number.isFinite(rect.maxY)) {
-    return { minX: NaN, minY: NaN, maxX: NaN, maxY: NaN };
-  }
+  if (![rect.minX, rect.maxX, rect.minY, rect.maxY].every(Number.isFinite)) return { minX: NaN, minY: NaN, maxX: NaN, maxY: NaN };
   return rect;
+}
+
+/** Foco padrão do modo aproximado: entidades bad/new/hi e as pontas de fluxos bad; null se não houver nenhuma. */
+export function defaultFocus(stage: IsoStage): string[] | null {
+  const ids = new Set<string>();
+  for (const e of stage.entities) if (e.status === "bad" || e.status === "new" || e.status === "hi") ids.add(e.id);
+  for (const f of stage.flows ?? []) if (f.kind === "bad") ids.add(f.from), ids.add(f.to);
+  return ids.size ? [...ids] : null;
+}
+
+/** Retângulo das entidades em `ids` (cubos, labels, badges e zonas), com um tamanho mínimo para manter contexto. */
+export function focusBounds(stage: IsoStage, ids: string[]): Rect | null {
+  const want = new Set(ids);
+  const rect: Rect = { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity };
+  const add = (x: number, y: number) => {
+    rect.minX = Math.min(rect.minX, x);
+    rect.maxX = Math.max(rect.maxX, x);
+    rect.minY = Math.min(rect.minY, y);
+    rect.maxY = Math.max(rect.maxY, y);
+  };
+  for (const item of isoLayout(stage)) {
+    if (want.has(item.owner)) {
+      add(item.rect.x0, item.rect.y0);
+      add(item.rect.x1, item.rect.y1);
+    }
+  }
+  for (const r of resolveEntities(stage.entities).values()) {
+    if (r.ent.type !== "zone" || !want.has(r.ent.id)) continue;
+    const [ox, oy] = originOf(r);
+    const z = r.ent;
+    add(ox - z.d * (TW / 2), oy - (z.th ?? ZONE_TH));
+    add(ox + z.w * (TW / 2), oy + (z.w + z.d) * (TH / 2));
+  }
+  if (!Number.isFinite(rect.minX)) return null;
+  const MIN_W = 300;
+  const MIN_H = 220;
+  const cx = (rect.minX + rect.maxX) / 2;
+  const cy = (rect.minY + rect.maxY) / 2;
+  const w = Math.max(MIN_W, rect.maxX - rect.minX);
+  const h = Math.max(MIN_H, rect.maxY - rect.minY);
+  return { minX: cx - w / 2, maxX: cx + w / 2, minY: cy - h / 2, maxY: cy + h / 2 };
 }
 
 export function isBox(e: IsoEntity): e is IsoBox {

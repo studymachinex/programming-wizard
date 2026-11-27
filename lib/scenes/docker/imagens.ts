@@ -10,29 +10,32 @@ import type { Layer, LayerFile, LayerStack, SceneDef, SceneStep, Status } from "
 const app = (o: Partial<Layer> = {}): Layer => ({ id: "app", label: "app.jar", sub: "12 MB", tone: "arcane", readonly: true, files: [{ name: "app.jar" }], ...o });
 const deps = (o: Partial<Layer> = {}): Layer => ({ id: "deps", label: "dependências", sub: "48 MB", tone: "sky", readonly: true, files: [{ name: "lib/*.jar" }], ...o });
 const jre = (o: Partial<Layer> = {}): Layer => ({ id: "jre", label: "JRE 21", sub: "140 MB", tone: "ember", readonly: true, files: [{ name: "/opt/java" }], ...o });
+/** Chips da camada de base: os mesmos na imagem e no container; `hl` destaca o arquivo lido ou alterado. */
+const baseFiles = (hl = false): LayerFile[] => [{ name: "/etc/app.conf", tone: hl ? "info" : undefined }, { name: "/bin" }, { name: "/usr" }];
+
 const base = (o: Partial<Layer> = {}): Layer => ({
   id: "base",
   label: "debian-slim",
   sub: "75 MB",
   tone: "zinc",
   readonly: true,
-  files: [{ name: "/etc" }, { name: "/bin" }, { name: "/usr" }],
+  files: baseFiles(),
   ...o,
 });
 
-const imageStack = (): LayerStack => ({
+const imageStack = (hl = false): LayerStack => ({
   id: "img",
   label: "Imagem loja/app:1.0",
   orientation: "bands",
-  layers: [app(), deps(), jre(), base()],
+  layers: [app(), deps(), jre(), base({ files: baseFiles(hl) })],
 });
 
-/** Camadas de baixo vistas de dentro de um container: as mesmas ids, esmaecidas e sem chips. */
+/** Camadas de baixo vistas de dentro de um container: as mesmas ids e os mesmos chips da imagem, esmaecidas. */
 const shared = (baseOverride: Partial<Layer> = {}): Layer[] => [
-  app({ status: "muted", files: undefined }),
-  deps({ status: "muted", files: undefined }),
-  jre({ status: "muted", files: undefined }),
-  base({ status: "muted", files: undefined, ...baseOverride }),
+  app({ status: "muted" }),
+  deps({ status: "muted" }),
+  jre({ status: "muted" }),
+  base({ status: "muted", ...baseOverride }),
 ];
 
 const rw = (status: Status | undefined, files?: LayerFile[]): Layer => ({
@@ -186,8 +189,8 @@ export const camadasEOverlayfs: SceneDef = {
       metrics: metrics("4 + 1", "275 MB", 1),
       terminal: { suggest: [PS, DIFF], outputs: { [PS]: ps(PS_WEB), [DIFF]: "" } },
       stage: stage([
-        imageStack(),
-        webStack({ rw: undefined, baseOverride: { status: "hi", files: [{ name: "app.conf", tone: "info" }, { name: "/bin" }, { name: "/usr" }] } }),
+        imageStack(true),
+        webStack({ rw: undefined, baseOverride: { status: "hi", files: baseFiles(true) } }),
       ]),
     },
     // 4
@@ -204,11 +207,11 @@ export const camadasEOverlayfs: SceneDef = {
       metrics: metrics("4 + 1", "275 MB", 1),
       terminal: { suggest: [DIFF, PS], outputs: { [DIFF]: DIFF_COPYUP, [PS]: ps(PS_WEB) } },
       stage: stage([
-        imageStack(),
+        imageStack(true),
         webStack({
           rw: undefined,
-          rwFiles: [{ name: "app.conf", tone: "warn" }],
-          baseOverride: { files: [{ name: "app.conf", tone: "info" }, { name: "/bin" }, { name: "/usr" }] },
+          rwFiles: [{ name: "/etc/app.conf", tone: "warn" }],
+          baseOverride: { files: baseFiles(true) },
           merged: { label: "visão do container", files: MERGED_FILES.map((f) => (f.name === "/etc/app.conf" ? { ...f, from: "rw" } : f)) },
         }),
       ]),
@@ -226,11 +229,11 @@ export const camadasEOverlayfs: SceneDef = {
       metrics: metrics("4 + 1", "275 MB", 1),
       terminal: { suggest: [DIFF], outputs: { [DIFF]: DIFF_WHITEOUT, [PS]: ps(PS_WEB) } },
       stage: stage([
-        imageStack(),
+        imageStack(true),
         webStack({
           rw: undefined,
-          rwFiles: [{ name: "app.conf", tone: "warn" }, { name: "doc", whiteout: true }],
-          baseOverride: { files: [{ name: "app.conf", tone: "info" }, { name: "/bin" }, { name: "/usr" }] },
+          rwFiles: [{ name: "/etc/app.conf", tone: "warn" }, { name: "doc", whiteout: true }],
+          baseOverride: { files: baseFiles(true) },
           merged: { label: "visão do container", files: MERGED_FILES.filter((f) => f.name !== "/usr/share/doc").map((f) => (f.name === "/etc/app.conf" ? { ...f, from: "rw" } : f)) },
         }),
       ]),
@@ -250,7 +253,7 @@ export const camadasEOverlayfs: SceneDef = {
         imageStack(),
         webStack({
           rw: undefined,
-          rwFiles: [{ name: "app.conf", tone: "warn" }, { name: "doc", whiteout: true }],
+          rwFiles: [{ name: "/etc/app.conf", tone: "warn" }, { name: "doc", whiteout: true }],
           merged: null,
         }),
         workerStack(),
@@ -299,7 +302,7 @@ export const camadasEOverlayfs: SceneDef = {
         imageStack(),
         webStack({
           rw: undefined,
-          rwFiles: [{ name: "app.conf", tone: "warn" }, { name: "doc", whiteout: true }],
+          rwFiles: [{ name: "/etc/app.conf", tone: "warn" }, { name: "doc", whiteout: true }],
           merged: { label: "visão do container", files: MERGED_FILES.filter((f) => f.name !== "/usr/share/doc").map((f) => (f.name === "/etc/app.conf" ? { ...f, from: "rw" } : f)) },
         }),
         containerStack("worker", "Container worker", [rw(undefined), ...shared()]),

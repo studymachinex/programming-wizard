@@ -206,8 +206,13 @@ export const twoPointers: VisualizerDef = {
     },
   ],
   random: () => {
-    const nums = [...new Set(randomArray(8, 1, 30))].sort((x, y) => x - y);
-    const target = nums[randInt(0, nums.length - 1)] + nums[randInt(0, nums.length - 1)];
+    // Precisa de pelo menos 3 números distintos e de um alvo que não seja a soma das pontas
+    // (senão o cenário acaba no primeiro quadro).
+    let nums: number[] = [];
+    while (nums.length < 3) nums = [...new Set(randomArray(8, 1, 30))].sort((x, y) => x - y);
+    let target = 0;
+    do target = nums[randInt(0, nums.length - 1)] + nums[randInt(0, nums.length - 1)];
+    while (target === nums[0] + nums[nums.length - 1]);
     return twoSumSorted(nums, target);
   },
 };

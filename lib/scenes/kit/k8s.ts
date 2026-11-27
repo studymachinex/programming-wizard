@@ -2,17 +2,28 @@
 import type { Badge, IsoBox, IsoZone, Resource, Status, Tone } from "../types";
 import { box, zone } from "./common";
 
-/** Tamanho padrão de um node: cabem 4 caixas pequenas nos slots A–D. */
-export const NODE_SIZE = 4.8;
+/** Aresta de um node. Com pods "sm" (1.2), os 4 slots abaixo ficam nos cantos do losango sem se tocar. */
+export const NODE_SIZE = 3.9;
+/** Distância entre nodes consecutivos da fileira (aresta + folga). */
+export const NODE_STRIDE = NODE_SIZE + 1.3;
 
-/** Slots (x, y relativos ao canto da zona) para caixas pequenas dentro de um node. */
+/**
+ * Slots (x, y relativos ao canto da zona) para caixas pequenas dentro de um node, nos 4 cantos do losango:
+ * A em cima, B à direita, C à esquerda e D embaixo. Caixas vizinhas ficam a >= 67 px na horizontal
+ * ou >= 70 px na vertical, então cubos e labels não se tocam.
+ */
 export const SLOT = {
-  A: [1.1, 1.1],
-  B: [3.7, 1.1],
-  C: [1.1, 3.7],
-  D: [3.7, 3.7],
+  A: [0.7, 0.7],
+  B: [3.2, 0.7],
+  C: [0.7, 3.2],
+  D: [3.2, 3.2],
 } as const;
 export type SlotName = keyof typeof SLOT;
+
+/** Posição (x, y) do node i numa fileira HORIZONTAL na tela: no iso, (i*S, -i*S) mantém a mesma altura. */
+export function nodeRow(i: number): [number, number] {
+  return [i * NODE_STRIDE, -i * NODE_STRIDE];
+}
 
 export function node(id: string, label: string, x: number, y: number, o: Partial<Omit<IsoZone, "id" | "type" | "x" | "y" | "label">> = {}): IsoZone {
   return zone(id, x, y, NODE_SIZE, NODE_SIZE, { label, tone: "zinc", ...o });

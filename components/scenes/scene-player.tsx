@@ -268,7 +268,7 @@ export function ScenePlayer({ def, track, lesson }: { def: SceneDef; track: stri
 
   const stageNode =
     mode === "iso" ? (
-      <IsoStage stage={current.stage as Extract<SceneStep["stage"], { mode: "iso" }>} epoch={epoch} reduced={reduced} paused={paused} ariaLabel={ariaOf(current)} />
+      <IsoStage stage={current.stage as Extract<SceneStep["stage"], { mode: "iso" }>} epoch={epoch} reduced={reduced} paused={paused} focus={current.focus} ariaLabel={ariaOf(current)} />
     ) : mode === "sequence" ? (
       <SequenceStage
         stage={current.stage as Extract<SceneStep["stage"], { mode: "sequence" }>}
@@ -285,6 +285,20 @@ export function ScenePlayer({ def, track, lesson }: { def: SceneDef; track: stri
     );
 
   const iconBtn = "grid h-7 w-7 place-items-center rounded-md border border-white/10 bg-ink-900/80 text-zinc-300 backdrop-blur transition-colors hover:border-arcane-400/50 hover:text-white sm:h-8 sm:w-8";
+
+  const controls = (
+    <>
+      <button type="button" onClick={repeat} className={iconBtn} aria-label="Repetir animação do passo (R)" title="Repetir (R)">
+        <RotateCcw className="h-3.5 w-3.5" />
+      </button>
+      <button type="button" onClick={() => setPaused((p) => !p)} className={iconBtn} aria-label={paused ? "Retomar animações (Espaço)" : "Pausar animações (Espaço)"} aria-pressed={paused} title="Pausar (Espaço)">
+        {paused ? <Play className="h-3.5 w-3.5" /> : <Pause className="h-3.5 w-3.5" />}
+      </button>
+      <button type="button" onClick={() => void toggleFs()} className={iconBtn} aria-label={fs ? "Sair da tela cheia (Esc)" : "Tela cheia"} title={fs ? "Sair da tela cheia (Esc)" : "Tela cheia"}>
+        {fs ? <Minimize2 className="h-3.5 w-3.5" /> : <Maximize2 className="h-3.5 w-3.5" />}
+      </button>
+    </>
+  );
 
   return (
     <section
@@ -306,6 +320,7 @@ export function ScenePlayer({ def, track, lesson }: { def: SceneDef; track: stri
             <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-arcane-300">Cena</div>
             <h3 className="truncate text-[14px] font-semibold text-white">{def.title}</h3>
           </div>
+          {mode !== "iso" && !fs && <div className="flex shrink-0 gap-1.5">{controls}</div>}
         </header>
 
         {current.metrics && current.metrics.length > 0 && (
@@ -324,21 +339,11 @@ export function ScenePlayer({ def, track, lesson }: { def: SceneDef; track: stri
         <div
           className={cn(
             "relative bg-grid-faint bg-[length:28px_28px] bg-[#0b0814]",
-            fs ? "min-h-0 flex-1" : mode === "iso" ? "aspect-[4/3] sm:aspect-[16/10]" : "min-h-[300px] pt-11",
+            fs ? "min-h-0 flex-1" : mode === "iso" ? "aspect-square sm:aspect-[16/10]" : "min-h-[240px]",
           )}
         >
           <div className={fs || mode === "iso" ? "absolute inset-0" : undefined}>{stageNode}</div>
-          <div className="absolute right-2 top-2 z-10 flex gap-1.5">
-            <button type="button" onClick={repeat} className={iconBtn} aria-label="Repetir animação do passo (R)" title="Repetir (R)">
-              <RotateCcw className="h-3.5 w-3.5" />
-            </button>
-            <button type="button" onClick={() => setPaused((p) => !p)} className={iconBtn} aria-label={paused ? "Retomar animações (Espaço)" : "Pausar animações (Espaço)"} aria-pressed={paused} title="Pausar (Espaço)">
-              {paused ? <Play className="h-3.5 w-3.5" /> : <Pause className="h-3.5 w-3.5" />}
-            </button>
-            <button type="button" onClick={() => void toggleFs()} className={iconBtn} aria-label={fs ? "Sair da tela cheia (Esc)" : "Tela cheia"} title={fs ? "Sair da tela cheia (Esc)" : "Tela cheia"}>
-              {fs ? <Minimize2 className="h-3.5 w-3.5" /> : <Maximize2 className="h-3.5 w-3.5" />}
-            </button>
-          </div>
+          {(mode === "iso" || fs) && <div className="absolute right-2 top-2 z-10 flex gap-1.5">{controls}</div>}
         </div>
 
         {current.extra && current.extra.length > 0 && !fs && (
@@ -394,12 +399,19 @@ export function ScenePlayer({ def, track, lesson }: { def: SceneDef; track: stri
               <p className="text-[12px] leading-snug text-zinc-600">Ponto de partida da cena.</p>
             ) : changes.length > 0 ? (
               <ul className="space-y-1">
-                {changes.map((c) => (
-                  <li key={c} className="flex items-start gap-1.5 font-mono text-[11.5px] leading-snug text-zinc-300">
-                    <span className={cn("mt-px shrink-0", c.startsWith("−") ? "text-rose-300" : c.startsWith("+") ? "text-emerald-300" : "text-arcane-300")}>{c.startsWith("+") || c.startsWith("−") ? "" : "~"}</span>
-                    <span>{c}</span>
-                  </li>
-                ))}
+                {changes.map((c) => {
+                  // Uma coluna de marcador única: o sinal sai do texto.
+                  const sign = c.startsWith("+") ? "+" : c.startsWith("−") ? "−" : "~";
+                  const text = sign === "~" ? c : c.slice(1).trimStart();
+                  return (
+                    <li key={c} className="flex items-start gap-2 font-mono text-[11.5px] leading-snug text-zinc-300">
+                      <span className={cn("w-3 shrink-0 text-center font-semibold", sign === "+" ? "text-emerald-300" : sign === "−" ? "text-rose-300" : "text-arcane-300")} aria-hidden>
+                        {sign}
+                      </span>
+                      <span>{text}</span>
+                    </li>
+                  );
+                })}
               </ul>
             ) : (
               <p className="text-[12px] leading-snug text-zinc-600">O diagrama mudou de forma; veja o texto do passo.</p>

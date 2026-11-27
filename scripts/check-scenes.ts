@@ -10,7 +10,7 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { SCENE_KEYS, loadScene } from "../lib/scenes/registry";
 import { computeChanges } from "../lib/scenes/diff";
-import { bounds } from "../lib/scenes/iso";
+import { bounds, isoLayout, type Box2, type LayoutItem } from "../lib/scenes/iso";
 import { resolveCommand } from "../lib/scenes/terminal";
 import type { IsoStage, LayersStage, SceneDef, SceneStep, SequenceStage } from "../lib/scenes/types";
 
@@ -65,6 +65,33 @@ function checkIso(stage: IsoStage, where: string, errors: string[]) {
   }
   const b = bounds(stage);
   if (![b.minX, b.minY, b.maxX, b.maxY].every(Number.isFinite)) errors.push(`${where}: bounds não finito (coordenadas inválidas ou palco vazio)`);
+  else checkOverlap(stage, where, errors);
+}
+
+const TEXT_KINDS = new Set(["label", "badge", "zone-label", "link-label", "flow-label"]);
+const OVERLAP_PX = 2;
+
+function overlaps(a: Box2, b: Box2): boolean {
+  return Math.min(a.x1, b.x1) - Math.max(a.x0, b.x0) > OVERLAP_PX && Math.min(a.y1, b.y1) - Math.max(a.y0, b.y0) > OVERLAP_PX;
+}
+
+const KIND_PT: Record<string, string> = { label: "label", badge: "badge", "zone-label": "label da zona", "link-label": "label do link", "flow-label": "label do fluxo", cube: "cubo" };
+const describe = (i: LayoutItem) => `${KIND_PT[i.kind]} ${i.text ? `"${i.text}"` : ""} de ${i.owner}`.replace("  ", " ");
+
+/** Dois textos não podem se cruzar (mais de 2 px) e um texto não pode cobrir o cubo de outra entidade. */
+function checkOverlap(stage: IsoStage, where: string, errors: string[]) {
+  const items = isoLayout(stage);
+  const texts = items.filter((i) => TEXT_KINDS.has(i.kind));
+  const cubes = items.filter((i) => i.kind === "cube");
+  for (let a = 0; a < texts.length; a++) {
+    for (let b = a + 1; b < texts.length; b++) {
+      if (overlaps(texts[a].rect, texts[b].rect)) errors.push(`${where}: sobreposição entre ${describe(texts[a])} e ${describe(texts[b])}`);
+    }
+    for (const c of cubes) {
+      if (c.owner === texts[a].owner) continue;
+      if (overlaps(texts[a].rect, c.rect)) errors.push(`${where}: ${describe(texts[a])} cobre o cubo de ${c.owner}`);
+    }
+  }
 }
 
 function checkSequence(stage: SequenceStage, where: string, errors: string[]) {
@@ -88,6 +115,16 @@ function checkLayers(stage: LayersStage, where: string, errors: string[]) {
     for (const f of s.merged?.files ?? []) if (!layerIds.has(f.from)) errors.push(`${where}: merged.files "${f.name}" aponta para layer "${f.from}" que não está na pilha "${s.id}"`);
   }
   for (const w of stage.wires ?? []) if (!stackIds.has(w.from) || !stackIds.has(w.to)) errors.push(`${where}: wire ${w.from}->${w.to} com pilha inexistente`);
+}
+
+function checkFocus(step: SceneStep, where: string, errors: string[]) {
+  if (!step.focus) return;
+  if (step.stage.mode !== "iso") {
+    errors.push(`${where}: focus só vale no modo iso`);
+    return;
+  }
+  const ids = new Set(step.stage.entities.map((e) => e.id));
+  for (const id of step.focus) if (!ids.has(id)) errors.push(`${where}: focus referencia "${id}" inexistente`);
 }
 
 function checkStep(step: SceneStep, index: number, total: number, def: SceneDef, key: string, errors: string[]) {
@@ -119,6 +156,8 @@ function checkStep(step: SceneStep, index: number, total: number, def: SceneDef,
     default:
       errors.push(`${where}: modo de palco desconhecido`);
   }
+
+  checkFocus(step, where, errors);
 
   if (def.shell) {
     for (const cmd of step.terminal?.suggest ?? []) {

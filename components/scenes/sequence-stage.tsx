@@ -6,7 +6,7 @@ import type { SeqMessage, SequenceStage as SequenceStageData } from "@/lib/scene
 
 const LEFT = 34; // margem reservada aos colchetes
 const HEADER = 88;
-const ROW = 38;
+const ROW = 32;
 const STAGGER = 350;
 
 const MSG_COLOR = { ctrl: "#a78bfa", ok: "#34d399", bad: "#fb7185", data: "#22d3ee" } as const;
@@ -91,8 +91,17 @@ export function SequenceStage({
   const delayForRow = (at: number) => newMessages.filter((m) => m.at <= at).length * STAGGER;
   const endDelay = newMessages.length * STAGGER;
 
+  // Rola o palco até a última mensagem nova ficar visível (instantâneo com movimento reduzido).
+  const lastNewAt = newMessages.length ? Math.max(...newMessages.map((m) => m.at + (m.span ?? 0) + 1)) : -1;
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el || fit) return;
+    const top = lastNewAt >= 0 ? Math.max(0, HEADER + 24 + lastNewAt * ROW - el.clientHeight + 48) : 0;
+    el.scrollTo({ top, behavior: reduced ? "auto" : "smooth" });
+  }, [lastNewAt, epoch, stage, fit, reduced]);
+
   return (
-    <div ref={wrapRef} className="h-full w-full overflow-auto">
+    <div ref={wrapRef} className={fit ? "h-full w-full overflow-auto" : "max-h-[min(62vh,520px)] w-full overflow-auto"}>
       <svg
         key={epoch}
         role="img"

@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { ZoomIn, ZoomOut } from "lucide-react";
 import {
-  BADGE_GAP,
   BADGE_H,
   BOX_SIZE,
   ICONS,
@@ -15,8 +15,13 @@ import {
   ZONE_TH,
   anchorOf,
   badgeWidth,
+  boxStack,
   bounds,
+  defaultFocus,
+  focusBounds,
+  flowGeometries,
   labelWidth,
+  linkLabelWidth,
   originOf,
   zoneLabelPos,
   project,
@@ -28,7 +33,7 @@ import {
 import type { Badge, IsoBox, IsoStage as IsoStageData, IsoUsers, IsoZone, Status } from "@/lib/scenes/types";
 import { Flows, type FlowPath } from "./flows";
 
-const MARGIN = 48;
+const MARGIN = 20;
 const CAMERA_MS = 500;
 const EXIT_MS = 400;
 
@@ -69,12 +74,14 @@ export function IsoStage({
   epoch,
   reduced,
   paused,
+  focus,
   ariaLabel,
 }: {
   stage: IsoStageData;
   epoch: number;
   reduced: boolean;
   paused: boolean;
+  focus?: string[];
   ariaLabel: string;
 }) {
   const [snap, setSnap] = useState<Snapshot>(() => ({ stage, epoch, entering: new Set(), ghosts: [], newLinks: new Set() }));
@@ -88,14 +95,34 @@ export function IsoStage({
   }, [snap]);
 
   const resolved = useMemo(() => resolveEntities(stage.entities), [stage]);
-  const target = useMemo(() => {
+  const full = useMemo(() => {
     const b = bounds(stage);
     return [b.minX - MARGIN, b.minY - MARGIN, b.maxX - b.minX + MARGIN * 2, b.maxY - b.minY + MARGIN * 2] as const;
   }, [stage]);
+  const focusView = useMemo(() => {
+    const ids = focus ?? defaultFocus(stage);
+    const b = ids ? focusBounds(stage, ids) : null;
+    return b ? ([b.minX - MARGIN, b.minY - MARGIN, b.maxX - b.minX + MARGIN * 2, b.maxY - b.minY + MARGIN * 2] as const) : null;
+  }, [stage, focus]);
+
+  // Escala renderizada do diagrama inteiro; abaixo de 0,7 a câmera enquadra só o foco (com botão para alternar).
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const [box, setBox] = useState({ w: 0, h: 0 });
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([entry]) => setBox({ w: entry.contentRect.width, h: entry.contentRect.height }));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const fullScale = box.w > 0 && box.h > 0 ? Math.min(box.w / full[2], box.h / full[3]) : 1;
+  const canZoom = focusView !== null && fullScale < 0.7;
+  const [zoomed, setZoomed] = useState(true);
+  const target = canZoom && zoomed && focusView ? focusView : full;
 
   // Câmera: o viewBox não transiciona via CSS, então interpolamos com requestAnimationFrame.
   const svgRef = useRef<SVGSVGElement>(null);
-  const initialView = useRef(target);
+  const initialView = useRef(full);
   useEffect(() => {
     const svg = svgRef.current;
     if (!svg) return;
@@ -145,13 +172,12 @@ export function IsoStage({
   });
 
   const flowPaths: FlowPath[] = (stage.flows ?? []).flatMap((f, i) => {
-    const ids = [f.from, ...(f.via ?? []), f.to];
-    const points = ids.map((id) => anchors.get(id));
-    if (points.some((p) => !p)) return [];
-    return [{ key: `${ids.join(">")}-${i}`, kind: f.kind ?? "req", points: points as [number, number][], rate: f.rate, label: f.label }];
+    const geo = flowGeometries({ ...stage, flows: [f] }, resolved)[0];
+    return geo ? [{ key: `${geo.id}-${i}`, kind: f.kind ?? "req", points: geo.points, rate: f.rate, label: f.label }] : [];
   });
 
   return (
+    <div ref={wrapRef} className="relative h-full w-full">
     <svg
       ref={svgRef}
       viewBox={initialView.current.join(" ")}
@@ -179,7 +205,7 @@ export function IsoStage({
               <line x1={a[0]} y1={a[1]} x2={b[0]} y2={b[1]} stroke={tone} strokeOpacity={0.5} strokeWidth={1.6} strokeDasharray={l.style === "dashed" ? "5 5" : undefined} strokeLinecap="round" />
               {l.label && (
                 <g transform={`translate(${mx},${my})`}>
-                  <rect x={-(labelWidth(l.label, 5.4, 10) / 2)} y={-8} width={labelWidth(l.label, 5.4, 10)} height={15} rx={7.5} fill="#0b0814" fillOpacity={0.92} stroke={tone} strokeOpacity={0.5} />
+                  <rect x={-linkLabelWidth(l.label) / 2} y={-8} width={linkLabelWidth(l.label)} height={15} rx={7.5} fill="#0b0814" fillOpacity={0.92} stroke={tone} strokeOpacity={0.5} />
                   <text textAnchor="middle" y={3} fontSize={9} fill={tone} fontFamily="ui-monospace, monospace">
                     {l.label}
                   </text>
@@ -201,6 +227,18 @@ export function IsoStage({
 
       <Flows flows={flowPaths} reduced={reduced} epoch={epoch} />
     </svg>
+    {canZoom && (
+      <button
+        type="button"
+        onClick={() => setZoomed((z) => !z)}
+        className="absolute bottom-2 right-2 flex items-center gap-1.5 rounded-md border border-white/10 bg-ink-900/85 px-2 py-1.5 font-mono text-[10px] uppercase tracking-wider text-zinc-200 backdrop-blur hover:border-arcane-400/50"
+        aria-label={zoomed ? "Ver o diagrama inteiro" : "Aproximar no que importa"}
+      >
+        {zoomed ? <ZoomOut className="h-3.5 w-3.5" /> : <ZoomIn className="h-3.5 w-3.5" />}
+        {zoomed ? "ver tudo" : "aproximar"}
+      </button>
+    )}
+    </div>
   );
 }
 
@@ -295,13 +333,7 @@ function BoxShape({ b, reduced }: { b: IsoBox; reduced: boolean }) {
   const rightBase = `${28 * s},0`;
   const leftBase = `${-28 * s},0`;
 
-  let top = -14 * s - h - 6;
-  const meterY = typeof b.meter === "number" ? top - 4 : 0;
-  if (typeof b.meter === "number") top -= 9;
-  const badgeYs = (b.badges ?? []).map(() => {
-    top -= BADGE_H + BADGE_GAP;
-    return top;
-  });
+  const { labelY, meterY = 0, badgeYs } = boxStack(b);
 
   return (
     <g>
@@ -317,7 +349,7 @@ function BoxShape({ b, reduced }: { b: IsoBox; reduced: boolean }) {
           <path d="M-2.6,-2.6 L2.6,2.6 M2.6,-2.6 L-2.6,2.6" stroke="#fff" strokeWidth={1.8} strokeLinecap="round" />
         </g>
       )}
-      <Pill x={0} y={14 * s + 13} text={b.label} />
+      <Pill x={0} y={labelY} text={b.label} />
       {typeof b.meter === "number" && (
         <g transform={`translate(${-18},${meterY})`}>
           <rect width={36} height={4} rx={2} fill="#2a2145" />

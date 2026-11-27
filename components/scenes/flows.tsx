@@ -1,6 +1,7 @@
 "use client";
 
 import { useId } from "react";
+import { flowLabelWidth, pathLength, pillBox, pointAt } from "@/lib/scenes/iso";
 import type { FlowKind } from "@/lib/scenes/types";
 
 export type FlowPath = {
@@ -23,29 +24,6 @@ export const FLOW_COLOR: Record<FlowKind, string> = {
 
 const RADIUS: Record<FlowKind, number> = { req: 3.4, heavy: 5, bad: 3.4, hc: 2.4, data: 3.4 };
 
-function lengthOf(points: [number, number][]) {
-  let total = 0;
-  for (let i = 1; i < points.length; i++) total += Math.hypot(points[i][0] - points[i - 1][0], points[i][1] - points[i - 1][1]);
-  return total;
-}
-
-/** Ponto a `frac` (0–1) do comprimento da polilinha, com o ângulo do segmento. */
-export function pointAt(points: [number, number][], frac: number): { x: number; y: number; angle: number } {
-  const total = lengthOf(points) || 1;
-  let target = total * frac;
-  for (let i = 1; i < points.length; i++) {
-    const [x0, y0] = points[i - 1];
-    const [x1, y1] = points[i];
-    const seg = Math.hypot(x1 - x0, y1 - y0);
-    if (target <= seg || i === points.length - 1) {
-      const t = seg === 0 ? 0 : Math.min(1, target / seg);
-      return { x: x0 + (x1 - x0) * t, y: y0 + (y1 - y0) * t, angle: Math.atan2(y1 - y0, x1 - x0) };
-    }
-    target -= seg;
-  }
-  return { x: points[0][0], y: points[0][1], angle: 0 };
-}
-
 /**
  * Partículas ao longo de caminhos (polilinhas entre âncoras). Com movimento reduzido, cada fluxo
  * vira uma seta estática, na cor do tipo.
@@ -65,7 +43,7 @@ export function Flows({ flows, reduced, epoch }: { flows: FlowPath[]; reduced: b
       )}
       {flows.map((f) => {
         const d = f.points.map(([x, y], i) => `${i === 0 ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)}`).join(" ");
-        const len = lengthOf(f.points);
+        const len = pathLength(f.points);
         const dur = Math.max(0.8, len / SPEED);
         const color = FLOW_COLOR[f.kind];
         const mid = pointAt(f.points, 0.5);
@@ -103,7 +81,7 @@ export function Flows({ flows, reduced, epoch }: { flows: FlowPath[]; reduced: b
               })}
             {f.label && (
               <g transform={`translate(${mid.x},${mid.y - 9})`}>
-                <rect x={-(f.label.length * 2.9 + 7)} y={-8} width={f.label.length * 5.8 + 14} height={15} rx={7.5} fill="#0b0814" fillOpacity={0.92} stroke={color} strokeOpacity={0.55} />
+                <rect x={-flowLabelWidth(f.label) / 2} y={-8} width={flowLabelWidth(f.label)} height={15} rx={7.5} fill="#0b0814" fillOpacity={0.92} stroke={color} strokeOpacity={0.55} />
                 <text textAnchor="middle" y={3} fontSize={9} fill={color} fontFamily="ui-monospace, monospace">
                   {f.label}
                 </text>

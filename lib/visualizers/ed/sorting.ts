@@ -307,6 +307,10 @@ export const binarySearchVariantes: VisualizerDef = {
   ],
   random: () => {
     const a = [...new Set(randomArray(11, 1, 99))].sort((x, y) => x - y);
-    return binarySearch(a, Math.random() < 0.7 ? a[randInt(0, a.length - 1)] : randInt(1, 99), "classic");
+    // O alvo nunca é o elemento do meio: acertar de primeira geraria um cenário de 1 quadro só.
+    const first = a[(a.length - 1) >> 1];
+    let target = first;
+    while (target === first) target = Math.random() < 0.7 ? a[randInt(0, a.length - 1)] : randInt(1, 99);
+    return binarySearch(a, target, "classic");
   },
 };

@@ -193,6 +193,8 @@ export type SceneStep = {
   cmd?: string; // comando em destaque, copiável
   terminal?: TerminalStep;
   changes?: string[]; // substitui o "O que mudou" automático
+  /** Só modo iso: ids enquadrados no celular quando o diagrama inteiro ficaria pequeno. Padrão: status bad/new/hi + pontas de fluxos bad. */
+  focus?: string[];
   stage: Stage;
   extra?: Panel[]; // painéis do visualizador de algoritmos abaixo do palco
 };

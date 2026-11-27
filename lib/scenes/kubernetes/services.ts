@@ -4,11 +4,11 @@
  */
 import type { Badge, IsoBox, IsoEntity, IsoFlow, IsoLink, Metric, Resource, SceneDef, SceneStep, Status } from "../types";
 import { flow, link, users } from "../kit/common";
-import { ingress, kubeProxy, node, pod, service } from "../kit/k8s";
+import { ingress, kubeProxy, node, nodeRow, pod, service } from "../kit/k8s";
 
 // ---------- cenário base ----------
 
-const NODES = [node("n1", "node-1", 0, 0), node("n2", "node-2", 7, 0), node("n3", "node-3", 14, 0)];
+const NODES = [0, 1, 2].map((i) => node(`n${i + 1}`, `node-${i + 1}`, ...nodeRow(i)));
 
 function podRes(name: string, ip: string, nodeName: string, over: Partial<Resource> = {}): Omit<Resource, "kind"> {
   return { name, ip, node: nodeName, ready: "1/1", status: "Running", restarts: 0, age: "5d", ...over };
@@ -20,19 +20,19 @@ const web = (): IsoBox => pod("web", "n1", "C", "web", podRes("web-5c7d9b6f4-h8j
 
 /** Pod api original do node-1 (substituído no passo 2). */
 const api1Old = (status?: Status, over: Partial<Resource> = {}): IsoBox =>
-  pod("api-1", "n1", "A", "api-x2k9p", podRes("api-6d5f7c9b8-x2k9p", "10.244.1.7", "node-1", over), { status });
-const api1New = (status?: Status, badges?: Badge[]): IsoBox =>
-  pod("api-1b", "n1", "B", "api-m7q4w", podRes("api-6d5f7c9b8-m7q4w", "10.244.1.19", "node-1", { age: "40s" }), { status, badges });
+  pod("api-1", "n1", "B", "api-1", podRes("api-6d5f7c9b8-x2k9p", "10.244.1.7", "node-1", over), { status });
+const api4 = (status?: Status, badges?: Badge[]): IsoBox =>
+  pod("api-4", "n3", "B", "api-4", podRes("api-6d5f7c9b8-m7q4w", "10.244.3.19", "node-3", { age: "40s" }), { status, badges });
 const api2 = (o: { status?: Status; badges?: Badge[]; res?: Partial<Resource> } = {}): IsoBox =>
-  pod("api-2", "n2", "A", "api-b8t2n", podRes("api-6d5f7c9b8-b8t2n", "10.244.2.5", "node-2", o.res), { status: o.status, badges: o.badges });
-const api3 = (badges?: Badge[]): IsoBox => pod("api-3", "n3", "A", "api-k3v9z", podRes("api-6d5f7c9b8-k3v9z", "10.244.3.8", "node-3"), { badges });
+  pod("api-2", "n2", "A", "api-2", podRes("api-6d5f7c9b8-b8t2n", "10.244.2.5", "node-2", o.res), { status: o.status, badges: o.badges });
+const api3 = (badges?: Badge[]): IsoBox => pod("api-3", "n3", "A", "api-3", podRes("api-6d5f7c9b8-k3v9z", "10.244.3.8", "node-3"), { badges });
 
 const proxies = (status?: Status): IsoBox[] => [kubeProxy("kp1", "n1", "D", { status }), kubeProxy("kp2", "n2", "D", { status }), kubeProxy("kp3", "n3", "D", { status })];
 
-const SVC_API_POS = { a: [4.1, -4.1], b: [6.97, -4.83] } as const;
-const SVC_WEB_POS = [0.54, -1.96] as const;
-const INGRESS_POS = [0.89, -7.32] as const;
-const USERS_POS = [6.25, -10.5] as const;
+const SVC_API_POS = { a: [0.73, -9.66], b: [3.04, -11.96] } as const;
+const SVC_WEB_POS = [-3.75, -5.18] as const;
+const INGRESS_POS = [-0.36, -8.57] as const;
+const USERS_POS = { side: [6.6, -15.54], top: [-6.25, -14.46] } as const;
 
 function svcApi(pos: "a" | "b", o: { type?: string; ports?: string; badges?: Badge[]; status?: Status }): IsoBox {
   const [x, y] = SVC_API_POS[pos];
@@ -48,7 +48,7 @@ function stage(entities: IsoEntity[], links: IsoLink[] = [], flows: IsoFlow[] = 
 
 // links e fluxos recorrentes
 const toApis = (style: "solid" | "dashed", skip: string[] = []): IsoLink[] =>
-  ["api-1b", "api-2", "api-3"].filter((id) => !skip.includes(id)).map((id) => link("svc-api", id, { style, tone: "violet" }));
+  ["api-4", "api-2", "api-3"].filter((id) => !skip.includes(id)).map((id) => link("svc-api", id, { style, tone: "violet" }));
 
 const viaSvc = (ids: string[], o: Record<string, Partial<IsoFlow>> = {}): IsoFlow[] =>
   ids.map((id) => flow("web", id, 1, { via: ["svc-api"], ...o[id] }));
@@ -64,8 +64,8 @@ const m = (pods: number, endpoints: number, rps: number, err: number): Metric[] 
 
 // ---------- saídas do terminal ----------
 
-const EP3 = "10.244.1.19:8080,10.244.2.5:8080,10.244.3.8:8080";
-const EP2 = "10.244.1.19:8080,10.244.3.8:8080";
+const EP3 = "10.244.2.5:8080,10.244.3.8:8080,10.244.3.19:8080";
+const EP2 = "10.244.3.8:8080,10.244.3.19:8080";
 
 function endpoints(eps: string): Record<string, string> {
   return {
@@ -124,6 +124,7 @@ export const serviceEIngress: SceneDef = {
         "Funciona: a linha do diagrama mostra o `web` chamando `10.244.1.7` e a taxa de erros está em zero. O problema aparece quando alguma coisa muda.",
       ],
       metrics: m(3, 0, 120, 0),
+      focus: ["web","api-1","n1"],
       terminal: { suggest: [PODS_CMD] },
       stage: stage([web(), api1Old(), api2(), api3()], [link("web", "api-1", { label: "10.244.1.7" })], [flow("web", "api-1", 2)]),
     },
@@ -133,14 +134,15 @@ export const serviceEIngress: SceneDef = {
       nav: "O IP muda",
       title: "O pod morreu, o IP também",
       body: [
-        "Pods são descartáveis. Quando o `api-x2k9p` é recriado, o Kubernetes sobe um pod novo, com outro IP (`10.244.1.19`). O antigo desaparece e leva o endereço junto.",
+        "Pods são descartáveis. Quando o `api-1` é recriado, o Kubernetes sobe um pod novo, em outro node, com outro IP (`10.244.3.19`). O antigo desaparece e leva o endereço junto.",
         "O `web` continua chamando o IP velho e as requisições se perdem. Atualizar o endereço na mão a cada recriação não escala: deploy, falha de node e autoscaling trocam pods o tempo todo.",
       ],
       callout: { kind: "atencao", text: "Nunca configure o IP de um pod em outro serviço. Ele só vale até o próximo restart." },
       metrics: m(3, 0, 120, 33),
+      focus: ["web","api-1","n1"],
       terminal: { suggest: [PODS_CMD, SVC_CMD] },
       stage: stage(
-        [web(), api1Old("dead", { status: "Terminating", ready: "1/1" }), api1New("new"), api2(), api3()],
+        [web(), api1Old("dead", { status: "Terminating", ready: "1/1" }), api4("new"), api2(), api3()],
         [link("web", "api-1", { label: "10.244.1.7", tone: "rose" })],
         [flow("web", "api-1", 2, { kind: "bad" })],
       ),
@@ -157,11 +159,12 @@ export const serviceEIngress: SceneDef = {
       callout: { kind: "bom-saber", text: "O nome do Service também vira um registro DNS dentro do cluster: `api.default.svc.cluster.local`." },
       cmd: "kubectl expose deploy api --port=80 --target-port=8080",
       metrics: m(3, 3, 120, 0),
+      focus: ["svc-api","n2"],
       terminal: { suggest: [SVC_CMD, "kubectl get endpoints api"], outputs: endpoints(EP3) },
       stage: stage(
-        [web(), api1New(), api2(), api3(), svcApi("a", { status: "new" })],
+        [web(), api4(), api2(), api3(), svcApi("a", { status: "new" })],
         [link("web", "svc-api", { tone: "violet" }), ...toApis("solid")],
-        viaSvc(["api-1b", "api-2", "api-3"]),
+        viaSvc(["api-4", "api-2", "api-3"]),
       ),
     },
     // 4
@@ -176,11 +179,12 @@ export const serviceEIngress: SceneDef = {
       changes: ["+ label app=api nos pods", "+ selector app=api no Service", "Links viram tracejados (seleção por label)"],
       callout: { kind: "chave", text: "A label é o contrato: quem tem `app=api` recebe tráfego do Service `api`." },
       metrics: m(3, 3, 120, 0),
+      focus: ["svc-api","n2"],
       terminal: { suggest: ["kubectl describe svc api", "kubectl get endpoints api"], outputs: { ...describeSvc({ eps: EP3 }), ...endpoints(EP3) } },
       stage: stage(
-        [web(), api1New(undefined, [info("app=api")]), api2({ badges: [info("app=api")] }), api3([info("app=api")]), svcApi("a", { badges: [CLUSTER_IP(), SELECTOR()] })],
+        [web(), api4(undefined, [info("app=api")]), api2({ badges: [info("app=api")] }), api3([info("app=api")]), svcApi("a", { badges: [CLUSTER_IP(), SELECTOR()] })],
         [link("web", "svc-api", { tone: "violet" }), ...toApis("dashed")],
-        viaSvc(["api-1b", "api-2", "api-3"]),
+        viaSvc(["api-4", "api-2", "api-3"]),
       ),
     },
     // 5
@@ -194,11 +198,12 @@ export const serviceEIngress: SceneDef = {
       ],
       callout: { kind: "chave", text: "O Service não é um processo no caminho: é uma regra de reescrita de pacotes em cada node." },
       metrics: m(3, 3, 120, 0),
+      focus: ["kp2","svc-api","n2"],
       terminal: { suggest: [PODS_CMD, SVC_CMD] },
       stage: stage(
-        [web(), api1New(undefined, [info("app=api")]), api2({ badges: [info("app=api")] }), api3([info("app=api")]), svcApi("a", { badges: [CLUSTER_IP(), SELECTOR()] }), ...proxies("new")],
+        [web(), api4(undefined, [info("app=api")]), api2({ badges: [info("app=api")] }), api3([info("app=api")]), svcApi("a", { badges: [CLUSTER_IP(), SELECTOR()] }), ...proxies("new")],
         [link("web", "svc-api", { tone: "violet" }), ...toApis("dashed")],
-        viaSvc(["api-1b", "api-2", "api-3"]),
+        viaSvc(["api-4", "api-2", "api-3"]),
       ),
     },
     // 6
@@ -207,22 +212,23 @@ export const serviceEIngress: SceneDef = {
       nav: "Pod doente",
       title: "Um pod perde o banco",
       body: [
-        "O `api-b8t2n` perdeu a conexão com o banco de dados. O processo continua de pé, mas toda requisição que chega a ele falha.",
+        "O `api-2` perdeu a conexão com o banco de dados. O processo continua de pé, mas toda requisição que chega a ele falha.",
         "O `kubelet` testa o pod com a readiness probe e enxerga a falha, mas leva alguns ciclos de teste até agir. Nesse intervalo o Service ainda manda parte do tráfego para ele, e os erros sobem para 4%.",
       ],
       metrics: m(3, 3, 120, 4),
+      focus: ["api-2","svc-api"],
       terminal: { suggest: ["kubectl get endpoints api", PODS_CMD], outputs: endpoints(EP3) },
       stage: stage(
         [
           web(),
-          api1New(undefined, [info("app=api")]),
+          api4(undefined, [info("app=api")]),
           api2({ status: "bad", badges: [info("app=api"), { text: "readiness falhou", tone: "bad" }], res: { ready: "0/1" } }),
           api3([info("app=api")]),
           svcApi("a", { badges: [CLUSTER_IP(), SELECTOR()] }),
           ...proxies(),
         ],
         [link("web", "svc-api", { tone: "violet" }), ...toApis("dashed")],
-        [...viaSvc(["api-1b", "api-2", "api-3"], { "api-2": { kind: "bad" } }), flow("n2", "api-2", 1, { kind: "hc", label: "probe falhou" })],
+        [...viaSvc(["api-4", "api-2", "api-3"], { "api-2": { kind: "bad" } }), flow("n2", "api-2", 1, { kind: "hc" })],
       ),
     },
     // 7
@@ -236,18 +242,19 @@ export const serviceEIngress: SceneDef = {
       ],
       callout: { kind: "atencao", text: "Sem readiness probe, o Kubernetes não sabe que o pod está doente: ele só vê que o processo está de pé e continua mandando tráfego." },
       metrics: m(3, 2, 120, 0),
+      focus: ["api-2","svc-api","n2"],
       terminal: { suggest: ["kubectl get endpoints api", PODS_CMD], outputs: endpoints(EP2) },
       stage: stage(
         [
           web(),
-          api1New(undefined, [info("app=api")]),
+          api4(undefined, [info("app=api")]),
           api2({ status: "muted", badges: [{ text: "NotReady", tone: "warn" }], res: { ready: "0/1" } }),
           api3([info("app=api")]),
           svcApi("a", { badges: [CLUSTER_IP(), SELECTOR()] }),
           ...proxies(),
         ],
         [link("web", "svc-api", { tone: "violet" }), ...toApis("dashed", ["api-2"])],
-        [...viaSvc(["api-1b", "api-3"]), flow("n2", "api-2", 1, { kind: "hc", label: "probe falhando" })],
+        [...viaSvc(["api-4", "api-3"]), flow("n2", "api-2", 1, { kind: "hc" })],
       ),
     },
     // 8
@@ -256,24 +263,25 @@ export const serviceEIngress: SceneDef = {
       nav: "De fora do cluster",
       title: "NodePort: uma porta em todo node",
       body: [
-        "O `api-b8t2n` voltou a passar na readiness e entrou de novo nos Endpoints. Até aqui só pods do cluster alcançam o Service. Para receber usuários de fora, mudamos o tipo para **NodePort**: o Kubernetes abre a porta `30080` em todos os nodes.",
+        "O `api-2` voltou a passar na readiness e entrou de novo nos Endpoints. Até aqui só pods do cluster alcançam o Service. Para receber usuários de fora, mudamos o tipo para **NodePort**: o Kubernetes abre a porta `30080` em todos os nodes.",
         "O usuário acessa `IP-do-node:30080`, o `kube-proxy` daquele node reescreve o destino e o pacote chega a um pod, mesmo que ele esteja em outro node.",
       ],
       callout: { kind: "bom-saber", text: "NodePort expõe uma porta alta em todo node. LoadBalancer vai além: pede um IP público ao provedor de nuvem e aponta para os nodes." },
       metrics: m(3, 3, 400, 0),
+      focus: ["svc-api","n2"],
       terminal: { suggest: [SVC_CMD, "kubectl describe svc api"], outputs: describeSvc({ type: "NodePort", eps: EP3, nodePort: true }) },
       stage: stage(
         [
           web(),
-          api1New(),
+          api4(),
           api2(),
           api3(),
           svcApi("a", { type: "NodePort", ports: "80:30080/TCP", status: "hi", badges: [{ text: "NodePort 30080", tone: "info" }, CLUSTER_IP()] }),
           ...proxies(),
-          users("users", USERS_POS[0], USERS_POS[1], 5, "usuários", { status: "new" }),
+          users("users", USERS_POS.side[0], USERS_POS.side[1], 5, "usuários", { status: "new" }),
         ],
         [link("web", "svc-api", { tone: "violet" }), ...toApis("dashed")],
-        [flow("users", "svc-api", 3, { via: ["n2"], kind: "heavy" }), ...fromSvc(["api-1b", "api-2", "api-3"])],
+        [flow("users", "svc-api", 3, { via: ["n2"], kind: "heavy" }), ...fromSvc(["api-4", "api-2", "api-3"])],
       ),
     },
     // 9
@@ -288,6 +296,7 @@ export const serviceEIngress: SceneDef = {
       changes: ["+ Ingress controller", "+ Service web", "Service api volta a ClusterIP"],
       callout: { kind: "chave", text: "Ingress sozinho não faz nada: precisa de um controller (NGINX, Traefik e outros) rodando no cluster." },
       metrics: m(3, 3, 400, 0),
+      focus: ["ingress","svc-web"],
       terminal: { suggest: ["kubectl get ingress", SVC_CMD], outputs: GET_INGRESS },
       stage: ingressStage("new"),
     },
@@ -302,6 +311,7 @@ export const serviceEIngress: SceneDef = {
       ],
       changes: ["Tudo saudável", "O tráfego entra pelo Ingress e passa pelos Services"],
       metrics: m(3, 3, 400, 0),
+      focus: ["ingress","svc-web"],
       terminal: { suggest: ["kubectl get ingress", PODS_CMD], outputs: GET_INGRESS },
       stage: ingressStage(undefined),
     },
@@ -315,19 +325,19 @@ function ingressStage(freshStatus: Status | undefined): SceneStep["stage"] {
   return stage(
     [
       web(),
-      api1New(undefined, [info("app=api")]),
+      api4(undefined, [info("app=api")]),
       api2({ badges: [info("app=api")] }),
       api3([info("app=api")]),
       svcApi("b", { badges: [CLUSTER_IP(), SELECTOR()] }),
       service("svc-web", wx, wy, "web", { type: "ClusterIP", ip: "10.96.0.31", ports: "80/TCP", age: "1m" }, { badges: [{ text: "ClusterIP 10.96.0.31", tone: "info" }], status: freshStatus }),
       ...proxies(),
-      users("users", USERS_POS[0], USERS_POS[1], 5, "usuários"),
+      users("users", USERS_POS.top[0], USERS_POS.top[1], 5, "usuários"),
       ingress("ingress", ix, iy, { badges: [info("loja.com.br/ → web"), info("/api → api")], status: freshStatus }),
     ],
     [link("users", "ingress"), link("ingress", "svc-web", { tone: "violet" }), link("ingress", "svc-api", { tone: "violet" }), link("svc-web", "web", { style: "dashed", tone: "violet" }), ...toApis("dashed")],
     [
       flow("users", "web", 2, { via: ["ingress", "svc-web"] }),
-      ...["api-1b", "api-2", "api-3"].map((id) => flow("users", id, 1, { via: ["ingress", "svc-api"] })),
+      ...["api-4", "api-2", "api-3"].map((id) => flow("users", id, 1, { via: ["ingress", "svc-api"] })),
     ],
   );
 }
