@@ -43,6 +43,18 @@ const LOADERS: Record<string, Loader> = {
   "redes-backend/tcpdump-e-wireshark": () => import("./redes/diagnostico").then((m) => m.tcpdumpEWireshark),
   "redes-backend/o-que-acontece-ao-clicar-num-link": () => import("./redes/diagnostico").then((m) => m.cliqueNumLink),
   "redes-backend/incidentes-de-rede-reais": () => import("./redes/diagnostico").then((m) => m.incidentesDeRede),
+
+  // Fase 2: trilha Docker do Básico ao Avançado.
+  "docker/container-vs-vm": () => import("./docker/por-dentro").then((m) => m.containerVsVm),
+  "docker/namespaces-cgroups-chroot": () => import("./docker/por-dentro").then((m) => m.namespacesCgroups),
+  "docker/arquitetura-do-docker": () => import("./docker/por-dentro").then((m) => m.arquiteturaDocker),
+  "docker/imagem-container-e-registry": () => import("./docker/imagens").then((m) => m.imagemContainerRegistry),
+  "docker/camadas-e-overlayfs": () => import("./docker/imagens").then((m) => m.camadasEOverlayfs),
+  "docker/ciclo-de-vida-do-container": () => import("./docker/imagens").then((m) => m.cicloDeVida),
+  "docker/logs-em-containers": () => import("./docker/imagens").then((m) => m.logsEmContainers),
+  "docker/redes-bridge-host-none": () => import("./docker/redes").then((m) => m.redesBridgeHostNone),
+  "docker/redes-definidas-pelo-usuario-e-dns": () => import("./docker/redes").then((m) => m.redesDefinidasPeloUsuario),
+  "docker/portas-iptables-e-macvlan": () => import("./docker/redes").then((m) => m.portasIptablesMacvlan),
 };
 
 export function hasScene(track: string, lesson: string): boolean {

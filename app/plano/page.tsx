@@ -81,7 +81,7 @@ const phases = [
     title: "Reatividade, cloud e System Design",
     hours: "14h/semana",
     focus: "Operar, desenhar e não bloquear em escala",
-    tracks: ["reatividade-async", "cloud-devops", "system-design-interview"],
+    tracks: ["reatividade-async", "docker", "cloud-devops", "system-design-interview"],
     details: [
       "Construa um pipeline com Mutiny, backpressure e circuit breaker antes de operar em Kubernetes.",
       "Dockerize a aplicação, suba em Kubernetes local (kind/minikube) e escreva CI.",

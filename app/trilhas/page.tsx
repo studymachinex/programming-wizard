@@ -37,7 +37,7 @@ const stages = [
     label: "Fase 03 · Escala",
     title: "Mensageria, NoSQL, reatividade e cloud",
     description: "As ferramentas e decisões que aparecem em vagas sênior: Kafka, MongoDB, Redis, concorrência reativa, consistência, containers e SRE.",
-    slugs: ["kafka-streaming", "mongodb-redis", "reatividade-async", "sistemas-distribuidos", "cloud-devops"],
+    slugs: ["kafka-streaming", "mongodb-redis", "reatividade-async", "sistemas-distribuidos", "docker", "cloud-devops"],
   },
   {
     id: "entrevista",

@@ -1,0 +1,79 @@
+[
+  {
+    "slug": "docker-task-scheduler",
+    "title": "Task Scheduler",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/task-scheduler/",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "Escalonamento e cotas",
+    "moduleSlug": "por-dentro",
+    "description": "Escalone tarefas com um intervalo mínimo entre as repetidas e calcule o tempo total, incluindo os períodos ociosos: o mesmo raciocínio de um grupo estrangulado pela quota do cgroup, que espera o fim do período."
+  },
+  {
+    "slug": "docker-task-scheduler-ii",
+    "title": "Task Scheduler II",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/task-scheduler-ii/",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "Escalonamento e cotas",
+    "moduleSlug": "por-dentro",
+    "description": "Execute tarefas na ordem dada, respeitando um intervalo de espera entre tarefas do mesmo tipo, e some os dias gastos: pratique a contabilidade de tempo com um relógio avançando, como no exercício da cota de CPU."
+  },
+  {
+    "slug": "docker-simplify-path",
+    "title": "Simplify Path",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/simplify-path/",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "Caminhos de arquivos",
+    "moduleSlug": "imagens",
+    "description": "Normalize um caminho Unix tratando ., .. e barras repetidas com uma pilha: a mesma validação de caminhos que o exercício do OverlayFS exige antes de procurar um arquivo nas camadas."
+  },
+  {
+    "slug": "docker-find-duplicate-file-in-system",
+    "title": "Find Duplicate File in System",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/find-duplicate-file-in-system/",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "Hash de conteúdo",
+    "moduleSlug": "imagens",
+    "description": "Agrupe arquivos por conteúdo idêntico usando um mapa: a ideia do endereçamento por conteúdo (digest) que permite às camadas de imagem serem compartilhadas entre imagens e containers."
+  },
+  {
+    "slug": "docker-design-an-ordered-stream",
+    "title": "Design an Ordered Stream",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/design-an-ordered-stream/",
+    "difficulty": "facil",
+    "level": 1,
+    "topic": "Fluxos de dados",
+    "moduleSlug": "imagens",
+    "description": "Receba pedaços de um fluxo fora de ordem e libere-os na sequência certa: um exercício de reordenação que ajuda a pensar em fluxos de saída e de logs lidos em blocos."
+  },
+  {
+    "slug": "docker-seat-reservation-manager",
+    "title": "Seat Reservation Manager",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/seat-reservation-manager/",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "Alocação do menor livre",
+    "moduleSlug": "redes",
+    "description": "Reserve sempre o menor assento livre e permita liberar um assento já reservado, com uma fila de prioridade: é o alocador de IPs de uma rede Docker, que entrega o menor endereço livre e reaproveita os liberados."
+  },
+  {
+    "slug": "docker-smallest-number-in-infinite-set",
+    "title": "Smallest Number in Infinite Set",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/smallest-number-in-infinite-set/",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "Alocação do menor livre",
+    "moduleSlug": "redes",
+    "description": "Mantenha um conjunto infinito de inteiros com remoção do menor e devolução de valores: o mesmo desenho do ponteiro mais o conjunto de liberados que evita pré-alocar uma sub-rede /8 inteira."
+  }
+]

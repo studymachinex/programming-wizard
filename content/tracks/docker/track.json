@@ -1,0 +1,645 @@
+{
+  "slug": "docker",
+  "title": "Docker do Básico ao Avançado",
+  "subtitle": "Containers por dentro: do kernel ao runc, das camadas às redes e à produção",
+  "description": "Uma trilha de Docker pensada para quem escreve serviços Java: o que é um container de verdade (namespaces, cgroups e pivot_root), como o CLI chega ao runc, como imagens e camadas funcionam, o ciclo de vida e os logs, as redes (bridge, DNS, iptables, macvlan), e depois volumes, Dockerfile de produção, Compose, Swarm e segurança. Cada aula abre com uma cena interativa e aprofunda com comandos reais, código Java que roda e armadilhas de produção.",
+  "level": "intermediario",
+  "icon": "container",
+  "accent": "mana",
+  "estimatedHours": 26,
+  "isCore": true,
+  "outcomes": [
+    "Explicar o que é um container: processo do host com namespaces, cgroups e pivot_root, e por que ele não é uma VM",
+    "Descrever o caminho de um docker run pelo CLI, dockerd, containerd, containerd-shim e runc, e o papel da OCI",
+    "Distinguir imagem, camada, container e registry, e explicar o copy-on-write e o whiteout do OverlayFS",
+    "Operar o ciclo de vida de um container e interpretar sinais e códigos de saída como 143 e 137",
+    "Configurar logs em stdout com rotação e coleta, evitando o disco cheio causado pelo json-file",
+    "Projetar redes com bridge, host, none, redes de usuário com DNS embutido, publicação de portas e macvlan",
+    "Diagnosticar problemas de container com docker inspect, iptables, nsenter e os arquivos do cgroup"
+  ],
+  "modules": [
+    {
+      "slug": "por-dentro",
+      "title": "Containers por dentro",
+      "description": "O que um container realmente é: a diferença para uma VM, as primitivas do kernel que o formam (namespaces, cgroups e pivot_root) e a cadeia de programas, do CLI ao runc, que o cria.",
+      "estimatedHours": 3,
+      "exercises": [
+        "exercises/docker-cota-de-cpu.json"
+      ],
+      "lessons": [
+        {
+          "slug": "container-vs-vm",
+          "title": "Container vs VM",
+          "summary": "Hypervisor com um SO por VM contra um kernel compartilhado por vários containers: o que muda em isolamento, custo e segurança, e o que o Docker Desktop esconde no Mac e no Windows.",
+          "minutes": 40,
+          "file": "lessons/01-container-vs-vm.md",
+          "takeaways": [
+            "Diferenciar virtualizar o hardware (VM) de virtualizar o sistema operacional (container)",
+            "Explicar por que uma imagem não traz kernel e o que isso implica no Mac e no Windows",
+            "Comprovar com uname -r que o kernel é o mesmo do host",
+            "Saber quando combinar containers com VMs ou runtimes como gVisor e Kata"
+          ],
+          "quiz": [
+            {
+              "question": "Um container Linux roda no Docker Desktop de um Mac com chip Apple. Em qual kernel ele executa?",
+              "options": [
+                "No kernel do macOS, porque o Docker traduz as chamadas de sistema",
+                "No kernel que vem dentro da imagem do container",
+                "No kernel Linux de uma VM leve criada pelo Docker Desktop",
+                "No kernel do hypervisor do Mac, que é compartilhado com os apps"
+              ],
+              "answer": 2,
+              "explanation": "Containers precisam de um kernel Linux. Em Mac e Windows, o Docker Desktop cria uma VM Linux leve e roda o Docker nela; os containers são processos desse kernel, não do macOS."
+            },
+            {
+              "question": "Num host Linux, o que `docker run --rm alpine uname -r` imprime em comparação com `uname -r` no host?",
+              "options": [
+                "O mesmo kernel do host, porque o container não tem kernel próprio",
+                "O kernel do Alpine, que é diferente do host",
+                "Um kernel virtual criado para o container",
+                "Um erro, porque o Alpine não traz o comando uname"
+              ],
+              "answer": 0,
+              "explanation": "O Alpine fornece só o userspace (bibliotecas e binários). O kernel é o do host, compartilhado por todos os containers, e por isso os dois comandos mostram a mesma versão."
+            },
+            {
+              "question": "Qual alternativa descreve corretamente uma diferença entre VM e container?",
+              "options": [
+                "A VM compartilha o kernel do host; o container tem um kernel por aplicação",
+                "A VM é sempre mais rápida para iniciar que o container",
+                "O container isola por hardware virtual, e a VM por namespaces",
+                "A VM tem kernel próprio e leva um SO completo; o container é um processo com visão e recursos limitados"
+              ],
+              "answer": 3,
+              "explanation": "A VM virtualiza o hardware e roda um SO completo com kernel próprio (boot de segundos a minutos). O container é um processo do host isolado por namespaces e cgroups, e fica pronto em uma fração de segundo."
+            },
+            {
+              "question": "Por que o isolamento de segurança de containers é considerado mais fraco que o de VMs?",
+              "options": [
+                "Containers não usam namespaces",
+                "O kernel compartilhado é uma superfície comum: um bug nele pode afetar todos os containers e o host",
+                "Containers sempre rodam como root no host",
+                "Containers não podem ter limites de CPU e memória"
+              ],
+              "answer": 1,
+              "explanation": "Na VM, o atacante precisaria atravessar também o hypervisor. No container, todos falam com o mesmo kernel, e uma falha nele serve a todos. Para código de terceiros, combine containers com VMs ou use gVisor e Kata."
+            }
+          ]
+        },
+        {
+          "slug": "namespaces-cgroups-chroot",
+          "title": "As primitivas do Linux: namespaces, cgroups e chroot",
+          "summary": "Os oito namespaces, o cpu.max e o memory.max dos cgroups v2, o OOM kill com exit code 137 e a troca de raiz com pivot_root, com um programa Java que lê o cgroup.",
+          "minutes": 55,
+          "file": "lessons/02-namespaces-cgroups-chroot.md",
+          "takeaways": [
+            "Listar os oito namespaces e o que cada um isola, incluindo o PID 1 que é outro número no host",
+            "Ler o cpu.max no formato quota período e explicar o throttling",
+            "Entender o OOM killer, o exit code 137 e a diferença para OutOfMemoryError",
+            "Saber por que o runc usa pivot_root em vez de chroot"
+          ],
+          "quiz": [
+            {
+              "question": "Qual valor o Docker escreve em `cpu.max` ao rodar um container com `--cpus 0.5`?",
+              "options": [
+                "0.5 1",
+                "max 50000",
+                "100000 50000",
+                "50000 100000"
+              ],
+              "answer": 3,
+              "explanation": "O formato é `quota período`, em microssegundos: 50000 de quota em um período de 100000 dá 50 ms de CPU a cada 100 ms, ou meia CPU."
+            },
+            {
+              "question": "Um container Java termina com exit code 137, sem stack trace e sem OutOfMemoryError. Qual é a causa mais provável?",
+              "options": [
+                "A JVM ficou sem heap e lançou OutOfMemoryError",
+                "O kernel matou o processo (OOM killer) por ultrapassar o memory.max do cgroup",
+                "O docker stop enviou SIGTERM e a JVM encerrou normalmente",
+                "Uma exceção não tratada na aplicação"
+              ],
+              "answer": 1,
+              "explanation": "137 é 128 + 9 (SIGKILL). O OOM killer do kernel mata o processo ao estourar o teto de memória do cgroup, sem dar à JVM a chance de lançar exceção. Confira `docker inspect -f '{{.State.OOMKilled}}'`."
+            },
+            {
+              "question": "O processo Java de um container aparece como PID 1 dentro dele. Como ele aparece no host?",
+              "options": [
+                "Com outro PID, porque cada namespace de PID numera os processos por conta própria",
+                "Como PID 1, o mesmo número",
+                "Não aparece, porque o host não enxerga o container",
+                "Como PID 0"
+              ],
+              "answer": 0,
+              "explanation": "O mesmo processo tem um PID por namespace de PID em que aparece: 1 dentro do container e outro, como 4231, no host. O host enxerga tudo e pode sinalizar o processo pelo número real."
+            },
+            {
+              "question": "Qual é a diferença entre `chroot` e o `pivot_root` que o runc usa?",
+              "options": [
+                "O chroot é mais seguro e por isso foi substituído",
+                "Os dois são idênticos; só mudam de nome",
+                "O pivot_root troca a raiz do namespace de montagem e desmonta a antiga; o chroot só muda onde o processo resolve `/` e permite escapes",
+                "O pivot_root só funciona em VMs"
+              ],
+              "answer": 2,
+              "explanation": "O chroot não troca a tabela de montagens, e um processo com privilégio pode escapar dele. O pivot_root, dentro de um mount namespace novo, substitui a raiz do namespace pela imagem e desmonta a raiz antiga."
+            }
+          ]
+        },
+        {
+          "slug": "arquitetura-do-docker",
+          "title": "Arquitetura: CLI, dockerd, containerd, runc e OCI",
+          "summary": "O caminho de um docker run pelo CLI, a Engine API no docker.sock, o dockerd, o containerd, o containerd-shim e o runc, e as três especificações da OCI.",
+          "minutes": 50,
+          "file": "lessons/03-arquitetura-do-docker.md",
+          "takeaways": [
+            "Desenhar o caminho CLI, dockerd, containerd, containerd-shim, runc e processo",
+            "Explicar por que o runc termina logo e o shim fica como pai do processo",
+            "Nomear as três especificações da OCI e o que cada uma padroniza",
+            "Entender o live-restore e o risco de expor o docker.sock"
+          ],
+          "quiz": [
+            {
+              "question": "Qual é a ordem correta dos componentes em um `docker run`?",
+              "options": [
+                "docker CLI, containerd, dockerd, runc, containerd-shim",
+                "docker CLI, dockerd, containerd, containerd-shim, runc, processo",
+                "docker CLI, runc, containerd, dockerd",
+                "docker CLI, containerd-shim, dockerd, containerd, runc"
+              ],
+              "answer": 1,
+              "explanation": "O CLI chama a Engine API do dockerd (REST no docker.sock); o dockerd chama o containerd por gRPC; o containerd inicia um shim; o shim chama o runc, que cria o processo e sai."
+            },
+            {
+              "question": "O que acontece com o runc depois de criar o processo do container?",
+              "options": [
+                "Fica residente como pai do processo",
+                "Vira o PID 1 do container",
+                "Reinicia o container a cada falha",
+                "Termina; o containerd-shim fica como pai do processo e guarda stdout, stderr e o código de saída"
+              ],
+              "answer": 3,
+              "explanation": "O runc faz o trabalho do kernel (clone, cgroups, pivot_root, exec) e sai. O shim permanece vivo, o que permite reiniciar o containerd, ou o dockerd com live-restore, sem derrubar os containers."
+            },
+            {
+              "question": "Quais são as três especificações da OCI?",
+              "options": [
+                "Rede, volumes e logs",
+                "CLI, daemon e registry",
+                "Runtime, imagem e distribuição",
+                "Compose, Swarm e Kubernetes"
+              ],
+              "answer": 2,
+              "explanation": "A runtime-spec define como rodar um bundle (runc), a image-spec define manifesto, config e camadas, e a distribution-spec define a API HTTP de push e pull de um registry."
+            },
+            {
+              "question": "Por que montar `/var/run/docker.sock` dentro de um container é perigoso?",
+              "options": [
+                "Porque dá ao container controle total do Docker do host, equivalente a acesso root",
+                "Porque deixa o container mais lento",
+                "Porque desliga o isolamento de rede",
+                "Porque impede o uso de volumes"
+              ],
+              "answer": 0,
+              "explanation": "Quem alcança o socket fala com a Engine API e pode criar containers privilegiados que montam o disco do host. Monte o socket apenas em ferramentas de confiança."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "imagens",
+      "title": "Imagens e containers",
+      "description": "A anatomia de uma imagem e de um registry, as camadas e o OverlayFS com copy-up e whiteout, o ciclo de vida do container e os sinais que ele recebe, e a rota dos logs até o disco do host.",
+      "estimatedHours": 4,
+      "exercises": [
+        "exercises/docker-overlayfs-em-memoria.json"
+      ],
+      "lessons": [
+        {
+          "slug": "imagem-container-e-registry",
+          "title": "Imagem, container e registry",
+          "summary": "Manifesto, config e camadas endereçados por digest, índice multi-arquitetura, a diferença entre tag e digest e o que pull, tag e push realmente transferem.",
+          "minutes": 45,
+          "file": "lessons/04-imagem-container-e-registry.md",
+          "takeaways": [
+            "Separar imagem (imutável), container (execução) e registry (depósito)",
+            "Ler um nome completo de imagem: registry, repositório, tag e digest",
+            "Explicar por que o digest é imutável e a tag pode ser movida",
+            "Descrever o que o docker tag e o docker push transmitem"
+          ],
+          "quiz": [
+            {
+              "question": "Por que o digest de uma imagem é imutável enquanto a tag não é?",
+              "options": [
+                "Porque o digest é gerado pelo Docker Desktop",
+                "Porque tags são apagadas depois de 30 dias",
+                "O digest é o sha256 do conteúdo; a tag é só um apontador que o dono do repositório pode mover",
+                "Porque o digest é secreto"
+              ],
+              "answer": 2,
+              "explanation": "Mudar um byte muda o hash. Já a tag é um nome que aponta para um digest e pode ser reapontada para outro. Para deploys imutáveis, use o digest."
+            },
+            {
+              "question": "O que o comando `docker tag nginx:1.27 registry.exemplo.com/loja/nginx:1.27` faz?",
+              "options": [
+                "Cria um segundo nome para a mesma imagem local, sem copiar nada",
+                "Copia todas as camadas para o registry",
+                "Cria um container",
+                "Baixa a imagem do registry"
+              ],
+              "answer": 0,
+              "explanation": "O tag só adiciona um nome. Quem envia dados ao registry é o `docker push`, e ele envia apenas as camadas que o registry ainda não tem."
+            },
+            {
+              "question": "Cem containers criados da mesma imagem ocupam, no disco, aproximadamente...",
+              "options": [
+                "Cem vezes o tamanho da imagem",
+                "O tamanho de uma imagem, sem nenhum espaço extra",
+                "Metade da imagem, porque o Docker comprime",
+                "As camadas da imagem uma única vez, mais uma camada gravável por container"
+              ],
+              "answer": 3,
+              "explanation": "As camadas da imagem são somente leitura e compartilhadas. Cada container acrescenta apenas a sua camada gravável, com o que ele escreveu."
+            },
+            {
+              "question": "Uma imagem publicada só para `linux/amd64` é puxada em um nó `arm64` sem emulação. O que acontece?",
+              "options": [
+                "Roda normalmente, sem diferença",
+                "Falha com `exec format error`",
+                "O Docker converte a imagem sozinho",
+                "O registry escolhe outra imagem"
+              ],
+              "answer": 1,
+              "explanation": "Sem índice multi-arquitetura, o binário da outra arquitetura não executa. Publique um índice com `docker buildx` quando os ambientes forem mistos."
+            }
+          ]
+        },
+        {
+          "slug": "camadas-e-overlayfs",
+          "title": "Camadas e OverlayFS",
+          "summary": "lowerdir, upperdir, workdir e merged: como o container lê de cima para baixo, faz copy-up ao escrever e esconde arquivos com whiteout, e o que isso muda no Dockerfile.",
+          "minutes": 55,
+          "file": "lessons/05-camadas-e-overlayfs.md",
+          "takeaways": [
+            "Descrever lowerdir, upperdir, workdir e merged",
+            "Explicar o copy-up e por que ele pesa em arquivos grandes",
+            "Reconhecer o whiteout (dispositivo de caractere 0/0) e o diretório opaco",
+            "Ordenar o Dockerfile do que muda menos para o que muda mais e entender por que apagar depois não encolhe a imagem"
+          ],
+          "quiz": [
+            {
+              "question": "O container altera um arquivo que está em uma camada da imagem. O que o OverlayFS faz?",
+              "options": [
+                "Altera o arquivo na camada da imagem",
+                "Recusa a escrita, porque a camada é somente leitura",
+                "Cria um whiteout para o arquivo",
+                "Copia o arquivo inteiro para a camada gravável e altera a cópia (copy-up)"
+              ],
+              "answer": 3,
+              "explanation": "As camadas da imagem nunca mudam. O copy-up leva o arquivo completo à camada gravável do container, e a leitura seguinte já encontra a versão nova no topo."
+            },
+            {
+              "question": "Um `RUN rm` apaga um arquivo de 400 MB criado em uma instrução anterior do Dockerfile. O que acontece com o tamanho da imagem?",
+              "options": [
+                "Cai 400 MB",
+                "Não muda: o arquivo continua na camada anterior e a nova camada só tem um whiteout",
+                "Cresce 400 MB",
+                "Cai pela metade"
+              ],
+              "answer": 1,
+              "explanation": "O whiteout esconde o arquivo na visão unificada, mas a camada que o criou continua na imagem e é baixada. Crie e apague na mesma instrução, ou use build multi-stage."
+            },
+            {
+              "question": "Como o OverlayFS representa a remoção de um arquivo que existe em uma camada de baixo?",
+              "options": [
+                "Grava na camada de cima um dispositivo de caractere 0/0 com o mesmo nome (whiteout)",
+                "Apaga o arquivo da camada de baixo",
+                "Move o arquivo para o /tmp",
+                "Zera o conteúdo do arquivo"
+              ],
+              "answer": 0,
+              "explanation": "O whiteout é um arquivo especial do tipo dispositivo de caractere com número 0/0. Na visão unificada o original some; no tar de uma camada ele aparece como `.wh.<nome>`."
+            },
+            {
+              "question": "Qual ordem de instruções aproveita melhor o cache de camadas em um projeto Maven?",
+              "options": [
+                "COPY . . primeiro e depois o build",
+                "O build primeiro e o COPY por último",
+                "COPY do pom.xml, resolver as dependências e só depois copiar o código",
+                "A ordem não afeta o cache"
+              ],
+              "answer": 2,
+              "explanation": "O cache é em cascata: invalidou uma camada, as de cima são refeitas. Como o pom.xml muda pouco, as dependências ficam em cache, e uma mudança no código refaz só as últimas camadas."
+            }
+          ]
+        },
+        {
+          "slug": "ciclo-de-vida-do-container",
+          "title": "Ciclo de vida e comandos essenciais",
+          "summary": "Estados created, running, paused, exited e removed, o que stop, kill, pause e rm enviam ao PID 1, os exit codes 143 e 137 e um shutdown hook Java que roda no docker stop.",
+          "minutes": 50,
+          "file": "lessons/06-ciclo-de-vida-do-container.md",
+          "takeaways": [
+            "Percorrer os estados de um container e o que cada um preserva em disco",
+            "Diferenciar stop (SIGTERM e depois SIGKILL após 10 s), kill (SIGKILL) e pause (freezer do cgroup)",
+            "Ler os exit codes 0, 143 e 137",
+            "Garantir que o PID 1 receba o SIGTERM para o shutdown hook rodar"
+          ],
+          "quiz": [
+            {
+              "question": "O que o `docker stop` envia ao container e quanto tempo espera por padrão?",
+              "options": [
+                "SIGKILL imediatamente",
+                "SIGTERM e espera até 10 s antes de enviar SIGKILL",
+                "SIGINT e espera 30 s",
+                "SIGSTOP e não espera"
+              ],
+              "answer": 1,
+              "explanation": "O stop é o pedido educado: SIGTERM ao PID 1, com 10 segundos (`-t` muda) para ele terminar. Se ainda estiver vivo, o Docker envia SIGKILL."
+            },
+            {
+              "question": "Um container com `CMD java -jar app.jar` em shell form leva 10 s para parar e sai com 137. Por quê?",
+              "options": [
+                "A JVM é lenta para encerrar",
+                "O Docker sempre demora 10 s",
+                "A imagem não tem JVM",
+                "O shell é o PID 1 e não repassa o SIGTERM; o stop espera os 10 s e mata com SIGKILL"
+              ],
+              "answer": 3,
+              "explanation": "Em shell form, `/bin/sh -c` é o PID 1. O SIGTERM não chega à JVM, o shutdown hook não roda e, depois do prazo, o SIGKILL termina o container com 137. Use a exec form."
+            },
+            {
+              "question": "Como o `docker pause` congela um container?",
+              "options": [
+                "Envia SIGSTOP ao processo",
+                "Salva o estado em disco e libera a memória",
+                "Usa o freezer do cgroup: o processo para sem ser notificado e a memória continua ocupada",
+                "Desliga a rede do container"
+              ],
+              "answer": 2,
+              "explanation": "O processo não recebe sinal algum e não pode reagir. Pausar não libera memória nem fecha conexões; os clientes só veem timeouts."
+            },
+            {
+              "question": "Uma JVM sai com código 143 depois de um `docker stop`. O que isso indica?",
+              "options": [
+                "Encerramento por SIGTERM (128 + 15), normalmente depois de rodar os shutdown hooks",
+                "Falta de memória",
+                "Uma exceção não tratada",
+                "Morte por SIGKILL"
+              ],
+              "answer": 0,
+              "explanation": "143 é 128 + 15. É o resultado esperado de um desligamento por SIGTERM em uma JVM, e confirma que o PID 1 recebeu o sinal. Já o 137 é SIGKILL."
+            }
+          ]
+        },
+        {
+          "slug": "logs-em-containers",
+          "title": "Logs: stdout, drivers e rotação",
+          "summary": "Por que log em arquivo se perde com o container, o caminho do stdout até o docker logs, o json-file sem rotação, max-size e max-file, drivers e dual logging, e logs JSON em Java.",
+          "minutes": 45,
+          "file": "lessons/07-logs-em-containers.md",
+          "takeaways": [
+            "Escrever logs em stdout e stderr em vez de arquivos dentro do container",
+            "Configurar max-size e max-file e saber que só valem para containers novos",
+            "Comparar json-file, local, journald e os drivers remotos com dual logging",
+            "Emitir logs estruturados em JSON, uma linha por evento"
+          ],
+          "quiz": [
+            {
+              "question": "Por que gravar o log em `/var/log/app.log` dentro do container é arriscado?",
+              "options": [
+                "O Docker não permite escrever em /var/log",
+                "O arquivo fica visível para todos os containers",
+                "O arquivo fica na camada gravável e some quando o container é removido ou recriado",
+                "O arquivo não pode passar de 1 MB"
+              ],
+              "answer": 2,
+              "explanation": "A camada gravável acompanha o container. Depois de um crash e de uma recriação, o histórico se perdeu. Escreva em stdout e stderr e deixe o Docker e um coletor guardarem."
+            },
+            {
+              "question": "O que acontece com o driver `json-file` quando ninguém configura `max-size` e `max-file`?",
+              "options": [
+                "Não faz rotação: o arquivo cresce até o container ser removido, e pode encher o disco do host",
+                "Gira a cada 10 MB automaticamente",
+                "Apaga os logs com mais de 7 dias",
+                "Passa a usar o driver local"
+              ],
+              "answer": 0,
+              "explanation": "O json-file não gira sozinho. Em serviços de alto volume, o disco do host chega a 100% e derruba o Docker e os outros serviços. O driver `local` já traz rotação por padrão."
+            },
+            {
+              "question": "Você coloca `max-size` e `max-file` no `daemon.json` e reinicia o daemon. Quais containers são afetados?",
+              "options": [
+                "Todos, imediatamente, inclusive os que já existiam",
+                "Nenhum, porque a opção é só para o Compose",
+                "Apenas os containers parados",
+                "Só os containers criados depois da mudança; os existentes precisam ser recriados"
+              ],
+              "answer": 3,
+              "explanation": "A configuração de log é fixada na criação do container. Para aplicá-la a um container existente, recrie-o."
+            },
+            {
+              "question": "Um container usa o driver `fluentd` com o Docker 20.10 ou superior. O `docker logs` funciona?",
+              "options": [
+                "Nunca funciona com drivers remotos",
+                "Funciona por causa do dual logging, que mantém um cache local do log",
+                "Só funciona com --privileged",
+                "Só funciona com o driver journald"
+              ],
+              "answer": 1,
+              "explanation": "Desde o Docker 20.10, o dual logging guarda uma cópia local dos logs enviados por drivers remotos, e o `docker logs` volta a responder."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "redes",
+      "title": "Redes no Docker",
+      "description": "A bridge docker0, o par veth e o NAT; redes definidas pelo usuário com DNS embutido; a publicação de portas como DNAT, o problema com o UFW e o macvlan, sempre ligando às aulas de redes.",
+      "estimatedHours": 4,
+      "exercises": [
+        "exercises/docker-alocador-de-ips.json"
+      ],
+      "lessons": [
+        {
+          "slug": "redes-bridge-host-none",
+          "title": "Redes: bridge, host e none",
+          "summary": "A docker0 como switch virtual, o par veth, o MASQUERADE de saída, a rede host sem isolamento e a rede none, com ligações para bridge, NAT e CIDR da trilha de Redes.",
+          "minutes": 50,
+          "file": "lessons/08-redes-bridge-host-none.md",
+          "takeaways": [
+            "Descrever a docker0 como um switch virtual e o par veth como um cabo entre o container e a bridge",
+            "Explicar o MASQUERADE e relacioná-lo ao NAT da trilha de Redes",
+            "Saber quando usar host e none e o que cada um abre mão",
+            "Enxergar docker0, veth e a regra de NAT no host com ip e iptables"
+          ],
+          "quiz": [
+            {
+              "question": "Qual é a sub-rede padrão da bridge `docker0`?",
+              "options": [
+                "10.0.0.0/8",
+                "192.168.0.0/24",
+                "127.0.0.0/8",
+                "172.17.0.0/16"
+              ],
+              "answer": 3,
+              "explanation": "A docker0 usa 172.17.0.0/16 com o gateway 172.17.0.1. Redes novas criadas pelo usuário recebem as faixas seguintes (172.18.0.0/16 e assim por diante)."
+            },
+            {
+              "question": "Como um container na bridge padrão alcança a internet, se o IP dele é privado?",
+              "options": [
+                "O container recebe um IP público",
+                "Uma regra MASQUERADE do iptables reescreve a origem para o IP do host, e o conntrack desfaz a tradução na resposta",
+                "O dockerd encaminha cada pacote por um proxy",
+                "O roteador da operadora conhece a faixa 172.17.0.0/16"
+              ],
+              "answer": 1,
+              "explanation": "É o NAT de saída: no POSTROUTING, a origem 172.17.0.x vira o IP do host, e a tabela de conexões devolve a resposta ao container certo."
+            },
+            {
+              "question": "O que caracteriza `--network host`?",
+              "options": [
+                "O container usa a pilha de rede do host: sem veth, sem NAT e sem isolamento de rede",
+                "O container ganha um IP na faixa da docker0",
+                "O container fica sem nenhuma rede",
+                "O container usa um DNS exclusivo"
+              ],
+              "answer": 0,
+              "explanation": "No modo host não há namespace de rede: o processo escuta diretamente nas portas do host. Em Docker Desktop, o host é a VM Linux, e não o seu sistema."
+            },
+            {
+              "question": "Quais interfaces um container com `--network none` enxerga?",
+              "options": [
+                "A `eth0` e o `lo`",
+                "Todas as interfaces do host",
+                "Só o loopback `lo`",
+                "Nenhuma, nem o loopback"
+              ],
+              "answer": 2,
+              "explanation": "O namespace de rede existe, mas só com o `lo`. Nada entra nem sai, e nem outros containers são alcançáveis."
+            }
+          ]
+        },
+        {
+          "slug": "redes-definidas-pelo-usuario-e-dns",
+          "title": "Redes definidas pelo usuário e DNS entre containers",
+          "summary": "Por que a api não acha o db na bridge padrão, o DNS embutido em 127.0.0.11 das redes criadas, aliases, network connect, isolamento entre redes e o cache de DNS da JVM.",
+          "minutes": 50,
+          "file": "lessons/09-redes-definidas-pelo-usuario-e-dns.md",
+          "takeaways": [
+            "Explicar por que a bridge padrão não resolve nomes e as redes criadas resolvem",
+            "Identificar o DNS embutido em 127.0.0.11 e o que ele encaminha ao host",
+            "Usar aliases de rede e docker network connect para ligar redes",
+            "Conhecer o cache de DNS da JVM e ajustar o TTL em ambientes dinâmicos"
+          ],
+          "quiz": [
+            {
+              "question": "A `api` lança `UnknownHostException: db` na bridge padrão. Qual é a solução recomendada?",
+              "options": [
+                "Usar `--link` em todos os containers",
+                "Criar uma rede com `docker network create` e subir os containers com `--network`",
+                "Fixar o IP do db na configuração da api",
+                "Editar o /etc/hosts da imagem"
+              ],
+              "answer": 1,
+              "explanation": "Só redes definidas pelo usuário têm o DNS embutido. O --link é legado e o IP muda a cada recriação."
+            },
+            {
+              "question": "Qual endereço aparece como `nameserver` no `/etc/resolv.conf` de um container em uma rede definida pelo usuário?",
+              "options": [
+                "127.0.0.53",
+                "172.17.0.1",
+                "8.8.8.8",
+                "127.0.0.11"
+              ],
+              "answer": 3,
+              "explanation": "O 127.0.0.11 é o servidor DNS embutido no daemon, que responde nomes e aliases dos containers da rede e encaminha o resto ao resolvedor do host."
+            },
+            {
+              "question": "Dois containers estão em redes diferentes, sem `network connect`. O que acontece?",
+              "options": [
+                "Eles se resolvem por nome, mas não trocam tráfego",
+                "Eles se alcançam pelo IP, mas não por nome",
+                "Eles não se alcançam nem se resolvem por nome",
+                "Eles se alcançam sempre pela docker0"
+              ],
+              "answer": 2,
+              "explanation": "Cada rede é isolada e o DNS embutido só conhece os containers das redes de quem pergunta. Para um container participar de duas redes, use `docker network connect`."
+            },
+            {
+              "question": "Sem um security manager e sem configuração, por quanto tempo a JVM guarda em cache um nome resolvido com sucesso?",
+              "options": [
+                "Cerca de 30 segundos",
+                "Para sempre",
+                "Não guarda",
+                "Uma hora"
+              ],
+              "answer": 0,
+              "explanation": "O padrão do OpenJDK é 30 segundos para o cache positivo (e 10 para o negativo). Em ambientes que recriam containers, defina `networkaddress.cache.ttl` com um valor baixo."
+            }
+          ]
+        },
+        {
+          "slug": "portas-iptables-e-macvlan",
+          "title": "Publicação de portas, iptables e macvlan",
+          "summary": "O -p como regra DNAT na chain DOCKER, o docker-proxy, por que o UFW não bloqueia portas publicadas, a chain DOCKER-USER, o bind 0.0.0.0 em Java e o driver macvlan com a interface auxiliar do host.",
+          "minutes": 55,
+          "file": "lessons/10-portas-iptables-e-macvlan.md",
+          "takeaways": [
+            "Mostrar a regra DNAT que o -p cria e o gancho no PREROUTING",
+            "Explicar o docker-proxy e quando desligá-lo",
+            "Proteger portas publicadas com 127.0.0.1 e com a chain DOCKER-USER, sabendo que o UFW é ignorado",
+            "Criar uma rede macvlan e resolver a falha de comunicação host e container com uma interface macvlan auxiliar"
+          ],
+          "quiz": [
+            {
+              "question": "Como o Docker implementa `-p 8080:80` no host?",
+              "options": [
+                "Com um proxy userland apenas, sem iptables",
+                "Com uma regra SNAT que reescreve a origem",
+                "Com uma regra DNAT na tabela nat (chain DOCKER) que reescreve o destino para o IP e a porta do container",
+                "Abrindo a porta 8080 dentro do container"
+              ],
+              "answer": 2,
+              "explanation": "É NAT de destino: pacotes para a porta 8080 do host têm o destino trocado por 172.17.0.2:80 no PREROUTING. O docker-proxy cobre só o tráfego gerado no próprio host."
+            },
+            {
+              "question": "O `ufw deny 8080` está ativo, mas a porta publicada com `-p 8080:80` continua acessível. Por quê?",
+              "options": [
+                "O tráfego publicado é encaminhado (FORWARD) por regras que o Docker grava antes das do UFW, e o UFW controla o INPUT",
+                "O UFW não funciona em Linux",
+                "O Docker desativa o UFW ao iniciar",
+                "A regra do UFW expira em uma hora"
+              ],
+              "answer": 0,
+              "explanation": "As regras do Docker são consultadas na chain de encaminhamento, e o UFW cuida do tráfego destinado ao host. Use `-p 127.0.0.1:8080:80` ou regras na chain DOCKER-USER."
+            },
+            {
+              "question": "Um servidor Java dentro do container escuta em `127.0.0.1:8080` e a porta é publicada com `-p 8080:8080`. Qual é o resultado?",
+              "options": [
+                "Funciona normalmente",
+                "O Docker corrige o bind sozinho",
+                "A porta nem abre no host",
+                "A conexão é aceita pelo host, mas o servidor não responde: o tráfego chega pela eth0 do container, e ele só escuta no loopback"
+              ],
+              "answer": 3,
+              "explanation": "O DNAT entrega o pacote à eth0 do container. Quem escuta só em 127.0.0.1 não atende esse tráfego, e o cliente vê uma resposta vazia (curl código 52). Faça o bind em 0.0.0.0."
+            },
+            {
+              "question": "O host não consegue falar com um container macvlan pela interface pai (`eth0`), mas o notebook consegue. Qual é a correção?",
+              "options": [
+                "Desligar o firewall do host",
+                "Criar no host uma interface macvlan auxiliar (mac0) no mesmo pai, com uma rota para o container",
+                "Publicar a porta com -p",
+                "Trocar para a rede host"
+              ],
+              "answer": 1,
+              "explanation": "É uma limitação do kernel: o tráfego entre a interface pai e as sub-interfaces macvlan não é entregue. Uma interface macvlan do próprio host resolve."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

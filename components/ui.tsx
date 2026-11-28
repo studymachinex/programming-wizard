@@ -5,6 +5,7 @@ import {
   Cloud,
   Coffee,
   Compass,
+  Container,
   Database,
   Layers,
   Leaf,
@@ -33,6 +34,7 @@ const icons: Record<string, LucideIcon> = {
   target: Target,
   sparkles: Sparkles,
   waypoints: Waypoints,
+  container: Container,
 };
 
 export function TrackIcon({ icon, className }: { icon: string; className?: string }) {
