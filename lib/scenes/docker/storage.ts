@@ -132,7 +132,7 @@ export const volumesBindMountsTmpfs: SceneDef = {
       title: "O volume é um diretório gerenciado pelo Docker",
       body: [
         "Um **volume nomeado** vive em `/var/lib/docker/volumes/dados/_data`, fora da camada gravável. O container o monta em `/data` e o app continua gravando como se fosse um diretório qualquer.",
-        "O Docker cria o volume na primeira vez que o nome aparece. Com `--mount`, o tipo fica explícito e erros de digitação falham cedo.",
+        "O Docker cria o volume na primeira vez que o nome aparece. Com `--mount`, o tipo da montagem (`type=volume`) fica explícito no comando.",
       ],
       changes: ["+ volume dados", "api monta dados em /data"],
       cmd: RUN_VOL,
@@ -429,7 +429,7 @@ export const persistenciaPermissoesBackup: SceneDef = {
       title: "Volume novo herda o dono da imagem",
       body: [
         "Com um **volume nomeado**, a imagem manda: se o Dockerfile faz `mkdir /data && chown app:app /data` antes da montagem, o volume nasce com dono `10001`. Se o diretório não existe na imagem, ele nasce `root`, e o usuário comum não grava.",
-        "Alterações em `/data` **depois** de uma instrução `VOLUME` no Dockerfile são descartadas: faça o `chown` antes.",
+        "No builder legado, alterações em `/data` **depois** de uma instrução `VOLUME` eram descartadas (o BuildKit as mantém): faça o `chown` antes e não dependa do builder.",
       ],
       cmd: DIAG,
       changes: ["imagem com /data de dono 10001", "volume herda o dono"],

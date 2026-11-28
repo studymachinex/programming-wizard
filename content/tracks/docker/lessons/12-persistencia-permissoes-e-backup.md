@@ -103,7 +103,7 @@ Para compartilhar um volume entre um escritor e um leitor (um exportador que lê
 ## Armadilhas comuns
 
 - **Testar só como root.** Tudo funciona com `root` dentro do container, e o erro de permissão só aparece quando alguém adiciona `USER`. Rode os testes de integração com o usuário final da imagem.
-- **`chown` depois do `VOLUME` no Dockerfile.** Alterações no diretório depois da instrução `VOLUME` são descartadas, porque o volume é criado e montado por cima. Faça o `mkdir` e o `chown` antes dela.
+- **`chown` depois do `VOLUME` no Dockerfile.** No builder legado, alterações no diretório depois da instrução `VOLUME` são descartadas; o BuildKit as mantém, mas a documentação ainda trata o comportamento como dependente do builder. Faça o `mkdir` e o `chown` antes dela e o resultado é o mesmo em qualquer um.
 - **`chmod 777` para "resolver".** Funciona e abre o dado para qualquer UID do host. Acerte o dono em vez de afrouxar o modo.
 - **Copiar `_data` direto do disco do host.** Funciona num servidor Linux, falha em Docker Desktop (o caminho está na VM) e ignora qualquer driver de volume. Passe sempre por um container.
 - **Backup de banco sem parar nem usar a ferramenta do banco.** O arquivo existe, mas pode não abrir. E nunca restaurar para testar é o jeito de descobrir isso em um incidente.
