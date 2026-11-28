@@ -55,6 +55,8 @@ const LOADERS: Record<string, Loader> = {
   "docker/redes-bridge-host-none": () => import("./docker/redes").then((m) => m.redesBridgeHostNone),
   "docker/redes-definidas-pelo-usuario-e-dns": () => import("./docker/redes").then((m) => m.redesDefinidasPeloUsuario),
   "docker/portas-iptables-e-macvlan": () => import("./docker/redes").then((m) => m.portasIptablesMacvlan),
+  "docker/volumes-bind-mounts-tmpfs": () => import("./docker/storage").then((m) => m.volumesBindMountsTmpfs),
+  "docker/persistencia-permissoes-e-backup": () => import("./docker/storage").then((m) => m.persistenciaPermissoesBackup),
 };
 
 export function hasScene(track: string, lesson: string): boolean {

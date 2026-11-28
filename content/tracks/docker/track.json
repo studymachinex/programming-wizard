@@ -640,6 +640,133 @@
           ]
         }
       ]
+    },
+    {
+      "slug": "storage",
+      "title": "Volumes e dados",
+      "description": "Onde os dados de um container moram: volumes nomeados, bind mounts e tmpfs, o que cada um preserva no docker rm, como o UID numérico decide o acesso e como fazer backup e restauração com um container auxiliar.",
+      "estimatedHours": 2,
+      "exercises": [],
+      "lessons": [
+        {
+          "slug": "volumes-bind-mounts-tmpfs",
+          "title": "Volumes, bind mounts e tmpfs",
+          "summary": "Os três tipos de montagem, o que cada um preserva depois do docker rm, a população do volume vazio com o conteúdo da imagem e a diferença entre -v e --mount.",
+          "minutes": 50,
+          "file": "lessons/11-volumes-bind-mounts-tmpfs.md",
+          "takeaways": [
+            "Escolher entre volume nomeado, bind mount e tmpfs conforme o que precisa sobreviver",
+            "Explicar por que um volume novo recebe o conteúdo da imagem e um bind mount o esconde",
+            "Preferir --mount a -v para falhar cedo quando o caminho do host não existe",
+            "Usar :ro e conhecer :z e :Z em hosts com SELinux"
+          ],
+          "quiz": [
+            {
+              "question": "O que acontece com um volume nomeado quando o container que o usa é removido com `docker rm`?",
+              "options": [
+                "Ele é removido junto, como a camada gravável",
+                "Ele continua existindo, com os dados dentro",
+                "Ele é esvaziado, mas o nome continua registrado",
+                "Ele vira um volume anônimo"
+              ],
+              "answer": 1,
+              "explanation": "Volume e container têm ciclos de vida independentes. O volume só some com `docker volume rm` (ou um prune), e isso falha enquanto algum container, mesmo parado, ainda o referencia."
+            },
+            {
+              "question": "Você monta uma pasta vazia do host em `/app`, onde a imagem tem o `app.jar`. O que o container enxerga em `/app`?",
+              "options": [
+                "O `app.jar`, porque o conteúdo da imagem tem prioridade",
+                "Uma cópia do `app.jar` feita pelo Docker na primeira montagem",
+                "Um erro no `docker run`, sempre",
+                "Só o conteúdo da pasta do host (vazia): o `app.jar` fica escondido"
+              ],
+              "answer": 3,
+              "explanation": "Um bind mount cobre o diretório da imagem e não copia nada. Quem popula com o conteúdo da imagem é o volume vazio, na primeira montagem. É por isso que montar no caminho do código faz a aplicação sumir."
+            },
+            {
+              "question": "O que muda entre `-v ./config:/app/config` e `--mount type=bind,src=./config,dst=/app/config` quando `./config` não existe?",
+              "options": [
+                "`-v` cria um diretório vazio de dono root e segue; `--mount` falha com `bind source path does not exist`",
+                "Os dois falham com a mesma mensagem",
+                "`-v` falha, e `--mount` cria o diretório",
+                "Os dois criam o diretório e iniciam o container"
+              ],
+              "answer": 0,
+              "explanation": "O `-v` cria o caminho como diretório e esconde o erro de digitação (e, se era um arquivo, ele vira um diretório). O `--mount` valida a origem e falha cedo."
+            },
+            {
+              "question": "Um container usa `--tmpfs /cache:size=64m`. O que acontece com os dados em `/cache` quando ele para?",
+              "options": [
+                "Ficam em `/var/lib/docker/tmpfs`",
+                "São gravados no disco do host em um arquivo temporário",
+                "Somem: vivem só na memória e contam contra o limite dela",
+                "Passam para a camada gravável da imagem"
+              ],
+              "answer": 2,
+              "explanation": "O tmpfs é um sistema de arquivos na RAM. Nada vai ao disco e tudo é perdido ao parar o container. Como ocupa memória, defina `size=` para não acabar em `OOMKilled`."
+            }
+          ]
+        },
+        {
+          "slug": "persistencia-permissoes-e-backup",
+          "title": "Persistência, permissões e backup de volumes",
+          "summary": "Por que o UID numérico decide o acesso a um volume, como garantir o dono certo em volume e em bind mount e como fazer backup e restauração com um container auxiliar e tar.",
+          "minutes": 55,
+          "file": "lessons/12-persistencia-permissoes-e-backup.md",
+          "takeaways": [
+            "Diagnosticar um Permission denied comparando o UID do processo com o dono do diretório",
+            "Garantir que um volume novo nasça com o dono do usuário da aplicação",
+            "Fazer backup e restauração de um volume com --volumes-from e tar",
+            "Distinguir um backup consistente de um crash-consistent em bancos de dados"
+          ],
+          "quiz": [
+            {
+              "question": "O processo roda como `app` (UID 10001) e o diretório do host montado pertence a `dev` (UID 1000), modo 755. O que acontece ao gravar nele?",
+              "options": [
+                "Funciona, porque o nome `app` existe nos dois lados",
+                "Funciona, porque o Docker traduz os nomes de usuário",
+                "Falha: o kernel compara os números 10001 e 1000, e os nomes não atravessam a fronteira",
+                "Funciona, desde que o container tenha rodado como root antes"
+              ],
+              "answer": 2,
+              "explanation": "Cada arquivo guarda UID e GID numéricos; o nome vem de `/etc/passwd`, que é de cada imagem. Sem coincidência de números e com 755, a escrita é negada."
+            },
+            {
+              "question": "Como garantir que um volume nomeado novo nasça com o dono do usuário da aplicação?",
+              "options": [
+                "Criar o diretório e fazer o `chown` no Dockerfile, antes da montagem e antes do `VOLUME`",
+                "Rodar `chmod 777` no host depois de criar o volume",
+                "Fazer o `chown` depois da instrução `VOLUME` no Dockerfile",
+                "Usar `docker volume create --owner app`"
+              ],
+              "answer": 0,
+              "explanation": "Na primeira montagem de um volume vazio, o Docker copia o conteúdo da imagem, com dono e modo. Alterações feitas depois da instrução `VOLUME` são descartadas, e `docker volume create` não tem opção de dono."
+            },
+            {
+              "question": "O que faz `--volumes-from db` em um container de backup?",
+              "options": [
+                "Copia os volumes do `db` para dentro da imagem do container de backup",
+                "Cria volumes novos com os mesmos nomes",
+                "Monta o diretório do host dentro do `db`",
+                "Monta no container auxiliar os mesmos volumes do `db`, nos mesmos caminhos"
+              ],
+              "answer": 3,
+              "explanation": "Assim o auxiliar enxerga `/data` sem você saber o nome do volume, e o `tar` grava o resultado em um bind mount do host (`-v $PWD:/backup`)."
+            },
+            {
+              "question": "Por que copiar com `tar` os arquivos de um Postgres em execução é arriscado?",
+              "options": [
+                "O `tar` não consegue ler arquivos abertos",
+                "O resultado é, no máximo, crash-consistent e pode não abrir sem recuperação; prefira parar o container ou usar `pg_dump`",
+                "O Docker bloqueia a leitura de volumes em uso",
+                "O `tar` troca o dono dos arquivos do banco"
+              ],
+              "answer": 1,
+              "explanation": "Com o banco gravando, o backup equivale ao disco depois de uma queda de energia. Para ter garantia, pare o container, use a ferramenta do banco ou um snapshot, e teste a restauração."
+            }
+          ]
+        }
+      ]
     }
   ]
 }

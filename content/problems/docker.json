@@ -75,5 +75,38 @@
     "topic": "Alocação do menor livre",
     "moduleSlug": "redes",
     "description": "Mantenha um conjunto infinito de inteiros com remoção do menor e devolução de valores: o mesmo desenho do ponteiro mais o conjunto de liberados que evita pré-alocar uma sub-rede /8 inteira."
+  },
+  {
+    "slug": "docker-longest-absolute-file-path",
+    "title": "Longest Absolute File Path",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/longest-absolute-file-path/",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "Caminhos de arquivos",
+    "moduleSlug": "storage",
+    "description": "Percorra uma árvore de diretórios serializada, com níveis de indentação, e ache o maior caminho absoluto até um arquivo: o raciocínio de pilha de quem monta caminhos de montagem dentro de um container."
+  },
+  {
+    "slug": "docker-remove-sub-folders-from-the-filesystem",
+    "title": "Remove Sub-Folders from the Filesystem",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/remove-sub-folders-from-the-filesystem/",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "Caminhos de arquivos",
+    "moduleSlug": "storage",
+    "description": "Remova de uma lista de pastas as que estão dentro de outra da lista: o mesmo cuidado com prefixos de caminho que decide qual montagem cobre qual diretório."
+  },
+  {
+    "slug": "docker-snapshot-array",
+    "title": "Snapshot Array",
+    "platform": "LeetCode",
+    "url": "https://leetcode.com/problems/snapshot-array/",
+    "difficulty": "medio",
+    "level": 2,
+    "topic": "Snapshots",
+    "moduleSlug": "storage",
+    "description": "Implemente um vetor que tira snapshots e consulta valores de versões antigas com busca binária: a ideia por trás do snapshot de um volume, que guarda só o que mudou em cada versão."
   }
 ]
