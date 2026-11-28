@@ -567,7 +567,7 @@ export const arquiteturaDocker: SceneDef = {
       title: "O shim fica; a resposta sobe pela cadeia",
       body: [
         "O shim avisa o containerd, que gera o evento `task start`, e o dockerd responde ao CLI com o **ID do container**. O que continua vivo em segundo plano: o dockerd, o containerd, o shim e o processo.",
-        "O shim segura o stdout e o stderr (o `docker logs` lê dali) e o código de saída. Com a opção `live-restore`, os containers continuam rodando mesmo se o dockerd for reiniciado.",
+        "O shim mantém abertos o stdout e o stderr do processo (a origem do que o `docker logs` mostra) e guarda o código de saída. Com a opção `live-restore`, os containers continuam rodando mesmo se o dockerd for reiniciado.",
       ],
       changes: ["+ evento de início", "+ ID devolvido ao CLI"],
       metrics: m3("docker CLI", "runc (já saiu)"),
@@ -593,7 +593,7 @@ export const arquiteturaDocker: SceneDef = {
       title: "O caminho completo",
       body: [
         "**docker CLI** → REST no `docker.sock` → **dockerd** → gRPC → **containerd** → **containerd-shim** → **runc** → processo. O runc cria o container e sai; o shim fica como pai do processo.",
-        "Saber quem faz o quê ajuda a depurar: um erro de rede é do dockerd; um processo que não inicia, do runc; um container que some quando o daemon cai, de uma configuração do shim e do `live-restore`.",
+        "Saber quem faz o quê ajuda a depurar: um erro de rede é do dockerd; um processo que não inicia, do runc; containers que param quando o daemon reinicia, da falta do `live-restore`.",
       ],
       metrics: m3("todas", "runc"),
       stage: seq3([A1, A2, A3, A4, A5, A6, A7, A8, A9], { laneState: { cli: { text: "terminou", tone: "ok" }, shim: { text: "supervisiona", tone: "ok" }, proc: { text: "PID 4231", tone: "ok" } } }),

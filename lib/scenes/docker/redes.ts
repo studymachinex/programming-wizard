@@ -304,7 +304,7 @@ export const redesDefinidasPeloUsuario: SceneDef = {
       nav: "IP fixo",
       title: "Usar o IP funciona, até o IP mudar",
       body: [
-        "A saída rápida é configurar a `api` com o IP do `db` (`172.17.0.3`). Funciona hoje. Se o `db` for recriado, o Docker atribui o **primeiro IP livre**, que pode ser outro: a `api` continua apontando para um endereço que já não é do banco, ou é de outro container.",
+        "A saída rápida é configurar a `api` com o IP do `db` (`172.17.0.3`). Funciona hoje. Se o `db` for recriado, o Docker atribui **um IP livre** da faixa, que pode ser outro: a `api` continua apontando para um endereço que já não é do banco, ou é de outro container.",
         "O IP é um **detalhe de execução**, e não uma identidade estável. O `--link` resolvia nomes, mas é um recurso legado e não deve ser usado em projetos novos.",
       ],
       changes: ["db recriado com 172.17.0.4", "api ainda aponta para 172.17.0.3"],
@@ -621,16 +621,25 @@ export const portasIptablesMacvlan: SceneDef = {
       nav: "Interface auxiliar",
       title: "Uma interface macvlan no host fecha o caminho",
       body: [
-        "A solução é dar ao próprio host uma **interface macvlan** (`mac0`) no mesmo pai, com uma rota só para o container. Agora o host fala com ele por uma sub-interface, como qualquer outro participante da LAN.",
-        "A configuração não é persistente: recrie `mac0` no boot (systemd-networkd ou NetworkManager). Em redes onde o macvlan não é possível, o **ipvlan** (que compartilha o MAC do host) é a alternativa.",
+        "A solução é dar ao próprio host uma **interface macvlan** (`mac0`) no mesmo pai, com um IP livre da LAN e uma rota só para o container. Agora o host fala com ele por uma sub-interface, como qualquer outro participante da LAN.",
+        "A configuração não é persistente: recrie `mac0` no boot (systemd-networkd ou NetworkManager). Em redes onde o macvlan não é possível, o **ipvlan** (que compartilha o MAC do host) é a alternativa, com a mesma restrição de falar com o host.",
       ],
       cmd: "sudo ip link add mac0 link eth0 type macvlan mode bridge",
       changes: ["+ mac0 no host", "host → web: ok"],
       metrics: m10("-", "LAN, inclusive o host", "ok"),
       terminal: {
-        suggest: ["sudo ip link add mac0 link eth0 type macvlan mode bridge", "ping -c 1 192.0.2.50"],
+        suggest: [
+          "sudo ip link add mac0 link eth0 type macvlan mode bridge",
+          "sudo ip addr add 192.0.2.60/32 dev mac0",
+          "sudo ip link set mac0 up",
+          "sudo ip route add 192.0.2.50/32 dev mac0",
+          "ping -c 1 192.0.2.50",
+        ],
         outputs: {
           "sudo ip link add mac0 link eth0 type macvlan mode bridge": "",
+          "sudo ip addr add 192.0.2.60/32 dev mac0": "",
+          "sudo ip link set mac0 up": "",
+          "sudo ip route add 192.0.2.50/32 dev mac0": "",
           "ping -c 1 192.0.2.50": ["PING 192.0.2.50 (192.0.2.50) 56(84) bytes of data.", "64 bytes from 192.0.2.50: icmp_seq=1 ttl=64 time=0.31 ms", "", "--- 192.0.2.50 ping statistics ---", "1 packets transmitted, 1 received, 0% packet loss, time 0ms"].join("\n"),
         },
       },
